@@ -1,3 +1,6 @@
+[![Join the chat at https://gitter.im/sensorberg-dev/windows10-sdk](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sensorberg-dev/windows10-sdk?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+
 # Sensorberg SDK for Windows BETA #
 
 # Please note there is a BETA release. There is some issues that still need to be resolved.
