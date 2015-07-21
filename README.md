@@ -1,6 +1,7 @@
 # Sensorberg SDK for Windows BETA #
 
 # Please note there is a BETA release. There is some issues that still need to be resolved.
+Check the list of [issues](https://github.com/sensorberg-dev/windows10-sdk/issues) to see all issues.
 
 ## Compatibility ##
 
