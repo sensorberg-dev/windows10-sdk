@@ -1,0 +1,15 @@
+{
+    "activated": true,
+	"content": {
+		"body": "hello world message body ",
+		"subject": "Sensorberg Subject",
+		"url": "http://sensorberg.com",
+		"payload": "anything"
+	},
+    "createdTime": 1418139320000,
+    "eid": "69f6cebb-6c2c-4942-84f9-7df1f2100f13",
+    "name": null,
+    "type": 1,
+    "updateTime": 1418139320000,
+    "visibility": 0
+}

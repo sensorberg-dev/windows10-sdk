@@ -1,0 +1,132 @@
+{
+    "accountProximityUUIDs": [
+        "7367672374000000ffff0000ffff0001",
+        "7367672374000000ffff0000ffff1337"
+    ],
+    "actions": [
+        {
+            "eid": "bc8b7b6142ee4fa6ab4e8f55c2d9a37e",
+            "trigger": 1,
+            "delay": 60,
+            "beacons": [
+                "7367672374000000ffff0000ffff13370133701337"
+            ],
+            "supressionTime": -1,
+            "content": {
+                "body": "with delay",
+                "payload": {},
+                "subject": "delay 1 minute",
+                "url": "http://www.falkorichter.de"
+            },
+            "type": 1,
+            "timeframes": [
+                {
+                    "start": "2015-04-02T15:19:28Z"
+                }
+            ],
+            "sendOnlyOnce": false,
+            "typeString": "notification"
+        },
+        {
+            "eid": "0bc90a97c73f40dfb3e98ddb21e5ee35",
+            "trigger": 1,
+            "beacons": [
+                "7367672374000000ffff0000ffff13370133701337"
+            ],
+            "supressionTime": -1,
+            "content": {
+                "body": "leet",
+                "payload": {
+                    "icon": "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"
+                },
+                "subject": "icon",
+                "url": "http://www.falkorichter.de"
+            },
+            "type": 1,
+            "timeframes": [
+                {
+                    "start": "2015-04-02T15:09:43Z"
+                }
+            ],
+            "sendOnlyOnce": false,
+            "typeString": "notification"
+        },
+        {
+            "eid": "349343ce6b1f48e2a911adf6ec645fbb",
+            "trigger": 1,
+            "beacons": [
+                "7367672374000000ffff0000ffff00011007413474"
+            ],
+            "supressionTime": -1,
+            "content": {
+                "body": "Show the coupon to the cashier and save big time!",
+                "payload": {
+                    "couponCode": "874g8703085b8ion4jbo",
+                    "message": "Redeem this awesome coupon",
+                    "title": "such wow",
+                    "vibrationPattern": [
+                        100,
+                        0,
+                        100,
+                        200
+                    ]
+                },
+                "subject": "Save a lot of money",
+                "url": "coupon://redeem"
+            },
+            "type": 3,
+            "timeframes": [
+                {
+                    "start": "2015-04-07T09:23:44Z"
+                }
+            ],
+            "sendOnlyOnce": false,
+            "typeString": "function"
+        },
+        {
+            "eid": "31b4ed782f684a719ffa4abafce74bc2",
+            "trigger": 1,
+            "delay": 300,
+            "beacons": [
+                "7367672374000000ffff0000ffff13370133701337"
+            ],
+            "supressionTime": -1,
+            "content": {
+                "body": "delay 5 minutes",
+                "payload": {},
+                "subject": "enter delay 5 minutes",
+                "url": "http://www.falkorichter.de"
+            },
+            "type": 1,
+            "timeframes": [
+                {
+                    "start": "2015-04-02T15:19:20Z"
+                }
+            ],
+            "sendOnlyOnce": false,
+            "typeString": "notification"
+        },
+        {
+            "eid": "1b38f8c7b7c342d39b111e62e756501b",
+            "trigger": 2,
+            "beacons": [
+                "7367672374000000ffff0000ffff13370133701337"
+            ],
+            "supressionTime": -1,
+            "content": {
+                "body": "exit",
+                "payload": {},
+                "subject": "exit",
+                "url": "http://home.fhtw-berlin.de/~s0518155/"
+            },
+            "type": 1,
+            "timeframes": [
+                {
+                    "start": "2015-04-02T15:19:38Z"
+                }
+            ],
+            "sendOnlyOnce": false,
+            "typeString": "notification"
+        }
+    ]
+}

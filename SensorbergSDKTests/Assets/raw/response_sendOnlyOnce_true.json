@@ -1,0 +1,30 @@
+{
+    "accountProximityUUIDs": [
+        "7367672374000000ffff0000ffff0007"
+    ],
+    "actions": [
+        {
+            "eid": "2308b1bea24c4270ad83bf8d95ea4dab",
+            "trigger": 2,
+            "beacons": [
+                "7367672374000000ffff0000ffff00070800800005"
+            ],
+            "supressionTime": -1,
+            "content": {
+                "body": "world",
+                "payload": {},
+                "subject": "hello",
+                "url": "http://www.microsoft.com"
+            },
+            "type": 2,
+            "timeframes": [
+                {
+                    "start": "2015-04-09T15:18:59Z"
+                }
+            ],
+            "sendOnlyOnce": true,
+			"reportImmediately": true,
+            "typeString": "website"
+        }
+    ]
+}

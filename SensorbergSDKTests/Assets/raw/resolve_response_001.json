@@ -1,0 +1,77 @@
+{
+    "accountProximityUUIDs": [
+        "7367672374000000ffff0000ffff0001",
+        "7367672374000000ffff0000ffff0002",
+        "7367672374000000ffff0000ffff0003",
+        "7367672374000000ffff0000ffff0004"
+    ],
+    "actions": [
+        {
+            "eid": "D0F8A7-B0CF-446D-981B-F33077997FA8",
+            "trigger": 3,
+            "type": 1,
+            "name": "name-entry-exit-1-2",
+            "beacons": [
+                "7367672374000000ffff0000ffff00010133701337",
+                "7367672374000000ffff0000ffff00020133701337"
+            ],
+            "suppressionTime": 0,
+            "delay": 0,
+            "reportImmediately": false,
+            "content": {
+                "body": "hello world message body ",
+                "subject": "Sensorberg Subject",
+                "url": "http://sensorberg.com",
+                "payload": "anything"
+            }
+        },
+        {
+            "eid": "F16FB576-CD77-4B1E-8B16-654A7CDACFFA",
+            "trigger": 1,
+            "type": 2,
+            "name": "name-entry-1-3",
+            "beacons": [
+                "7367672374000000ffff0000ffff00010133701337",
+                "7367672374000000ffff0000ffff00030133701337"
+            ],
+            "suppressionTime": 0,
+            "delay": 0,
+            "reportImmediately": false,
+            "content": {
+                "url": "http://sensorberg.com",
+                "payload": "anything"
+            }
+        },
+        {
+            "eid": "B763C589-3AC4-445B-97E3-5866557A91E5",
+            "trigger": 2,
+            "type": 3,
+            "name": "name-exit-1-4",
+            "beacons": [
+                "7367672374000000ffff0000ffff00010133701337",
+                "7367672374000000ffff0000ffff00040133701337"
+            ],
+            "suppressionTime": 0,
+            "delay": 0,
+            "reportImmediately": false,
+            "content": {
+                "url": "sensorberg://something",
+                "payload": "anything"
+            }
+        }
+    ],
+    "instantActions": [
+        {
+            "eid": "03403819-3C8B-4B6A-AA15-A3E1F562EF1F",
+            "type": 3,
+            "name": "name-instantAction",
+            "delay": 0,
+            "content": {
+                "body": "hello world message body ",
+                "subject": "Sensorberg Subject",
+                "url": "http://sensorberg.com",
+                "payload": "anything"
+            }
+        }
+    ]
+}
