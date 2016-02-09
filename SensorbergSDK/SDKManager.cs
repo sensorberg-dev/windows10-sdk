@@ -245,7 +245,7 @@ namespace SensorbergSDK
         /// background task filters available and updates them if so.
         /// </summary>
         /// <param name="apiKey">The API key for the Sensorberg service.</param>
-        public async void InitializeAsync(string apiKey)
+        public async Task InitializeAsync(string apiKey)
         {
             SDKData sdkData = SDKData.Instance;
 

@@ -25,7 +25,7 @@ namespace SensorbergSDK.Internal
 
         public const int Id1LengthWithoutDashes = 32;
         public const int MinimumLayoutContentLength = 10; // Arbitrary value to make sure that empty layouts are not validated
-        public const int BeaconExitDelayInMilliseconds = 9000;
+        public const int BeaconExitDelayInMilliseconds = 1000;
     }
 
     /// <summary>
