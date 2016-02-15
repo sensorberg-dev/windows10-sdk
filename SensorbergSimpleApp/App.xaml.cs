@@ -26,9 +26,9 @@ namespace SensorbergSimpleApp
         public App()
         {
             TelemetryClient = new Microsoft.ApplicationInsights.TelemetryClient();
-
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+            Microsoft.HockeyApp.HockeyClient.Current.Configure("b69e24ed88044e8eb5c6b60bffb11edd");
         }
 
         /// <summary>

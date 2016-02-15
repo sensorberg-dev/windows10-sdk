@@ -30,6 +30,7 @@ namespace SensorbergTrafficLightApp
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+            Microsoft.HockeyApp.HockeyClient.Current.Configure("98c7d82057214fb191051edda7d38e12");
         }
 
         /// <summary>
