@@ -1,0 +1,3 @@
+MainPackage=C:\WHALLA\Sensorberg\windows10-sdk\SensorbergSimpleApp\bin\ARM\Debug\SensorbergSimpleApp_1.0.2.0_ARM_Debug.appx
+SymbolPackage=C:\WHALLA\Sensorberg\windows10-sdk\SensorbergSimpleApp\AppPackages\SensorbergSimpleApp_1.0.2.0_Debug_Test\SensorbergSimpleApp_1.0.2.0_ARM_Debug.appxsym
+ResourcePack=C:\WHALLA\Sensorberg\windows10-sdk\SensorbergSimpleApp\bin\ARM\Debug\SensorbergSimpleApp_1.0.2.0_scale-100.appx

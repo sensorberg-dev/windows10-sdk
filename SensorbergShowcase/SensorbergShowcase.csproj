@@ -19,7 +19,9 @@
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <PackageCertificateKeyFile>SensorbergShowcase_TemporaryKey.pfx</PackageCertificateKeyFile>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
-    <AppxBundlePlatforms>neutral</AppxBundlePlatforms>
+    <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
+    <AppxBundle>Always</AppxBundle>
+    <PackageCertificateThumbprint>8D5F355EE37DE973E40C58F5F1710DC571850922</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <DebugSymbols>true</DebugSymbols>
@@ -140,8 +142,12 @@
       <SubType>Designer</SubType>
     </AppxManifest>
     <None Include="project.json" />
+    <None Include="SensorbergShowcase_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\BadgeLogo.png" />
+    <Content Include="Assets\BadgeLogo.scale-100.png" />
+    <Content Include="Assets\DesktopLogo.png" />
     <Content Include="Assets\DesktopLogo.scale-100.png" />
     <Content Include="Assets\Graphics\Background.jpg" />
     <Content Include="Assets\Graphics\range0.png" />
@@ -149,11 +155,17 @@
     <Content Include="Assets\Graphics\range2.png" />
     <Content Include="Assets\Graphics\range3.png" />
     <Content Include="Assets\Graphics\BigBackground.jpg" />
+    <Content Include="Assets\Logo.png" />
     <Content Include="Assets\Logo.scale-100.png" />
+    <Content Include="Assets\MediumLogo.png" />
     <Content Include="Assets\MediumLogo.scale-100.png" />
+    <Content Include="Assets\SmallLogo.png" />
     <Content Include="Assets\SmallLogo.scale-100.png" />
+    <Content Include="Assets\SplashScreen.png" />
     <Content Include="Assets\SplashScreen.scale-100.png" />
+    <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\StoreLogo.scale-100.png" />
+    <Content Include="Assets\WideLogo.png" />
     <Content Include="Assets\WideLogo.scale-100.png" />
     <Content Include="Properties\default.rd.xml" />
   </ItemGroup>
@@ -173,6 +185,16 @@
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DelaySign>false</DelaySign>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

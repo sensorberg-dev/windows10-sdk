@@ -21,6 +21,10 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <ApplicationInsightsResourceId>/subscriptions/24b9db09-b93d-4e94-9799-18d6ce4c4b68/resourcegroups/Default-ApplicationInsights-CentralUS/providers/microsoft.insights/components/SensorbergSimpleApp</ApplicationInsightsResourceId>
+    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <AppxBundle>Always</AppxBundle>
+    <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
+    <PackageCertificateThumbprint>09DD7406D2FC68AC6FB015516EEB31C0A5010A9A</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <DebugSymbols>true</DebugSymbols>
@@ -107,29 +111,26 @@
     <None Include="ApplicationInsights.config" />
     <None Include="packages.config" />
     <None Include="project.json" />
+    <None Include="SensorbergSimpleApp_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\SensorbergShowcase\Assets\DesktopLogo.scale-100.png">
-      <Link>Assets\DesktopLogo.scale-100.png</Link>
-    </Content>
-    <Content Include="..\SensorbergShowcase\Assets\Logo.scale-100.png">
-      <Link>Assets\Logo.scale-100.png</Link>
-    </Content>
-    <Content Include="..\SensorbergShowcase\Assets\MediumLogo.scale-100.png">
-      <Link>Assets\MediumLogo.scale-100.png</Link>
-    </Content>
-    <Content Include="..\SensorbergShowcase\Assets\SmallLogo.scale-100.png">
-      <Link>Assets\SmallLogo.scale-100.png</Link>
-    </Content>
-    <Content Include="..\SensorbergShowcase\Assets\SplashScreen.scale-100.png">
-      <Link>Assets\SplashScreen.scale-100.png</Link>
-    </Content>
-    <Content Include="..\SensorbergShowcase\Assets\StoreLogo.scale-100.png">
-      <Link>Assets\StoreLogo.scale-100.png</Link>
-    </Content>
-    <Content Include="..\SensorbergShowcase\Assets\WideLogo.scale-100.png">
-      <Link>Assets\WideLogo.scale-100.png</Link>
-    </Content>
+    <Content Include="Assets\BadgeLogo.png" />
+    <Content Include="Assets\BadgeLogo.scale-100.png" />
+    <Content Include="Assets\DesktopLogo.png" />
+    <Content Include="Assets\DesktopLogo.scale-100.png" />
+    <Content Include="Assets\Logo.png" />
+    <Content Include="Assets\Logo.scale-100.png" />
+    <Content Include="Assets\MediumLogo.png" />
+    <Content Include="Assets\MediumLogo.scale-100.png" />
+    <Content Include="Assets\placeholder.txt" />
+    <Content Include="Assets\SmallLogo.png" />
+    <Content Include="Assets\SmallLogo.scale-100.png" />
+    <Content Include="Assets\SplashScreen.png" />
+    <Content Include="Assets\SplashScreen.scale-100.png" />
+    <Content Include="Assets\StoreLogo.png" />
+    <Content Include="Assets\StoreLogo.scale-100.png" />
+    <Content Include="Assets\WideLogo.png" />
+    <Content Include="Assets\WideLogo.scale-100.png" />
     <Content Include="Properties\Default.rd.xml" />
   </ItemGroup>
   <ItemGroup>

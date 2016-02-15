@@ -1,7 +1,9 @@
 ﻿using SensorbergSDK.Internal;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
+using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
 
 namespace SensorbergSDK
@@ -206,7 +208,6 @@ namespace SensorbergSDK
 		private void OnAdvertisementReceived(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
 		{
             Beacon beacon = BeaconFactory.BeaconFromBluetoothLEAdvertisementReceivedEventArgs(args);
-
 			if (beacon != null)
 			{
                 bool isExistingBeacon = _beaconsContainer.Update(beacon);

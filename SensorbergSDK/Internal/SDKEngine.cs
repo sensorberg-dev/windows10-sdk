@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -182,6 +183,11 @@ namespace SensorbergSDK.Internal
         /// <returns></returns>
         public async Task ResolveBeaconAction(BeaconEventArgs eventArgs)
         {
+            if (eventArgs.EventType != BeaconEventType.None)
+            {
+                Debug.WriteLine("Beacon action resolved = " + eventArgs.Beacon.Code + ", " + eventArgs.EventType);
+            }
+
             if (IsInitialized && eventArgs != null && eventArgs.EventType != BeaconEventType.None)
             {
                 UnresolvedActionCount++;
