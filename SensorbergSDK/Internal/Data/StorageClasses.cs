@@ -41,7 +41,7 @@ namespace SensorbergSDK.Internal
         public HistoryEvent(DBHistoryEvent dbEvent)
         {
             pid = dbEvent.pid;
-            dt = dbEvent.dt.ToString();
+            dt = dbEvent.dt.ToString("s");
             trigger = dbEvent.trigger;
         }
         [DataMember]
@@ -59,7 +59,7 @@ namespace SensorbergSDK.Internal
         {
             eid = dbAction.eid;
             pid = dbAction.pid;
-            dt = dbAction.dt.ToString();
+            dt = dbAction.dt.ToString("s");
             trigger = dbAction.trigger;
         }
         [DataMember]

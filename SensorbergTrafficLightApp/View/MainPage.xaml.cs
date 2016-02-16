@@ -94,7 +94,7 @@ namespace SensorbergTrafficLightApp
 
         private async void OnBeaconActionResolved(object sender, BeaconAction e)
         {
-            Debug.WriteLine("Beacon action resolved = " + e.Body + ", " + e.Payload);
+            Debug.WriteLine("Beacon action resolved" + e.Body + ", " + e.Payload);
             if (e.Payload != null && e.Payload.ContainsKey(COLOR_KEY))
             {
                 TrafficStates state;

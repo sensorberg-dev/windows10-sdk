@@ -124,7 +124,7 @@ namespace SensorbergSDK.Internal
                             CheckPendingBeaconActionsFromBackgroundIntervalInMilliseconds);
 
                     // Check for possible delayed actions
-                    await ProcessDelayedActionsAsync(true);
+                    await ProcessDelayedActionsAsync();
                     await CleanDatabaseAsync();
                 }
 
@@ -183,11 +183,6 @@ namespace SensorbergSDK.Internal
         /// <returns></returns>
         public async Task ResolveBeaconAction(BeaconEventArgs eventArgs)
         {
-            if (eventArgs.EventType != BeaconEventType.None)
-            {
-                Debug.WriteLine("Beacon action resolved = " + eventArgs.Beacon.Code + ", " + eventArgs.EventType);
-            }
-
             if (IsInitialized && eventArgs != null && eventArgs.EventType != BeaconEventType.None)
             {
                 UnresolvedActionCount++;
@@ -211,8 +206,7 @@ namespace SensorbergSDK.Internal
         /// <summary>
         /// Handles delayed beacon actions resolved earlier.
         /// </summary>
-        /// <param name="resetTimer"></param>
-        public async Task ProcessDelayedActionsAsync(bool resetTimer)
+        public async Task ProcessDelayedActionsAsync()
         {
             DateTimeOffset nearestDueTime = DateTimeOffset.MaxValue;
 
@@ -259,11 +253,6 @@ namespace SensorbergSDK.Internal
             if (!shouldSupress && !checkOnlyOnce && resolvedAction.IsInsideTimeframes(DateTimeOffset.Now))
             {
                 await _eventHistory.SaveExecutedResolvedActionAsync(resolvedAction.BeaconAction, beaconPid, beaconEventType);
-
-                if (resolvedAction.ReportImmediately)
-                {
-                    await _eventHistory.FlushHistoryAsync();
-                }
 
                 if (BeaconActionResolved != null)
                 {
@@ -384,7 +373,7 @@ namespace SensorbergSDK.Internal
 
         private async void OnProcessDelayedActionsTimerTimeoutAsync(object state)
         {
-            await ProcessDelayedActionsAsync(true);
+            await ProcessDelayedActionsAsync();
         }
 
         private async void OnFlushHistoryTimerTimeoutAsync(object state)

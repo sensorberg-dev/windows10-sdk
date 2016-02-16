@@ -7,6 +7,7 @@ using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Net;
+using System.Runtime.Serialization;
 using System.Threading;
 
 namespace SensorbergSDK.Internal
@@ -160,18 +161,15 @@ namespace SensorbergSDK.Internal
 
                         if (responseMessage.StatusCode == HttpStatusCode.OK)
                         {
-                            //TODO: When the server is ready move lines from the below here. Server needs to answer 400 OK for us
-                            //to set events and actions as delivered state
-                        }
+                            if ((history.events != null && history.events.Count > 0))
+                            {
+                                await _storage.SetEventsAsDeliveredAsync();
+                            }
 
-                        if ((history.events != null && history.events.Count > 0))
-                        {
-                            await _storage.SetEventsAsDeliveredAsync();
-                        }
-
-                        if (history.actions != null && history.actions.Count > 0)
-                        {
-                            await _storage.SetActionsAsDeliveredAsync();
+                            if (history.actions != null && history.actions.Count > 0)
+                            {
+                                await _storage.SetActionsAsDeliveredAsync();
+                            }
                         }
                     }
                 }
