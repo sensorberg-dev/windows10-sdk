@@ -9,6 +9,7 @@ using System.Text;
 using System.Net;
 using System.Runtime.Serialization;
 using System.Threading;
+using SensorbergSDK.Internal.Utils;
 
 namespace SensorbergSDK.Internal
 {
@@ -155,6 +156,7 @@ namespace SensorbergSDK.Internal
                         HttpClient httpClient = new HttpClient();
                         httpClient.DefaultRequestHeaders.Add(Constants.XApiKey, SDKData.Instance.ApiKey);
                         httpClient.DefaultRequestHeaders.Add(Constants.Xiid, SDKData.Instance.DeviceId);
+                        bool result =httpClient.DefaultRequestHeaders.TryAddWithoutValidation(Constants.XUserAgent, UserAgentBuilder.BuildUserAgentJson());
                         var content = new StringContent(sr.ReadToEnd(), Encoding.UTF8, "application/json");
 
                         HttpResponseMessage responseMessage = await httpClient.PostAsync(new Uri(Constants.LayoutApiUriAsString), content);
@@ -173,7 +175,7 @@ namespace SensorbergSDK.Internal
                         }
                     }
                 }
-                catch (Exception)
+                catch 
                 {
                 }
 

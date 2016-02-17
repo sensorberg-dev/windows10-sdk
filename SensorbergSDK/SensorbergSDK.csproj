@@ -107,6 +107,7 @@
     <Compile Include="BeaconAction.cs" />
     <Compile Include="BackgroundTaskManager.cs" />
     <Compile Include="Internal\Data\BeaconContainer.cs" />
+    <Compile Include="Internal\Data\UserAgentModel.cs" />
     <Compile Include="Internal\SDKEngine.cs" />
     <Compile Include="Internal\Utils\ActionFactory.cs" />
     <Compile Include="Advertiser.cs" />
@@ -126,6 +127,8 @@
     <Compile Include="Internal\Transport\Layout.cs" />
     <Compile Include="Internal\Transport\LayoutManager.cs" />
     <Compile Include="Internal\Utils\NotificationUtils.cs" />
+    <Compile Include="Internal\Utils\SystemInfoHelper.cs" />
+    <Compile Include="Internal\Utils\UserAgentBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Internal\ResolvedActionsEventArgs.cs" />
     <Compile Include="Internal\Resolver.cs" />

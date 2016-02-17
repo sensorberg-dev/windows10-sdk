@@ -21,7 +21,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <ApplicationInsightsResourceId>/subscriptions/24b9db09-b93d-4e94-9799-18d6ce4c4b68/resourcegroups/Default-ApplicationInsights-CentralUS/providers/microsoft.insights/components/SensorbergSimpleApp</ApplicationInsightsResourceId>
-    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
     <PackageCertificateThumbprint>09DD7406D2FC68AC6FB015516EEB31C0A5010A9A</PackageCertificateThumbprint>

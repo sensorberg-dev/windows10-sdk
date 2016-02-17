@@ -10,6 +10,7 @@ namespace SensorbergSDK.Internal
         public const string Xpid = "X-pid"; // Request layout with beacon pid
         public const string Xgeo = "X-geo"; // Request layout for given geo location
         public const string Xqos = "X-qos"; // Connection type
+        public const string XUserAgent = "User-Agent"; // user agent
 
         public const string DemoApiKey = "04a709a208c83e2bc0ec66871c46d35af49efde5151032b3e865768bbf878db8";
 
