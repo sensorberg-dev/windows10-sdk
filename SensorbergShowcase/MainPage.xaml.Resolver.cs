@@ -1,5 +1,6 @@
 ﻿using SensorbergSDK;
 using System;
+using System.Diagnostics;
 using Windows.Foundation;
 using Windows.UI.Notifications;
 using Windows.UI.Popups;
@@ -8,11 +9,13 @@ using Windows.UI.Xaml.Controls;
 
 namespace SensorbergShowcase
 {
-	/// <summary>
-	/// Implementation for handling resolved beacon events and possible error situations.
-	/// </summary>
-	public sealed partial class MainPage : Page
-	{
+    /// <summary>
+    /// Implementation for handling resolved beacon events and possible error situations.
+    /// </summary>
+    public sealed partial class MainPage : Page
+    {
+        private bool _messageDialogIsOpen;
+
         public bool IsLayoutValid
         {
             get
@@ -28,7 +31,6 @@ namespace SensorbergShowcase
             DependencyProperty.Register("IsLayoutValid", typeof(bool), typeof(MainPage),
                 new PropertyMetadata(false));
 
-        private IAsyncOperation<IUICommand> _beaconActionDialogOperation;
 
         /// <summary>
         /// Hooks the resolver specific events.
@@ -59,34 +61,66 @@ namespace SensorbergShowcase
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private async void OnBeaconActionResolvedAsync(object sender, BeaconAction e)
-		{
-            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
-                Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+        {
+            if (_messageDialogIsOpen)
             {
-                MessageDialog messageDialog = e.ToMessageDialog();
+                return;
+            }
 
-                switch (e.Type)
-                {
-                    case BeaconActionType.UrlMessage:
-                    case BeaconActionType.VisitWebsite:
-                        messageDialog.Commands.Add(new UICommand("Yes",
-                            new UICommandInvokedHandler(async (command) =>
-                            {
-                                await Windows.System.Launcher.LaunchUriAsync(new Uri(e.Url));
-                                _beaconActionDialogOperation.Cancel();
-                                _beaconActionDialogOperation = null;
-                            })));
 
-                        messageDialog.Commands.Add(new UICommand("No"));
+            MessageDialog messageDialog = e.ToMessageDialog();
 
-                        _beaconActionDialogOperation = messageDialog.ShowAsync();
-                        break;
+            switch (e.Type)
+            {
+                case BeaconActionType.UrlMessage:
+                case BeaconActionType.VisitWebsite:
+                    messageDialog.Commands.Add(new UICommand("Yes",
+                        new UICommandInvokedHandler(async (command) =>
+                        {
+                            await Windows.System.Launcher.LaunchUriAsync(new Uri(e.Url));
+                        })));
 
-                    case BeaconActionType.InApp:
-                        await messageDialog.ShowAsync();
-                        break;
-                }
-            });
+                    messageDialog.Commands.Add(new UICommand("No"));
+
+
+                    Debug.WriteLine("Message dialog is open");
+                    _messageDialogIsOpen = true;
+                    await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                    {
+                        try
+                        {
+                            await messageDialog.ShowAsync();
+                        }
+                        catch
+                        {
+                            //For showing more than one message dialog at one time.
+                        }
+                    });
+
+                    Debug.WriteLine("Message dialog is closed");
+                    _messageDialogIsOpen = false;
+
+
+                    break;
+
+                case BeaconActionType.InApp:
+
+                    _messageDialogIsOpen = true;
+                    await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                    {
+                        try
+                        {
+                            await messageDialog.ShowAsync();
+                        }
+                        catch
+                        {
+                            //For showing more than one message dialog at one time.
+                        }
+                    });
+                    _messageDialogIsOpen = false;
+
+                    break;
+            }
         }
 
         /// <summary>
