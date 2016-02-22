@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK.Internal
 {
@@ -33,9 +35,11 @@ namespace SensorbergSDK.Internal
         private Timer _processDelayedActionsTimer;
         private Timer _flushHistoryTimer;
         private Timer _updateVisibilityTimer;
+        private Timer _getLayoutTimer;
         private Timer _fetchActionsResolvedByBackgroundTimer;
         private DateTimeOffset _nextTimeToProcessDelayedActions;
         private bool _appIsOnForeground;
+        private AppSettings _appSettings;
 
         /// <summary>
         /// Indicates whether the SDK engine is initialized and ready to function or not.
@@ -95,6 +99,8 @@ namespace SensorbergSDK.Internal
         {
             if (!IsInitialized)
             {
+                _appSettings = await SettingsManager.Instance.GetSettingsAsync();
+                SettingsManager.Instance.SettingsUpdated += OnSettingsUpdated;
                 //Ensures that database tables are created
                 await Storage.Instance.CreateDBAsync();
 
@@ -103,15 +109,17 @@ namespace SensorbergSDK.Internal
                 // We force to update the cache on the foreground only
                 await UpdateCacheAsync(_appIsOnForeground);
 
+                Resolver.ActionsResolved -= OnBeaconActionResolvedAsync;
                 Resolver.ActionsResolved += OnBeaconActionResolvedAsync;
+                Resolver.FailedToResolveActions -= OnResolverFailedToResolveActions;
                 Resolver.FailedToResolveActions += OnResolverFailedToResolveActions;
 
                 if (_appIsOnForeground)
                 {
+                    var historyTimeSpan = TimeSpan.FromMilliseconds(_appSettings.HistoryUploadInterval);
+
                     _flushHistoryTimer =
-                        new Timer(OnFlushHistoryTimerTimeoutAsync, null,
-                            SDKData.Instance.ReportIntervalInSeconds * 1000,
-                            SDKData.Instance.ReportIntervalInSeconds * 1000);
+                        new Timer(OnFlushHistoryTimerTimeoutAsync, null, historyTimeSpan, historyTimeSpan);
 
                     _updateVisibilityTimer =
                         new Timer(OnUpdateVisibilityTimerTimeout, null,
@@ -123,6 +131,9 @@ namespace SensorbergSDK.Internal
                             CheckPendingBeaconActionsFromBackgroundIntervalInMilliseconds,
                             CheckPendingBeaconActionsFromBackgroundIntervalInMilliseconds);
 
+                    var layoutTimeSpam = TimeSpan.FromMilliseconds(_appSettings.LayoutUpdateInterval);
+                    _getLayoutTimer = new Timer(OnLayoutUpdatedAsync,null, layoutTimeSpam, layoutTimeSpam);
+
                     // Check for possible delayed actions
                     await ProcessDelayedActionsAsync();
                     await CleanDatabaseAsync();
@@ -130,6 +141,17 @@ namespace SensorbergSDK.Internal
 
                 IsInitialized = true;
             }
+        }
+
+        private void OnSettingsUpdated(object sender, SettingsEventArgs settingsEventArgs)
+        {
+            _appSettings = settingsEventArgs.Settings;
+
+            var historyIntervalTimeSpan = TimeSpan.FromMilliseconds(_appSettings.HistoryUploadInterval);
+            _flushHistoryTimer.Change(historyIntervalTimeSpan, historyIntervalTimeSpan);
+
+            var layoutUploadIntervalTimespan = TimeSpan.FromMilliseconds(_appSettings.LayoutUpdateInterval);
+            _getLayoutTimer.Change(layoutUploadIntervalTimespan, layoutUploadIntervalTimespan);
         }
 
         /// <summary>
@@ -378,7 +400,13 @@ namespace SensorbergSDK.Internal
 
         private async void OnFlushHistoryTimerTimeoutAsync(object state)
         {
+            Debug.WriteLine("History flushed.");
             await _eventHistory.FlushHistoryAsync();
+        }
+
+        private async void OnLayoutUpdatedAsync(object state)
+        {
+            await UpdateCacheAsync(true);
         }
 
         private void OnUpdateVisibilityTimerTimeout(object state)

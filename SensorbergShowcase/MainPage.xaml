@@ -69,7 +69,7 @@
                         Margin="0,6,0,0"
                         Style="{ThemeResource BodyTextBlockStyle}"
                         FontWeight="ExtraLight"
-                        Text="Beacon ID 1" />
+                        Text="Beacon UUID" />
                     <TextBox
                         x:Name="beaconId1TextBox"
                         Margin="0,6,0,0"
@@ -87,7 +87,7 @@
 						        Margin="0,12,0,0"
 								Style="{ThemeResource BodyTextBlockStyle}"
 								FontWeight="ExtraLight"
-								Text="Beacon ID 2" />
+								Text="Major" />
                             <TextBox
 								x:Name="beaconId2TextBox"
                                 Margin="0,6,6,0"
@@ -101,7 +101,7 @@
 								Margin="6,12,0,0"
 								Style="{ThemeResource BodyTextBlockStyle}"
 								FontWeight="ExtraLight"
-								Text="Beacon ID 3" />
+								Text="Minor" />
                             <TextBox
 								x:Name="beaconId3TextBox"
                                 Margin="6,6,0,0"

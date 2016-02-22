@@ -1,2 +1,2 @@
-MainPackage=C:\WHALLA\Sensorberg\windows10-sdk\SensorbergTrafficLightApp\bin\x86\Release\SensorbergTrafficLightApp_1.0.0.0_x86.appx
-SymbolPackage=C:\WHALLA\Sensorberg\windows10-sdk\SensorbergTrafficLightApp\AppPackages\SensorbergTrafficLightApp_1.0.0.0_Test\SensorbergTrafficLightApp_1.0.0.0_x86.appxsym
+MainPackage=C:\WHALLA\Sensorberg\windows10-sdk\SensorbergTrafficLightApp\bin\x86\Release\SensorbergTrafficLightApp_1.0.1.0_x86.appx
+SymbolPackage=C:\WHALLA\Sensorberg\windows10-sdk\SensorbergTrafficLightApp\AppPackages\SensorbergTrafficLightApp_1.0.1.0_Test\SensorbergTrafficLightApp_1.0.1.0_x86.appxsym

@@ -65,6 +65,15 @@ namespace SensorbergTrafficLightApp
 
                 _bluetoothNotOnDialogOperation = messageDialog.ShowAsync();
             }
+
+            if (e == ScannerStatus.Stopped)
+            {
+                Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
+                        CoreDispatcherPriority.Normal, () =>
+                        {
+                            SetLightState(TrafficStates.Red);
+                        });
+            }
         }
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)

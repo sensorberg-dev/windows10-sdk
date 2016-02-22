@@ -234,7 +234,7 @@ namespace SensorbergSDK
                 advertisementWatcherTrigger.SignalStrengthFilter.SamplingInterval = advertisementWatcherTrigger.MaxSamplingInterval;
                 advertisementWatcherTrigger.SignalStrengthFilter.InRangeThresholdInDBm = SignalStrengthFilterInRangeThresholdInDBm;
                 advertisementWatcherTrigger.SignalStrengthFilter.OutOfRangeThresholdInDBm = SignalStrengthFilterOutOfRangeThresholdInDBm;
-                advertisementWatcherTrigger.SignalStrengthFilter.OutOfRangeTimeout = TimeSpan.FromMilliseconds(Constants.BeaconExitDelayInMilliseconds);
+                advertisementWatcherTrigger.SignalStrengthFilter.OutOfRangeTimeout = TimeSpan.FromMilliseconds(Constants.DefaultBeaconExitTimeout);
                 
                 trigger = advertisementWatcherTrigger;
 

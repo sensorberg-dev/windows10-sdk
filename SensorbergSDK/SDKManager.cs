@@ -4,6 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.UI.Core;
+using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK
 {
@@ -14,6 +16,7 @@ namespace SensorbergSDK
     {
         public static readonly string DemoApiKey = Constants.DemoApiKey;
         private int StartScannerIntervalInMilliseconds = 2000;
+        private AppSettings _appSettings;
 
         /// <summary>
         /// Fired when a beacon action has been successfully resolved and is ready to be exeuted.
@@ -100,7 +103,7 @@ namespace SensorbergSDK
         /// </summary>
         public Scanner Scanner
         {
-			get
+            get
             {
                 return Scanner.Instance;
             }
@@ -183,12 +186,12 @@ namespace SensorbergSDK
         /// True, if the scanner is running. False otherwise.
         /// </summary>
 		public bool IsScannerStarted
-		{
-			get
-			{
-				return (Scanner.Status == ScannerStatus.Started);
-			}
-		}
+        {
+            get
+            {
+                return (Scanner.Status == ScannerStatus.Started);
+            }
+        }
 
         /// <summary>
         /// True, if a layout has been retrieved and is valid.
@@ -249,17 +252,38 @@ namespace SensorbergSDK
         {
             SDKData sdkData = SDKData.Instance;
 
-			if (!IsInitialized)
-			{
-				sdkData.ApiKey = apiKey;
+            if (!IsInitialized)
+            {
+                sdkData.ApiKey = apiKey;
                 await _sdkEngine.InitializeAsync();
-			}
+                _appSettings = await SettingsManager.Instance.GetSettingsAsync();
+                SettingsManager.Instance.SettingsUpdated += OnSettingsUpdated;
+            }
 
             if (sdkData.BackgroundTaskEnabled)
             {
                 await UpdateBackgroundTaskIfNeededAsync();
             }
 
+            StartScanner();
+        }
+
+        private void OnSettingsUpdated(object sender, SettingsEventArgs settingsEventArgs)
+        {
+            var oldTimeout = _appSettings.BeaconExitTimeout;
+            var oldRssiThreshold = _appSettings.RssiEnterThreshold;
+            var oldDistanceThreshold = _appSettings.EnterDistanceThreshold;
+
+            _appSettings = settingsEventArgs.Settings;
+
+            bool settingsAreTheSame = _appSettings.BeaconExitTimeout == oldTimeout && _appSettings.RssiEnterThreshold == oldRssiThreshold && _appSettings.EnterDistanceThreshold == oldDistanceThreshold;
+
+            if (settingsAreTheSame)
+            {
+                return;
+            }
+
+            StopScanner();
             StartScanner();
         }
 
@@ -294,10 +318,10 @@ namespace SensorbergSDK
         public async Task<BackgroundTaskRegistrationResult> UpdateBackgroundTaskIfNeededAsync()
         {
             BackgroundTaskRegistrationResult result = new BackgroundTaskRegistrationResult()
-                {
-                    success = true,
-                    exception = null
-                };
+            {
+                success = true,
+                exception = null
+            };
 
             if (BackgroundTaskManager.CheckIfBackgroundFilterUpdateIsRequired())
             {
@@ -328,7 +352,7 @@ namespace SensorbergSDK
             {
                 _scannerShouldBeRunning = true;
                 Scanner.BeaconEvent += OnBeaconEventAsync;
-				Scanner.StartWatcher(ManufacturerId, BeaconCode);
+                Scanner.StartWatcher(ManufacturerId, BeaconCode, _appSettings.BeaconExitTimeout, _appSettings.RssiEnterThreshold, _appSettings.EnterDistanceThreshold);
             }
         }
 
@@ -338,10 +362,11 @@ namespace SensorbergSDK
         public void StopScanner()
         {
             _scannerShouldBeRunning = false;
+            Scanner.StatusChanged -= OnScannerStatusChanged;
 
             if (Scanner.Status == ScannerStatus.Started)
             {
-				Scanner.BeaconEvent -= OnBeaconEventAsync;
+                Scanner.BeaconEvent -= OnBeaconEventAsync;
                 Scanner.StopWatcher();
             }
         }
@@ -406,7 +431,7 @@ namespace SensorbergSDK
             if (e != ScannerStatus.Started)
             {
                 Scanner.BeaconEvent -= OnBeaconEventAsync;
-                
+
                 if (_scannerShouldBeRunning)
                 {
                     _startScannerTimer = new Timer(StartScannerTimerCallback, null, StartScannerIntervalInMilliseconds, Timeout.Infinite);

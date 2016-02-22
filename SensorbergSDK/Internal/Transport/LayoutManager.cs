@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -85,7 +86,7 @@ namespace SensorbergSDK.Internal
             return InternalVerifyLayoutAsync(forceUpdate).AsAsyncOperation<bool>();
         }
 
-        internal async Task<bool> InternalVerifyLayoutAsync(bool forceUpdate)
+        private async Task<bool> InternalVerifyLayoutAsync(bool forceUpdate)
         {
             if (forceUpdate || !CheckLayoutValidity())
             {
@@ -104,6 +105,7 @@ namespace SensorbergSDK.Internal
                     if (freshLayout != null)
                     {
                         _layout = freshLayout;
+                        Debug.WriteLine("Layout changed.");
                     }
                 }
             }

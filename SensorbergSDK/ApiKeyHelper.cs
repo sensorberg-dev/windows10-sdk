@@ -154,8 +154,6 @@ namespace SensorbergSDK
                     uri = new Uri(ApplicationsUrl);
                     client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue(authToken);
 
-                    responseAsString = string.Empty;
-
                     try
                     {
                         responseAsString = await client.GetStringAsync(uri);
@@ -179,7 +177,16 @@ namespace SensorbergSDK
                             if (applicationValue.ValueType == JsonValueType.Object)
                             {
                                 JsonObject applicationObject = applicationValue.GetObject();
-                                string apiKey = applicationObject.GetNamedString(KeyApiKey);
+                                string apiKey = string.Empty;
+
+                                var apiKeyValue = applicationObject[KeyApiKey];
+                                if (apiKeyValue.ValueType == JsonValueType.Null)
+                                {
+                                    continue;
+                                }
+
+                                apiKey = applicationObject.GetNamedString(KeyApiKey);
+
                                 string applicationName = applicationObject.GetNamedString(KeyName);
                                 string platform = applicationObject.GetNamedString(KeyPlatform);
 

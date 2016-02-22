@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
+using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK
 {
@@ -19,59 +21,53 @@ namespace SensorbergSDK
     /// Bluetooth LE advertisement scanner helper class with beacon list management.
     /// </summary>
 	public sealed class Scanner
-	{
-		private const int TimerIntervalInMilliseconds = 1000;
-		private const int BeaconNotSeenDelayInMilliseconds = 2000;
-
+    {
         /// <summary>
         /// Triggered when the scanner is either started, stopped or aborted.
         /// Aborted status may indicate that the bluetooth has not been turned on on the device.
         /// </summary>
-		public event EventHandler<ScannerStatus> StatusChanged;
+        public event EventHandler<ScannerStatus> StatusChanged;
 
-		public event EventHandler<BeaconEventArgs> BeaconEvent;
+        public event EventHandler<BeaconEventArgs> BeaconEvent;
 
-		/// <summary>
-		/// Triggered when beacon hasn't been seen for a time defined in BeaconNotSeenDelayInMilliseconds.
-		/// </summary>
-		public event EventHandler<Beacon> BeaconNotSeenForAWhile;
+        /// <summary>
+        /// Triggered when beacon hasn't been seen for a time defined in BeaconNotSeenDelayInMilliseconds.
+        /// </summary>
+        public event EventHandler<Beacon> BeaconNotSeenForAWhile;
 
-		private static Scanner _instance;
-		private BluetoothLEAdvertisementWatcher _bluetoothLEAdvertisemenetWatcher;
+        private static Scanner _instance;
+        private BluetoothLEAdvertisementWatcher _bluetoothLEAdvertisemenetWatcher;
+        private BluetoothLEManufacturerData _bluetoothLeManufacturerData;
         private BeaconContainer _beaconsContainer;
-		private Timer _beaconListRefreshTimer;
+        private Timer _beaconListRefreshTimer;
         private Timer _notifyStartedDelayTimer;
+        private UInt64 _beaconExitTimeout;
 
-		public static Scanner Instance
-		{
-			get
-			{
-				if (_instance == null)
-				{
-					_instance = new Scanner();
-				}
+        private UInt16 _lastManufacturerId;
+        private UInt16 _lastBeaconCode;
+        private UInt64 _lastBeaconExitTimeout;
+        private UInt64? _lastRssiEnterThreshold;
+        private UInt64? _lastEnterDistanceThreshold;
 
-				return _instance;
-			}
-		}
+        public static Scanner Instance => _instance ?? (_instance = new Scanner());
 
-		private ScannerStatus _status;
-		/// <summary>
-		/// Defines whether the scanner (bluetooth advertisement watcher) has been started or not.
-		/// When the watcher is started, the timer for checking up on the list of beacons is
-		/// started as well.
-		/// </summary>
-		public ScannerStatus Status
-		{
-			get
-			{
-				return _status;
-			}
-			private set
-			{
-				if (_status != value)
-				{
-					_status = value;
+        private ScannerStatus _status;
+        /// <summary>
+        /// Defines whether the scanner (bluetooth advertisement watcher) has been started or not.
+        /// When the watcher is started, the timer for checking up on the list of beacons is
+        /// started as well.
+        /// </summary>
+        public ScannerStatus Status
+        {
+            get
+            {
+                return _status;
+            }
+            private set
+            {
+                if (_status != value)
+                {
+                    _status = value;
 
                     if (_notifyStartedDelayTimer != null)
                     {
@@ -84,7 +80,7 @@ namespace SensorbergSDK
                         if (_beaconListRefreshTimer == null)
                         {
                             _beaconListRefreshTimer = new Timer(CheckListForOldBeacons, null,
-                                TimerIntervalInMilliseconds, TimerIntervalInMilliseconds);
+                                Constants.BeaconsListRefreshIntervalInMilliseconds, Constants.BeaconsListRefreshIntervalInMilliseconds);
                         }
 
                         // Delay the notification in case there is an immediate error (e.g. when
@@ -100,69 +96,83 @@ namespace SensorbergSDK
                         }
                     }
                 }
-			}
-		}
+            }
+        }
 
         /// <summary>
         /// Constructor
         /// </summary>
         private Scanner()
-		{
+        {
             _status = ScannerStatus.Stopped;
             _beaconsContainer = new BeaconContainer();
         }
 
-		/// <summary>
-		/// Starts the watcher and hooks its events to callbacks.
-		/// </summary>
+        /// <summary>
+        /// Starts the watcher and hooks its events to callbacks.
+        /// </summary>
         /// <param name="manufacturerId">The manufacturer ID.</param>
         /// <param name="beaconCode">The beacon code.</param>
-		public void StartWatcher(UInt16 manufacturerId, UInt16 beaconCode)
-		{
-			if (Status != ScannerStatus.Started)
-			{
-				if (_bluetoothLEAdvertisemenetWatcher == null)
-				{
-					_bluetoothLEAdvertisemenetWatcher = new BluetoothLEAdvertisementWatcher();
-                    BluetoothLEManufacturerData manufacturerData = BeaconFactory.BeaconManufacturerData(manufacturerId, beaconCode);
-                    _bluetoothLEAdvertisemenetWatcher.AdvertisementFilter.Advertisement.ManufacturerData.Add(manufacturerData);
+        /// <param name="beaconExitTimeoutInMiliseconds">Time in miliseconds after beacon will be trated as lost</param>
+        public void StartWatcher(UInt16 manufacturerId, UInt16 beaconCode, UInt64 beaconExitTimeoutInMiliseconds, UInt64? rssiEnterThreshold = null, UInt64? enterDistanceThreshold = null)
+        {
+            _lastManufacturerId = manufacturerId;
+            _lastBeaconCode = beaconCode;
+            _lastBeaconExitTimeout = beaconExitTimeoutInMiliseconds;
+            _lastRssiEnterThreshold = rssiEnterThreshold;
+            _lastEnterDistanceThreshold = enterDistanceThreshold;
+
+            if (Status != ScannerStatus.Started)
+            {
+                if (_bluetoothLEAdvertisemenetWatcher == null)
+                {
+                    _bluetoothLeManufacturerData = BeaconFactory.BeaconManufacturerData(manufacturerId, beaconCode);
+                    _bluetoothLEAdvertisemenetWatcher = new BluetoothLEAdvertisementWatcher();
+                    _bluetoothLEAdvertisemenetWatcher.AdvertisementFilter.Advertisement.ManufacturerData.Add(_bluetoothLeManufacturerData);
+                    _bluetoothLEAdvertisemenetWatcher.ScanningMode = BluetoothLEScanningMode.Active;
+                    if (rssiEnterThreshold != null)
+                    {
+                        _bluetoothLEAdvertisemenetWatcher.SignalStrengthFilter = new BluetoothSignalStrengthFilter() { InRangeThresholdInDBm = Convert.ToInt16(rssiEnterThreshold.Value) };
+                    }
                 }
 
-				_bluetoothLEAdvertisemenetWatcher.Received += OnAdvertisementReceived;
-				_bluetoothLEAdvertisemenetWatcher.Stopped += OnWatcherStopped;
-				_bluetoothLEAdvertisemenetWatcher.Start();
+                _bluetoothLEAdvertisemenetWatcher.Received += OnAdvertisementReceived;
+                _bluetoothLEAdvertisemenetWatcher.Stopped += OnWatcherStopped;
+                _bluetoothLEAdvertisemenetWatcher.Start();
 
-				Status = ScannerStatus.Started;
-                System.Diagnostics.Debug.WriteLine("Scanner.StartWatcher(): Watcher started");
+                _beaconExitTimeout = beaconExitTimeoutInMiliseconds;
+
+                Status = ScannerStatus.Started;
+                Debug.WriteLine("Scanner.StartWatcher(): Watcher started");
             }
-		}
-
-		/// <summary>
-		/// Stops the watcher. The events are unhooked in the callback (OnWatcherStopped).
-		/// </summary>
-		public void StopWatcher()
-		{
-			if (Status == ScannerStatus.Started)
-			{
-				if (_bluetoothLEAdvertisemenetWatcher != null)
-				{
-					_bluetoothLEAdvertisemenetWatcher.Stop();
-				}
+        }
+        
+        /// <summary>
+        /// Stops the watcher. The events are unhooked in the callback (OnWatcherStopped).
+        /// </summary>
+        public void StopWatcher()
+        {
+            if (Status == ScannerStatus.Started)
+            {
+                if (_bluetoothLEAdvertisemenetWatcher != null)
+                {
+                    _bluetoothLEAdvertisemenetWatcher.Stop();
+                }
             }
-		}
+        }
 
-		/// <summary>
-		/// Notifies any listeners about the beacon event.
-		/// </summary>
-		/// <param name="beacon"></param>
-		/// <param name="eventType"></param>
-		private void NotifyBeaconEvent(Beacon beacon, BeaconEventType eventType)
-		{
-			if (BeaconEvent != null)
-			{
-				BeaconEvent(this, new BeaconEventArgs() { Beacon = beacon, EventType = eventType });
-			}
-		}
+        /// <summary>
+        /// Notifies any listeners about the beacon event.
+        /// </summary>
+        /// <param name="beacon"></param>
+        /// <param name="eventType"></param>
+        private void NotifyBeaconEvent(Beacon beacon, BeaconEventType eventType)
+        {
+            if (BeaconEvent != null)
+            {
+                BeaconEvent(this, new BeaconEventArgs() { Beacon = beacon, EventType = eventType });
+            }
+        }
 
         /// <summary>
         /// Checks the list of beacons for old beacons. If old enough beacons are found, an
@@ -171,14 +181,14 @@ namespace SensorbergSDK
         /// <param name="state"></param>
         private void CheckListForOldBeacons(object state)
         {
-            List<Beacon> beacons = _beaconsContainer.RemoveBeaconsBasedOnAge(Constants.BeaconExitDelayInMilliseconds);
+            List<Beacon> beacons = _beaconsContainer.RemoveBeaconsBasedOnAge(_beaconExitTimeout);
 
             foreach (Beacon beacon in beacons)
             {
                 NotifyBeaconEvent(beacon, BeaconEventType.Exit);
             }
 
-            beacons = _beaconsContainer.BeaconsBasedOnAge(BeaconNotSeenDelayInMilliseconds);
+            beacons = _beaconsContainer.BeaconsBasedOnAge(_beaconExitTimeout);
 
             if (BeaconNotSeenForAWhile != null)
             {
@@ -190,28 +200,36 @@ namespace SensorbergSDK
 
             beacons = null;
 
-    		if (Status != ScannerStatus.Started && _beaconsContainer.Count == 0 && _beaconListRefreshTimer != null)
-			{
-				_beaconListRefreshTimer.Dispose();
-				_beaconListRefreshTimer = null;
-			}
-		}
+            if (Status != ScannerStatus.Started && _beaconsContainer.Count == 0 && _beaconListRefreshTimer != null)
+            {
+                _beaconListRefreshTimer.Dispose();
+                _beaconListRefreshTimer = null;
+            }
+        }
 
-		/// <summary>
-		/// Triggered when the watcher receives an advertisement.
-		/// 
-		/// If the advertisement came from a beacon, a Beacon instance is created based on the
-		/// received data. A new beacon is added to the list and an existing one is only updated.
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="args"></param>
-		private void OnAdvertisementReceived(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
-		{
+        /// <summary>
+        /// Triggered when the watcher receives an advertisement.
+        /// 
+        /// If the advertisement came from a beacon, a Beacon instance is created based on the
+        /// received data. A new beacon is added to the list and an existing one is only updated.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private void OnAdvertisementReceived(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
+        {
+            Debug.WriteLine("");
+            Debug.WriteLine("");
+            Debug.WriteLine("Advertisement received " + args.Timestamp);
             Beacon beacon = BeaconFactory.BeaconFromBluetoothLEAdvertisementReceivedEventArgs(args);
-			if (beacon != null)
-			{
-                bool isExistingBeacon = _beaconsContainer.Update(beacon);
+            //RestartWatcher();
+            if (beacon != null)
+            {
+                if (_lastEnterDistanceThreshold != null && beacon.Distance > _lastEnterDistanceThreshold.Value)
+                {
+                    return;
+                }
 
+                bool isExistingBeacon = _beaconsContainer.TryUpdate(beacon);
                 if (isExistingBeacon)
                 {
                     NotifyBeaconEvent(beacon, BeaconEventType.None);
@@ -223,10 +241,10 @@ namespace SensorbergSDK
                     NotifyBeaconEvent(beacon, BeaconEventType.Enter);
                 }
             }
-		}
+        }
 
-		private void OnWatcherStopped(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementWatcherStoppedEventArgs args)
-		{
+        private void OnWatcherStopped(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementWatcherStoppedEventArgs args)
+        {
             if (_bluetoothLEAdvertisemenetWatcher != null)
             {
                 System.Diagnostics.Debug.WriteLine("Scanner.OnWatcherStopped(): Status: " + _bluetoothLEAdvertisemenetWatcher.Status);
@@ -240,11 +258,11 @@ namespace SensorbergSDK
                     Status = ScannerStatus.Stopped;
                 }
 
-				_bluetoothLEAdvertisemenetWatcher.Received -= OnAdvertisementReceived;
-				_bluetoothLEAdvertisemenetWatcher.Stopped -= OnWatcherStopped;
-				_bluetoothLEAdvertisemenetWatcher = null;
-			}
-		}
+                _bluetoothLEAdvertisemenetWatcher.Received -= OnAdvertisementReceived;
+                _bluetoothLEAdvertisemenetWatcher.Stopped -= OnWatcherStopped;
+                _bluetoothLEAdvertisemenetWatcher = null;
+            }
+        }
 
         /// <summary>
         /// Sends a delayed notifications about watcher started event.
