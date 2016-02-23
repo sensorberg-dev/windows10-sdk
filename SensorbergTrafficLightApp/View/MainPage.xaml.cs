@@ -122,16 +122,6 @@ namespace SensorbergTrafficLightApp
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
-
-#if DEBUG
-            if(Debugger.IsAttached)
-            { await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-                    var memory = MemoryManager.AppMemoryUsage/(double)1000 / (double)1000;
-                    MemoryTextBlock.Text = memory.ToString(CultureInfo.InvariantCulture) + " MB";
-                });
-            }
-#endif
         }
 
     }

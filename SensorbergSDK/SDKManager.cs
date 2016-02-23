@@ -256,8 +256,7 @@ namespace SensorbergSDK
             {
                 sdkData.ApiKey = apiKey;
                 await _sdkEngine.InitializeAsync();
-                _appSettings = await SettingsManager.Instance.GetSettingsAsync();
-                SettingsManager.Instance.SettingsUpdated += OnSettingsUpdated;
+                await InitializeSettingsAsync();
             }
 
             if (sdkData.BackgroundTaskEnabled)
@@ -352,7 +351,10 @@ namespace SensorbergSDK
             {
                 _scannerShouldBeRunning = true;
                 Scanner.BeaconEvent += OnBeaconEventAsync;
-                Scanner.StartWatcher(ManufacturerId, BeaconCode, _appSettings.BeaconExitTimeout, _appSettings.RssiEnterThreshold, _appSettings.EnterDistanceThreshold);
+                InitializeSettingsAsync().ContinueWith(task =>
+                    {
+                        Scanner.StartWatcher(ManufacturerId, BeaconCode, _appSettings.BeaconExitTimeout, _appSettings.RssiEnterThreshold, _appSettings.EnterDistanceThreshold);
+                    });
             }
         }
 
@@ -450,6 +452,15 @@ namespace SensorbergSDK
             if (_scannerShouldBeRunning)
             {
                 StartScanner();
+            }
+        }
+
+        private async Task InitializeSettingsAsync()
+        {
+            if (_appSettings == null)
+            {
+                _appSettings = await SettingsManager.Instance.GetSettingsAsync();
+                SettingsManager.Instance.SettingsUpdated += OnSettingsUpdated;
             }
         }
     }
