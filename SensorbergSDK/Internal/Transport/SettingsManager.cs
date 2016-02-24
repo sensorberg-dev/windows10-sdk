@@ -84,25 +84,28 @@ namespace SensorbergSDK.Internal.Transport
 
         private async Task<AppSettings> GetSettingsFromApiAsync()
         {
+
             HttpRequestMessage requestMessage = new HttpRequestMessage();
             HttpBaseProtocolFilter baseProtocolFilter = new HttpBaseProtocolFilter();
-
-            baseProtocolFilter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
-            baseProtocolFilter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
-
-            requestMessage.Method = HttpMethod.Get;
-            requestMessage.RequestUri = new Uri(string.Format(Constants.SettingsUri, _sdkData.ApiKey));
-
-            HttpClient httpClient = new HttpClient(baseProtocolFilter);
             HttpResponseMessage responseMessage = null;
 
             try
             {
+                baseProtocolFilter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
+                baseProtocolFilter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
+
+                requestMessage.Method = HttpMethod.Get;
+                requestMessage.RequestUri = new Uri(string.Format(Constants.SettingsUri, _sdkData.ApiKey));
+
+                HttpClient httpClient = new HttpClient(baseProtocolFilter);
+
+
                 responseMessage = await httpClient.SendRequestAsync(requestMessage);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("SettingsManager.GetSettingsFromApiAsync(): Failed to send HTTP request: " + ex.Message);
+                return null;
             }
 
             if (responseMessage == null || responseMessage.IsSuccessStatusCode == false)
@@ -145,13 +148,16 @@ namespace SensorbergSDK.Internal.Transport
 
         private AppSettings GetSettingsFromStorage()
         {
-            string storageValue = _localSettings.Values[STORAGE_KEY].ToString();
-            if (string.IsNullOrEmpty(storageValue))
+            var storageValue = _localSettings.Values[STORAGE_KEY];
+
+            var storageString = storageValue?.ToString();
+
+            if (string.IsNullOrEmpty(storageString))
             {
                 return null;
             }
 
-            var parsed = JsonValue.Parse(storageValue);
+            var parsed = JsonValue.Parse(storageString);
             return AppSettings.FromJson(parsed.GetObject());
         }
     }

@@ -36,7 +36,7 @@ namespace SensorbergSDK
         public event EventHandler<Beacon> BeaconNotSeenForAWhile;
 
         private static Scanner _instance;
-        private BluetoothLEAdvertisementWatcher _bluetoothLEAdvertisemenetWatcher;
+        private BluetoothLEAdvertisementWatcher _bluetoothLEAdvertisementWatcher;
         private BluetoothLEManufacturerData _bluetoothLeManufacturerData;
         private BeaconContainer _beaconsContainer;
         private Timer _beaconListRefreshTimer;
@@ -124,21 +124,24 @@ namespace SensorbergSDK
 
             if (Status != ScannerStatus.Started)
             {
-                if (_bluetoothLEAdvertisemenetWatcher == null)
+                if (_bluetoothLEAdvertisementWatcher == null)
                 {
                     _bluetoothLeManufacturerData = BeaconFactory.BeaconManufacturerData(manufacturerId, beaconCode);
-                    _bluetoothLEAdvertisemenetWatcher = new BluetoothLEAdvertisementWatcher();
-                    _bluetoothLEAdvertisemenetWatcher.AdvertisementFilter.Advertisement.ManufacturerData.Add(_bluetoothLeManufacturerData);
-                    _bluetoothLEAdvertisemenetWatcher.ScanningMode = BluetoothLEScanningMode.Active;
+                    _bluetoothLEAdvertisementWatcher = new BluetoothLEAdvertisementWatcher();
+                    _bluetoothLEAdvertisementWatcher.AdvertisementFilter.Advertisement.ManufacturerData.Add(_bluetoothLeManufacturerData);
+                    _bluetoothLEAdvertisementWatcher.SignalStrengthFilter.SamplingInterval = TimeSpan.FromMilliseconds(0);
+                    _bluetoothLEAdvertisementWatcher.SignalStrengthFilter.OutOfRangeTimeout = TimeSpan.FromMilliseconds(_lastBeaconExitTimeout);
+                    _bluetoothLEAdvertisementWatcher.ScanningMode = BluetoothLEScanningMode.Active;
+
                     if (rssiEnterThreshold != null)
                     {
-                        _bluetoothLEAdvertisemenetWatcher.SignalStrengthFilter = new BluetoothSignalStrengthFilter() { InRangeThresholdInDBm = Convert.ToInt16(rssiEnterThreshold.Value) };
+                        _bluetoothLEAdvertisementWatcher.SignalStrengthFilter = new BluetoothSignalStrengthFilter() { InRangeThresholdInDBm = Convert.ToInt16(rssiEnterThreshold.Value) };
                     }
                 }
 
-                _bluetoothLEAdvertisemenetWatcher.Received += OnAdvertisementReceived;
-                _bluetoothLEAdvertisemenetWatcher.Stopped += OnWatcherStopped;
-                _bluetoothLEAdvertisemenetWatcher.Start();
+                _bluetoothLEAdvertisementWatcher.Received += OnAdvertisementReceived;
+                _bluetoothLEAdvertisementWatcher.Stopped += OnWatcherStopped;
+                _bluetoothLEAdvertisementWatcher.Start();
 
                 _beaconExitTimeout = beaconExitTimeoutInMiliseconds;
 
@@ -154,9 +157,9 @@ namespace SensorbergSDK
         {
             if (Status == ScannerStatus.Started)
             {
-                if (_bluetoothLEAdvertisemenetWatcher != null)
+                if (_bluetoothLEAdvertisementWatcher != null)
                 {
-                    _bluetoothLEAdvertisemenetWatcher.Stop();
+                    _bluetoothLEAdvertisementWatcher.Stop();
                 }
             }
         }
@@ -219,7 +222,7 @@ namespace SensorbergSDK
         {
             Debug.WriteLine("");
             Debug.WriteLine("");
-            Debug.WriteLine("Advertisement received " + args.Timestamp);
+            Debug.WriteLine("Advertisement received " + args.Timestamp.ToString("HH:mm:ss.fff"));
             Beacon beacon = BeaconFactory.BeaconFromBluetoothLEAdvertisementReceivedEventArgs(args);
             //RestartWatcher();
             if (beacon != null)
@@ -245,11 +248,11 @@ namespace SensorbergSDK
 
         private void OnWatcherStopped(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementWatcherStoppedEventArgs args)
         {
-            if (_bluetoothLEAdvertisemenetWatcher != null)
+            if (_bluetoothLEAdvertisementWatcher != null)
             {
-                System.Diagnostics.Debug.WriteLine("Scanner.OnWatcherStopped(): Status: " + _bluetoothLEAdvertisemenetWatcher.Status);
+                Debug.WriteLine("Scanner.OnWatcherStopped(): Status: " + _bluetoothLEAdvertisementWatcher.Status);
 
-                if (_bluetoothLEAdvertisemenetWatcher.Status == BluetoothLEAdvertisementWatcherStatus.Aborted)
+                if (_bluetoothLEAdvertisementWatcher.Status == BluetoothLEAdvertisementWatcherStatus.Aborted)
                 {
                     Status = ScannerStatus.Aborted;
                 }
@@ -258,9 +261,9 @@ namespace SensorbergSDK
                     Status = ScannerStatus.Stopped;
                 }
 
-                _bluetoothLEAdvertisemenetWatcher.Received -= OnAdvertisementReceived;
-                _bluetoothLEAdvertisemenetWatcher.Stopped -= OnWatcherStopped;
-                _bluetoothLEAdvertisemenetWatcher = null;
+                _bluetoothLEAdvertisementWatcher.Received -= OnAdvertisementReceived;
+                _bluetoothLEAdvertisementWatcher.Stopped -= OnWatcherStopped;
+                _bluetoothLEAdvertisementWatcher = null;
             }
         }
 

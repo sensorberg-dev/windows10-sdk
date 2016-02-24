@@ -11,12 +11,5 @@
         <Grid Background="#FF003C"></Grid>
         <Grid Background="#88C100"
               x:Name="GreenGrid"></Grid>
-        <TextBlock HorizontalAlignment="Center"
-                   VerticalAlignment="Bottom"
-                   Foreground="Black"
-                   FontSize="22"
-                   Margin="24"
-                   x:Name="MemoryTextBlock"></TextBlock>
-
     </Grid>
 </Page>
