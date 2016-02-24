@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Foundation;
+using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK
 {
@@ -26,9 +28,9 @@ namespace SensorbergSDK
         private static readonly string AdvertisementWatcherBackgroundTaskEntryPoint = BackgroundTaskProjectNamespace + ".AdvertisementWatcherBackgroundTask";
         private static readonly string TimedBackgroundTaskEntryPoint = BackgroundTaskProjectNamespace + ".TimedBackgroundTask";
         private const int TimeTriggerIntervalInMinutes = 15;
-        private const int SignalStrengthFilterInRangeThresholdInDBm = -120;
         private const int SignalStrengthFilterOutOfRangeThresholdInDBm = -127;
         private const int MaxBeaconId1FilterCount = 10;
+	    private AppSettings _appSettings;
 
         public EventHandler BackgroundFiltersUpdated;
 
@@ -101,7 +103,6 @@ namespace SensorbergSDK
             {
                 // Prompt user to accept the request
                 BackgroundAccessStatus backgroundAccessStatus = await BackgroundExecutionManager.RequestAccessAsync();
-
                 if (backgroundAccessStatus == BackgroundAccessStatus.AllowedMayUseActiveRealTimeConnectivity
                     || backgroundAccessStatus == BackgroundAccessStatus.AllowedWithAlwaysOnRealTimeConnectivity)
                 {
@@ -126,7 +127,7 @@ namespace SensorbergSDK
 			return result;
 		}
 
-        /// <summary>
+	    /// <summary>
         /// Updates the background task e.g. when the filters should be changed.
         /// </summary>
         /// <param name="manufacturerId">The manufacturer ID of beacons to watch.</param>
@@ -198,9 +199,6 @@ namespace SensorbergSDK
                 BluetoothLEAdvertisementWatcherTrigger advertisementWatcherTrigger =
                     new BluetoothLEAdvertisementWatcherTrigger();
 
-                //BluetoothLEManufacturerData manufacturerData = BeaconFactory.DefaultBeaconManufacturerData();
-                //advertisementWatcherTrigger.AdvertisementFilter.Advertisement.ManufacturerData.Add(manufacturerData);
-
                 // This filter includes all Sensorberg beacons 
                 var pattern = BeaconFactory.UUIDToAdvertisementBytePattern(Constants.SensorbergUuidSpace, manufacturerId, beaconCode);
                 advertisementWatcherTrigger.AdvertisementFilter.BytePatterns.Add(pattern);
@@ -229,12 +227,23 @@ namespace SensorbergSDK
                 }
 #endif
 
+                _appSettings = await SettingsManager.Instance.GetSettingsAsync();
+
                 // Using MaxSamplingInterval as SamplingInterval ensures that we get an event only
                 // when entering or exiting from the range of the beacon
                 advertisementWatcherTrigger.SignalStrengthFilter.SamplingInterval = advertisementWatcherTrigger.MaxSamplingInterval;
-                advertisementWatcherTrigger.SignalStrengthFilter.InRangeThresholdInDBm = SignalStrengthFilterInRangeThresholdInDBm;
+                if (_appSettings.RssiEnterThreshold != null && _appSettings.RssiEnterThreshold.Value >= -128 &&
+                    _appSettings.RssiEnterThreshold.Value <= 127)
+                {
+                    advertisementWatcherTrigger.SignalStrengthFilter.InRangeThresholdInDBm = _appSettings.RssiEnterThreshold;
+                }
+                else
+                {
+                    advertisementWatcherTrigger.SignalStrengthFilter.InRangeThresholdInDBm = Constants.DefaultBackgroundScannerEnterThreshold;
+                }
+
                 advertisementWatcherTrigger.SignalStrengthFilter.OutOfRangeThresholdInDBm = SignalStrengthFilterOutOfRangeThresholdInDBm;
-                advertisementWatcherTrigger.SignalStrengthFilter.OutOfRangeTimeout = TimeSpan.FromMilliseconds(Constants.DefaultBeaconExitTimeout);
+                advertisementWatcherTrigger.SignalStrengthFilter.OutOfRangeTimeout =  TimeSpan.FromMilliseconds(_appSettings.BeaconExitTimeout);
                 
                 trigger = advertisementWatcherTrigger;
 
@@ -371,5 +380,8 @@ namespace SensorbergSDK
         {
             System.Diagnostics.Debug.WriteLine("BackgroundTaskManager.OnTimedBackgroundTaskCompleted()");
         }
+
+       
+
     }
 }

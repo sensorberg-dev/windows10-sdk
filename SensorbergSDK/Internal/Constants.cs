@@ -35,11 +35,13 @@ namespace SensorbergSDK.Internal
         public const int BeaconsListRefreshIntervalInMilliseconds = 1000;
 
         /// <summary>
-        /// Default values for api settings. All values are in miliseconds.
+        /// Default values for api settings. All time values are in miliseconds.
         /// </summary>
         public const UInt64 DefaultSettingsUpdateInterval = 86400000;
         public const UInt64 DefaultBeaconExitTimeout = 10000;
         public const UInt64 DefaultHistoryUploadInterval = 900000;
         public const UInt64 DefaultLayoutUpdateInterval = 3600000;
+        public const int DefaultBackgroundScannerEnterThreshold = -120;
+
     }
 }
