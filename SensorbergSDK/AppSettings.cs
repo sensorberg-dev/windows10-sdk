@@ -26,7 +26,7 @@ namespace SensorbergSDK.Internal.Data
         public UInt64 HistoryUploadInterval { get; set; }
 
         [DataMember(Name = "scanner.enterRssiThreshold")]
-        public UInt64? RssiEnterThreshold { get; set; }
+        public Int16? RssiEnterThreshold { get; set; }
 
         [DataMember(Name = "scanner.enterDistanceThreshold")]
         public UInt64? EnterDistanceThreshold { get; set; }
@@ -48,11 +48,19 @@ namespace SensorbergSDK.Internal.Data
                 var exitTimeout = json[BEACON_EXIT_TIMEOUT_KEY];
                 settings.BeaconExitTimeout = exitTimeout.ValueType == JsonValueType.Null ? Constants.DefaultBeaconExitTimeout : Convert.ToUInt64(exitTimeout.GetNumber());
             }
+            else
+            {
+                settings.BeaconExitTimeout = Constants.DefaultBeaconExitTimeout;
+            }
 
             if (json.ContainsKey(HISTORY_UPLOAD_INTERVAL_KEY))
             {
                 var historyInterval = json[HISTORY_UPLOAD_INTERVAL_KEY];
                 settings.HistoryUploadInterval = historyInterval.ValueType == JsonValueType.Null ? Constants.DefaultHistoryUploadInterval : Convert.ToUInt64(historyInterval.GetNumber());
+            }
+            else
+            {
+                settings.HistoryUploadInterval = Constants.DefaultHistoryUploadInterval;
             }
 
             if (json.ContainsKey(RSSI_ENTER_THRESHOLD_KEY))
@@ -60,7 +68,7 @@ namespace SensorbergSDK.Internal.Data
                 var rssiEnterThreshold = json[RSSI_ENTER_THRESHOLD_KEY];
                 if (rssiEnterThreshold.ValueType != JsonValueType.Null)
                 {
-                    settings.RssiEnterThreshold = Convert.ToUInt64(rssiEnterThreshold.GetNumber());
+                    settings.RssiEnterThreshold = Convert.ToInt16(rssiEnterThreshold.GetNumber());
                 }
             }
 
@@ -78,11 +86,19 @@ namespace SensorbergSDK.Internal.Data
                 var layoutUpdateInterval = json[LAYOUT_UPDATE_INTERVAL_KEY];
                 settings.LayoutUpdateInterval = layoutUpdateInterval.ValueType == JsonValueType.Null ? Constants.DefaultLayoutUpdateInterval : Convert.ToUInt64(layoutUpdateInterval.GetNumber());
             }
+            else
+            {
+                settings.LayoutUpdateInterval = Constants.DefaultLayoutUpdateInterval;
+            }
 
             if (json.ContainsKey(SETTINGS_UPDATE_INTERVAL_KEY))
             {
                 var settingsUpdateInterval = json[SETTINGS_UPDATE_INTERVAL_KEY];
                 settings.SettingsUpdateInterval = settingsUpdateInterval.ValueType == JsonValueType.Null ? Constants.DefaultSettingsUpdateInterval : Convert.ToUInt64(settingsUpdateInterval.GetNumber());
+            }
+            else
+            {
+                settings.SettingsUpdateInterval = Constants.DefaultSettingsUpdateInterval;
             }
 
             return settings;

@@ -35,19 +35,15 @@ namespace SensorbergSDK
         /// </summary>
         public event EventHandler<Beacon> BeaconNotSeenForAWhile;
 
+        private readonly BeaconContainer _beaconsContainer;
         private static Scanner _instance;
         private BluetoothLEAdvertisementWatcher _bluetoothLEAdvertisementWatcher;
         private BluetoothLEManufacturerData _bluetoothLeManufacturerData;
-        private BeaconContainer _beaconsContainer;
         private Timer _beaconListRefreshTimer;
         private Timer _notifyStartedDelayTimer;
-        private UInt64 _beaconExitTimeout;
 
-        private UInt16 _lastManufacturerId;
-        private UInt16 _lastBeaconCode;
-        private UInt64 _lastBeaconExitTimeout;
-        private UInt64? _lastRssiEnterThreshold;
-        private UInt64? _lastEnterDistanceThreshold;
+        private UInt64 _beaconExitTimeout;
+        private UInt64? _enterDistanceThreshold;
 
         public static Scanner Instance => _instance ?? (_instance = new Scanner());
 
@@ -114,13 +110,17 @@ namespace SensorbergSDK
         /// <param name="manufacturerId">The manufacturer ID.</param>
         /// <param name="beaconCode">The beacon code.</param>
         /// <param name="beaconExitTimeoutInMiliseconds">Time in miliseconds after beacon will be trated as lost</param>
-        public void StartWatcher(UInt16 manufacturerId, UInt16 beaconCode, UInt64 beaconExitTimeoutInMiliseconds, UInt64? rssiEnterThreshold = null, UInt64? enterDistanceThreshold = null)
+        /// <param name="rssiEnterThreshold">Optional rssi threshold which will trigger beacon discover event. Value must be between -128 and 127</param>
+        /// <param name="enterDistanceThreshold">Optional minimal distance in meters that will trigger beacon discover event</param>
+        public void StartWatcher(UInt16 manufacturerId, UInt16 beaconCode, UInt64 beaconExitTimeoutInMiliseconds, Int16? rssiEnterThreshold = null, UInt64? enterDistanceThreshold = null)
         {
-            _lastManufacturerId = manufacturerId;
-            _lastBeaconCode = beaconCode;
-            _lastBeaconExitTimeout = beaconExitTimeoutInMiliseconds;
-            _lastRssiEnterThreshold = rssiEnterThreshold;
-            _lastEnterDistanceThreshold = enterDistanceThreshold;
+            _beaconExitTimeout = beaconExitTimeoutInMiliseconds;
+            _enterDistanceThreshold = enterDistanceThreshold;
+
+            if (_beaconExitTimeout < 1000)
+            {
+                _beaconExitTimeout = 1000;
+            }
 
             if (Status != ScannerStatus.Started)
             {
@@ -130,20 +130,18 @@ namespace SensorbergSDK
                     _bluetoothLEAdvertisementWatcher = new BluetoothLEAdvertisementWatcher();
                     _bluetoothLEAdvertisementWatcher.AdvertisementFilter.Advertisement.ManufacturerData.Add(_bluetoothLeManufacturerData);
                     _bluetoothLEAdvertisementWatcher.SignalStrengthFilter.SamplingInterval = TimeSpan.FromMilliseconds(0);
-                    _bluetoothLEAdvertisementWatcher.SignalStrengthFilter.OutOfRangeTimeout = TimeSpan.FromMilliseconds(_lastBeaconExitTimeout);
+                    _bluetoothLEAdvertisementWatcher.SignalStrengthFilter.OutOfRangeTimeout = TimeSpan.FromMilliseconds(_beaconExitTimeout);
                     _bluetoothLEAdvertisementWatcher.ScanningMode = BluetoothLEScanningMode.Active;
 
-                    if (rssiEnterThreshold != null)
+                    if (rssiEnterThreshold != null  && rssiEnterThreshold.Value >= -128 && rssiEnterThreshold.Value <= 127)
                     {
-                        _bluetoothLEAdvertisementWatcher.SignalStrengthFilter = new BluetoothSignalStrengthFilter() { InRangeThresholdInDBm = Convert.ToInt16(rssiEnterThreshold.Value) };
+                        _bluetoothLEAdvertisementWatcher.SignalStrengthFilter = new BluetoothSignalStrengthFilter() { InRangeThresholdInDBm = rssiEnterThreshold.Value};
                     }
                 }
 
                 _bluetoothLEAdvertisementWatcher.Received += OnAdvertisementReceived;
                 _bluetoothLEAdvertisementWatcher.Stopped += OnWatcherStopped;
                 _bluetoothLEAdvertisementWatcher.Start();
-
-                _beaconExitTimeout = beaconExitTimeoutInMiliseconds;
 
                 Status = ScannerStatus.Started;
                 Debug.WriteLine("Scanner.StartWatcher(): Watcher started");
@@ -224,10 +222,10 @@ namespace SensorbergSDK
             Debug.WriteLine("");
             Debug.WriteLine("Advertisement received " + args.Timestamp.ToString("HH:mm:ss.fff"));
             Beacon beacon = BeaconFactory.BeaconFromBluetoothLEAdvertisementReceivedEventArgs(args);
-            //RestartWatcher();
+
             if (beacon != null)
             {
-                if (_lastEnterDistanceThreshold != null && beacon.Distance > _lastEnterDistanceThreshold.Value)
+                if (_enterDistanceThreshold != null && beacon.Distance > _enterDistanceThreshold.Value)
                 {
                     return;
                 }

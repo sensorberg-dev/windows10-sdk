@@ -99,8 +99,7 @@ namespace SensorbergSDK.Internal
         {
             if (!IsInitialized)
             {
-                _appSettings = await SettingsManager.Instance.GetSettingsAsync();
-                SettingsManager.Instance.SettingsUpdated += OnSettingsUpdated;
+                
                 //Ensures that database tables are created
                 await Storage.Instance.CreateDBAsync();
 
@@ -116,6 +115,9 @@ namespace SensorbergSDK.Internal
 
                 if (_appIsOnForeground)
                 {
+                    _appSettings = await SettingsManager.Instance.GetSettingsAsync();
+                    SettingsManager.Instance.SettingsUpdated += OnSettingsUpdated;
+
                     var historyTimeSpan = TimeSpan.FromMilliseconds(_appSettings.HistoryUploadInterval);
 
                     _flushHistoryTimer =
@@ -148,10 +150,10 @@ namespace SensorbergSDK.Internal
             _appSettings = settingsEventArgs.Settings;
 
             var historyIntervalTimeSpan = TimeSpan.FromMilliseconds(_appSettings.HistoryUploadInterval);
-            _flushHistoryTimer.Change(historyIntervalTimeSpan, historyIntervalTimeSpan);
+            _flushHistoryTimer?.Change(historyIntervalTimeSpan, historyIntervalTimeSpan);
 
             var layoutUploadIntervalTimespan = TimeSpan.FromMilliseconds(_appSettings.LayoutUpdateInterval);
-            _getLayoutTimer.Change(layoutUploadIntervalTimespan, layoutUploadIntervalTimespan);
+            _getLayoutTimer?.Change(layoutUploadIntervalTimespan, layoutUploadIntervalTimespan);
         }
 
         /// <summary>
