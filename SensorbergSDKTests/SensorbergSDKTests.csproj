@@ -18,6 +18,7 @@
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <PackageCertificateKeyFile>SensorbergSDKTests_TemporaryKey.pfx</PackageCertificateKeyFile>
     <UnitTestPlatformVersion Condition="'$(UnitTestPlatformVersion)' == ''">14.0</UnitTestPlatformVersion>
+    <PackageCertificateThumbprint>7C2B6B8CFF707DA0680C02F031D63FA65FBFBE8A</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -90,15 +91,15 @@
   </PropertyGroup>
   <ItemGroup>
     <!--A reference to the entire .Net Framework and Windows SDK are automatically included-->
-    <None Include="Assets\raw\action_factory_001.json" />
-    <None Include="Assets\raw\action_factory_payload_001_array.json" />
-    <None Include="Assets\raw\latest_response.json" />
-    <None Include="Assets\raw\reportImmediately_false.json" />
-    <None Include="Assets\raw\reportImmediately_not_set.json" />
-    <None Include="Assets\raw\reportImmediately_true.json" />
-    <None Include="Assets\raw\resolve_response_001.json" />
-    <None Include="Assets\raw\response_sendOnlyOnce_true.json" />
-    <None Include="Assets\raw\response_supressionTime.json" />
+    <Content Include="Assets\raw\action_factory_001.json" />
+    <Content Include="Assets\raw\action_factory_payload_001_array.json" />
+    <Content Include="Assets\raw\latest_response.json" />
+    <Content Include="Assets\raw\reportImmediately_false.json" />
+    <Content Include="Assets\raw\reportImmediately_not_set.json" />
+    <Content Include="Assets\raw\reportImmediately_true.json" />
+    <Content Include="Assets\raw\resolve_response_001.json" />
+    <Content Include="Assets\raw\response_sendOnlyOnce_true.json" />
+    <Content Include="Assets\raw\response_supressionTime.json" />
     <None Include="project.json" />
     <SDKReference Include="MSTestFramework.Universal, Version=$(UnitTestPlatformVersion)" />
     <SDKReference Include="TestPlatform.Universal, Version=$(UnitTestPlatformVersion)" />
