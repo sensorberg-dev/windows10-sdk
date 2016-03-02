@@ -1,6 +1,7 @@
 ﻿using SensorbergSDK;
 using System;
 using Windows.Graphics.Display;
+using Windows.UI.Core;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -56,6 +57,7 @@ namespace SensorbergShowcase
             pivot.Background.Opacity = 0.6d;
             
             SizeChanged += OnMainPageSizeChanged;
+            SystemNavigationManager.GetForCurrentView().BackRequested += OnBackRequested;
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
