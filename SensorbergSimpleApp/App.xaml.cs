@@ -14,10 +14,6 @@ namespace SensorbergSimpleApp
     /// </summary>
     sealed partial class App : Application
     {
-        /// <summary>
-        /// Allows tracking page views, exceptions and other telemetry through the Microsoft Application Insights service.
-        /// </summary>
-        public static Microsoft.ApplicationInsights.TelemetryClient TelemetryClient;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -25,7 +21,6 @@ namespace SensorbergSimpleApp
         /// </summary>
         public App()
         {
-            TelemetryClient = new Microsoft.ApplicationInsights.TelemetryClient();
             this.InitializeComponent();
             this.Suspending += OnSuspending;
             Microsoft.HockeyApp.HockeyClient.Current.Configure("b69e24ed88044e8eb5c6b60bffb11edd");
