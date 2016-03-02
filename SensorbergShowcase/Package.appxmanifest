@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">
-  <Identity Name="02f26722-f8bf-403f-a224-66d9b63d671a" Publisher="CN=Wojciech" Version="1.0.3.0" />
+  <Identity Name="02f26722-f8bf-403f-a224-66d9b63d671a" Publisher="CN=Sensorberg" Version="1.0.3.0" />
   <mp:PhoneIdentity PhoneProductId="02f26722-f8bf-403f-a224-66d9b63d671a" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>Sensorberg Showcase</DisplayName>
@@ -20,16 +20,19 @@
         </uap:DefaultTile>
         <uap:SplashScreen Image="Assets\SplashScreen.png" BackgroundColor="#536F7D" />
         <uap:LockScreen Notification="badgeAndTileText" BadgeLogo="Assets\BadgeLogo.png" />
+        <uap:InitialRotationPreference>
+          <uap:Rotation Preference="portrait" />
+        </uap:InitialRotationPreference>
       </uap:VisualElements>
       <Extensions>
-        <Extension Category="windows.backgroundTasks" EntryPoint="SensorbergSDKBackground.TimedBackgroundTask">
-          <BackgroundTasks>
-            <Task Type="timer" />
-          </BackgroundTasks>
-        </Extension>
         <Extension Category="windows.backgroundTasks" EntryPoint="SensorbergSDKBackground.AdvertisementWatcherBackgroundTask">
           <BackgroundTasks>
             <Task Type="bluetooth" />
+          </BackgroundTasks>
+        </Extension>
+        <Extension Category="windows.backgroundTasks" EntryPoint="SensorbergSDKBackground.TimedBackgroundTask">
+          <BackgroundTasks>
+            <Task Type="timer" />
           </BackgroundTasks>
         </Extension>
       </Extensions>
@@ -38,5 +41,7 @@
   <Capabilities>
     <Capability Name="internetClient" />
     <DeviceCapability Name="bluetooth" />
+    <DeviceCapability Name="webcam" />
+    <DeviceCapability Name="microphone" />
   </Capabilities>
 </Package>

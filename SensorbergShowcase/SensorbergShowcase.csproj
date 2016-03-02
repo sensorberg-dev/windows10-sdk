@@ -21,7 +21,7 @@
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
     <AppxBundle>Always</AppxBundle>
-    <PackageCertificateThumbprint>8D5F355EE37DE973E40C58F5F1710DC571850922</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>4098C83B6780A0F220122CB742F7BB4E95A52987</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <DebugSymbols>true</DebugSymbols>
@@ -107,8 +107,12 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Common\DeviceTypeHelper.cs" />
     <Compile Include="Controls\BeaconDetailsControl.xaml.cs">
       <DependentUpon>BeaconDetailsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\QrCodeScanner.xaml.cs">
+      <DependentUpon>QrCodeScanner.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\BeaconDetailsItem.cs" />
     <Compile Include="Models\BeaconDetailsModel.cs" />
@@ -134,6 +138,7 @@
     <Compile Include="MainPage.xaml.Settings.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models\PhotoCameraLuminanceSource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Converters\RangeToImageUriConverter.cs" />
   </ItemGroup>
@@ -178,10 +183,24 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Controls\QrCodeScanner.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="zxing.portable">
+      <HintPath>lib\zxing\zxing.portable.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <SDKReference Include="WindowsDesktop, Version=10.0.10240.0">
+      <Name>Windows Desktop Extensions for the UWP</Name>
+    </SDKReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
