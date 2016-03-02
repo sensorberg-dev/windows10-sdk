@@ -14,7 +14,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Microsoft.HockeyApp;
+using HockeyApp;
 
 namespace SensorbergTrafficLightApp
 {
@@ -31,7 +31,7 @@ namespace SensorbergTrafficLightApp
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
-            Microsoft.HockeyApp.HockeyClient.Current.Configure("98c7d82057214fb191051edda7d38e12");
+            HockeyClient.Current.Configure("98c7d82057214fb191051edda7d38e12");
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace SensorbergTrafficLightApp
         /// will be used such as when the application is launched to open a specific file.
         /// </summary>
         /// <param name="e">Details about the launch request and process.</param>
-        protected override void OnLaunched(LaunchActivatedEventArgs e)
+        protected override async void OnLaunched(LaunchActivatedEventArgs e)
         {
 
 #if DEBUG
@@ -76,6 +76,7 @@ namespace SensorbergTrafficLightApp
                 // parameter
                 rootFrame.Navigate(typeof(MainPage), e.Arguments);
             }
+            await HockeyClient.Current.SendCrashesAsync();
             // Ensure the current window is active
             Window.Current.Activate();
         }

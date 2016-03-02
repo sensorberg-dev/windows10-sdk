@@ -4,6 +4,7 @@ using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using HockeyApp;
 
 // The Blank Application template is documented at http://go.microsoft.com/fwlink/?LinkId=402347&clcid=0x409
 
@@ -23,7 +24,7 @@ namespace SensorbergSimpleApp
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
-            Microsoft.HockeyApp.HockeyClient.Current.Configure("b69e24ed88044e8eb5c6b60bffb11edd");
+            HockeyClient.Current.Configure("b69e24ed88044e8eb5c6b60bffb11edd");
         }
 
         /// <summary>
@@ -31,7 +32,7 @@ namespace SensorbergSimpleApp
         /// will be used such as when the application is launched to open a specific file.
         /// </summary>
         /// <param name="e">Details about the launch request and process.</param>
-        protected override void OnLaunched(LaunchActivatedEventArgs e)
+        protected override async void OnLaunched(LaunchActivatedEventArgs e)
         {
 #if DEBUG
             if (System.Diagnostics.Debugger.IsAttached)
@@ -67,6 +68,8 @@ namespace SensorbergSimpleApp
                 // parameter
                 rootFrame.Navigate(typeof(MainPage), e.Arguments);
             }
+
+            await HockeyClient.Current.SendCrashesAsync();
             // Ensure the current window is active
             Window.Current.Activate();
         }
