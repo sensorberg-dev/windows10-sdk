@@ -9,8 +9,8 @@ configuration:
   - Release
 
 build:
-  parallel: true
   project: SensorbergAll.sln
+  parallel: true
 
 before_build:
    - nuget restore
