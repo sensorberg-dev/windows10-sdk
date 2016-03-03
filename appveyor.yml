@@ -1,0 +1,16 @@
+
+platform:
+  - x86
+  - x64
+  - arm
+
+configuration:
+  - Debug
+  - Release
+
+build:
+  parallel: true
+  project: SensorbergAll.sln
+
+before_build:
+   - nuget restore
