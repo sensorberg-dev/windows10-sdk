@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.UI.Core;
 using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK
@@ -17,6 +18,7 @@ namespace SensorbergSDK
         public static readonly string DemoApiKey = Constants.DemoApiKey;
         private int StartScannerIntervalInMilliseconds = 2000;
         private AppSettings _appSettings;
+        public ServiceManager ServiceManager { get; }
 
         /// <summary>
         /// Fired when a beacon action has been successfully resolved and is ready to be exeuted.
@@ -229,6 +231,7 @@ namespace SensorbergSDK
         /// </summary>
         private SDKManager()
         {
+            ServiceManager = new ServiceManager() {ApiConnction = new ApiConnection()};
             _sdkEngine = new SDKEngine(true);
             _backgroundTaskManager = new BackgroundTaskManager();
         }

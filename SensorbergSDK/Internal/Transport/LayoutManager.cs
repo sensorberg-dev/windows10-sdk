@@ -9,6 +9,7 @@ using Windows.Foundation;
 using Windows.Storage;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
+using SensorbergSDK.Internal.Services;
 
 namespace SensorbergSDK.Internal
 {
@@ -189,44 +190,44 @@ namespace SensorbergSDK.Internal
             return resultState;
         }
 
-        /// <summary>
-        /// Sends a layout request to server and returns the HTTP response, if any.
-        /// </summary>
-        /// <param name="ApiKey">The API key.</param>
-        /// <returns>A HttpResponseMessage containing the server response or null in case of an error.</returns>
-        public async Task<HttpResponseMessage> RetrieveLayoutResponseAsync(string apiKey)
-        {
-            HttpRequestMessage requestMessage = new HttpRequestMessage();
-            HttpBaseProtocolFilter baseProtocolFilter = new HttpBaseProtocolFilter();
+//        /// <summary>
+//        /// Sends a layout request to server and returns the HTTP response, if any.
+//        /// </summary>
+//        /// <param name="ApiKey">The API key.</param>
+//        /// <returns>A HttpResponseMessage containing the server response or null in case of an error.</returns>
+//        public async Task<HttpResponseMessage> RetrieveLayoutResponseAsync(string apiKey)
+//        {
+//            HttpRequestMessage requestMessage = new HttpRequestMessage();
+//            HttpBaseProtocolFilter baseProtocolFilter = new HttpBaseProtocolFilter();
+//
+//            baseProtocolFilter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
+//            baseProtocolFilter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
+//
+//            requestMessage.Method = HttpMethod.Get;
+//            requestMessage.RequestUri = new Uri(Constants.LayoutApiUriAsString);
+//
+//            IApiConnection apiConnection = InstanceManager.newHttpClient(baseProtocolFilter);
+//            apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, apiKey);
+//            apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, _dataContext.DeviceId);
+//            HttpResponseMessage responseMessage = null;
+//
+//            try
+//            {
+//                responseMessage = await apiConnection.SendRequestAsync(requestMessage);
+//            }
+//            catch (Exception ex)
+//            {
+//                System.Diagnostics.Debug.WriteLine("LayoutManager.RetrieveLayoutResponseAsync(): Failed to send HTTP request: " + ex.Message);
+//            }
+//
+//            return responseMessage;
+//        }
 
-            baseProtocolFilter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
-            baseProtocolFilter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
-
-            requestMessage.Method = HttpMethod.Get;
-            requestMessage.RequestUri = new Uri(Constants.LayoutApiUriAsString);
-
-            IHttpClient httpClient = InstanceManager.newHttpClient(baseProtocolFilter);
-            httpClient.DefaultRequestHeaders.Add(Constants.XApiKey, apiKey);
-            httpClient.DefaultRequestHeaders.Add(Constants.Xiid, _dataContext.DeviceId);
-            HttpResponseMessage responseMessage = null;
-
-            try
-            {
-                responseMessage = await httpClient.SendRequestAsync(requestMessage);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("LayoutManager.RetrieveLayoutResponseAsync(): Failed to send HTTP request: " + ex.Message);
-            }
-
-            return responseMessage;
-        }
-
-        /// <summary>
-        /// Creates a hash string based on the beacon ID1s in the given layout.
-        /// </summary>
-        /// <param name="layout">The layout containing the beacon ID1s.</param>
-        /// <returns>A hash string of the beacon ID1s or null in case of an error.</returns>
+            /// <summary>
+            /// Creates a hash string based on the beacon ID1s in the given layout.
+            /// </summary>
+            /// <param name="layout">The layout containing the beacon ID1s.</param>
+            /// <returns>A hash string of the beacon ID1s or null in case of an error.</returns>
         public static string CreateHashOfBeaconId1sInLayout(Layout layout)
         {
             string hash = null;
@@ -282,7 +283,7 @@ namespace SensorbergSDK.Internal
         private async Task<Layout> RetrieveLayoutAsync()
         {
             Layout layout = null;
-            HttpResponseMessage responseMessage = await RetrieveLayoutResponseAsync(_dataContext.ApiKey);
+            HttpResponseMessage responseMessage = await SDKManager.InternalInstance.ServiceManager.ApiConnction.RetrieveLayoutResponseAsync(_dataContext);
 
             if (responseMessage != null && responseMessage.IsSuccessStatusCode)
             {

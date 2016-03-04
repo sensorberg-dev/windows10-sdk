@@ -7,6 +7,7 @@ using Windows.Data.Json;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
 using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Services;
 
 namespace SensorbergSDK
 {
@@ -61,7 +62,7 @@ namespace SensorbergSDK
         public async Task<ApiKeyValidationResult> ValidateApiKey(string apiKey)
         {
             ApiKeyValidationResult result = ApiKeyValidationResult.UnknownError;
-            HttpResponseMessage responseMessage = await LayoutManager.Instance.RetrieveLayoutResponseAsync(apiKey);
+            HttpResponseMessage responseMessage = await SDKManager.InternalInstance.ServiceManager.ApiConnction.RetrieveLayoutResponseAsync(SDKData.Instance, apiKey);
 
             if (responseMessage != null && responseMessage.IsSuccessStatusCode)
             {
@@ -94,7 +95,8 @@ namespace SensorbergSDK
             HttpBaseProtocolFilter httpBaseProtocolFilter = new HttpBaseProtocolFilter();
             httpBaseProtocolFilter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
             httpBaseProtocolFilter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
-            IHttpClient client = InstanceManager.newHttpClient(httpBaseProtocolFilter);
+            //TODO kill me, ok extract me
+            HttpClient client = new HttpClient(httpBaseProtocolFilter);
 
             var keyValues = new List<KeyValuePair<string, string>>();
             keyValues.Add(new KeyValuePair<string, string>(KeyEmail, email));
@@ -151,7 +153,7 @@ namespace SensorbergSDK
 
                 if (!string.IsNullOrEmpty(authToken))
                 {
-                    client = InstanceManager.newHttpClient(httpBaseProtocolFilter);
+                    client = new HttpClient(httpBaseProtocolFilter);
                     uri = new Uri(ApplicationsUrl);
                     client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue(authToken);
 

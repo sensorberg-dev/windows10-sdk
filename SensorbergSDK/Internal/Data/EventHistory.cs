@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using System.Runtime.Serialization.Json;
@@ -148,19 +149,8 @@ namespace SensorbergSDK.Internal
 
                     if ((history.events != null && history.events.Count > 0) || (history.actions != null && history.actions.Count > 0))
                     {
-                        MemoryStream stream1 = new MemoryStream();
-                        DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(History));
-                        ser.WriteObject(stream1, history);
-                        stream1.Position = 0;
-                        StreamReader sr = new StreamReader(stream1);
 
-                        IHttpClient httpClient = InstanceManager.newHttpClient();
-                        httpClient.DefaultRequestHeaders.Add(Constants.XApiKey, SDKData.Instance.ApiKey);
-                        httpClient.DefaultRequestHeaders.Add(Constants.Xiid, SDKData.Instance.DeviceId);
-                        bool result =httpClient.DefaultRequestHeaders.TryAddWithoutValidation(Constants.XUserAgent, UserAgentBuilder.BuildUserAgentJson());
-                        var content = new StringContent(sr.ReadToEnd(), Encoding.UTF8, "application/json");
-
-                        HttpResponseMessage responseMessage = await httpClient.PostAsync(new Uri(Constants.LayoutApiUriAsString), content);
+                        var responseMessage = await SDKManager.InternalInstance.ServiceManager.ApiConnction.SendHistory(history);
 
                         if (responseMessage.StatusCode == HttpStatusCode.OK)
                         {
@@ -176,14 +166,16 @@ namespace SensorbergSDK.Internal
                         }
                     }
                 }
-                catch 
+                catch (Exception ex)
                 {
+                    Debug.WriteLine("Error while sending history: " + ex.Message);
                 }
 
             };
 
             return action().AsAsyncAction();
         }
+
     }
 }
 
