@@ -93,6 +93,7 @@ namespace SensorbergSDK
         }
 
         private static SDKManager _instance;
+        internal static SDKManager InternalInstance { get { return _instance; } }
         private SDKEngine _sdkEngine;
         private BackgroundTaskManager _backgroundTaskManager;
         private Timer _startScannerTimer;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ServiceModel;
 using Windows.Web.Http.Headers;
 using System.Threading.Tasks;
 using Windows.Data.Json;
@@ -93,7 +94,7 @@ namespace SensorbergSDK
             HttpBaseProtocolFilter httpBaseProtocolFilter = new HttpBaseProtocolFilter();
             httpBaseProtocolFilter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
             httpBaseProtocolFilter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
-            HttpClient client = new HttpClient(httpBaseProtocolFilter);
+            IHttpClient client = InstanceManager.newHttpClient(httpBaseProtocolFilter);
 
             var keyValues = new List<KeyValuePair<string, string>>();
             keyValues.Add(new KeyValuePair<string, string>(KeyEmail, email));
@@ -150,7 +151,7 @@ namespace SensorbergSDK
 
                 if (!string.IsNullOrEmpty(authToken))
                 {
-                    client = new HttpClient(httpBaseProtocolFilter);
+                    client = InstanceManager.newHttpClient(httpBaseProtocolFilter);
                     uri = new Uri(ApplicationsUrl);
                     client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue(authToken);
 

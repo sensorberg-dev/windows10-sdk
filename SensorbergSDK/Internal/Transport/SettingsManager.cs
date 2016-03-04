@@ -96,7 +96,7 @@ namespace SensorbergSDK.Internal.Transport
                 requestMessage.Method = HttpMethod.Get;
                 requestMessage.RequestUri = new Uri(string.Format(Constants.SettingsUri, _sdkData.ApiKey));
 
-                HttpClient httpClient = new HttpClient(baseProtocolFilter);
+                IHttpClient httpClient = InstanceManager.newHttpClient(baseProtocolFilter);
 
 
                 var responseMessage = await httpClient.SendRequestAsync(requestMessage);

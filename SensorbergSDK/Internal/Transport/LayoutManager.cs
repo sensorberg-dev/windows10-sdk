@@ -205,7 +205,7 @@ namespace SensorbergSDK.Internal
             requestMessage.Method = HttpMethod.Get;
             requestMessage.RequestUri = new Uri(Constants.LayoutApiUriAsString);
 
-            HttpClient httpClient = new HttpClient(baseProtocolFilter);
+            IHttpClient httpClient = InstanceManager.newHttpClient(baseProtocolFilter);
             httpClient.DefaultRequestHeaders.Add(Constants.XApiKey, apiKey);
             httpClient.DefaultRequestHeaders.Add(Constants.Xiid, _dataContext.DeviceId);
             HttpResponseMessage responseMessage = null;

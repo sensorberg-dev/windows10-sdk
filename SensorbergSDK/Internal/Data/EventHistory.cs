@@ -9,6 +9,7 @@ using System.Text;
 using System.Net;
 using System.Runtime.Serialization;
 using System.Threading;
+using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Internal.Utils;
 
 namespace SensorbergSDK.Internal
@@ -153,7 +154,7 @@ namespace SensorbergSDK.Internal
                         stream1.Position = 0;
                         StreamReader sr = new StreamReader(stream1);
 
-                        HttpClient httpClient = new HttpClient();
+                        IHttpClient httpClient = InstanceManager.newHttpClient();
                         httpClient.DefaultRequestHeaders.Add(Constants.XApiKey, SDKData.Instance.ApiKey);
                         httpClient.DefaultRequestHeaders.Add(Constants.Xiid, SDKData.Instance.DeviceId);
                         bool result =httpClient.DefaultRequestHeaders.TryAddWithoutValidation(Constants.XUserAgent, UserAgentBuilder.BuildUserAgentJson());

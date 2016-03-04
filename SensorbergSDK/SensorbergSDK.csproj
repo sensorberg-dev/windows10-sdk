@@ -111,6 +111,7 @@
     <Compile Include="Internal\Data\BeaconContainer.cs" />
     <Compile Include="Internal\Data\UserAgentModel.cs" />
     <Compile Include="Internal\SDKEngine.cs" />
+    <Compile Include="Internal\Services\IHttpClient.cs" />
     <Compile Include="Internal\SettingsEventArgs.cs" />
     <Compile Include="Internal\Transport\SettingsManager.cs" />
     <Compile Include="Internal\Utils\ActionFactory.cs" />
