@@ -21,7 +21,7 @@ namespace SensorBergTests
         [TestInitialize]
         public void Setup()
         {
-            ServiceManager.ApiConnction = new /*Mock*/ApiConnection();
+            ServiceManager.ApiConnction = new MockApiConnection();
         }
 
         [TestMethod]

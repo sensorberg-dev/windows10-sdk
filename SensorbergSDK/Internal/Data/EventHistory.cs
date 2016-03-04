@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Windows.Foundation;
 using System.Runtime.Serialization.Json;
 using System.IO;
-using System.Net.Http;
 using System.Text;
 using System.Net;
 using System.Runtime.Serialization;
@@ -152,7 +151,7 @@ namespace SensorbergSDK.Internal
 
                         var responseMessage = await ServiceManager.ApiConnction.SendHistory(history);
 
-                        if (responseMessage.StatusCode == HttpStatusCode.OK)
+                        if (responseMessage.IsSuccess)
                         {
                             if ((history.events != null && history.events.Count > 0))
                             {

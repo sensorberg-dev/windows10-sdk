@@ -251,12 +251,12 @@ namespace SensorbergSDK.Internal
         private async Task<Layout> RetrieveLayoutAsync()
         {
             Layout layout = null;
-            HttpResponseMessage responseMessage = await ServiceManager.ApiConnction.RetrieveLayoutResponseAsync(_dataContext);
+            ResponseMessage responseMessage = await ServiceManager.ApiConnction.RetrieveLayoutResponseAsync(_dataContext);
 
-            if (responseMessage != null && responseMessage.IsSuccessStatusCode)
+            if (responseMessage != null && responseMessage.IsSuccess)
             {
-                string headersAsString = StripLineBreaksAndExcessWhitespaces(responseMessage.Headers.ToString());
-                string contentAsString = StripLineBreaksAndExcessWhitespaces(responseMessage.Content.ToString());
+                string headersAsString = StripLineBreaksAndExcessWhitespaces(responseMessage.Header);
+                string contentAsString = StripLineBreaksAndExcessWhitespaces(responseMessage.Content);
                 contentAsString = EnsureEncodingIsUTF8(contentAsString);
                 DateTimeOffset layoutRetrievedTime = DateTimeOffset.Now;
 

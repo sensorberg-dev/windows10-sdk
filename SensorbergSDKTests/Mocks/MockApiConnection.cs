@@ -4,6 +4,7 @@
 // 
 // All rights reserved.
 
+using System;
 using System.Threading.Tasks;
 using Windows.Web.Http;
 using SensorbergSDK.Internal;
@@ -13,9 +14,19 @@ namespace SensorbergSDKTests.Mocks
 {
     public class MockApiConnection : IApiConnection
     {
-        public Task<HttpResponseMessage> RetrieveLayoutResponseAsync(SDKData data, string apiId = null)
+        private async Task<string> Load(string file)
         {
-            throw new System.NotImplementedException();
+            var uri = new System.Uri("ms-appx:///Assets/raw/" + file, UriKind.RelativeOrAbsolute);
+            return await Windows.Storage.FileIO.ReadTextAsync(await Windows.Storage.StorageFile.GetFileFromApplicationUriAsync(uri));
+        }
+
+
+        public async Task<ResponseMessage> RetrieveLayoutResponseAsync(SDKData data, string apiId = null)
+        {
+            return new ResponseMessage()
+            {
+                StatusCode = HttpStatusCode.Ok, Content = await Load("mock/layout_request.json"), Header = await Load("mock/layout_request_header.txt"), IsSuccess = true
+            };
         }
 
         public Task<string> LoadSettings(SDKData sdkData)
@@ -23,9 +34,9 @@ namespace SensorbergSDKTests.Mocks
             throw new System.NotImplementedException();
         }
 
-        public Task<System.Net.Http.HttpResponseMessage> SendHistory(History history)
+        public Task<ResponseMessage> SendHistory(History history)
         {
-            throw new System.NotImplementedException();
+            return Task.FromResult(new ResponseMessage() {IsSuccess = true});
         }
     }
 }

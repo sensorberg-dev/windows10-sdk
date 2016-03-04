@@ -18,7 +18,7 @@ namespace SensorbergSDK.Internal.Services
         /// <param name="data">api key and device id for the request</param>
         /// <param name="apiId">optional api id, overrides the given id by SDKData</param>
         /// <returns>A HttpResponseMessage containing the server response or null in case of an error.</returns>
-        Task<HttpResponseMessage> RetrieveLayoutResponseAsync(SDKData data, string apiId = null);
+        Task<ResponseMessage> RetrieveLayoutResponseAsync(SDKData data, string apiId = null);
 
         Task<string> LoadSettings(SDKData sdkData);
 
@@ -27,6 +27,6 @@ namespace SensorbergSDK.Internal.Services
         /// </summary>
         /// <param name="history">Object to send</param>
         /// <returns></returns>
-        Task<System.Net.Http.HttpResponseMessage> SendHistory(History history);
+        Task<ResponseMessage> SendHistory(History history);
     }
 }

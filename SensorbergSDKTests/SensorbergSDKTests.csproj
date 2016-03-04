@@ -100,6 +100,8 @@
     <Content Include="Assets\raw\resolve_response_001.json" />
     <Content Include="Assets\raw\response_sendOnlyOnce_true.json" />
     <Content Include="Assets\raw\response_supressionTime.json" />
+    <Content Include="Assets\raw\mock\layout_request.json" />
+    <Content Include="Assets\raw\mock\layout_request_header.txt" />
     <None Include="project.json" />
     <SDKReference Include="MSTestFramework.Universal, Version=$(UnitTestPlatformVersion)" />
     <SDKReference Include="TestPlatform.Universal, Version=$(UnitTestPlatformVersion)" />
