@@ -16,17 +16,22 @@
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="SensorbergSimpleApp.App">
       <uap:VisualElements DisplayName="Sensorberg Simple App" Square150x150Logo="Assets\Logo.png" Square44x44Logo="Assets\SmallLogo.png" Description="A very simple example application demonstrating how to utilise Sensorberg SDK in Windows app." BackgroundColor="#536f7d">
+        <uap:DefaultTile>
+          <uap:ShowNameOnTiles>
+            <uap:ShowOn Tile="square150x150Logo" />
+          </uap:ShowNameOnTiles>
+        </uap:DefaultTile>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
       <Extensions>
-        <Extension Category="windows.backgroundTasks" EntryPoint="SensorbergSDKBackground.TimedBackgroundTask">
-          <BackgroundTasks>
-            <Task Type="timer" />
-          </BackgroundTasks>
-        </Extension>
         <Extension Category="windows.backgroundTasks" EntryPoint="SensorbergSDKBackground.AdvertisementWatcherBackgroundTask">
           <BackgroundTasks>
             <Task Type="bluetooth" />
+          </BackgroundTasks>
+        </Extension>
+        <Extension Category="windows.backgroundTasks" EntryPoint="SensorbergSDKBackground.TimedBackgroundTask">
+          <BackgroundTasks>
+            <Task Type="timer" />
           </BackgroundTasks>
         </Extension>
       </Extensions>
