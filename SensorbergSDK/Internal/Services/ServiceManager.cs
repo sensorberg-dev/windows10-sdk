@@ -5,8 +5,8 @@
 // All rights reserved.
 namespace SensorbergSDK.Internal.Services
 {
-    public class ServiceManager
+    public static class ServiceManager
     {
-        public IApiConnection ApiConnction { get; set; }
+        public static IApiConnection ApiConnction { get; set; }
     }
 }

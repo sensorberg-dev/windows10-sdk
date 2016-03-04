@@ -150,7 +150,7 @@ namespace SensorbergSDK.Internal
                     if ((history.events != null && history.events.Count > 0) || (history.actions != null && history.actions.Count > 0))
                     {
 
-                        var responseMessage = await SDKManager.InternalInstance.ServiceManager.ApiConnction.SendHistory(history);
+                        var responseMessage = await ServiceManager.ApiConnction.SendHistory(history);
 
                         if (responseMessage.StatusCode == HttpStatusCode.OK)
                         {

@@ -88,7 +88,7 @@ namespace SensorbergSDK.Internal.Transport
 
             try
             {
-                var responseMessage = await SDKManager.InternalInstance.ServiceManager.ApiConnction.LoadSettings(_sdkData);
+                var responseMessage = await ServiceManager.ApiConnction.LoadSettings(_sdkData);
                 if (string.IsNullOrEmpty(responseMessage))
                 {
                     return null;

@@ -62,7 +62,7 @@ namespace SensorbergSDK
         public async Task<ApiKeyValidationResult> ValidateApiKey(string apiKey)
         {
             ApiKeyValidationResult result = ApiKeyValidationResult.UnknownError;
-            HttpResponseMessage responseMessage = await SDKManager.InternalInstance.ServiceManager.ApiConnction.RetrieveLayoutResponseAsync(SDKData.Instance, apiKey);
+            HttpResponseMessage responseMessage = await ServiceManager.ApiConnction.RetrieveLayoutResponseAsync(SDKData.Instance, apiKey);
 
             if (responseMessage != null && responseMessage.IsSuccessStatusCode)
             {

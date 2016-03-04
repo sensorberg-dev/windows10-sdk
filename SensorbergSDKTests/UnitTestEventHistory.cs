@@ -6,12 +6,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SensorbergSDK.Internal.Services;
 
 namespace SensorBergTests
 {
     [TestClass]
     public class UnitTestEventHistory
     {
+        [TestInitialize]
+        public void Setup()
+        {
+            ServiceManager.ApiConnction = new /*Mock*/ApiConnection();
+        }
+
         [TestMethod]
         public async Task EventHistory_ShouldSupress()
         {
