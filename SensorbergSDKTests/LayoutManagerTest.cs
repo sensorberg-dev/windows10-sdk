@@ -34,7 +34,7 @@ namespace SensorbergSDKTests
             Assert.IsTrue(layout.AccountBeaconId1s.Contains("7367672374000000ffff0000ffff0006"), "Beacon 2 not found");
             Assert.IsTrue(layout.AccountBeaconId1s.Contains("7367672374000000ffff0000ffff0004"), "Beacon 3 not found");
             Assert.IsTrue(layout.AccountBeaconId1s.Contains("7367672374000000ffff0000ffff0007"), "Beacon 4 not found");
-            
+            Assert.AreEqual(8, layout.ResolvedActions.Count, "not 8 actions");
         }
     }
 }
