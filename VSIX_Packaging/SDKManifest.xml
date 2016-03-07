@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<FileList
+  Identity = "SensorbergSDK, Version=0.5"
+  DisplayName = "Sensorberg beacon API for Windows 10"
+  MinVSVersion = "14.0"
+  SupportedArchitectures = "x86;x64;ARM"
+  SupportsMultipleVersions="Error"
+  CopyRedistToSubDirectory="."
+  DependsOn = "Microsoft.VCLibs, Version=14.0">
+ 
+</FileList>
