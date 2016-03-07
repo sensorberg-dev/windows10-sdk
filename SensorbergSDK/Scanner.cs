@@ -133,9 +133,9 @@ namespace SensorbergSDK
                     _bluetoothLEAdvertisementWatcher.SignalStrengthFilter.OutOfRangeTimeout = TimeSpan.FromMilliseconds(_beaconExitTimeout);
                     _bluetoothLEAdvertisementWatcher.ScanningMode = BluetoothLEScanningMode.Active;
 
-                    if (rssiEnterThreshold != null  && rssiEnterThreshold.Value >= -128 && rssiEnterThreshold.Value <= 127)
+                    if (rssiEnterThreshold != null && rssiEnterThreshold.Value >= -128 && rssiEnterThreshold.Value <= 127)
                     {
-                        _bluetoothLEAdvertisementWatcher.SignalStrengthFilter = new BluetoothSignalStrengthFilter() { InRangeThresholdInDBm = rssiEnterThreshold.Value};
+                        _bluetoothLEAdvertisementWatcher.SignalStrengthFilter = new BluetoothSignalStrengthFilter() { InRangeThresholdInDBm = rssiEnterThreshold.Value };
                     }
                 }
 
@@ -147,7 +147,7 @@ namespace SensorbergSDK
                 Debug.WriteLine("Scanner.StartWatcher(): Watcher started");
             }
         }
-        
+
         /// <summary>
         /// Stops the watcher. The events are unhooked in the callback (OnWatcherStopped).
         /// </summary>
