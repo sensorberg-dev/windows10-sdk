@@ -4,7 +4,7 @@ using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
-using Microsoft.HockeyApp;
+using HockeyApp;
 
 // The Blank Application template is documented at http://go.microsoft.com/fwlink/?LinkId=402347&clcid=0x409
 
@@ -31,7 +31,7 @@ namespace SensorbergShowcase
         /// will be used such as when the application is launched to open a specific file.
         /// </summary>
         /// <param name="e">Details about the launch request and process.</param>
-        protected override void OnLaunched(LaunchActivatedEventArgs e)
+        protected override async void OnLaunched(LaunchActivatedEventArgs e)
         {
 #if DEBUG
             if (System.Diagnostics.Debugger.IsAttached)
@@ -69,6 +69,7 @@ namespace SensorbergShowcase
                 // parameter
                 rootFrame.Navigate(typeof(MainPage), e.Arguments);
             }
+            await HockeyClient.Current.SendCrashesAsync();
             // Ensure the current window is active
             Window.Current.Activate();
         }
