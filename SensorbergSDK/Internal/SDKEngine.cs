@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK.Internal
@@ -51,16 +52,6 @@ namespace SensorbergSDK.Internal
         }
 
         /// <summary>
-        /// The LayoutManager instance.
-        /// </summary>
-        public LayoutManager LayoutManager
-        {
-            get;
-            private set;
-
-        }
-
-        /// <summary>
         /// The Resolver instance.
         /// </summary>
         public Resolver Resolver
@@ -84,8 +75,11 @@ namespace SensorbergSDK.Internal
         /// <param name="createdOnForeground"></param>
         public SDKEngine(bool createdOnForeground)
         {
+            ServiceManager.ApiConnction = new ApiConnection();
+            ServiceManager.BeaconScanner = new Scanner();
+            ServiceManager.LayoutManager = new LayoutManager();
+
             _appIsOnForeground = createdOnForeground;
-            LayoutManager = LayoutManager.Instance;
             Resolver = new Resolver();
             _eventHistory = new EventHistory();
             _nextTimeToProcessDelayedActions = DateTimeOffset.MaxValue;
@@ -103,7 +97,7 @@ namespace SensorbergSDK.Internal
                 //Ensures that database tables are created
                 await Storage.Instance.CreateDBAsync();
 
-                LayoutManager.LayoutValidityChanged += LayoutValidityChanged;
+                ServiceManager.LayoutManager.LayoutValidityChanged += LayoutValidityChanged;
 
                 // We force to update the cache on the foreground only
                 await UpdateCacheAsync(_appIsOnForeground);
@@ -164,7 +158,7 @@ namespace SensorbergSDK.Internal
         {
             if (IsInitialized)
             {
-                LayoutManager.LayoutValidityChanged -= LayoutValidityChanged;
+                ServiceManager.LayoutManager.LayoutValidityChanged -= LayoutValidityChanged;
 
                 Resolver.ActionsResolved -= OnBeaconActionResolvedAsync;
                 Resolver.FailedToResolveActions -= OnResolverFailedToResolveActions;
@@ -197,7 +191,7 @@ namespace SensorbergSDK.Internal
         /// </summary>
         public async Task UpdateCacheAsync(bool forceUpdate)
         {
-            await LayoutManager.VerifyLayoutAsync(forceUpdate);
+            await ServiceManager.LayoutManager.VerifyLayoutAsync(forceUpdate);
         }
 
         /// <summary>

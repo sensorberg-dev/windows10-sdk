@@ -22,19 +22,19 @@ namespace SensorbergSDK.Internal
         public void Setup()
         {
             ServiceManager.ApiConnction = new MockApiConnection();
+            ServiceManager.LayoutManager = new LayoutManager();
         }
 
         [TestMethod]
         public async Task TestValidLayout()
         {
-            LayoutManager manager = LayoutManager.Instance;
-            await ValidateBaseMockLayout(manager);
+            await ValidateBaseMockLayout(ServiceManager.LayoutManager);
         }
 
         [TestMethod]
         public async Task TestValidInvalidateLayout()
         {
-            LayoutManager manager = LayoutManager.Instance;
+            ILayoutManager manager = ServiceManager.LayoutManager;
             await ValidateBaseMockLayout(manager);
             await manager.InvalidateLayoutAsync();
             Assert.IsFalse(manager.IsLayoutValid, "Layout still valid");
@@ -43,7 +43,7 @@ namespace SensorbergSDK.Internal
             Assert.IsTrue(manager.IsLayoutValid, "Layout still invalid");
         }
 
-        private static async Task ValidateBaseMockLayout(LayoutManager manager)
+        private static async Task ValidateBaseMockLayout(ILayoutManager manager)
         {
             Assert.IsTrue(await manager.VerifyLayoutAsync(true), "Verification failed");
             Layout layout = manager.Layout;

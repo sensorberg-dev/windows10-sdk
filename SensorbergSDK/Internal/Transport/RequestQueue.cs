@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using SensorbergSDK.Internal.Services;
 
 namespace SensorbergSDK.Internal
 {
@@ -102,7 +103,7 @@ namespace SensorbergSDK.Internal
 
                     try
                     {
-                        requestResult = await LayoutManager.Instance.ExecuteRequestAsync(currentRequest);
+                        requestResult = await ServiceManager.LayoutManager.ExecuteRequestAsync(currentRequest);
                     }
                     catch (ArgumentNullException ex)
                     {

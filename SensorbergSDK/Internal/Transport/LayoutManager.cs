@@ -17,7 +17,7 @@ namespace SensorbergSDK.Internal
     /// Manages the layouts and encapsulates both retrieving fresh layouts from the web and
     /// caching them.
     /// </summary>
-    public sealed class LayoutManager
+    public sealed class LayoutManager : ILayoutManager
     {
         private const string KeyLayoutHeaders = "layout_headers";
         private const string KeyLayoutContent = "layout_content.cache"; // Cache file
@@ -49,31 +49,9 @@ namespace SensorbergSDK.Internal
             }
         }
 
-        private static LayoutManager _instance;
-        public static LayoutManager Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new LayoutManager();
-                }
-
-                return _instance;
-            }
-        }
-
-        private LayoutManager()
+        public LayoutManager()
         {
             _dataContext = SDKData.Instance;
-        }
-
-        /// <summary>
-        /// Uninitializes the LayoutManager.
-        /// </summary>
-        public void Dispose()
-        {
-            _instance = null;
         }
 
         /// <summary>

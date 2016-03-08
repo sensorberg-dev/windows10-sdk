@@ -9,6 +9,7 @@ namespace SensorbergSDK.Internal.Services
     {
         private static IApiConnection _apiConnction;
         private static IBeaconScanner _beaconScanner;
+        private static ILayoutManager _layoutManager;
 
         public static IApiConnection ApiConnction
         {
@@ -30,6 +31,18 @@ namespace SensorbergSDK.Internal.Services
                 if (_beaconScanner == null || !ReadOnlyForTests)
                 {
                     _beaconScanner = value;
+                }
+            }
+        }
+
+        public static ILayoutManager LayoutManager
+        {
+            get { return _layoutManager; }
+            set
+            {
+                if (_layoutManager == null || !ReadOnlyForTests)
+                {
+                    _layoutManager = value;
                 }
             }
         }

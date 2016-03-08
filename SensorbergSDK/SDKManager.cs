@@ -201,7 +201,7 @@ namespace SensorbergSDK
         {
             get
             {
-                return _sdkEngine.LayoutManager.IsLayoutValid;
+                return ServiceManager.LayoutManager.IsLayoutValid;
             }
         }
 
@@ -229,10 +229,9 @@ namespace SensorbergSDK
         /// </summary>
         public static void Dispose()
         {
-            LayoutManager.Instance.Dispose();
             ServiceManager.BeaconScanner.StopWatcher();
-            _instance._backgroundTaskManager.UnregisterBackgroundTask();
-            _instance._sdkEngine.Deinitialize();
+            _instance?._backgroundTaskManager.UnregisterBackgroundTask();
+            _instance?._sdkEngine.Deinitialize();
             _instance = null;
         }
 
@@ -241,9 +240,6 @@ namespace SensorbergSDK
         /// </summary>
         private SDKManager()
         {
-            ServiceManager.ApiConnction = new ApiConnection();
-            ServiceManager.BeaconScanner = new Scanner();
-
             _sdkEngine = new SDKEngine(true);
             _backgroundTaskManager = new BackgroundTaskManager();
         }
@@ -406,7 +402,7 @@ namespace SensorbergSDK
         {
             Func<Task> action = async () =>
             {
-                await _sdkEngine.LayoutManager.InvalidateLayoutAsync();
+                await ServiceManager.LayoutManager.InvalidateLayoutAsync();
             };
 
             return action().AsAsyncAction();
