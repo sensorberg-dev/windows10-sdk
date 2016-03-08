@@ -22,6 +22,7 @@ namespace SensorBergTests
         public void Setup()
         {
             ServiceManager.ApiConnction = new MockApiConnection();
+            ServiceManager.LayoutManager = new LayoutManager();
         }
 
         [TestMethod]
