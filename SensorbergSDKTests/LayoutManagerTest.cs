@@ -5,6 +5,7 @@
 // All rights reserved.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK.Internal;
@@ -35,6 +36,13 @@ namespace SensorbergSDKTests
             Assert.IsTrue(layout.AccountBeaconId1s.Contains("7367672374000000ffff0000ffff0004"), "Beacon 3 not found");
             Assert.IsTrue(layout.AccountBeaconId1s.Contains("7367672374000000ffff0000ffff0007"), "Beacon 4 not found");
             Assert.AreEqual(8, layout.ResolvedActions.Count, "not 8 actions");
+
+            ResolvedAction a = layout.ResolvedActions.FirstOrDefault(t => t.BeaconAction.Uuid == "3f30be2605524f82a9bf0ccb4a81618f");
+            Assert.AreEqual(1, (int)a.EventTypeDetectedByDevice, "Wrong trigger type");
+            Assert.AreEqual(1, a.BeaconPids.Count,"Beacon count wrong");
+            Assert.IsTrue(a.BeaconPids.ContainsKey("7367672374000000ffff0000ffff00043917830929"), "No Beacon found!");
+
+            Assert.AreEqual(43200, a.SupressionTime, "Wrong supression time!");
         }
     }
 }
