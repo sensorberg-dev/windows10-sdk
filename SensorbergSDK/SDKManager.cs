@@ -102,11 +102,11 @@ namespace SensorbergSDK
         /// <summary>
         /// The scanner instance.
         /// </summary>
-        public Scanner Scanner
+        public IBeaconScanner Scanner
         {
             get
             {
-                return Scanner.Instance;
+                return ServiceManager.BeaconScanner;
             }
         }
 
@@ -225,11 +225,24 @@ namespace SensorbergSDK
         }
 
         /// <summary>
+        /// Uninitialize the complete SDK.
+        /// </summary>
+        public static void Dispose()
+        {
+            LayoutManager.Instance.Dispose();
+            ServiceManager.BeaconScanner.StopWatcher();
+            _instance._backgroundTaskManager.UnregisterBackgroundTask();
+            _instance._sdkEngine.Deinitialize();
+            _instance = null;
+        }
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         private SDKManager()
         {
             ServiceManager.ApiConnction = new ApiConnection();
+            ServiceManager.BeaconScanner = new Scanner();
 
             _sdkEngine = new SDKEngine(true);
             _backgroundTaskManager = new BackgroundTaskManager();
@@ -304,6 +317,7 @@ namespace SensorbergSDK
 
                 _sdkEngine.Deinitialize();
             }
+            Dispose();
         }
 
         /// <summary>

@@ -3,7 +3,8 @@
       "7367672374000000ffff0000ffff0003",
       "7367672374000000ffff0000ffff0006",
       "7367672374000000ffff0000ffff0004",
-      "7367672374000000ffff0000ffff0007"
+      "7367672374000000ffff0000ffff0007",
+      "7367672374000000ffff0000ffff0008"
    ],
    "actions":[  
       {  
@@ -186,6 +187,31 @@
             }
          ],
          "sendOnlyOnce":false,
+         "typeString":"function"
+      },
+      {  
+         "eid":"4224871362624826b510141da0d4fc65d",
+         "trigger":1,
+         "beacons":[  
+            "7367672374000000ffff0000ffff00082343028018"
+         ],
+         "suppressionTime":-1,
+         "content":{  
+            "subject":"",
+            "body":"",
+            "payload":{  
+               "payload":"is",
+               "awesome":true
+            },
+            "url":"payload://is.awesome"
+         },
+         "type":3,
+         "timeframes":[  
+            {  
+               "start":"2015-04-16T12:48:51.828+0000"
+            }
+         ],
+         "sendOnlyOnce":true,
          "typeString":"function"
       }
    ],

@@ -7,6 +7,33 @@ namespace SensorbergSDK.Internal.Services
 {
     public static class ServiceManager
     {
-        public static IApiConnection ApiConnction { get; set; }
+        private static IApiConnection _apiConnction;
+        private static IBeaconScanner _beaconScanner;
+
+        public static IApiConnection ApiConnction
+        {
+            get { return _apiConnction; }
+            set
+            {
+                if (_apiConnction == null || !ReadOnlyForTests)
+                {
+                    _apiConnction = value;
+                }
+            }
+        }
+
+        public static IBeaconScanner BeaconScanner
+        {
+            get { return _beaconScanner; }
+            set
+            {
+                if (_beaconScanner == null || !ReadOnlyForTests)
+                {
+                    _beaconScanner = value;
+                }
+            }
+        }
+
+        public static bool ReadOnlyForTests { get; set; }
     }
 }

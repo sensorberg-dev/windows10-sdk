@@ -113,6 +113,7 @@
     <Compile Include="Internal\SDKEngine.cs" />
     <Compile Include="Internal\Services\ApiConnection.cs" />
     <Compile Include="Internal\Services\IApiConnection.cs" />
+    <Compile Include="Internal\Services\IBeaconScanner.cs" />
     <Compile Include="Internal\Services\ResponseMessage.cs" />
     <Compile Include="Internal\Services\ServiceManager.cs" />
     <Compile Include="Internal\SettingsEventArgs.cs" />

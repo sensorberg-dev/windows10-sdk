@@ -69,6 +69,14 @@ namespace SensorbergSDK.Internal
         }
 
         /// <summary>
+        /// Uninitializes the LayoutManager.
+        /// </summary>
+        public void Dispose()
+        {
+            _instance = null;
+        }
+
+        /// <summary>
         /// Makes sure the layout is up-to-date.
         /// </summary>
         /// <param name="forceUpdate">If true, will update the layout even if valid.</param>

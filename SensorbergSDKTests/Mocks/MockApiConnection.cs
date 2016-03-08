@@ -29,9 +29,9 @@ namespace SensorbergSDKTests.Mocks
             };
         }
 
-        public Task<string> LoadSettings(SDKData sdkData)
+        public async Task<string> LoadSettings(SDKData sdkData)
         {
-            throw new System.NotImplementedException();
+            return null;
         }
 
         public Task<ResponseMessage> SendHistory(History history)

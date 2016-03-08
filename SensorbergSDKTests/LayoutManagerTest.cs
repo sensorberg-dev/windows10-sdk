@@ -13,7 +13,7 @@ using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDKTests.Mocks;
 
-namespace SensorbergSDKTests
+namespace SensorbergSDK.Internal
 {
     [TestClass]
     public class LayoutManagerTest
@@ -39,6 +39,8 @@ namespace SensorbergSDKTests
             await manager.InvalidateLayoutAsync();
             Assert.IsFalse(manager.IsLayoutValid, "Layout still valid");
             Assert.IsNull(manager.Layout, "Layout still exists");
+            Assert.IsTrue(await manager.VerifyLayoutAsync(true), "Verification failed");
+            Assert.IsTrue(manager.IsLayoutValid, "Layout still invalid");
         }
 
         private static async Task ValidateBaseMockLayout(LayoutManager manager)
@@ -46,12 +48,12 @@ namespace SensorbergSDKTests
             Assert.IsTrue(await manager.VerifyLayoutAsync(true), "Verification failed");
             Layout layout = manager.Layout;
             Assert.IsNotNull(layout, "No Layout avialable");
-            Assert.AreEqual(4, layout.AccountBeaconId1s.Count, "Number of proximity beacons not matching");
+            Assert.AreEqual(5, layout.AccountBeaconId1s.Count, "Number of proximity beacons not matching");
             Assert.IsTrue(layout.AccountBeaconId1s.Contains("7367672374000000ffff0000ffff0003"), "Beacon 1 not found");
             Assert.IsTrue(layout.AccountBeaconId1s.Contains("7367672374000000ffff0000ffff0006"), "Beacon 2 not found");
             Assert.IsTrue(layout.AccountBeaconId1s.Contains("7367672374000000ffff0000ffff0004"), "Beacon 3 not found");
             Assert.IsTrue(layout.AccountBeaconId1s.Contains("7367672374000000ffff0000ffff0007"), "Beacon 4 not found");
-            Assert.AreEqual(8, layout.ResolvedActions.Count, "not 8 actions");
+            Assert.AreEqual(9, layout.ResolvedActions.Count, "not 9 actions");
 
             ResolvedAction a = layout.ResolvedActions.FirstOrDefault(t => t.BeaconAction.Uuid == "9ded63644e424d758b0218f7c70f2473");
             Assert.AreEqual(3, (int) a.EventTypeDetectedByDevice, "beacon 1 - Wrong trigger type");
