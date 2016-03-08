@@ -37,24 +37,15 @@ namespace SensorbergSDK.Internal
         private Layout _layout;
         private ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
 
-        private bool _isLayoutValid;
+        /// <summary>
+        /// Checks the layout validity.
+        /// </summary>
+        /// <returns>True, if layout is valid. False, if invalid.</returns>
         public bool IsLayoutValid
         {
             get
             {
-                return _isLayoutValid;
-            }
-            private set
-            {
-                if (_isLayoutValid != value)
-                {
-                    _isLayoutValid = value;
-
-                    if (LayoutValidityChanged != null)
-                    {
-                        LayoutValidityChanged(this, _isLayoutValid);
-                    }
-                }
+                return _layout != null && _layout.ValidTill >= DateTimeOffset.Now;
             }
         }
 
@@ -89,7 +80,7 @@ namespace SensorbergSDK.Internal
 
         private async Task<bool> InternalVerifyLayoutAsync(bool forceUpdate)
         {
-            if (forceUpdate || !CheckLayoutValidity())
+            if (forceUpdate || !IsLayoutValid)
             {
                 if (!forceUpdate)
                 {
@@ -97,7 +88,7 @@ namespace SensorbergSDK.Internal
                     _layout = await LoadLayoutFromLocalStorageAsync();
                 }
 
-                if (forceUpdate || !CheckLayoutValidity())
+                if (forceUpdate || !IsLayoutValid)
                 {
                     // Make sure that the existing layout (even if old) is not set to null in case
                     // we fail to load the fresh one from the web.
@@ -111,7 +102,7 @@ namespace SensorbergSDK.Internal
                 }
             }
 
-            return CheckLayoutValidity();
+            return IsLayoutValid;
         }
 
         /// <summary>
@@ -140,16 +131,6 @@ namespace SensorbergSDK.Internal
             };
 
             return action().AsAsyncAction();
-        }
-
-        /// <summary>
-        /// Checks the layout validity.
-        /// </summary>
-        /// <returns>True, if layout is valid. False, if invalid.</returns>
-        public bool CheckLayoutValidity()
-        {
-            IsLayoutValid = (_layout != null && _layout.ValidTill >= DateTimeOffset.Now);
-            return IsLayoutValid;
         }
 
         /// <summary>
