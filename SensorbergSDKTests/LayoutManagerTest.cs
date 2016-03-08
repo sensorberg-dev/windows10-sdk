@@ -28,6 +28,21 @@ namespace SensorbergSDKTests
         public async Task TestValidLayout()
         {
             LayoutManager manager = LayoutManager.Instance;
+            await ValidateBaseMockLayout(manager);
+        }
+
+        [TestMethod]
+        public async Task TestValidInvalidateLayout()
+        {
+            LayoutManager manager = LayoutManager.Instance;
+            await ValidateBaseMockLayout(manager);
+            await manager.InvalidateLayoutAsync();
+            Assert.IsFalse(manager.IsLayoutValid, "Layout still valid");
+            Assert.IsNull(manager.Layout, "Layout still exists");
+        }
+
+        private static async Task ValidateBaseMockLayout(LayoutManager manager)
+        {
             Assert.IsTrue(await manager.VerifyLayoutAsync(true), "Verification failed");
             Layout layout = manager.Layout;
             Assert.IsNotNull(layout, "No Layout avialable");
@@ -54,13 +69,12 @@ namespace SensorbergSDKTests
             Assert.AreEqual(1, a.Timeframes.Count, "beacon 1 - More timeframes are set");
             Assert.AreEqual(new DateTime(2015, 04, 16, 12, 46, 19, 627), a.Timeframes[0].Start.Value.DateTime, "beacon 1 - Different timesetting");
 
-            Assert.AreEqual(3, (int)a.BeaconAction.Type, "beacon 1 - Different type");
+            Assert.AreEqual(3, (int) a.BeaconAction.Type, "beacon 1 - Different type");
             Assert.IsFalse(a.SendOnlyOnce, "beacon 1 - Send only once is set");
 
 
-
             a = layout.ResolvedActions.FirstOrDefault(t => t.BeaconAction.Uuid == "3f30be2605524f82a9bf0ccb4a81618f");
-            Assert.AreEqual(1, (int)a.EventTypeDetectedByDevice, "beacon 2 - Wrong trigger type");
+            Assert.AreEqual(1, (int) a.EventTypeDetectedByDevice, "beacon 2 - Wrong trigger type");
             Assert.AreEqual(1, a.BeaconPids.Count, "beacon 2 - Beacon count wrong");
             Assert.IsTrue(a.BeaconPids.ContainsKey("7367672374000000ffff0000ffff00034886921321"), "beacon 2 - No Beacon found!");
 
@@ -75,13 +89,12 @@ namespace SensorbergSDKTests
             Assert.AreEqual(1, a.Timeframes.Count, "beacon 2 - More timeframes are set");
             Assert.AreEqual(new DateTime(2015, 04, 16, 12, 33, 48, 627), a.Timeframes[0].Start.Value.DateTime, "beacon 2 - Different timesetting");
 
-            Assert.AreEqual(3, (int)a.BeaconAction.Type, "beacon 2 - Different type");
+            Assert.AreEqual(3, (int) a.BeaconAction.Type, "beacon 2 - Different type");
             Assert.IsFalse(a.SendOnlyOnce, "beacon 2 - Send only once is set");
 
 
-
             a = layout.ResolvedActions.FirstOrDefault(t => t.BeaconAction.Uuid == "312a8594e07542bd814ecdd17f76538e");
-            Assert.AreEqual(1, (int)a.EventTypeDetectedByDevice, "beacon 3 - Wrong trigger type");
+            Assert.AreEqual(1, (int) a.EventTypeDetectedByDevice, "beacon 3 - Wrong trigger type");
             Assert.AreEqual(1, a.BeaconPids.Count, "beacon 3 - Beacon count wrong");
             Assert.IsTrue(a.BeaconPids.ContainsKey("7367672374000000ffff0000ffff00034886921321"), "beacon 3 - No Beacon found!");
 
@@ -96,14 +109,12 @@ namespace SensorbergSDKTests
             Assert.AreEqual(1, a.Timeframes.Count, "beacon 3 - More timeframes are set");
             Assert.AreEqual(new DateTime(2015, 04, 16, 12, 34, 22, 596), a.Timeframes[0].Start.Value.DateTime, "beacon 3 - Different timesetting");
 
-            Assert.AreEqual(3, (int)a.BeaconAction.Type, "beacon 3 - Different type");
+            Assert.AreEqual(3, (int) a.BeaconAction.Type, "beacon 3 - Different type");
             Assert.IsFalse(a.SendOnlyOnce, "beacon 3 - Send only once is set");
 
 
-
-
             a = layout.ResolvedActions.FirstOrDefault(t => t.BeaconAction.Uuid == "959ea393e3424ab7ad53584a8b789197");
-            Assert.AreEqual(1, (int)a.EventTypeDetectedByDevice, "beacon 4 - Wrong trigger type");
+            Assert.AreEqual(1, (int) a.EventTypeDetectedByDevice, "beacon 4 - Wrong trigger type");
             Assert.AreEqual(1, a.BeaconPids.Count, "beacon 4 - Beacon count wrong");
             Assert.IsTrue(a.BeaconPids.ContainsKey("7367672374000000ffff0000ffff00034895330988"), "beacon 4 - No Beacon found!");
 
@@ -118,14 +129,12 @@ namespace SensorbergSDKTests
             Assert.AreEqual(1, a.Timeframes.Count, "beacon 4 - More timeframes are set");
             Assert.AreEqual(new DateTime(2015, 04, 30, 08, 05, 54, 432), a.Timeframes[0].Start.Value.DateTime, "beacon 4 - Different timesetting");
 
-            Assert.AreEqual(1, (int)a.BeaconAction.Type, "beacon 4 - Different type");
+            Assert.AreEqual(1, (int) a.BeaconAction.Type, "beacon 4 - Different type");
             Assert.IsFalse(a.SendOnlyOnce, "beacon 4 - Send only once is set");
 
 
-
-
             a = layout.ResolvedActions.FirstOrDefault(t => t.BeaconAction.Uuid == "351fd4b8b1c34da6b827e53acd79ff17");
-            Assert.AreEqual(1, (int)a.EventTypeDetectedByDevice, "beacon 5 - Wrong trigger type");
+            Assert.AreEqual(1, (int) a.EventTypeDetectedByDevice, "beacon 5 - Wrong trigger type");
             Assert.AreEqual(1, a.BeaconPids.Count, "beacon 5 - Beacon count wrong");
             Assert.IsTrue(a.BeaconPids.ContainsKey("7367672374000000ffff0000ffff00034886921321"), "beacon 5 - No Beacon found!");
 
@@ -140,14 +149,12 @@ namespace SensorbergSDKTests
             Assert.AreEqual(1, a.Timeframes.Count, "beacon 5 - More timeframes are set");
             Assert.AreEqual(new DateTime(2015, 04, 16, 12, 33, 28, 264), a.Timeframes[0].Start.Value.DateTime, "beacon 5 - Different timesetting");
 
-            Assert.AreEqual(3, (int)a.BeaconAction.Type, "beacon 5 - Different type");
+            Assert.AreEqual(3, (int) a.BeaconAction.Type, "beacon 5 - Different type");
             Assert.IsFalse(a.SendOnlyOnce, "beacon 5 - Send only once is set");
 
 
-
-
             a = layout.ResolvedActions.FirstOrDefault(t => t.BeaconAction.Uuid == "a5009f851ded4ce68d9b1b4ff6db6137");
-            Assert.AreEqual(1, (int)a.EventTypeDetectedByDevice, "beacon 7- Wrong trigger type");
+            Assert.AreEqual(1, (int) a.EventTypeDetectedByDevice, "beacon 7- Wrong trigger type");
             Assert.AreEqual(1, a.BeaconPids.Count, "beacon 7 - Beacon count wrong");
             Assert.IsTrue(a.BeaconPids.ContainsKey("7367672374000000ffff0000ffff00073918758763"), "beacon 7 - No Beacon found!");
 
@@ -163,14 +170,12 @@ namespace SensorbergSDKTests
             Assert.AreEqual(new DateTime(2016, 12, 31, 11, 00, 00, 00), a.Timeframes[0].Start.Value.DateTime, "beacon 7 - Different timesetting");
             Assert.AreEqual(new DateTime(2017, 12, 31, 11, 00, 00, 00), a.Timeframes[0].End.Value.DateTime, "beacon 7 - Different timesetting");
 
-            Assert.AreEqual(1, (int)a.BeaconAction.Type, "beacon 7 - Different type");
+            Assert.AreEqual(1, (int) a.BeaconAction.Type, "beacon 7 - Different type");
             Assert.IsFalse(a.SendOnlyOnce, "beacon 7 - Send only once is set");
 
 
-
-
             a = layout.ResolvedActions.FirstOrDefault(t => t.BeaconAction.Uuid == "4224871362624826b510141da0d4fc5d");
-            Assert.AreEqual(1, (int)a.EventTypeDetectedByDevice, "beacon 8- Wrong trigger type");
+            Assert.AreEqual(1, (int) a.EventTypeDetectedByDevice, "beacon 8- Wrong trigger type");
             Assert.AreEqual(1, a.BeaconPids.Count, "beacon 8 - Beacon count wrong");
             Assert.IsTrue(a.BeaconPids.ContainsKey("7367672374000000ffff0000ffff00062343028018"), "beacon 8 - No Beacon found!");
 
@@ -186,7 +191,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(1, a.Timeframes.Count, "beacon 8 - More timeframes are set");
             Assert.AreEqual(new DateTime(2015, 04, 16, 12, 48, 51, 828), a.Timeframes[0].Start.Value.DateTime, "beacon 8 - Different timesetting");
 
-            Assert.AreEqual(3, (int)a.BeaconAction.Type, "beacon 8 - Different type");
+            Assert.AreEqual(3, (int) a.BeaconAction.Type, "beacon 8 - Different type");
             Assert.IsFalse(a.SendOnlyOnce, "beacon 8 - Send only once is set");
         }
     }
