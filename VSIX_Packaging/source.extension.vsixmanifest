@@ -3,8 +3,10 @@
   <Metadata>
     <Identity Id="SensorbergSDK.Sensorberg.d06260a2-42e5-4c65-bf87-b6c76995a9f9" Version="0.5" Language="en-US" Publisher="Sensorberg" />
     <DisplayName>SensorbergSDK</DisplayName>
-    <Description xml:space="preserve">Sensorberg beacon API for Windows 10</Description>
+    <Description xml:space="preserve">Sensorberg SDK for Windows 10</Description>
+    <MoreInfo>http://developer.sensorberg.com/windows10/</MoreInfo>
     <License>license.txt</License>
+    <GettingStartedGuide>http://developer.sensorberg.com/windows10/</GettingStartedGuide>
     <ReleaseNotes>ReleaseNotes.txt</ReleaseNotes>
     <Icon>icon.png</Icon>
     <PreviewImage>preview.png</PreviewImage>
