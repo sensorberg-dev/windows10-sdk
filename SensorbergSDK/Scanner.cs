@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
+using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK
@@ -20,7 +21,7 @@ namespace SensorbergSDK
     /// <summary>
     /// Bluetooth LE advertisement scanner helper class with beacon list management.
     /// </summary>
-	public sealed class Scanner
+	public sealed class Scanner : IBeaconScanner
     {
         /// <summary>
         /// Triggered when the scanner is either started, stopped or aborted.
@@ -44,8 +45,6 @@ namespace SensorbergSDK
 
         private UInt64 _beaconExitTimeout;
         private UInt64? _enterDistanceThreshold;
-
-        public static Scanner Instance => _instance ?? (_instance = new Scanner());
 
         private ScannerStatus _status;
         /// <summary>
@@ -98,7 +97,7 @@ namespace SensorbergSDK
         /// <summary>
         /// Constructor
         /// </summary>
-        private Scanner()
+        public Scanner()
         {
             _status = ScannerStatus.Stopped;
             _beaconsContainer = new BeaconContainer();

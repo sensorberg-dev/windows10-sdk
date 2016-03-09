@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.UI.Core;
 using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK
@@ -101,11 +102,11 @@ namespace SensorbergSDK
         /// <summary>
         /// The scanner instance.
         /// </summary>
-        public Scanner Scanner
+        public IBeaconScanner Scanner
         {
             get
             {
-                return Scanner.Instance;
+                return ServiceManager.BeaconScanner;
             }
         }
 
@@ -200,7 +201,7 @@ namespace SensorbergSDK
         {
             get
             {
-                return _sdkEngine.LayoutManager.IsLayoutValid;
+                return ServiceManager.LayoutManager.IsLayoutValid;
             }
         }
 
@@ -221,6 +222,17 @@ namespace SensorbergSDK
             _instance.BeaconCode = beaconCode;
 
             return _instance;
+        }
+
+        /// <summary>
+        /// Uninitialize the complete SDK.
+        /// </summary>
+        public static void Dispose()
+        {
+            ServiceManager.BeaconScanner.StopWatcher();
+            _instance?._backgroundTaskManager.UnregisterBackgroundTask();
+            _instance?._sdkEngine.Deinitialize();
+            _instance = null;
         }
 
         /// <summary>
@@ -301,6 +313,7 @@ namespace SensorbergSDK
 
                 _sdkEngine.Deinitialize();
             }
+            Dispose();
         }
 
         /// <summary>
@@ -389,7 +402,7 @@ namespace SensorbergSDK
         {
             Func<Task> action = async () =>
             {
-                await _sdkEngine.LayoutManager.InvalidateLayoutAsync();
+                await ServiceManager.LayoutManager.InvalidateLayoutAsync();
             };
 
             return action().AsAsyncAction();

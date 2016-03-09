@@ -66,6 +66,7 @@ namespace SensorbergShowcase
             {
                 return;
             }
+            Debug.WriteLine("---------------------------------------"+e.Url+"-------------------------------------");
 
 
             MessageDialog messageDialog = e.ToMessageDialog();

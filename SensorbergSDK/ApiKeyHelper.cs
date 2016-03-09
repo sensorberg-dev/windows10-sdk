@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ServiceModel;
 using Windows.Web.Http.Headers;
 using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
 using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Services;
 
 namespace SensorbergSDK
 {
@@ -59,18 +61,15 @@ namespace SensorbergSDK
         /// <returns>The validation result.</returns>
         public async Task<ApiKeyValidationResult> ValidateApiKey(string apiKey)
         {
-            ApiKeyValidationResult result = ApiKeyValidationResult.UnknownError;
-            HttpResponseMessage responseMessage = await LayoutManager.Instance.RetrieveLayoutResponseAsync(apiKey);
+            ApiKeyValidationResult result;
+            ResponseMessage responseMessage = await ServiceManager.ApiConnction.RetrieveLayoutResponseAsync(SDKData.Instance, apiKey);
 
-            if (responseMessage != null && responseMessage.IsSuccessStatusCode)
+            if (responseMessage.IsSuccess)
             {
-                ulong responseMessageContentLength = 0;
 
-                if (responseMessage.Content.TryComputeLength(out responseMessageContentLength))
-                {
-                    result = (responseMessageContentLength > Constants.MinimumLayoutContentLength) ?
-                        ApiKeyValidationResult.Valid : ApiKeyValidationResult.Invalid;
-                }
+                result = string.IsNullOrEmpty(responseMessage.Content) || responseMessage.Content.Length < Constants.MinimumLayoutContentLength
+                    ? ApiKeyValidationResult.Invalid
+                    : ApiKeyValidationResult.Valid;
             }
             else
             {
@@ -93,6 +92,7 @@ namespace SensorbergSDK
             HttpBaseProtocolFilter httpBaseProtocolFilter = new HttpBaseProtocolFilter();
             httpBaseProtocolFilter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
             httpBaseProtocolFilter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
+            //TODO kill me, ok extract me
             HttpClient client = new HttpClient(httpBaseProtocolFilter);
 
             var keyValues = new List<KeyValuePair<string, string>>();

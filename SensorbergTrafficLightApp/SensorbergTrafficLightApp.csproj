@@ -2,6 +2,7 @@
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
+    <PlatformSpecificBundleArtifactsListDir>$(ProjectDir)BundleArtifacts</PlatformSpecificBundleArtifactsListDir>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProjectGuid>{32CFE374-CA73-4E41-B2DB-B5BCB02F7FC6}</ProjectGuid>
@@ -113,23 +114,14 @@
     <None Include="SensorbergTrafficLightApp_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\BadgeLogo.png" />
     <Content Include="Assets\BadgeLogo.scale-100.png" />
-    <Content Include="Assets\DesktopLogo.png" />
     <Content Include="Assets\DesktopLogo.scale-100.png" />
-    <Content Include="Assets\Logo.png" />
     <Content Include="Assets\Logo.scale-100.png" />
-    <Content Include="Assets\MediumLogo.png" />
     <Content Include="Assets\MediumLogo.scale-100.png" />
-    <Content Include="Assets\SmallLogo.png" />
     <Content Include="Assets\SmallLogo.scale-100.png" />
-    <Content Include="Assets\SplashScreen.png" />
     <Content Include="Assets\SplashScreen.scale-100.png" />
-    <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\StoreLogo.scale-100.png" />
-    <Content Include="Assets\Wide310x150Logo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-100.png" />
-    <Content Include="Assets\WideLogo.png" />
     <Content Include="Assets\WideLogo.scale-100.png" />
     <Content Include="Properties\Default.rd.xml" />
   </ItemGroup>

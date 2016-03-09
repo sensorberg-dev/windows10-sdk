@@ -5,6 +5,7 @@ using Windows.ApplicationModel.Background;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Foundation;
 using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK
@@ -152,7 +153,7 @@ namespace SensorbergSDK
 
             if (!isRequired && !string.IsNullOrEmpty(sdkData.LayoutBeaconId1Hash))
             {
-                string upToDateHash = LayoutManager.CreateHashOfBeaconId1sInLayout(LayoutManager.Instance.Layout);
+                string upToDateHash = LayoutManager.CreateHashOfBeaconId1sInLayout(ServiceManager.LayoutManager.Layout);
 
                 if (!string.IsNullOrEmpty(upToDateHash)
                     && !sdkData.LayoutBeaconId1Hash.Equals(upToDateHash))
@@ -203,7 +204,7 @@ namespace SensorbergSDK
                 var pattern = BeaconFactory.UUIDToAdvertisementBytePattern(Constants.SensorbergUuidSpace, manufacturerId, beaconCode);
                 advertisementWatcherTrigger.AdvertisementFilter.BytePatterns.Add(pattern);
 
-                LayoutManager layoutManager = LayoutManager.Instance;
+                ILayoutManager layoutManager = ServiceManager.LayoutManager;
 
 #if FILTER_SUPPORTS_MORE_UUIDS
                 // Only UUIDs that are registered to the app will be added into filter                      

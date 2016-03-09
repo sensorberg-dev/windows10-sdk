@@ -9,6 +9,7 @@ using Windows.Foundation;
 using Windows.Storage;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
+using SensorbergSDK.Internal.Services;
 
 namespace SensorbergSDK.Internal
 {
@@ -16,7 +17,7 @@ namespace SensorbergSDK.Internal
     /// Manages the layouts and encapsulates both retrieving fresh layouts from the web and
     /// caching them.
     /// </summary>
-    public sealed class LayoutManager
+    public sealed class LayoutManager : ILayoutManager
     {
         private const string KeyLayoutHeaders = "layout_headers";
         private const string KeyLayoutContent = "layout_content.cache"; // Cache file
@@ -36,42 +37,19 @@ namespace SensorbergSDK.Internal
         private Layout _layout;
         private ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
 
-        private bool _isLayoutValid;
+        /// <summary>
+        /// Checks the layout validity.
+        /// </summary>
+        /// <returns>True, if layout is valid. False, if invalid.</returns>
         public bool IsLayoutValid
         {
             get
             {
-                return _isLayoutValid;
-            }
-            private set
-            {
-                if (_isLayoutValid != value)
-                {
-                    _isLayoutValid = value;
-
-                    if (LayoutValidityChanged != null)
-                    {
-                        LayoutValidityChanged(this, _isLayoutValid);
-                    }
-                }
+                return _layout != null && _layout.ValidTill >= DateTimeOffset.Now;
             }
         }
 
-        private static LayoutManager _instance;
-        public static LayoutManager Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new LayoutManager();
-                }
-
-                return _instance;
-            }
-        }
-
-        private LayoutManager()
+        public LayoutManager()
         {
             _dataContext = SDKData.Instance;
         }
@@ -88,7 +66,7 @@ namespace SensorbergSDK.Internal
 
         private async Task<bool> InternalVerifyLayoutAsync(bool forceUpdate)
         {
-            if (forceUpdate || !CheckLayoutValidity())
+            if (forceUpdate || !IsLayoutValid)
             {
                 if (!forceUpdate)
                 {
@@ -96,7 +74,7 @@ namespace SensorbergSDK.Internal
                     _layout = await LoadLayoutFromLocalStorageAsync();
                 }
 
-                if (forceUpdate || !CheckLayoutValidity())
+                if (forceUpdate || !IsLayoutValid)
                 {
                     // Make sure that the existing layout (even if old) is not set to null in case
                     // we fail to load the fresh one from the web.
@@ -110,7 +88,7 @@ namespace SensorbergSDK.Internal
                 }
             }
 
-            return CheckLayoutValidity();
+            return IsLayoutValid;
         }
 
         /// <summary>
@@ -139,16 +117,6 @@ namespace SensorbergSDK.Internal
             };
 
             return action().AsAsyncAction();
-        }
-
-        /// <summary>
-        /// Checks the layout validity.
-        /// </summary>
-        /// <returns>True, if layout is valid. False, if invalid.</returns>
-        public bool CheckLayoutValidity()
-        {
-            IsLayoutValid = (_layout != null && _layout.ValidTill >= DateTimeOffset.Now);
-            return IsLayoutValid;
         }
 
         /// <summary>
@@ -189,38 +157,6 @@ namespace SensorbergSDK.Internal
             return resultState;
         }
 
-        /// <summary>
-        /// Sends a layout request to server and returns the HTTP response, if any.
-        /// </summary>
-        /// <param name="ApiKey">The API key.</param>
-        /// <returns>A HttpResponseMessage containing the server response or null in case of an error.</returns>
-        public async Task<HttpResponseMessage> RetrieveLayoutResponseAsync(string apiKey)
-        {
-            HttpRequestMessage requestMessage = new HttpRequestMessage();
-            HttpBaseProtocolFilter baseProtocolFilter = new HttpBaseProtocolFilter();
-
-            baseProtocolFilter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
-            baseProtocolFilter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
-
-            requestMessage.Method = HttpMethod.Get;
-            requestMessage.RequestUri = new Uri(Constants.LayoutApiUriAsString);
-
-            HttpClient httpClient = new HttpClient(baseProtocolFilter);
-            httpClient.DefaultRequestHeaders.Add(Constants.XApiKey, apiKey);
-            httpClient.DefaultRequestHeaders.Add(Constants.Xiid, _dataContext.DeviceId);
-            HttpResponseMessage responseMessage = null;
-
-            try
-            {
-                responseMessage = await httpClient.SendRequestAsync(requestMessage);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("LayoutManager.RetrieveLayoutResponseAsync(): Failed to send HTTP request: " + ex.Message);
-            }
-
-            return responseMessage;
-        }
 
         /// <summary>
         /// Creates a hash string based on the beacon ID1s in the given layout.
@@ -282,12 +218,12 @@ namespace SensorbergSDK.Internal
         private async Task<Layout> RetrieveLayoutAsync()
         {
             Layout layout = null;
-            HttpResponseMessage responseMessage = await RetrieveLayoutResponseAsync(_dataContext.ApiKey);
+            ResponseMessage responseMessage = await ServiceManager.ApiConnction.RetrieveLayoutResponseAsync(_dataContext);
 
-            if (responseMessage != null && responseMessage.IsSuccessStatusCode)
+            if (responseMessage != null && responseMessage.IsSuccess)
             {
-                string headersAsString = StripLineBreaksAndExcessWhitespaces(responseMessage.Headers.ToString());
-                string contentAsString = StripLineBreaksAndExcessWhitespaces(responseMessage.Content.ToString());
+                string headersAsString = StripLineBreaksAndExcessWhitespaces(responseMessage.Header);
+                string contentAsString = StripLineBreaksAndExcessWhitespaces(responseMessage.Content);
                 contentAsString = EnsureEncodingIsUTF8(contentAsString);
                 DateTimeOffset layoutRetrievedTime = DateTimeOffset.Now;
 

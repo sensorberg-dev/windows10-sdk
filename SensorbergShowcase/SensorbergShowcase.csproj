@@ -3,6 +3,7 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <PlatformSpecificBundleArtifactsListDir>$(ProjectDir)BundleArtifacts</PlatformSpecificBundleArtifactsListDir>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProjectGuid>{EA4E78BE-6CBC-46CF-BEFE-7BF8B64C710E}</ProjectGuid>
     <OutputType>AppContainerExe</OutputType>
@@ -150,9 +151,7 @@
     <None Include="SensorbergShowcase_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\BadgeLogo.png" />
     <Content Include="Assets\BadgeLogo.scale-100.png" />
-    <Content Include="Assets\DesktopLogo.png" />
     <Content Include="Assets\DesktopLogo.scale-100.png" />
     <Content Include="Assets\Graphics\Background.jpg" />
     <Content Include="Assets\Graphics\range0.png" />
@@ -160,17 +159,11 @@
     <Content Include="Assets\Graphics\range2.png" />
     <Content Include="Assets\Graphics\range3.png" />
     <Content Include="Assets\Graphics\BigBackground.jpg" />
-    <Content Include="Assets\Logo.png" />
     <Content Include="Assets\Logo.scale-100.png" />
-    <Content Include="Assets\MediumLogo.png" />
     <Content Include="Assets\MediumLogo.scale-100.png" />
-    <Content Include="Assets\SmallLogo.png" />
     <Content Include="Assets\SmallLogo.scale-100.png" />
-    <Content Include="Assets\SplashScreen.png" />
     <Content Include="Assets\SplashScreen.scale-100.png" />
-    <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\StoreLogo.scale-100.png" />
-    <Content Include="Assets\WideLogo.png" />
     <Content Include="Assets\WideLogo.scale-100.png" />
     <Content Include="Properties\default.rd.xml" />
   </ItemGroup>

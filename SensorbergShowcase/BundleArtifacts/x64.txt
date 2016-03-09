@@ -1,2 +1,0 @@
-MainPackage=C:\WHALLA\Sensorberg\windows10-sdk\SensorbergShowcase\bin\x64\Release\SensorbergShowcase_1.0.3.0_x64.appx
-SymbolPackage=C:\WHALLA\Sensorberg\windows10-sdk\SensorbergShowcase\AppPackages\SensorbergShowcase_1.0.3.0_Test\SensorbergShowcase_1.0.3.0_x64.appxsym

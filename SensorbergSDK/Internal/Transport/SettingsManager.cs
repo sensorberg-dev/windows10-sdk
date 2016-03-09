@@ -13,6 +13,7 @@ using Windows.Storage;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
 using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Services;
 
 namespace SensorbergSDK.Internal.Transport
 {
@@ -85,29 +86,15 @@ namespace SensorbergSDK.Internal.Transport
         private async Task<AppSettings> GetSettingsFromApiAsync()
         {
 
-            HttpRequestMessage requestMessage = new HttpRequestMessage();
-            HttpBaseProtocolFilter baseProtocolFilter = new HttpBaseProtocolFilter();
-
             try
             {
-                baseProtocolFilter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
-                baseProtocolFilter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
-
-                requestMessage.Method = HttpMethod.Get;
-                requestMessage.RequestUri = new Uri(string.Format(Constants.SettingsUri, _sdkData.ApiKey));
-
-                HttpClient httpClient = new HttpClient(baseProtocolFilter);
-
-
-                var responseMessage = await httpClient.SendRequestAsync(requestMessage);
-
-
-                if (responseMessage == null || responseMessage.IsSuccessStatusCode == false)
+                var responseMessage = await ServiceManager.ApiConnction.LoadSettings(_sdkData);
+                if (string.IsNullOrEmpty(responseMessage))
                 {
                     return null;
                 }
 
-                var parsed = JsonValue.Parse(responseMessage.Content.ToString());
+                var parsed = JsonValue.Parse(responseMessage);
 
                 var settingsParsed = parsed.GetObject()["settings"];
 

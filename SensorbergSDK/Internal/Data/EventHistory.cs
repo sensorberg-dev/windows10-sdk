@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using System.Runtime.Serialization.Json;
 using System.IO;
-using System.Net.Http;
 using System.Text;
 using System.Net;
 using System.Runtime.Serialization;
 using System.Threading;
+using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Internal.Utils;
 
 namespace SensorbergSDK.Internal
@@ -147,21 +148,10 @@ namespace SensorbergSDK.Internal
 
                     if ((history.events != null && history.events.Count > 0) || (history.actions != null && history.actions.Count > 0))
                     {
-                        MemoryStream stream1 = new MemoryStream();
-                        DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(History));
-                        ser.WriteObject(stream1, history);
-                        stream1.Position = 0;
-                        StreamReader sr = new StreamReader(stream1);
 
-                        HttpClient httpClient = new HttpClient();
-                        httpClient.DefaultRequestHeaders.Add(Constants.XApiKey, SDKData.Instance.ApiKey);
-                        httpClient.DefaultRequestHeaders.Add(Constants.Xiid, SDKData.Instance.DeviceId);
-                        bool result =httpClient.DefaultRequestHeaders.TryAddWithoutValidation(Constants.XUserAgent, UserAgentBuilder.BuildUserAgentJson());
-                        var content = new StringContent(sr.ReadToEnd(), Encoding.UTF8, "application/json");
+                        var responseMessage = await ServiceManager.ApiConnction.SendHistory(history);
 
-                        HttpResponseMessage responseMessage = await httpClient.PostAsync(new Uri(Constants.LayoutApiUriAsString), content);
-
-                        if (responseMessage.StatusCode == HttpStatusCode.OK)
+                        if (responseMessage.IsSuccess)
                         {
                             if ((history.events != null && history.events.Count > 0))
                             {
@@ -175,14 +165,16 @@ namespace SensorbergSDK.Internal
                         }
                     }
                 }
-                catch 
+                catch (Exception ex)
                 {
+                    Debug.WriteLine("Error while sending history: " + ex.Message);
                 }
 
             };
 
             return action().AsAsyncAction();
         }
+
     }
 }
 

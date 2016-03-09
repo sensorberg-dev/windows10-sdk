@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using SensorbergSDK.Internal.Services;
 
 namespace SensorbergSDK.Internal
 {
@@ -51,6 +53,7 @@ namespace SensorbergSDK.Internal
 
                 if (_requestList.Count > 0 && _serveRequestTimer == null)
                 {
+                    //ServeNextRequestAsync(null);
                     _serveRequestTimer = new Timer(ServeNextRequestAsync, null, 0, ServeRequestIntervalInMilliseconds);
                 }
                 if (QueueCountChanged != null)
@@ -84,6 +87,11 @@ namespace SensorbergSDK.Internal
 
                 lock (_listLocker)
                 {
+                    if (_currentRequestIndex >= _requestList.Count)
+                    {
+                        Debug.WriteLine("More threads then requests ");
+                        return;
+                    }
                     currentRequest = _requestList.ElementAt(_currentRequestIndex++);
                 }
 
@@ -95,7 +103,7 @@ namespace SensorbergSDK.Internal
 
                     try
                     {
-                        requestResult = await LayoutManager.Instance.ExecuteRequestAsync(currentRequest);
+                        requestResult = await ServiceManager.LayoutManager.ExecuteRequestAsync(currentRequest);
                     }
                     catch (ArgumentNullException ex)
                     {
