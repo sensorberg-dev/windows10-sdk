@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using SensorbergSDK.Internal.Services;
@@ -26,7 +24,12 @@ namespace SensorbergSDK.Internal
         }
 
         /// <summary>
-        /// Shuts down the internal timer and after failing all pending requests clears the queue.
+        /// Returns the element count inside the queue.
+        /// </summary>
+        public int QueueSize { get { return _requestQueue.Count; } }
+
+        /// <summary>
+        /// Clears the queue while failing all pending requests.
         /// </summary>
         public void Dispose()
         {
@@ -47,6 +50,10 @@ namespace SensorbergSDK.Internal
             _workerTask = null;
         }
 
+        /// <summary>
+        /// Adds an Requests to the queue.
+        /// </summary>
+        /// <param name="request"></param>
         public void Add(Request request)
         {
             _requestQueue.Enqueue(request);

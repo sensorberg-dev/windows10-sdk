@@ -3,6 +3,9 @@
 // Copyright (c) 2016,  EagleEye .
 // 
 // All rights reserved.
+
+using System.Diagnostics;
+
 namespace SensorbergSDK.Internal.Services
 {
     public static class ServiceManager
@@ -13,7 +16,9 @@ namespace SensorbergSDK.Internal.Services
 
         public static IApiConnection ApiConnction
         {
+            [DebuggerStepThrough]
             get { return _apiConnction; }
+            [DebuggerStepThrough]
             set
             {
                 if (_apiConnction == null || !ReadOnlyForTests)
@@ -25,7 +30,9 @@ namespace SensorbergSDK.Internal.Services
 
         public static IBeaconScanner BeaconScanner
         {
+            [DebuggerStepThrough]
             get { return _beaconScanner; }
+            [DebuggerStepThrough]
             set
             {
                 if (_beaconScanner == null || !ReadOnlyForTests)
@@ -37,7 +44,9 @@ namespace SensorbergSDK.Internal.Services
 
         public static ILayoutManager LayoutManager
         {
+            [DebuggerStepThrough]
             get { return _layoutManager; }
+            [DebuggerStepThrough]
             set
             {
                 if (_layoutManager == null || !ReadOnlyForTests)

@@ -16,7 +16,10 @@ namespace SensorbergSDKTests.Mocks
     {
         public IAsyncOperation<RequestResultState> ExecuteRequestAsync(Request currentRequest)
         {
-            return Task.FromResult<RequestResultState>(RequestResultState.Success).AsAsyncOperation();
+            FailToken token = new FailToken();
+
+            ShouldFail?.Invoke(currentRequest, token);
+            return Task.FromResult<RequestResultState>(token.Fail ? RequestResultState.Failed : RequestResultState.Success).AsAsyncOperation();
         }
 
         public IAsyncAction InvalidateLayoutAsync()
@@ -33,5 +36,6 @@ namespace SensorbergSDKTests.Mocks
         }
 
         public event EventHandler<bool> LayoutValidityChanged;
+        public event Action<Request,FailToken> ShouldFail;
     }
 }
