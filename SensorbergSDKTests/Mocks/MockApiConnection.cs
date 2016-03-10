@@ -5,6 +5,7 @@
 // All rights reserved.
 
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Windows.Web.Http;
 using SensorbergSDK.Internal;
@@ -16,6 +17,18 @@ namespace SensorbergSDKTests.Mocks
     {
         private async Task<string> Load(string file)
         {
+            if (APIInvalid)
+            {
+                return string.Empty;
+            }
+            if (FailNetwork)
+            {
+                throw new IOException();
+            }
+            if (UnknownError)
+            {
+                throw new Exception("ups");
+            }
             var uri = new System.Uri("ms-appx:///Assets/raw/" + file, UriKind.RelativeOrAbsolute);
             return await Windows.Storage.FileIO.ReadTextAsync(await Windows.Storage.StorageFile.GetFileFromApplicationUriAsync(uri));
         }
@@ -38,5 +51,9 @@ namespace SensorbergSDKTests.Mocks
         {
             return Task.FromResult(new ResponseMessage() {IsSuccess = true});
         }
+
+        public bool APIInvalid { get; set; }
+        public bool FailNetwork { get; set; }
+        public bool UnknownError { get; set; }
     }
 }

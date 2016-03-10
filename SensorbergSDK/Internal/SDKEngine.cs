@@ -11,6 +11,8 @@ namespace SensorbergSDK.Internal
 {
     public class SDKEngine
     {
+        private static int InstanceCounter;
+        private int instanceNumber;
         private const int DelayedActionExecutionTimeframeInSeconds = 60;
         private const int UpdateVisibilityTimerIntervalInMilliseconds = 60000;
         private const int CheckPendingBeaconActionsFromBackgroundIntervalInMilliseconds = 1000;
@@ -75,6 +77,8 @@ namespace SensorbergSDK.Internal
         /// <param name="createdOnForeground"></param>
         public SDKEngine(bool createdOnForeground)
         {
+            instanceNumber = InstanceCounter++;
+            Debug.WriteLine(instanceNumber);
             ServiceManager.ApiConnction = new ApiConnection();
             ServiceManager.BeaconScanner = new Scanner();
             ServiceManager.LayoutManager = new LayoutManager();
