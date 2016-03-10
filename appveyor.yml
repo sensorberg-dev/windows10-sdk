@@ -9,11 +9,11 @@ configuration:
   - Release
 
 build:
-  project: SensorbergAll.sln
+  project: SensorbergSDKTests.sln
   parallel: true
 
 before_build:
-   - nuget restore SensorbergAll.sln
+   - nuget restore SensorbergSDKTests.sln
    
 install:
 - ps: >-
