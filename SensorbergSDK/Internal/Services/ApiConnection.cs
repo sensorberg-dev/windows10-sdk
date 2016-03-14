@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
+using Newtonsoft.Json;
 using SensorbergSDK.Internal.Utils;
 using HttpClient = Windows.Web.Http.HttpClient;
 using HttpMethod = Windows.Web.Http.HttpMethod;
@@ -88,17 +89,12 @@ namespace SensorbergSDK.Internal.Services
 
         public async Task<ResponseMessage> SendHistory(History history)
         {
-            MemoryStream stream1 = new MemoryStream();
-            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(History));
-            ser.WriteObject(stream1, history);
-            stream1.Position = 0;
-            StreamReader sr = new StreamReader(stream1);
-
             System.Net.Http.HttpClient apiConnection = new System.Net.Http.HttpClient();
             apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, SDKData.Instance.ApiKey);
             apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, SDKData.Instance.DeviceId);
             bool result = apiConnection.DefaultRequestHeaders.TryAddWithoutValidation(Constants.XUserAgent, UserAgentBuilder.BuildUserAgentJson());
-            var content = new StringContent(sr.ReadToEnd(), Encoding.UTF8, "application/json");
+            string serializeObject = JsonConvert.SerializeObject(history);
+            var content = new StringContent(serializeObject, Encoding.UTF8, "application/json");
 
             System.Net.Http.HttpResponseMessage responseMessage = await apiConnection.PostAsync(new Uri(Constants.LayoutApiUriAsString), content);
 

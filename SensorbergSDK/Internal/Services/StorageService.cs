@@ -89,21 +89,21 @@ namespace SensorbergSDK.Internal.Services
             try
             {
                 History history = new History();
-                history.Actions = await Storage.GetUndeliveredActionsAsync();
-                history.Events = await Storage.GetUndeliveredEventsAsync();
+                history.actions = await Storage.GetUndeliveredActionsAsync();
+                history.events = await Storage.GetUndeliveredEventsAsync();
 
-                if ((history.Events != null && history.Events.Count > 0) || (history.Actions != null && history.Actions.Count > 0))
+                if ((history.events != null && history.events.Count > 0) || (history.actions != null && history.actions.Count > 0))
                 {
                     var responseMessage = await ServiceManager.ApiConnction.SendHistory(history);
 
                     if (responseMessage.IsSuccess)
                     {
-                        if ((history.Events != null && history.Events.Count > 0))
+                        if ((history.events != null && history.events.Count > 0))
                         {
                             await Storage.SetEventsAsDeliveredAsync();
                         }
 
-                        if (history.Actions != null && history.Actions.Count > 0)
+                        if (history.actions != null && history.actions.Count > 0)
                         {
                             await Storage.SetActionsAsDeliveredAsync();
                         }

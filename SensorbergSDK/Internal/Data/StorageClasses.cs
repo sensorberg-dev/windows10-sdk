@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Windows.Data.Json;
+using Newtonsoft.Json;
 
 namespace SensorbergSDK.Internal
 {
@@ -21,12 +23,16 @@ namespace SensorbergSDK.Internal
     [DataContract]
     public class History
     {
+        internal static readonly DateTimeFormat Formater = new DateTimeFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         [DataMember]
-        public string DeviceTimestamp { get; set; }
+        // ReSharper disable once InconsistentNaming
+        public string deviceTimestamp { get; set; }
         [DataMember]
-        public IList<HistoryEvent> Events { get; set; } = new List<HistoryEvent>();
+        // ReSharper disable once InconsistentNaming
+        public IList<HistoryEvent> events { get; set; } = new List<HistoryEvent>();
         [DataMember]
-        public IList<HistoryAction> Actions { get; set; } = new List<HistoryAction>();
+        // ReSharper disable once InconsistentNaming
+        public IList<HistoryAction> actions { get; set; } = new List<HistoryAction>();
     }
 
     [DataContract]
@@ -34,16 +40,20 @@ namespace SensorbergSDK.Internal
     {
         public HistoryEvent(DBHistoryEvent dbEvent)
         {
-            Pid = dbEvent.pid;
-            Dt = dbEvent.dt.ToString("s");
-            Trigger = dbEvent.trigger;
+            pid = dbEvent.pid;
+            dt = dbEvent.dt.ToString("yyyy-MM-dd'T'HH:mm:ss.fffzzz");
+//            dt = dbEvent.dt.ToString(History.Formater.FormatProvider);
+            trigger = dbEvent.trigger;
         }
         [DataMember]
-        public string Pid { get; set; } //beaconId
+        // ReSharper disable once InconsistentNaming
+        public string pid { get; set; } //beaconId
         [DataMember]
-        public string Dt { get; set; } //eventDate
+        // ReSharper disable once InconsistentNaming
+        public string dt { get; set; } //eventDate
         [DataMember]
-        public int Trigger { get; set; }
+        // ReSharper disable once InconsistentNaming
+        public int trigger { get; set; }
     }
 
     [DataContract]
@@ -51,19 +61,20 @@ namespace SensorbergSDK.Internal
     {
         public HistoryAction(DBHistoryAction dbAction)
         {
-            Eid = dbAction.eid;
-            Pid = dbAction.pid;
-            Dt = dbAction.dt.ToString("s");
-            Trigger = dbAction.trigger;
+            eid = dbAction.eid;
+            pid = dbAction.pid;
+            dt = dbAction.dt.ToString("yyyy-MM-dd'T'HH:mm:ss.fffzzz");
+            //            dt = dbAction.dt.ToString(History.Formater.FormatProvider);
+            trigger = dbAction.trigger;
         }
         [DataMember]
-        public string Eid { get; set; } //eventId
+        public string eid { get; set; } //eventId
         [DataMember]
-        public string Pid { get; set; } //beaconId
+        public string pid { get; set; } //beaconId
         [DataMember]
-        public string Dt { get; set; } //eventDate
+        public string dt { get; set; } //eventDate
         [DataMember]
-        public int Trigger { get; set; }
+        public int trigger { get; set; }
     }
 
     /// <summary>
