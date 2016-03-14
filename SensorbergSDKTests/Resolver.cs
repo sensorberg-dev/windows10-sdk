@@ -2,6 +2,8 @@
 using SensorbergSDK;
 using SensorbergSDK.Internal;
 using System.Threading;
+using SensorbergSDK.Internal.Services;
+using SensorbergSDKTests.Mocks;
 
 
 namespace SensorBergTests
@@ -14,6 +16,12 @@ namespace SensorBergTests
         Resolver res = new Resolver();
         BeaconEventArgs args = new BeaconEventArgs();
         ResolvedActionsEventArgs _e = null;
+
+        [TestInitialize]
+        public void TestSetup()
+        {
+            ServiceManager.LayoutManager = new MockLayoutManager();
+        }
 
         [TestMethod]
         public void resolver_test()
