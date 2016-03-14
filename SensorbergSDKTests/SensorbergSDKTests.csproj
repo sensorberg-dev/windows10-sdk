@@ -118,6 +118,7 @@
     <Compile Include="RequestQueueTest.cs" />
     <Compile Include="Resolver.cs" />
     <Compile Include="Response.cs" />
+    <Compile Include="StorageServiceTest.cs" />
     <Compile Include="UnitTestApp.xaml.cs">
       <DependentUpon>UnitTestApp.xaml</DependentUpon>
     </Compile>

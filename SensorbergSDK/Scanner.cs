@@ -217,8 +217,6 @@ namespace SensorbergSDK
         /// <param name="args"></param>
         private void OnAdvertisementReceived(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
         {
-            Debug.WriteLine("");
-            Debug.WriteLine("");
             Debug.WriteLine("Advertisement received " + args.Timestamp.ToString("HH:mm:ss.fff"));
             Beacon beacon = BeaconFactory.BeaconFromBluetoothLEAdvertisementReceivedEventArgs(args);
 

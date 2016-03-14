@@ -307,9 +307,9 @@ namespace SensorbergShowcase
 
             if (!string.IsNullOrEmpty(Email) && !string.IsNullOrEmpty(Password))
 			{
-                FetchApiKeyResult result = await _apiKeyHelper.FetchApiKeyAsync(Email, Password);
+                NetworkResult result = await _apiKeyHelper.FetchApiKeyAsync(Email, Password);
 
-                if (result == FetchApiKeyResult.Success)
+                if (result == NetworkResult.Success)
                 {
                     _apiKeyWasJustSuccessfullyFetchedOrReset = true;
                     ApiKey = _apiKeyHelper.ApiKey;
@@ -322,16 +322,16 @@ namespace SensorbergShowcase
 
                     switch (result)
                     {
-                        case FetchApiKeyResult.NetworkError:
+                        case NetworkResult.NetworkError:
                             message = "Failed to fetch the API key due to a possible network error.";
                             break;
-                        case FetchApiKeyResult.AuthenticationFailed:
+                        case NetworkResult.AuthenticationFailed:
                             message = "Authentication failed. Please check your email address and password.";
                             break;
-                        case FetchApiKeyResult.ParsingError:
+                        case NetworkResult.ParsingError:
                             message = "Failed to parse the server response.";
                             break;
-                        case FetchApiKeyResult.NoWindowsCampains:
+                        case NetworkResult.NoWindowsCampains:
                             message = "No Windows campaigns available.";
                             break;
                     }

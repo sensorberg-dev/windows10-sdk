@@ -224,10 +224,11 @@ namespace SensorbergSDK
             byte[] beaconCodeAsByteArray = ChangeInt16ArrayEndianess(BitConverter.GetBytes(beaconCode));
             string beaconCodeAsString = BitConverter.ToString(beaconCodeAsByteArray);
             return beaconCodeAsString.Replace(HexStringSeparator.ToString(), string.Empty);
-        }        
-        
+        }
+
         /// <summary>
         /// Calculates the beacon distance based on the given values.
+        /// http://developer.radiusnetworks.com/2014/12/04/fundamentals-of-beacon-ranging.html
         /// </summary>
         /// <param name="rawSignalStrengthInDBm">The detected signal strength.</param>
         /// <param name="measuredPower">The device specific measured power as reported by the beacon.</param>
@@ -243,7 +244,7 @@ namespace SensorbergSDK
             }
             else
             {
-                distance = ((0.89976f) * Math.Pow(near, 7.7095f) + 0.111f);
+                distance = 0.89976f * Math.Pow(near, 7.7095f) + 0.111f;
             }
 
             return distance;

@@ -10,7 +10,7 @@ using Windows.Data.Json;
 namespace SensorbergSDK.Internal.Data
 {
     [DataContract]
-    internal sealed class AppSettings
+    public sealed class AppSettings
     {
         private const string BEACON_EXIT_TIMEOUT_KEY = "scanner.exitTimeoutMillis";
         private const string HISTORY_UPLOAD_INTERVAL_KEY = "network.historyUploadInterval";

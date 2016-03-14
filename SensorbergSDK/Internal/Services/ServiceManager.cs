@@ -13,6 +13,22 @@ namespace SensorbergSDK.Internal.Services
         private static IApiConnection _apiConnction;
         private static IBeaconScanner _beaconScanner;
         private static ILayoutManager _layoutManager;
+        private static IStorageService _storageService;
+
+
+        public static IStorageService StorageService
+        {
+            [DebuggerStepThrough]
+            get { return _storageService; }
+            [DebuggerStepThrough]
+            set
+            {
+                if (_storageService == null || !ReadOnlyForTests)
+                {
+                    _storageService = value;
+                }
+            }
+        }
 
         public static IApiConnection ApiConnction
         {
