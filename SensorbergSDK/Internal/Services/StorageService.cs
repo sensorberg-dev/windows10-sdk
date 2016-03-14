@@ -16,6 +16,8 @@ namespace SensorbergSDK.Internal.Services
     {
         public int RetryCount { get; set; }
 
+        private Storage Storage { [DebuggerStepThrough] get; [DebuggerStepThrough] set; } = Internal.Storage.Instance;
+
         /// <summary>
         /// Checks whether the given API key is valid or not.
         /// </summary>
@@ -69,7 +71,7 @@ namespace SensorbergSDK.Internal.Services
 
         private async Task WaitBackoff(int currentRetries)
         {
-            await Task.Delay((int)Math.Pow(100*currentRetries + 1, currentRetries + 1));
+            await Task.Delay((int) Math.Pow(100*currentRetries + 1, currentRetries + 1));
         }
 
         public Task<LayoutResult> RetrieveLayout()
@@ -82,9 +84,39 @@ namespace SensorbergSDK.Internal.Services
             throw new System.NotImplementedException();
         }
 
-        public Task FlushHistory()
+        public async Task<bool> FlushHistory()
         {
-            throw new System.NotImplementedException();
+            try
+            {
+                History history = new History();
+                history.Actions = await Storage.GetUndeliveredActionsAsync();
+                history.Events = await Storage.GetUndeliveredEventsAsync();
+
+                if ((history.Events != null && history.Events.Count > 0) || (history.Actions != null && history.Actions.Count > 0))
+                {
+                    var responseMessage = await ServiceManager.ApiConnction.SendHistory(history);
+
+                    if (responseMessage.IsSuccess)
+                    {
+                        if ((history.Events != null && history.Events.Count > 0))
+                        {
+                            await Storage.SetEventsAsDeliveredAsync();
+                        }
+
+                        if (history.Actions != null && history.Actions.Count > 0)
+                        {
+                            await Storage.SetActionsAsDeliveredAsync();
+                        }
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error while sending history: " + ex.Message);
+            }
+            return false;
         }
+
     }
 }

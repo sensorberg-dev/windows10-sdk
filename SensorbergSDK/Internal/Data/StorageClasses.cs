@@ -21,18 +21,12 @@ namespace SensorbergSDK.Internal
     [DataContract]
     public class History
     {
-        public History()
-        {
-            events = new List<HistoryEvent>();
-            actions = new List<HistoryAction>();
-        }
-
         [DataMember]
-        public string deviceTimestamp { get; set; }
+        public string DeviceTimestamp { get; set; }
         [DataMember]
-        public IList<HistoryEvent> events { get; set; }
+        public IList<HistoryEvent> Events { get; set; } = new List<HistoryEvent>();
         [DataMember]
-        public IList<HistoryAction> actions { get; set; }
+        public IList<HistoryAction> Actions { get; set; } = new List<HistoryAction>();
     }
 
     [DataContract]
@@ -40,16 +34,16 @@ namespace SensorbergSDK.Internal
     {
         public HistoryEvent(DBHistoryEvent dbEvent)
         {
-            pid = dbEvent.pid;
-            dt = dbEvent.dt.ToString("s");
-            trigger = dbEvent.trigger;
+            Pid = dbEvent.pid;
+            Dt = dbEvent.dt.ToString("s");
+            Trigger = dbEvent.trigger;
         }
         [DataMember]
-        public string pid { get; set; } //beaconId
+        public string Pid { get; set; } //beaconId
         [DataMember]
-        public string dt { get; set; } //eventDate
+        public string Dt { get; set; } //eventDate
         [DataMember]
-        public int trigger { get; set; }
+        public int Trigger { get; set; }
     }
 
     [DataContract]
@@ -57,19 +51,19 @@ namespace SensorbergSDK.Internal
     {
         public HistoryAction(DBHistoryAction dbAction)
         {
-            eid = dbAction.eid;
-            pid = dbAction.pid;
-            dt = dbAction.dt.ToString("s");
-            trigger = dbAction.trigger;
+            Eid = dbAction.eid;
+            Pid = dbAction.pid;
+            Dt = dbAction.dt.ToString("s");
+            Trigger = dbAction.trigger;
         }
         [DataMember]
-        public string eid { get; set; } //eventId
+        public string Eid { get; set; } //eventId
         [DataMember]
-        public string pid { get; set; } //beaconId
+        public string Pid { get; set; } //beaconId
         [DataMember]
-        public string dt { get; set; } //eventDate
+        public string Dt { get; set; } //eventDate
         [DataMember]
-        public int trigger { get; set; }
+        public int Trigger { get; set; }
     }
 
     /// <summary>

@@ -42,6 +42,6 @@ namespace SensorbergSDK.Internal.Services
         /// Sends the full history in the cloud.
         /// </summary>
         /// <returns></returns>
-        Task FlushHistory();
+        Task<bool> FlushHistory();
     }
 }

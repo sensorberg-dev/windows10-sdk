@@ -136,46 +136,11 @@ namespace SensorbergSDK.Internal
         /// <summary>
         /// Checks if there are new events or actions in the history and sends them to the server.
         /// </summary>
-        public IAsyncAction FlushHistoryAsync()
+        public async Task FlushHistoryAsync()
         {
-            Func<Task> action = async () =>
-            {
-                try
-                {
-                    History history = new History();
-                    history.actions = await _storage.GetUndeliveredActionsAsync();
-                    history.events = await _storage.GetUndeliveredEventsAsync();
-
-                    if ((history.events != null && history.events.Count > 0) || (history.actions != null && history.actions.Count > 0))
-                    {
-
-                        var responseMessage = await ServiceManager.ApiConnction.SendHistory(history);
-
-                        if (responseMessage.IsSuccess)
-                        {
-                            if ((history.events != null && history.events.Count > 0))
-                            {
-                                await _storage.SetEventsAsDeliveredAsync();
-                            }
-
-                            if (history.actions != null && history.actions.Count > 0)
-                            {
-                                await _storage.SetActionsAsDeliveredAsync();
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("Error while sending history: " + ex.Message);
-                }
-
-            };
-
-            return action().AsAsyncAction();
+            await ServiceManager.StorageService.FlushHistory();
         }
 
     }
 }
-
 

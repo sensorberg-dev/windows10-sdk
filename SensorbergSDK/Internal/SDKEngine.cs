@@ -82,6 +82,7 @@ namespace SensorbergSDK.Internal
             ServiceManager.ApiConnction = new ApiConnection();
             ServiceManager.BeaconScanner = new Scanner();
             ServiceManager.LayoutManager = new LayoutManager();
+            ServiceManager.StorageService = new StorageService();
 
             _appIsOnForeground = createdOnForeground;
             Resolver = new Resolver();
@@ -137,6 +138,7 @@ namespace SensorbergSDK.Internal
                     // Check for possible delayed actions
                     await ProcessDelayedActionsAsync();
                     await CleanDatabaseAsync();
+                    await _eventHistory.FlushHistoryAsync();
                 }
 
                 IsInitialized = true;
