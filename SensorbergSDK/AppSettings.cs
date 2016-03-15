@@ -6,8 +6,9 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Data.Json;
+using SensorbergSDK.Internal;
 
-namespace SensorbergSDK.Internal.Data
+namespace SensorbergSDK.Data
 {
     [DataContract]
     public sealed class AppSettings
@@ -36,6 +37,17 @@ namespace SensorbergSDK.Internal.Data
 
         [DataMember(Name = "settings.updateTime")]
         public UInt64 SettingsUpdateInterval { get; set; }
+
+        /// <summary>
+        /// Creates an appsettings object, including the basic setup.
+        /// </summary>
+        public AppSettings()
+        {
+            BeaconExitTimeout = Constants.DefaultBeaconExitTimeout;
+            SettingsUpdateInterval = Constants.DefaultSettingsUpdateInterval;
+            HistoryUploadInterval = Constants.DefaultHistoryUploadInterval;
+            LayoutUpdateInterval = Constants.DefaultLayoutUpdateInterval;
+        }
 
         public static AppSettings FromJson(JsonObject json)
         {

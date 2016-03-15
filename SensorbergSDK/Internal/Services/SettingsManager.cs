@@ -6,11 +6,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.Storage;
+using SensorbergSDK.Data;
 using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDK.Internal.Services
 {
-    internal sealed class SettingsManager: ISettingsManager
+    public sealed class SettingsManager: ISettingsManager
     {
         private const string STORAGE_KEY = "app_settings";
         private readonly ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
@@ -98,13 +99,7 @@ namespace SensorbergSDK.Internal.Services
             Debug.WriteLine("SettingsManager used default settings values.");
             return DefaultAppSettings != null
                 ? DefaultAppSettings
-                : new AppSettings()
-                {
-                    BeaconExitTimeout = Constants.DefaultBeaconExitTimeout,
-                    SettingsUpdateInterval = Constants.DefaultSettingsUpdateInterval,
-                    HistoryUploadInterval = Constants.DefaultHistoryUploadInterval,
-                    LayoutUpdateInterval = Constants.DefaultLayoutUpdateInterval
-                };
+                : new AppSettings();
         }
 
         private void SaveSettingsToStorage(AppSettings settings)

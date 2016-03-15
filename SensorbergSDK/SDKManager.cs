@@ -1,9 +1,11 @@
 ﻿using SensorbergSDK.Internal;
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.UI.Core;
+using SensorbergSDK.Data;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
 
@@ -103,6 +105,7 @@ namespace SensorbergSDK
         /// </summary>
         public IBeaconScanner Scanner
         {
+            [DebuggerStepThrough]
             get
             {
                 return ServiceManager.BeaconScanner;
@@ -115,10 +118,12 @@ namespace SensorbergSDK
         /// </summary>
         public string ApiKey
         {
+            [DebuggerStepThrough]
             get
             {
                 return SDKData.Instance.ApiKey;
             }
+            [DebuggerStepThrough]
             set
             {
                 SDKData.Instance.ApiKey = value;
@@ -130,7 +135,9 @@ namespace SensorbergSDK
         /// </summary>
         public UInt16 ManufacturerId
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             private set;
         }
 
@@ -139,7 +146,9 @@ namespace SensorbergSDK
         /// </summary>
         public UInt16 BeaconCode
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             private set;
         }
 
@@ -153,6 +162,7 @@ namespace SensorbergSDK
         /// </summary>
 		public bool IsInitialized
         {
+            [DebuggerStepThrough]
             get
             {
                 return _sdkEngine.IsInitialized;
@@ -165,6 +175,7 @@ namespace SensorbergSDK
         /// </summary>
         public bool IsBackgroundTaskEnabled
         {
+            [DebuggerStepThrough]
             get
             {
                 return SDKData.Instance.BackgroundTaskEnabled;
@@ -176,6 +187,7 @@ namespace SensorbergSDK
         /// </summary>
         public bool IsBackgroundTaskRegistered
         {
+            [DebuggerStepThrough]
             get
             {
                 return (_backgroundTaskManager != null && _backgroundTaskManager.IsBackgroundTaskRegistered);
@@ -187,6 +199,7 @@ namespace SensorbergSDK
         /// </summary>
 		public bool IsScannerStarted
         {
+            [DebuggerStepThrough]
             get
             {
                 return (Scanner.Status == ScannerStatus.Started);
@@ -198,10 +211,19 @@ namespace SensorbergSDK
         /// </summary>
         public bool IsLayoutValid
         {
+            [DebuggerStepThrough]
             get
             {
                 return ServiceManager.LayoutManager.IsLayoutValid;
             }
+        }
+
+        public AppSettings DefaultAppSettings
+        {
+            [DebuggerStepThrough]
+            get { return _sdkEngine.DefaultAppSettings; }
+            [DebuggerStepThrough]
+            set { _sdkEngine.DefaultAppSettings = value; }
         }
 
         /// <summary>

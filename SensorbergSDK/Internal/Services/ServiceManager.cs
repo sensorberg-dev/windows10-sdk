@@ -87,5 +87,15 @@ namespace SensorbergSDK.Internal.Services
         }
 
         public static bool ReadOnlyForTests { get; set; }
+
+        public static void Clear()
+        {
+            _apiConnction = null;
+            _beaconScanner = null;
+            _layoutManager = null;
+            _storageService = null;
+            _settingsManager = null;
+            ReadOnlyForTests = false;
+        }
     }
 }

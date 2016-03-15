@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Foundation;
+using SensorbergSDK.Data;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
 

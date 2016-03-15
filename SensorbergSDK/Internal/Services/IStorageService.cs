@@ -6,6 +6,7 @@
 
 using System.Diagnostics;
 using System.Threading.Tasks;
+using SensorbergSDK.Data;
 using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDK.Internal.Services

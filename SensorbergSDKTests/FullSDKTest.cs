@@ -27,6 +27,7 @@ namespace SensorbergSDK.Internal
         {
             ServiceManager.ApiConnction = new MockApiConnection();
             ServiceManager.BeaconScanner = new MockBeaconScanner();
+            ServiceManager.SettingsManager = new SettingsManager();
             ServiceManager.ReadOnlyForTests = true;
         }
 
