@@ -14,7 +14,7 @@ namespace SensorbergSDK.Internal.Services
         private static IBeaconScanner _beaconScanner;
         private static ILayoutManager _layoutManager;
         private static IStorageService _storageService;
-
+        private static ISettingsManager _settingsManager;
 
         public static IStorageService StorageService
         {
@@ -68,6 +68,20 @@ namespace SensorbergSDK.Internal.Services
                 if (_layoutManager == null || !ReadOnlyForTests)
                 {
                     _layoutManager = value;
+                }
+            }
+        }
+
+        public static ISettingsManager SettingsManager
+        {
+            [DebuggerStepThrough]
+            get { return _settingsManager; }
+            [DebuggerStepThrough]
+            set
+            {
+                if (_settingsManager == null || !ReadOnlyForTests)
+                {
+                    _settingsManager = value;
                 }
             }
         }

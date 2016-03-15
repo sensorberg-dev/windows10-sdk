@@ -235,6 +235,7 @@ namespace SensorbergSDK.Internal
                     {
                         content = JsonValue.Parse(contentAsString);
                         layout = Layout.FromJson(headersAsString, content.GetObject(), layoutRetrievedTime);
+                        Debug.WriteLine("LayoutManager: new Layout received: Beacons: "+layout.AccountBeaconId1s.Count+" Actions :"+layout.ResolvedActions.Count);
                     }
                     catch (Exception ex)
                     {

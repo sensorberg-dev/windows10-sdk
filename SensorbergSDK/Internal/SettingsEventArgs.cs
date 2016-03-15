@@ -7,7 +7,7 @@ using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDK.Internal
 {
-    internal class SettingsEventArgs: EventArgs
+    public class SettingsEventArgs: EventArgs
     {
         public SettingsEventArgs(AppSettings settings)
         {

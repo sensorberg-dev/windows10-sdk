@@ -115,12 +115,13 @@
     <Compile Include="Internal\Services\IApiConnection.cs" />
     <Compile Include="Internal\Services\IBeaconScanner.cs" />
     <Compile Include="Internal\Services\ILayoutManager.cs" />
+    <Compile Include="Internal\Services\ISettingsManager.cs" />
     <Compile Include="Internal\Services\IStorageService.cs" />
     <Compile Include="Internal\Services\ResponseMessage.cs" />
     <Compile Include="Internal\Services\ServiceManager.cs" />
     <Compile Include="Internal\Services\StorageService.cs" />
     <Compile Include="Internal\SettingsEventArgs.cs" />
-    <Compile Include="Internal\Transport\SettingsManager.cs" />
+    <Compile Include="Internal\Services\SettingsManager.cs" />
     <Compile Include="Internal\Utils\ActionFactory.cs" />
     <Compile Include="Advertiser.cs" />
     <Compile Include="BeaconEventArgs.cs" />

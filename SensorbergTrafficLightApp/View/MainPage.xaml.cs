@@ -26,7 +26,7 @@ namespace SensorbergTrafficLightApp
 {
     public sealed partial class MainPage : Page
     {
-        private const string API_KEY = "ff161035a5c024a3417129ec014b8a8bc08fef945e51c4e3268a1ed0b8b038aa";//TODO: Enter API key
+        private const string API_KEY = "8c1a6f4a18640bbcedd36e942f5d741da1cba18e71e8cc090078beef97f1b619";//TODO: Enter API key
         private const string COLOR_KEY = "color";
         private const ushort MANUFACTURER_ID = 0x004c;
         private const ushort BEACON_CODE = 0x0215;

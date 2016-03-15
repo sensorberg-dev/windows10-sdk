@@ -6,7 +6,6 @@ using Windows.Foundation;
 using Windows.UI.Core;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
-using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK
 {
@@ -472,8 +471,8 @@ namespace SensorbergSDK
         {
             if (_appSettings == null)
             {
-                _appSettings = await SettingsManager.Instance.GetSettingsAsync();
-                SettingsManager.Instance.SettingsUpdated += OnSettingsUpdated;
+                _appSettings = await ServiceManager.SettingsManager.GetSettings();
+                ServiceManager.SettingsManager.SettingsUpdated += OnSettingsUpdated;
             }
         }
     }
