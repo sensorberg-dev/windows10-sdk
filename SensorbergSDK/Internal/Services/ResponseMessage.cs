@@ -14,5 +14,7 @@ namespace SensorbergSDK.Internal.Services
         public string Content { get; set; }
         public HttpStatusCode StatusCode { get; set; }
         public bool IsSuccess { get; set; }
+
+        public NetworkResult NetworResult { get; set; }
     }
 }

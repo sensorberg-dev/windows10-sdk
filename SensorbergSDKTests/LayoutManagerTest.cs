@@ -25,6 +25,7 @@ namespace SensorbergSDK.Internal
             ServiceManager.ApiConnction = new MockApiConnection();
             ServiceManager.LayoutManager = new LayoutManager();
             ServiceManager.SettingsManager = new SettingsManager();
+            ServiceManager.StorageService = new StorageService();
             ServiceManager.ReadOnlyForTests = true;
         }
 
@@ -50,6 +51,11 @@ namespace SensorbergSDK.Internal
         {
             Assert.IsTrue(await manager.VerifyLayoutAsync(true), "Verification failed");
             Layout layout = manager.Layout;
+            ValidateMockLayout(layout);
+        }
+
+        public static void ValidateMockLayout(Layout layout)
+        {
             Assert.IsNotNull(layout, "No Layout avialable");
             Assert.AreEqual(5, layout.AccountBeaconId1s.Count, "Number of proximity beacons not matching");
             Assert.IsTrue(layout.AccountBeaconId1s.Contains("7367672374000000ffff0000ffff0003"), "Beacon 1 not found");

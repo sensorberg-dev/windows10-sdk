@@ -130,6 +130,7 @@
     <Compile Include="Internal\Data\EventHistory.cs" />
     <Compile Include="Internal\Data\StorageClasses.cs" />
     <Compile Include="Internal\Utils\BeaconFactory.cs" />
+    <Compile Include="Internal\Utils\Helper.cs" />
     <Compile Include="Internal\Utils\JsonHelper.cs" />
     <Compile Include="Internal\SQLite\SQLite.cs" />
     <Compile Include="Internal\SQLite\SQLiteAsync.cs" />

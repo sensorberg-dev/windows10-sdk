@@ -25,6 +25,7 @@ namespace SensorbergSDKTests
             ServiceManager.Clear();
             ServiceManager.LayoutManager = new MockLayoutManager();
             ServiceManager.SettingsManager = new SettingsManager();
+            ServiceManager.StorageService = new StorageService();
             ServiceManager.ReadOnlyForTests = true;
         }
 

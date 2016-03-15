@@ -24,13 +24,14 @@ namespace SensorbergSDKTests
             ServiceManager.LayoutManager = new LayoutManager();
             ServiceManager.StorageService = new StorageService();
             ServiceManager.SettingsManager = new SettingsManager();
+            ServiceManager.ReadOnlyForTests = true;
         }
 
         [TestMethod]
-        public async Task ValidateAPIKey()
+        public async Task ValidateAPIKeyTest()
         {
-            MockApiConnection connection = new MockApiConnection();
-            ServiceManager.ApiConnction = connection;
+            MockApiConnection connection = (MockApiConnection) ServiceManager.ApiConnction;
+
             IStorageService service = ServiceManager.StorageService;
             Assert.AreEqual(ApiKeyValidationResult.Valid,  await service.ValidateApiKey("true"), "Not successfull");
             connection.APIInvalid = true;
@@ -45,6 +46,31 @@ namespace SensorbergSDKTests
             connection.UnknownError = true;
             Assert.AreEqual(ApiKeyValidationResult.UnknownError, await service.ValidateApiKey("true"), "No unknown issue");
             connection.UnknownError = false;
+        }
+
+        [TestMethod]
+        public async Task RetrieveLayoutTest()
+        {
+            MockApiConnection connection = (MockApiConnection) ServiceManager.ApiConnction;
+            IStorageService service = ServiceManager.StorageService;
+
+
+            connection.FailNetwork = true;
+            LayoutResult layout = await service.RetrieveLayout();
+            Assert.AreEqual(NetworkResult.NetworkError, layout.Result, "Not failed");
+            connection.FailNetwork = false;
+
+            layout = await service.RetrieveLayout();
+            Assert.AreEqual(NetworkResult.Success, layout.Result, "Not successfull loaded");
+            LayoutManagerTest.ValidateMockLayout(layout.Layout);
+
+
+            connection.FailNetwork = true;
+
+            //should be cached
+            layout = await service.RetrieveLayout();
+            Assert.AreEqual(NetworkResult.Success, layout.Result, "Not successfull loaded");
+            LayoutManagerTest.ValidateMockLayout(layout.Layout);
         }
     }
 }
