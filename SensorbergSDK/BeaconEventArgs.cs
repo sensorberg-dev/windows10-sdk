@@ -14,7 +14,7 @@ namespace SensorbergSDK
     };
 
     public sealed class BeaconEventArgs
-	{
+    {
         public BeaconEventType EventType
         {
             get;
@@ -22,10 +22,10 @@ namespace SensorbergSDK
         }
 
         public Beacon Beacon
-		{
-			get;
-			set;
-		}
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// For convenience.
@@ -38,7 +38,6 @@ namespace SensorbergSDK
                 {
                     return Beacon.Timestamp;
                 }
-
                 return DateTimeOffset.MinValue;
             }
         }

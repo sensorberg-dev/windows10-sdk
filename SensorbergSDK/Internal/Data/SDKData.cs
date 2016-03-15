@@ -3,31 +3,6 @@ using Windows.Storage;
 
 namespace SensorbergSDK.Internal
 {
-    internal class Constants
-    {
-        public const string XApiKey = "X-Api-Key"; // Application api key / required
-        public const string Xiid = "X-iid"; // Application installation id assigned by SDK / required
-        public const string Xpid = "X-pid"; // Request layout with beacon pid
-        public const string Xgeo = "X-geo"; // Request layout for given geo location
-        public const string Xqos = "X-qos"; // Connection type
-
-        public const string DemoApiKey = "04a709a208c83e2bc0ec66871c46d35af49efde5151032b3e865768bbf878db8";
-
-        public static readonly string LayoutApiUriAsString = "https://resolver.sensorberg.com/layout";
-        public static readonly string ApiUrlTemplate = "https://connect.sensorberg.com/api/beacon/resolve/?proximityId={0}&major={1}&minor={2}&event={3}&deviceId={4}";
-        public static readonly string FilterUrlTemplate = "https://connect.sensorberg.com/api/application/{0}/uuids";
-
-        public static readonly string SensorbergUuidSpace = "7367672374000000ffff0000ffff00";
-
-        public const int ActionTypeUrlMessage = 1;
-        public const int ActionTypeVisitWebsite = 2;
-        public const int ActionTypeInApp = 3;
-
-        public const int Id1LengthWithoutDashes = 32;
-        public const int MinimumLayoutContentLength = 10; // Arbitrary value to make sure that empty layouts are not validated
-        public const int BeaconExitDelayInMilliseconds = 9000;
-    }
-
     /// <summary>
     /// Contains the global SDK data.
     /// </summary>
@@ -36,7 +11,6 @@ namespace SensorbergSDK.Internal
         private const string KeySensorbergSdkApiKey = "sensorberg_sdk_api_key";
         private const string KeySensorbergSdkGuid = "sensorberg_sdk_guid";
         private const string KeyLayoutBeaconId1Hash = "sensorberg_sdk_layout_uuid_hash";
-        private const string KeySensorbergSdkReportInterval = "sensorberg_sdk_report_interval";
         private const string KeyDatabaseCleaningTime = "sensorberg_sdk_database_cleaning_time";
         private const string KeyBackgroundTaskEnabled = "sensorberg_sdk_background_task_enabled";
         private const string KeyNewActionsFromBackground = "sensorberg_sdk_new_actions_from_background";
@@ -45,7 +19,6 @@ namespace SensorbergSDK.Internal
         private const string KeyAppIsVisible = "sensorberg_sdk_app_visibility";
         private const string KeyVisibilityLastUpdated = "sensorberg_sdk_visibility_last_updated";
 
-        private const int DefaultReportIntervalInSeconds = 60;
         private const int AppVisibilityFallbackDelayInSeconds = 60;
 
         private ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
@@ -137,28 +110,6 @@ namespace SensorbergSDK.Internal
             set
             {
                 _localSettings.Values[KeyDatabaseCleaningTime] = value;
-            }
-        }
-
-        public int ReportIntervalInSeconds
-        {
-            get
-            {
-                if (!_localSettings.Values.ContainsKey(KeySensorbergSdkReportInterval))
-                {
-                    _localSettings.Values[KeySensorbergSdkReportInterval] = DefaultReportIntervalInSeconds;
-                }
-
-                return (int)_localSettings.Values[KeySensorbergSdkReportInterval];
-            }
-            set
-            {
-                if (value > 0
-                    && (!_localSettings.Values.ContainsKey(KeySensorbergSdkReportInterval)
-                        || (int)_localSettings.Values[KeySensorbergSdkReportInterval] != value))
-                {
-                    _localSettings.Values[KeySensorbergSdkReportInterval] = value;
-                }
             }
         }
 

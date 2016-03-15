@@ -1,0 +1,50 @@
+﻿// Created by Kay Czarnotta on 08.03.2016
+// 
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+
+namespace SensorbergSDK.Internal.Services
+{
+    /// <summary>
+    /// Interface for all beacon scanner.
+    /// </summary>
+    public interface IBeaconScanner
+    {
+        /// <summary>
+        /// Triggered when beacon hasn't been seen for a time defined in BeaconNotSeenDelayInMilliseconds.
+        /// </summary>
+        event EventHandler<Beacon> BeaconNotSeenForAWhile;
+        /// <summary>
+        /// Triggered when the scanner is either started, stopped or aborted.
+        /// Aborted status may indicate that the bluetooth has not been turned on on the device.
+        /// </summary>
+        event EventHandler<ScannerStatus> StatusChanged;
+
+        event EventHandler<BeaconEventArgs> BeaconEvent;
+
+        /// <summary>
+        /// Defines whether the scanner (bluetooth advertisement watcher) has been started or not.
+        /// When the watcher is started, the timer for checking up on the list of beacons is
+        /// started as well.
+        /// </summary>
+        ScannerStatus Status { get; }
+
+        /// <summary>
+        /// Starts the watcher and hooks its events to callbacks.
+        /// </summary>
+        /// <param name="manufacturerId">The manufacturer ID.</param>
+        /// <param name="beaconCode">The beacon code.</param>
+        /// <param name="beaconExitTimeoutInMiliseconds">Time in miliseconds after beacon will be trated as lost</param>
+        /// <param name="rssiEnterThreshold">Optional rssi threshold which will trigger beacon discover event. Value must be between -128 and 127</param>
+        /// <param name="enterDistanceThreshold">Optional minimal distance in meters that will trigger beacon discover event</param>
+        void StartWatcher(ushort manufacturerId, ushort beaconCode, ulong beaconExitTimeout, short? rssiEnterThreshold, ulong? enterDistanceThreshold);
+
+        /// <summary>
+        /// Stops the watcher. The events are unhooked in the callback (OnWatcherStopped).
+        /// </summary>
+        void StopWatcher();
+    }
+}

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
+using SensorbergSDK.Internal.Services;
 
 namespace SensorbergSDK.Internal
 {
@@ -11,135 +13,127 @@ namespace SensorbergSDK.Internal
     public sealed class RequestQueue : IDisposable
     {
         public event EventHandler<int> QueueCountChanged;
+        private Task _workerTask;
 
-        private const int ServeRequestIntervalInMilliseconds = 500;
-
-        private List<Request> _requestList;
-        private Timer _serveRequestTimer;
-        private object _listLocker;
-        private int _currentRequestIndex;
+        private Queue<Request> _requestQueue;
+        private CancellationTokenSource _cancelToken;
 
         public RequestQueue()
         {
-            _listLocker = new object();
-            _requestList = new List<Request>();
+            _requestQueue = new Queue<Request>();
         }
 
         /// <summary>
-        /// Shuts down the internal timer and after failing all pending requests clears the queue.
+        /// Returns the element count inside the queue.
+        /// </summary>
+        public int QueueSize { get { return _requestQueue.Count; } }
+
+        /// <summary>
+        /// Clears the queue while failing all pending requests.
         /// </summary>
         public void Dispose()
         {
-            if (_serveRequestTimer != null)
-            {
-                _serveRequestTimer.Dispose();
-                _serveRequestTimer = null;
-            }
+            Cancel();
 
             // Abort all pending requests
-            while (_requestList.Count > 0)
+            while (_requestQueue.Count > 0)
             {
-                OnRequestServed(_requestList[0], RequestResultState.None);
+                OnRequestServed(_requestQueue.Dequeue(), RequestResultState.None);
             }
         }
 
+        private void Cancel()
+        {
+            _cancelToken?.Cancel();
+            _cancelToken?.Dispose();
+            _cancelToken = null;
+            _workerTask = null;
+        }
+
+        /// <summary>
+        /// Adds an Requests to the queue.
+        /// </summary>
+        /// <param name="request"></param>
         public void Add(Request request)
         {
-            lock(_listLocker)
-            {
-                _requestList.Add(request);
+            _requestQueue.Enqueue(request);
 
-                if (_requestList.Count > 0 && _serveRequestTimer == null)
-                {
-                    _serveRequestTimer = new Timer(ServeNextRequestAsync, null, 0, ServeRequestIntervalInMilliseconds);
-                }
-                if (QueueCountChanged != null)
-                {
-                    QueueCountChanged(this, _requestList.Count);
-                }
+            if (_requestQueue.Count > 0 && _workerTask == null)
+            {
+                _cancelToken = new CancellationTokenSource();
+                (_workerTask = Task.Run(ServeNextRequestAsync, _cancelToken.Token)).ConfigureAwait(false);
             }
+            QueueCountChanged?.Invoke(this, _requestQueue.Count);
         }
 
         /// <summary>
         /// Serves the request in the current index.
         /// </summary>
-        /// <param name="state"></param>
-        private async void ServeNextRequestAsync(object state)
+        private async Task ServeNextRequestAsync()
         {
-            int requestCount = 0;
-
-            lock(_listLocker)
+            try
             {
-                requestCount = _requestList.Count;
+                while (_requestQueue.Count != 0)
+                {
+                    Request currentRequest = _requestQueue.Dequeue();
+
+                    if (currentRequest != null && !currentRequest.IsBeingProcessed)
+                    {
+                        Debug.WriteLine("RequestQueue: take next request " + currentRequest.RequestId);
+                        currentRequest.IsBeingProcessed = true;
+                        currentRequest.TryCount++;
+                        RequestResultState requestResult = RequestResultState.None;
+
+                        try
+                        {
+                            requestResult = await ServiceManager.LayoutManager.ExecuteRequestAsync(currentRequest);
+                        }
+                        catch (ArgumentNullException ex)
+                        {
+                            currentRequest.ErrorMessage = ex.Message;
+                            requestResult = RequestResultState.Failed;
+                        }
+                        catch (Exception ex)
+                        {
+                            currentRequest.ErrorMessage = ex.Message;
+                            requestResult = RequestResultState.Failed;
+                        }
+                        Debug.WriteLine("RequestQueue: request result " + currentRequest.RequestId + " " + requestResult);
+
+                        switch (requestResult)
+                        {
+                            case RequestResultState.Failed:
+                            {
+                                if (currentRequest.TryCount >= currentRequest.MaxNumberOfRetries)
+                                {
+                                    // The maximum number of retries has been exceeded => fail
+                                    OnRequestServed(currentRequest, requestResult);
+                                }
+                                else
+                                {
+                                    int numberOfTriesLeft = currentRequest.MaxNumberOfRetries - currentRequest.TryCount;
+
+                                    Debug.WriteLine("RequestQueue.ServeNextRequestAsync(): Request with ID "
+                                                    + currentRequest.RequestId + " failed, will try "
+                                                    + numberOfTriesLeft + " more " + (numberOfTriesLeft > 1 ? "times" : "time"));
+
+                                    _requestQueue.Enqueue(currentRequest);
+                                }
+
+                            }
+                                break;
+                            case RequestResultState.Success:
+                                OnRequestServed(currentRequest, requestResult);
+                                break;
+                        }
+
+                        currentRequest.IsBeingProcessed = false;
+                    }
+                }
             }
-
-            if (requestCount > 0)
+            finally
             {
-                if (_currentRequestIndex >= requestCount || _currentRequestIndex < 0)
-                {
-                    _currentRequestIndex = 0;
-                }
-
-                Request currentRequest = null;
-
-                lock (_listLocker)
-                {
-                    currentRequest = _requestList.ElementAt(_currentRequestIndex++);
-                }
-
-                if (currentRequest != null && !currentRequest.IsBeingProcessed)
-                {
-                    currentRequest.IsBeingProcessed = true;
-                    currentRequest.TryCount++;
-                    RequestResultState requestResult = RequestResultState.None;
-
-                    try
-                    {
-                        requestResult = await LayoutManager.Instance.ExecuteRequestAsync(currentRequest);
-                    }
-                    catch (ArgumentNullException ex)
-                    {
-                        currentRequest.ErrorMessage = ex.Message;
-                        requestResult = RequestResultState.Failed;
-                    }
-                    catch (Exception ex)
-                    {
-                        currentRequest.ErrorMessage = ex.Message;
-                        requestResult = RequestResultState.Failed;
-                    }
-
-                    bool wasRemoved = false;
-
-                    switch (requestResult)
-                    {
-                        case RequestResultState.Failed:
-                            if (currentRequest.TryCount >= currentRequest.MaxNumberOfRetries)
-                            {
-                                // The maximum number of retries has been exceeded => fail
-                                wasRemoved = OnRequestServed(currentRequest, requestResult);
-                            }
-                            else
-                            {
-                                int numberOfTriesLeft = currentRequest.MaxNumberOfRetries - currentRequest.TryCount;
-
-                                System.Diagnostics.Debug.WriteLine("RequestQueue.ServeNextRequestAsync(): Request with ID "
-                                    + currentRequest.RequestId + " failed, will try "
-                                    + numberOfTriesLeft + " more " + (numberOfTriesLeft > 1 ? "times" : "time"));
-                            }
-
-                            break;
-                        case RequestResultState.Success:
-                            wasRemoved = OnRequestServed(currentRequest, requestResult);
-                            break;
-                    }
-
-                    currentRequest.IsBeingProcessed = false;
-
-                    if (wasRemoved && _currentRequestIndex > 0)
-                    {
-                        _currentRequestIndex--;
-                    }
-                }
+                Cancel();
             }
         }
 
@@ -149,30 +143,19 @@ namespace SensorbergSDK.Internal
         /// <param name="request"></param>
         /// <param name="resultState"></param>
         /// <returns>True, if the request was successfully removed from the queue.</returns>
-        private bool OnRequestServed(Request request, RequestResultState resultState)
+        private void OnRequestServed(Request request, RequestResultState resultState)
         {
-            bool wasRemoved = false;
-
             if (request != null)
             {
-                lock (_listLocker)
+                request.NotifyResult(resultState);
+
+                if (_requestQueue.Count == 0 && _cancelToken != null)
                 {
-                    wasRemoved = _requestList.Remove(request);
-                    request.NotifyResult(resultState);
-
-                    if (_requestList.Count == 0 && _serveRequestTimer != null)
-                    {
-                        _serveRequestTimer.Dispose();
-                        _serveRequestTimer = null;
-                    }
-                    if (QueueCountChanged != null)
-                    {
-                        QueueCountChanged(this, _requestList.Count);
-                    }
+                    Cancel();
                 }
+                QueueCountChanged?.Invoke(this, _requestQueue.Count);
             }
-
-            return wasRemoved;
         }
+
     }
 }

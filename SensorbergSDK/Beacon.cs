@@ -151,7 +151,7 @@ namespace SensorbergSDK
         /// <returns>True, if the beacons match.</returns>
         public bool Matches(Beacon beacon)
         {
-            return beacon.Id1.Equals(Id1)
+            return beacon.Id1==Id1
                 && beacon.Id2 == Id2
                 && beacon.Id3 == Id3;
         }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+  <Metadata>
+    <Identity Id="SensorbergSDK.Sensorberg.d06260a2-42e5-4c65-bf87-b6c76995a9f9" Version="0.5" Language="en-US" Publisher="Sensorberg" />
+    <DisplayName>SensorbergSDK</DisplayName>
+    <Description xml:space="preserve">Sensorberg SDK for Windows 10</Description>
+    <MoreInfo>http://developer.sensorberg.com/windows10/</MoreInfo>
+    <License>license.txt</License>
+    <GettingStartedGuide>http://developer.sensorberg.com/windows10/</GettingStartedGuide>
+    <ReleaseNotes>ReleaseNotes.txt</ReleaseNotes>
+    <Icon>icon.png</Icon>
+    <PreviewImage>preview.png</PreviewImage>
+    <Tags>beacon</Tags>
+  </Metadata>
+  <Installation Scope="Global" AllUsers="true">
+    <InstallationTarget Id="Microsoft.ExtensionSDK" TargetPlatformIdentifier="Windows" TargetPlatformVersion="v10.0" SdkName="SensorbergSDK" SdkVersion="0.5" />
+  </Installation>
+  <Dependencies></Dependencies>
+  <Assets>
+    <Asset Type="Microsoft.ExtensionSDK" Path="SDKManifest.xml" />
+  </Assets>
+</PackageManifest>

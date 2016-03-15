@@ -6,17 +6,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SensorbergSDK.Internal.Services;
+using SensorbergSDKTests.Mocks;
 
 namespace SensorBergTests
 {
     [TestClass]
     public class UnitTestEventHistory
     {
+        [TestInitialize]
+        public void Setup()
+        {
+            ServiceManager.Clear();
+            ServiceManager.ApiConnction = new MockApiConnection();
+            ServiceManager.StorageService = new StorageService();
+            ServiceManager.ReadOnlyForTests = true;
+        }
+
         [TestMethod]
         public async Task EventHistory_ShouldSupress()
         {
             
             SDKData.Instance.ApiKey = "540aa95ccf215718295c2c563a2090676994f09927f09a6e09a67c83be10b00c";
+            await Storage.Instance.CreateDBAsync();
             var beacon = new Beacon();
             beacon.Id1 = "7367672374000000ffff0000ffff0007";
             beacon.Id2 = 8008;
@@ -56,6 +68,7 @@ namespace SensorBergTests
         {
 
             SDKData.Instance.ApiKey = "540aa95ccf215718295c2c563a2090676994f09927f09a6e09a67c83be10b00c";
+            await Storage.Instance.CreateDBAsync();
             var beacon = new Beacon();
             beacon.Id1 = "7367672374000000ffff0000ffff0007";
             beacon.Id2 = 8008;

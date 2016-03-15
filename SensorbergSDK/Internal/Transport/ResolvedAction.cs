@@ -36,7 +36,7 @@ namespace SensorbergSDK.Internal
         private static readonly string KeyTrigger = "trigger";
         private static readonly string KeyType = "type";
         private static readonly string KeySendOnlyOnce = "sendOnlyOnce";
-        private static readonly string KeysupressionTime = "supressionTime";
+        private static readonly string KeysupressionTime = "suppressionTime";
         private static readonly string KeyReportImmediately = "reportImmediately";
         private static readonly string KeyTimeframes = "timeframes";
         private static readonly string KeyStart = "start";

@@ -99,7 +99,7 @@ namespace SensorbergSDKBackground
         /// </summary>
         public async Task ProcessDelayedActionsAsync()
         {
-            await _sdkEngine.ProcessDelayedActionsAsync(false);
+            await _sdkEngine.ProcessDelayedActionsAsync();
             Finish();
         }
 

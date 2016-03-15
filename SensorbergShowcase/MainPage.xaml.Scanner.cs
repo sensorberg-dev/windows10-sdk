@@ -4,6 +4,7 @@ using Windows.Foundation;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using SensorbergSDK.Internal.Services;
 
 namespace SensorbergShowcase
 {
@@ -88,7 +89,7 @@ namespace SensorbergShowcase
         {
             if (!ScannerAreEventsHooked)
             {
-                Scanner scanner = _sdkManager.Scanner;
+                IBeaconScanner scanner = _sdkManager.Scanner;
                 scanner.BeaconEvent += OnBeaconEventAsync;
                 scanner.BeaconNotSeenForAWhile += OnBeaconNotSeenForAWhileAsync;
                 ScannerAreEventsHooked = true;
@@ -102,7 +103,7 @@ namespace SensorbergShowcase
         {
             if (ScannerAreEventsHooked)
             {
-                Scanner scanner = _sdkManager.Scanner;
+                IBeaconScanner scanner = _sdkManager.Scanner;
                 scanner.BeaconEvent -= OnBeaconEventAsync;
                 scanner.BeaconNotSeenForAWhile -= OnBeaconNotSeenForAWhileAsync;
                 ScannerAreEventsHooked = false;

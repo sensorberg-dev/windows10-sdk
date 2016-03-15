@@ -3,6 +3,10 @@ using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using System;
+using System.ServiceModel.Channels;
+using Windows.UI.Core;
+using Windows.UI.Popups;
+using SensorbergShowcase.Controls;
 
 namespace SensorbergShowcase
 {
@@ -24,6 +28,9 @@ namespace SensorbergShowcase
         private ApiKeyHelper _apiKeyHelper = new ApiKeyHelper();
         private bool _enableActionsSwitchToggledByUser = true;
         private bool _apiKeyWasJustSuccessfullyFetchedOrReset = false;
+	    private bool _messageDialogAlreadyOpen;
+	    private bool _qrAlreadyFetched;
+	    private QrCodeScanner _scanner;
 
         #region Properties (API key, email, password, background task status etc.)
 
@@ -121,6 +128,18 @@ namespace SensorbergShowcase
         public static readonly DependencyProperty IsValidatingOrFetchingApiKeyProperty =
             DependencyProperty.Register("IsValidatingOrFetchingApiKey", typeof(bool), typeof(MainPage),
                 new PropertyMetadata(false));
+
+
+
+        public bool IsScannerAvailable
+        {
+            get { return (bool)GetValue(IsScannerAvailableProperty); }
+            set { SetValue(IsScannerAvailableProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsScannerAvailableProperty =
+            DependencyProperty.Register("IsScannerAvailable", typeof(bool), typeof(MainPage),
+                new PropertyMetadata(true));
 
         public bool IsBackgroundTaskRegistered
         {
@@ -288,9 +307,9 @@ namespace SensorbergShowcase
 
             if (!string.IsNullOrEmpty(Email) && !string.IsNullOrEmpty(Password))
 			{
-                FetchApiKeyResult result = await _apiKeyHelper.FetchApiKeyAsync(Email, Password);
+                NetworkResult result = await _apiKeyHelper.FetchApiKeyAsync(Email, Password);
 
-                if (result == FetchApiKeyResult.Success)
+                if (result == NetworkResult.Success)
                 {
                     _apiKeyWasJustSuccessfullyFetchedOrReset = true;
                     ApiKey = _apiKeyHelper.ApiKey;
@@ -303,16 +322,16 @@ namespace SensorbergShowcase
 
                     switch (result)
                     {
-                        case FetchApiKeyResult.NetworkError:
+                        case NetworkResult.NetworkError:
                             message = "Failed to fetch the API key due to a possible network error.";
                             break;
-                        case FetchApiKeyResult.AuthenticationFailed:
+                        case NetworkResult.AuthenticationFailed:
                             message = "Authentication failed. Please check your email address and password.";
                             break;
-                        case FetchApiKeyResult.ParsingError:
+                        case NetworkResult.ParsingError:
                             message = "Failed to parse the server response.";
                             break;
-                        case FetchApiKeyResult.NoWindowsCampains:
+                        case NetworkResult.NoWindowsCampains:
                             message = "No Windows campaigns available.";
                             break;
                     }
@@ -330,6 +349,14 @@ namespace SensorbergShowcase
             ApiKey = SDKManager.DemoApiKey;
             IsApiKeyValid = true;
         }
+
+	    private async void OnScanApiQrCodeButtonClicked(object sender, RoutedEventArgs e)
+	    {
+	        _qrAlreadyFetched = false;
+
+            _scanner.Visibility = Visibility.Visible;
+            await _scanner.StartScanningAsync();
+	    }
 
         private void OnEnableActionsSwitchToggled(object sender, RoutedEventArgs e)
         {
@@ -430,5 +457,54 @@ namespace SensorbergShowcase
                 SaveApplicationSettings(KeyApiKey);
             }
         }
-    }
+
+        private async void OnQrCodeResolved(object sender, string e)
+        {
+            if (_messageDialogAlreadyOpen || _qrAlreadyFetched)
+            {
+                return;
+            }
+
+            MessageDialog dialog = new MessageDialog(string.Format("Do you want to set api key to: {0} ?", e), "Qr code resolved");
+
+            dialog.Commands.Add(new UICommand("Yes", async command =>
+            {
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                 {
+                     _scanner.Visibility = Visibility.Collapsed;
+                     await _scanner.StopScanningAsync();
+                     ApiKey = e;
+                 });
+                _qrAlreadyFetched = true;
+            }));
+
+            dialog.Commands.Add(new UICommand("Scan again", command =>
+            {
+            }));
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            {
+            _messageDialogAlreadyOpen = true;
+                await dialog.ShowAsync();
+            _messageDialogAlreadyOpen = false;
+            });
+
+        }
+
+        private void OnCodeScannerLoaded(object sender, RoutedEventArgs e)
+	    {
+            _scanner = sender as QrCodeScanner;
+	    }
+
+	    private void OnScannerNotAvailable(object sender, EventArgs e)
+	    {
+	        IsScannerAvailable = false;
+	    }
+
+	    private async void OnBackRequested(object sender, BackRequestedEventArgs e)
+	    {
+	        e.Handled = true;
+            _scanner.Visibility = Visibility.Collapsed;
+            await _scanner.StopScanningAsync();
+        }
+	}
 }

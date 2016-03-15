@@ -68,6 +68,7 @@ namespace SensorbergSDK.Internal
                             Uuid = actionUuid,
                             Subject = JsonHelper.OptionalString(message, KeySubject),
                             Body = JsonHelper.OptionalString(message, KeyBody),
+                            Url = JsonHelper.OptionalString(message, KeyUrl),
                             Payload = payload
                         };
 

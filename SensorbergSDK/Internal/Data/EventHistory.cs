@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using System.Runtime.Serialization.Json;
 using System.IO;
-using System.Net.Http;
 using System.Text;
 using System.Net;
+using System.Runtime.Serialization;
 using System.Threading;
+using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Utils;
 
 namespace SensorbergSDK.Internal
 {
@@ -133,57 +136,11 @@ namespace SensorbergSDK.Internal
         /// <summary>
         /// Checks if there are new events or actions in the history and sends them to the server.
         /// </summary>
-        public IAsyncAction FlushHistoryAsync()
+        public async Task FlushHistoryAsync()
         {
-            Func<Task> action = async () =>
-            {
-                try
-                {
-                    History history = new History();
-                    history.actions = await _storage.GetUndeliveredActionsAsync();
-                    history.events = await _storage.GetUndeliveredEventsAsync();
-
-                    if ((history.events != null && history.events.Count > 0) || (history.actions != null && history.actions.Count > 0))
-                    {
-                        MemoryStream stream1 = new MemoryStream();
-                        DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(History));
-                        ser.WriteObject(stream1, history);
-                        stream1.Position = 0;
-                        StreamReader sr = new StreamReader(stream1);
-
-                        HttpClient httpClient = new HttpClient();
-                        httpClient.DefaultRequestHeaders.Add(Constants.XApiKey, SDKData.Instance.ApiKey);
-                        httpClient.DefaultRequestHeaders.Add(Constants.Xiid, SDKData.Instance.DeviceId);
-                        var content = new StringContent(sr.ReadToEnd(), Encoding.UTF8, "application/json");
-
-                        HttpResponseMessage responseMessage = await httpClient.PostAsync(new Uri(Constants.LayoutApiUriAsString), content);
-
-                        if (responseMessage.StatusCode == HttpStatusCode.OK)
-                        {
-                            //TODO: When the server is ready move lines from the below here. Server needs to answer 400 OK for us
-                            //to set events and actions as delivered state
-                        }
-
-                        if ((history.events != null && history.events.Count > 0))
-                        {
-                            await _storage.SetEventsAsDeliveredAsync();
-                        }
-
-                        if (history.actions != null && history.actions.Count > 0)
-                        {
-                            await _storage.SetActionsAsDeliveredAsync();
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                }
-
-            };
-
-            return action().AsAsyncAction();
+            await ServiceManager.StorageService.FlushHistory();
         }
+
     }
 }
-
 
