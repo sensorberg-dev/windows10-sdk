@@ -22,7 +22,10 @@ namespace SensorbergSDKTests
         [TestInitialize]
         public void TestSetup()
         {
+            ServiceManager.Clear();
             ServiceManager.LayoutManager = new MockLayoutManager();
+            ServiceManager.SettingsManager = new SettingsManager();
+            ServiceManager.ReadOnlyForTests = true;
         }
 
         [TestMethod]

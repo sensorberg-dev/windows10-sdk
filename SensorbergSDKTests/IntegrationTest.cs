@@ -21,8 +21,11 @@ namespace SensorBergTests
         [TestInitialize]
         public void Setup()
         {
+            ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
             ServiceManager.LayoutManager = new LayoutManager();
+            ServiceManager.SettingsManager = new SettingsManager();
+            ServiceManager.ReadOnlyForTests = true;
         }
 
         [TestMethod]

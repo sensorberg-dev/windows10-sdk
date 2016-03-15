@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
 using SensorbergSDK.Internal.Services;
-using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK
 {
@@ -37,7 +36,6 @@ namespace SensorbergSDK
         public event EventHandler<Beacon> BeaconNotSeenForAWhile;
 
         private readonly BeaconContainer _beaconsContainer;
-        private static Scanner _instance;
         private BluetoothLEAdvertisementWatcher _bluetoothLEAdvertisementWatcher;
         private BluetoothLEManufacturerData _bluetoothLeManufacturerData;
         private Timer _beaconListRefreshTimer;
@@ -217,7 +215,7 @@ namespace SensorbergSDK
         /// <param name="args"></param>
         private void OnAdvertisementReceived(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
         {
-            Debug.WriteLine("Advertisement received " + args.Timestamp.ToString("HH:mm:ss.fff"));
+            Debug.WriteLine("Scanner: Advertisement received " + args.Timestamp.ToString("HH:mm:ss.fff"));
             Beacon beacon = BeaconFactory.BeaconFromBluetoothLEAdvertisementReceivedEventArgs(args);
 
             if (beacon != null)
@@ -228,6 +226,7 @@ namespace SensorbergSDK
                 }
 
                 bool isExistingBeacon = _beaconsContainer.TryUpdate(beacon);
+                Debug.WriteLine("Scanner: beacon exists:" + isExistingBeacon + " " + beacon.Id1 + " " + beacon.Id2 + " " + beacon.Id3);
                 if (isExistingBeacon)
                 {
                     NotifyBeaconEvent(beacon, BeaconEventType.None);
@@ -245,7 +244,7 @@ namespace SensorbergSDK
         {
             if (_bluetoothLEAdvertisementWatcher != null)
             {
-                Debug.WriteLine("Scanner.OnWatcherStopped(): Status: " + _bluetoothLEAdvertisementWatcher.Status);
+                Debug.WriteLine("Scanner: .OnWatcherStopped(): Status: " + _bluetoothLEAdvertisementWatcher.Status);
 
                 if (_bluetoothLEAdvertisementWatcher.Status == BluetoothLEAdvertisementWatcherStatus.Aborted)
                 {

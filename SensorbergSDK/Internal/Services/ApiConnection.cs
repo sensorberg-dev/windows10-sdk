@@ -52,6 +52,7 @@ namespace SensorbergSDK.Internal.Services
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("LayoutManager.RetrieveLayoutResponseAsync(): Failed to send HTTP request: " + ex.Message);
+                return null;
             }
 
             if (responseMessage.IsSuccessStatusCode)

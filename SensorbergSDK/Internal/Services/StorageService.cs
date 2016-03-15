@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using SensorbergSDK.Data;
 using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDK.Internal.Services

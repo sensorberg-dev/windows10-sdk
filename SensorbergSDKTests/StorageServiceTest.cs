@@ -19,9 +19,11 @@ namespace SensorbergSDKTests
         [TestInitialize]
         public void Setup()
         {
+            ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
             ServiceManager.LayoutManager = new LayoutManager();
             ServiceManager.StorageService = new StorageService();
+            ServiceManager.SettingsManager = new SettingsManager();
         }
 
         [TestMethod]

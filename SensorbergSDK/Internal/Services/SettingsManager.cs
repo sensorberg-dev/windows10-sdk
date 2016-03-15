@@ -1,54 +1,36 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization.Json;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Data.Json;
-using Windows.Foundation;
 using Windows.Storage;
-using Windows.Web.Http;
-using Windows.Web.Http.Filters;
+using SensorbergSDK.Data;
 using SensorbergSDK.Internal.Data;
-using SensorbergSDK.Internal.Services;
 
-namespace SensorbergSDK.Internal.Transport
+namespace SensorbergSDK.Internal.Services
 {
-    internal sealed class SettingsManager
+    public sealed class SettingsManager: ISettingsManager
     {
         private const string STORAGE_KEY = "app_settings";
         private readonly ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
         private readonly SDKData _sdkData;
-        private static SettingsManager _instance = null;
         private Timer _updateSettingsTimer;
         private AppSettings _lastSettings;
 
         public event EventHandler<SettingsEventArgs> SettingsUpdated;
+        public AppSettings DefaultAppSettings { get; set; }
 
-        public static SettingsManager Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new SettingsManager();
-                }
 
-                return _instance;
-            }
-        }
-
-        private SettingsManager()
+        public SettingsManager()
         {
             _sdkData = SDKData.Instance;
         }
 
-        public async Task<AppSettings> GetSettingsAsync(bool forceApi = false)
+        public async Task<AppSettings> GetSettings(bool forceUpdate = false)
         {
-            if (_lastSettings != null && forceApi == false)
+            if (_lastSettings != null && forceUpdate == false)
             {
                 Debug.WriteLine("SettingsManager returned settings from cache." + _lastSettings);
                 return _lastSettings;
@@ -76,7 +58,7 @@ namespace SensorbergSDK.Internal.Transport
 
         private async void OnTimerTick(object state)
         {
-            var settings = await GetSettingsAsync(true);
+            var settings = await GetSettings(true);
             if (SettingsUpdated != null && settings != null)
             {
                 SettingsUpdated(this, new SettingsEventArgs(settings));
@@ -115,12 +97,9 @@ namespace SensorbergSDK.Internal.Transport
         private AppSettings CreateDefaultSettings()
         {
             Debug.WriteLine("SettingsManager used default settings values.");
-            return new AppSettings() {
-                BeaconExitTimeout = Constants.DefaultBeaconExitTimeout,
-                SettingsUpdateInterval = Constants.DefaultSettingsUpdateInterval,
-                HistoryUploadInterval = Constants.DefaultHistoryUploadInterval,
-                LayoutUpdateInterval = Constants.DefaultLayoutUpdateInterval
-            };
+            return DefaultAppSettings != null
+                ? DefaultAppSettings
+                : new AppSettings();
         }
 
         private void SaveSettingsToStorage(AppSettings settings)

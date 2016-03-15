@@ -7,12 +7,18 @@ using System.Threading.Tasks;
 using Windows.Data.Json;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Services;
 
 namespace SensorBergTests
 {
     [TestClass]
     public class UnitTestResponse
     {
+        [TestInitialize]
+        public void TestSetup()
+        {
+            ServiceManager.Clear();
+        }
         [TestMethod]
         public async Task Response_latest_response()
         {

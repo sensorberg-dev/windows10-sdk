@@ -77,9 +77,9 @@ namespace SensorbergSDK.Internal
                 {
                     Request currentRequest = _requestQueue.Dequeue();
 
-
                     if (currentRequest != null && !currentRequest.IsBeingProcessed)
                     {
+                        Debug.WriteLine("RequestQueue: take next request " + currentRequest.RequestId);
                         currentRequest.IsBeingProcessed = true;
                         currentRequest.TryCount++;
                         RequestResultState requestResult = RequestResultState.None;
@@ -98,6 +98,7 @@ namespace SensorbergSDK.Internal
                             currentRequest.ErrorMessage = ex.Message;
                             requestResult = RequestResultState.Failed;
                         }
+                        Debug.WriteLine("RequestQueue: request result " + currentRequest.RequestId + " " + requestResult);
 
                         switch (requestResult)
                         {

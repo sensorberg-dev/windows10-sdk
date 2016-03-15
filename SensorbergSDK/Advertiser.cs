@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Windows.Devices.Bluetooth.Advertisement;
 
 namespace SensorbergSDK
@@ -14,37 +15,49 @@ namespace SensorbergSDK
 
         public string BeaconId1
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
-        public UInt16 ManufacturerId
+        public ushort ManufacturerId
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
-        public UInt16 BeaconCode
+        public ushort BeaconCode
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
-        public UInt16 BeaconId2
+        public ushort BeaconId2
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
-        public UInt16 BeaconId3
+        public ushort BeaconId3
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         public bool IsStarted
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             private set;
         }
 

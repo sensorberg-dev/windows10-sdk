@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Foundation;
+using SensorbergSDK.Data;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
-using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK
 {
@@ -228,7 +228,7 @@ namespace SensorbergSDK
                 }
 #endif
 
-                _appSettings = await SettingsManager.Instance.GetSettingsAsync();
+                _appSettings = await ServiceManager.SettingsManager.GetSettings();
 
                 // Using MaxSamplingInterval as SamplingInterval ensures that we get an event only
                 // when entering or exiting from the range of the beacon
