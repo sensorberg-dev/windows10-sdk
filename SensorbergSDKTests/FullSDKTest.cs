@@ -155,7 +155,7 @@ namespace SensorbergSDK.Internal
             scanner.FireBeaconEvent(new Beacon() { Id1 = "7367672374000000ffff0000ffff0008", Id2 = 23430, Id3 = 28018 }, BeaconEventType.Enter);
 
             Debug.WriteLine("Waiting");
-            await Task.Delay(200);
+            await Task.Delay(2000);
             Debug.WriteLine("Waiting done");
             Assert.AreEqual(1, actions.Count, "Action missing or to many");
         }
