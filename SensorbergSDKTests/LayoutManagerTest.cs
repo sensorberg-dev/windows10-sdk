@@ -11,6 +11,7 @@ using Windows.Data.Json;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Services;
 using SensorbergSDKTests.Mocks;
 
 namespace SensorbergSDK.Internal
@@ -40,7 +41,7 @@ namespace SensorbergSDK.Internal
         {
             ILayoutManager manager = ServiceManager.LayoutManager;
             await ValidateBaseMockLayout(manager);
-            await manager.InvalidateLayoutAsync();
+            await manager.InvalidateLayout();
             Assert.IsFalse(manager.IsLayoutValid, "Layout still valid");
             Assert.IsNull(manager.Layout, "Layout still exists");
             Assert.IsTrue(await manager.VerifyLayoutAsync(true), "Verification failed");

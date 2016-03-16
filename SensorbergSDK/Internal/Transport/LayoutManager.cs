@@ -11,6 +11,7 @@ using Windows.Web.Http;
 using Windows.Web.Http.Filters;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Internal.Utils;
+using SensorbergSDK.Services;
 
 namespace SensorbergSDK.Internal
 {
@@ -29,12 +30,8 @@ namespace SensorbergSDK.Internal
         /// </summary>
         public event EventHandler<bool> LayoutValidityChanged;
 
-        public Layout Layout
-        {
-            get { return _layout; }
-        }
+        public Layout Layout { get; private set; }
 
-        private Layout _layout;
         private ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
 
         /// <summary>
@@ -45,7 +42,7 @@ namespace SensorbergSDK.Internal
         {
             get
             {
-                return _layout != null && _layout.ValidTill >= DateTimeOffset.Now;
+                return Layout != null && Layout.ValidTill >= DateTimeOffset.Now;
             }
         }
 
@@ -66,7 +63,7 @@ namespace SensorbergSDK.Internal
                 if (!forceUpdate)
                 {
                     // Check local storage first
-                    _layout = await LoadLayoutFromLocalStorageAsync();
+                    Layout = await ServiceManager.StorageService.LoadLayoutFromLocalStorage();
                 }
 
                 if (forceUpdate || !IsLayoutValid)
@@ -77,7 +74,7 @@ namespace SensorbergSDK.Internal
 
                     if (freshLayout != null && freshLayout.Result == NetworkResult.Success)
                     {
-                        _layout = freshLayout.Layout;
+                        Layout = freshLayout.Layout;
                         Debug.WriteLine("Layout changed.");
                     }
                     else
@@ -90,33 +87,6 @@ namespace SensorbergSDK.Internal
             return IsLayoutValid;
         }
 
-        /// <summary>
-        /// Invalidates both the current and cached layout.
-        /// </summary>
-        public IAsyncAction InvalidateLayoutAsync()
-        {
-            Func<Task> action = async () =>
-            {
-                _layout = null;
-                _localSettings.Values[KeyLayoutHeaders] = null;
-                _localSettings.Values[KeyLayoutRetrievedTime] = null;
-
-                try
-                {
-                    var contentFile = await ApplicationData.Current.LocalFolder.TryGetItemAsync(KeyLayoutContent);
-
-                    if (contentFile != null)
-                    {
-                        await contentFile.DeleteAsync();
-                    }
-                }
-                catch (Exception)
-                {
-                }
-            };
-
-            return action().AsAsyncAction();
-        }
 
         /// <summary>
         /// Executes the given request.
@@ -129,6 +99,15 @@ namespace SensorbergSDK.Internal
             return resultState;
         }
 
+        /// <summary>
+        /// Invalidates both the current and cached layout.
+        /// </summary>
+        public async Task InvalidateLayout()
+        {
+            Layout = null;
+            await ServiceManager.StorageService.InvalidateLayout();
+        }
+
         internal async Task<RequestResultState> InternalExecuteRequestAsync(Request request)
         {
             System.Diagnostics.Debug.WriteLine("LayoutManager.InternalExecuteRequestAsync(): Request ID is " + request.RequestId);
@@ -138,7 +117,7 @@ namespace SensorbergSDK.Internal
             {
                 if (await VerifyLayoutAsync(false))
                 {
-                    request.ResolvedActions = _layout.GetResolvedActionsForPidAndEvent(
+                    request.ResolvedActions = Layout.GetResolvedActionsForPidAndEvent(
                         request.BeaconEventArgs.Beacon.Pid, request.BeaconEventArgs.EventType);
 
                     foreach (ResolvedAction resolvedAction in request.ResolvedActions)
@@ -209,65 +188,5 @@ namespace SensorbergSDK.Internal
 
             return hash;
         }
-
-        /// <summary>
-        /// Tries to load the layout from the local storage.
-        /// </summary>
-        /// <returns>A layout instance, if successful. Null, if not found.</returns>
-        private async Task<Layout> LoadLayoutFromLocalStorageAsync()
-        {
-            Layout layout = null;
-            string headers = string.Empty;
-            string content = string.Empty;
-            DateTimeOffset layoutRetrievedTime = DateTimeOffset.Now;
-
-            if (_localSettings.Values.ContainsKey(KeyLayoutHeaders))
-            {
-                headers = _localSettings.Values[KeyLayoutHeaders].ToString();
-            }
-
-            if (_localSettings.Values.ContainsKey(KeyLayoutRetrievedTime))
-            {
-                layoutRetrievedTime = (DateTimeOffset)_localSettings.Values[KeyLayoutRetrievedTime];
-            }
-
-            try
-            {
-                var contentFile = await ApplicationData.Current.LocalFolder.TryGetItemAsync(KeyLayoutContent);
-
-                if (contentFile != null)
-                {
-                    content = await FileIO.ReadTextAsync(contentFile as IStorageFile);
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("LayoutManager.LoadLayoutFromLocalStorage(): Failed to load content: " + ex.ToString());
-            }
-
-            if (!string.IsNullOrEmpty(content))
-            {
-                content = Helper.EnsureEncodingIsUTF8(content);
-                try
-                {
-                    JsonValue contentAsJsonValue = JsonValue.Parse(content);
-                    layout = Layout.FromJson(headers, contentAsJsonValue.GetObject(), layoutRetrievedTime);
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine("LayoutManager.LoadLayoutFromLocalStorage(): Failed to parse layout: " + ex.ToString());
-                }
-            }
-
-            if (layout == null)
-            {
-                // Failed to parse the layout => invalidate it
-                await InvalidateLayoutAsync();
-            }
-
-            return layout;
-        }
-
-
     }
 }

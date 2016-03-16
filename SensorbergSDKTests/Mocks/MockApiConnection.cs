@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Windows.Web.Http;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Services;
 
 namespace SensorbergSDKTests.Mocks
 {
@@ -34,7 +35,7 @@ namespace SensorbergSDKTests.Mocks
         }
 
 
-        public async Task<ResponseMessage> RetrieveLayoutResponseAsync(SDKData data, string apiId = null)
+        public async Task<ResponseMessage> RetrieveLayoutResponse(SDKData data, string apiId = null)
         {
             return new ResponseMessage()
             {

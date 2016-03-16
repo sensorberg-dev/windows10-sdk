@@ -3,34 +3,26 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.Data.Json;
+using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Services;
 
 namespace SensorbergSDK.Internal
 {
-    public class Storage
+    public class SqlStorage: IStorage
     {
-        private SQLiteAsyncConnection _db = null;
+        private SQLiteAsyncConnection _db;
 
-        private static Storage _instance;
-        public static Storage Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new Storage();
-                }
 
-                return _instance;
-            }
-        }
-
-        private Storage()
+        public SqlStorage()
         {
             _db = new SQLiteAsyncConnection("sensorberg.db");
         }
 
-        //Creates dabases if they don't exist already
-        public async Task CreateDBAsync()
+        /// <summary>
+        /// Creates dabases if they don't exist already
+        /// </summary>
+        /// <returns></returns>
+        public async Task InitStorage()
         {
             await _db.CreateTableAsync<DBHistoryEvent>();
             await _db.CreateTableAsync<DBHistoryAction>();
@@ -47,7 +39,7 @@ namespace SensorbergSDK.Internal
         /// <param name="beaconPid"></param>
         /// <param name="eventTypeDetectedByDevice"></param>
         /// <returns></returns>
-        public async Task SaveDelayedActionAsync(
+        public async Task SaveDelayedAction(
             ResolvedAction resolvedAction, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice)
         {
             string actionAsString = ResolvedAction.Serialize(resolvedAction);
@@ -70,7 +62,7 @@ namespace SensorbergSDK.Internal
         /// </summary>
         /// <param name="maxDelayFromNowInSeconds"></param>
         /// <returns></returns>
-        public async Task<IList<DBDelayedAction>> GetSerializedDelayedActionsAsync(int maxDelayFromNowInSeconds = 1000)
+        private async Task<IList<DBDelayedAction>> GetSerializedDelayedActionsAsync(int maxDelayFromNowInSeconds = 1000)
         {
             IList<DBDelayedAction> actions = new List<DBDelayedAction>();
             DateTimeOffset maxDelayfromNow = DateTimeOffset.Now.AddSeconds(maxDelayFromNowInSeconds);
@@ -86,11 +78,12 @@ namespace SensorbergSDK.Internal
         }
 
         /// <summary>
-        /// 
+        /// Returns delayed actions which should be executed now or maxDelayFromNowInSeconds
+        /// seconds in the future.
         /// </summary>
         /// <param name="maxDelayFromNowInSeconds"></param>
         /// <returns></returns>
-        public async Task<IList<DelayedActionData>> GetDelayedActionsAsync(int maxDelayFromNowInSeconds = 1000)
+        public async Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds = 1000)
         {
             IList<DBDelayedAction> serializedActions = await GetSerializedDelayedActionsAsync(maxDelayFromNowInSeconds);
             IList<DelayedActionData> deserializedActions = new List<DelayedActionData>();
@@ -118,25 +111,25 @@ namespace SensorbergSDK.Internal
             return deserializedActions;
         }
 
-        public async Task SetDelayedActionAsExecutedAsync(int delayedActionId)
+        public async Task SetDelayedActionAsExecuted(int delayedActionId)
         {
             await _db.ExecuteAsync("UPDATE DBDelayedAction SET Executed = 1 WHERE Id = ?", delayedActionId);
         }
 
 
-        public async Task SaveHistoryActionAsync(string eidIn, string pidIn, DateTimeOffset dtIn, int triggerIn)
+        public async Task SaveHistoryAction(string eidIn, string pidIn, DateTimeOffset dtIn, int triggerIn)
         {
             DBHistoryAction action = new DBHistoryAction() { delivered = false, eid = eidIn, pid = pidIn, dt = dtIn, trigger = triggerIn };
             await _db.InsertAsync(action);
         }
 
-        public async Task SaveHistoryEventsAsync(string pidIn, DateTimeOffset dtIn, int triggerIn)
+        public async Task SaveHistoryEvents(string pidIn, DateTimeOffset dtIn, int triggerIn)
         {
             DBHistoryEvent actions = new DBHistoryEvent() { delivered = false, pid = pidIn, dt = dtIn, trigger = triggerIn };
             await _db.InsertAsync(actions);
         }
 
-        public async Task<DBHistoryAction> GetActionAsync(string eidIn)
+        public async Task<DBHistoryAction> GetAction(string eidIn)
         {
             DBHistoryAction result = null;
 
@@ -154,7 +147,7 @@ namespace SensorbergSDK.Internal
             return result;
         }
 
-        public async Task<IList<DBHistoryAction>> GetActionsAsync(string eidIn)
+        public async Task<IList<DBHistoryAction>> GetActions(string eidIn)
         {
             IList<DBHistoryAction> result = null;
             var query = _db.Table<DBHistoryAction>().Where(v => v.eid.Equals(eidIn));
@@ -163,7 +156,7 @@ namespace SensorbergSDK.Internal
         }
 
 
-        public async Task<IList<HistoryAction>> GetUndeliveredActionsAsync()
+        public async Task<IList<HistoryAction>> GetUndeliveredActions()
         {
             IList<HistoryAction> actions = new List<HistoryAction>();
 
@@ -181,13 +174,13 @@ namespace SensorbergSDK.Internal
             }
             catch (AggregateException ex)
             {
-                System.Diagnostics.Debug.WriteLine("Storage.GetUndeliveredActionsAsync(): " + ex.Message);
+                System.Diagnostics.Debug.WriteLine("SqlStorage.GetUndeliveredActionsAsync(): " + ex.Message);
             }
 
             return actions;
         }
 
-        public async Task<IList<HistoryEvent>> GetUndeliveredEventsAsync()
+        public async Task<IList<HistoryEvent>> GetUndeliveredEvents()
         {
             IList<HistoryEvent> events = new List<HistoryEvent>();
 
@@ -217,7 +210,7 @@ namespace SensorbergSDK.Internal
 
             return events;
         }
-        public async Task SaveBeaconActionFromBackgroundAsync(BeaconAction action)
+        public async Task SaveBeaconActionFromBackground(BeaconAction action)
         {
             var beaconString = ActionFactory.Serialize(action);
             var payload = "";
@@ -234,7 +227,7 @@ namespace SensorbergSDK.Internal
         /// yet by the user. The returned actions are deleted from the database.
         /// </summary>
         /// <returns>The pending beacon actions resolved by the background task.</returns>
-        public async Task<IList<BeaconAction>> GetBeaconActionsFromBackgroundAsync()
+        public async Task<IList<BeaconAction>> GetBeaconActionsFromBackground()
         {
             List<BeaconAction> beaconActions = new List<BeaconAction>();
             var query = _db.Table<DBBeaconActionFromBackground>();
@@ -266,19 +259,19 @@ namespace SensorbergSDK.Internal
             DBBackgroundEventsHistory actions = new DBBackgroundEventsHistory() { BeaconPid = pidIn, EventType = eventType, EventTime = eventTime };
             await _db.InsertAsync(actions);
         }
-        public async Task UpdateBeaconBackgroundEventAsync(string pidIn, BeaconEventType triggerIn)
+        public async Task UpdateBeaconBackgroundEvent(string pidIn, BeaconEventType triggerIn)
         {
             int eventType = (int)triggerIn;
             DateTimeOffset eventTime = DateTimeOffset.Now;
             DBBackgroundEventsHistory backgroundEvent = new DBBackgroundEventsHistory() { BeaconPid = pidIn, EventType = eventType, EventTime = eventTime };
             await _db.UpdateAsync(backgroundEvent);
         }
-        public async Task DeleteBackgroundEventAsync(string pidIn)
+        public async Task DeleteBackgroundEvent(string pidIn)
         {
             DBBackgroundEventsHistory backgroundEvent = new DBBackgroundEventsHistory() { BeaconPid = pidIn };
             await _db.DeleteAsync(backgroundEvent);
         }
-        public async Task UpdateBackgroundEventAsync(string pidIn,BeaconEventType eventType)
+        public async Task UpdateBackgroundEvent(string pidIn,BeaconEventType eventType)
         {
             int type = (int)eventType;
             DateTimeOffset eventTime = DateTimeOffset.Now;
@@ -286,12 +279,12 @@ namespace SensorbergSDK.Internal
             await _db.UpdateAsync(backgroundEvent);
         }
 
-        public async Task SetEventsAsDeliveredAsync()
+        public async Task SetEventsAsDelivered()
         {
             await _db.ExecuteAsync("UPDATE DBHistoryEvent SET delivered = 1");
         }
 
-        public async Task SetActionsAsDeliveredAsync()
+        public async Task SetActionsAsDelivered()
         {
             await _db.ExecuteAsync("UPDATE DBHistoryAction SET delivered = 1");
         }
@@ -300,7 +293,7 @@ namespace SensorbergSDK.Internal
         /// Cleans old entries from the database
         /// </summary>
         /// <returns></returns>
-        public async Task CleanDatabaseAsync()
+        public async Task CleanDatabase()
         {
             try
             {

@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Services;
 using SensorbergSDKTests.Mocks;
 
 namespace SensorbergSDKTests
@@ -22,7 +23,7 @@ namespace SensorbergSDKTests
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
             ServiceManager.LayoutManager = new LayoutManager();
-            ServiceManager.StorageService = new StorageService();
+            ServiceManager.StorageService = new StorageServiceExtend();
             ServiceManager.SettingsManager = new SettingsManager();
             ServiceManager.ReadOnlyForTests = true;
         }
@@ -69,8 +70,24 @@ namespace SensorbergSDKTests
 
             //should be cached
             layout = await service.RetrieveLayout();
-            Assert.AreEqual(NetworkResult.Success, layout.Result, "Not successfull loaded");
+            Assert.AreEqual(NetworkResult.Success, layout.Result, "Not successfull loaded from cache");
             LayoutManagerTest.ValidateMockLayout(layout.Layout);
+        }
+
+        [TestMethod]
+        public async Task FlushHistoryTest()
+        {
+            StorageServiceExtend sse = (StorageServiceExtend) ServiceManager.StorageService;
+            sse.SetStorage(new MockStorage());
+            MockApiConnection connection = (MockApiConnection)ServiceManager.ApiConnction;
+            IStorageService service = ServiceManager.StorageService;
+
+
+            connection.FailNetwork = true;
+            Assert.IsFalse(await service.FlushHistory(), "Flushing History not failed");
+            connection.FailNetwork = false;
+
+            Assert.IsFalse(await service.FlushHistory(), "Flushing History not succeed");
         }
     }
 }

@@ -8,6 +8,7 @@ using Windows.Data.Json;
 using Windows.Storage;
 using SensorbergSDK.Data;
 using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Services;
 
 namespace SensorbergSDK.Internal.Services
 {

@@ -5,14 +5,15 @@
 // All rights reserved.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.Storage;
 using SensorbergSDK.Data;
-using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Utils;
+using SensorbergSDK.Services;
 
 namespace SensorbergSDK.Internal.Services
 {
@@ -24,7 +25,19 @@ namespace SensorbergSDK.Internal.Services
 
         public int RetryCount { get; set; }
 
-        private Storage Storage { [DebuggerStepThrough] get; [DebuggerStepThrough] set; } = Internal.Storage.Instance;
+        protected IStorage Storage { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
+
+        public StorageService()
+        {
+            //Ensures that database tables are created
+            Storage = new SqlStorage();
+        }
+
+        public async Task InitStorage()
+        {
+           await Storage.InitStorage();
+        }
+
 
         /// <summary>
         /// Checks whether the given API key is valid or not.
@@ -35,7 +48,7 @@ namespace SensorbergSDK.Internal.Services
         {
             ResponseMessage responseMessage = null;
 
-            responseMessage = await ExecuteCall(async () => await ServiceManager.ApiConnction.RetrieveLayoutResponseAsync(SDKData.Instance, apiKey));
+            responseMessage = await ExecuteCall(async () => await ServiceManager.ApiConnction.RetrieveLayoutResponse(SDKData.Instance, apiKey));
 
             if (responseMessage != null && responseMessage.IsSuccess)
             {
@@ -55,7 +68,7 @@ namespace SensorbergSDK.Internal.Services
 
         public async Task<LayoutResult> RetrieveLayout()
         {
-            ResponseMessage responseMessage = await ExecuteCall(async () => await ServiceManager.ApiConnction.RetrieveLayoutResponseAsync(SDKData.Instance));
+            ResponseMessage responseMessage = await ExecuteCall(async () => await ServiceManager.ApiConnction.RetrieveLayoutResponse(SDKData.Instance));
             if (responseMessage != null && responseMessage.IsSuccess)
             {
                 Layout layout = null;
@@ -74,7 +87,7 @@ namespace SensorbergSDK.Internal.Services
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine("LayoutManager.RetrieveLayoutAsync(): Failed to parse layout: " + ex.ToString());
+                        Debug.WriteLine("LayoutManager.RetrieveLayout(): Failed to parse layout: " + ex);
                         layout = null;
                     }
                 }
@@ -82,9 +95,14 @@ namespace SensorbergSDK.Internal.Services
                 if (layout != null)
                 {
                     // Store the parsed layout
-                    await SaveLayoutToLocalStorageAsync(headersAsString, contentAsString, layoutRetrievedTime);
+                    await SaveLayoutToLocalStorage(headersAsString, contentAsString, layoutRetrievedTime);
                     return new LayoutResult() {Layout = layout, Result = NetworkResult.Success};
                 }
+            }
+            else
+            {
+               Layout layout= await LoadLayoutFromLocalStorage();
+                return new LayoutResult() {Result = layout != null ? NetworkResult.Success : NetworkResult.NetworkError, Layout = layout};
             }
 
             return new LayoutResult() {Result = responseMessage != null ? responseMessage.NetworResult : NetworkResult.UnknownError};
@@ -92,7 +110,7 @@ namespace SensorbergSDK.Internal.Services
 
         public Task<AppSettings> RetrieveAppSettings()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public async Task<bool> FlushHistory()
@@ -100,23 +118,23 @@ namespace SensorbergSDK.Internal.Services
             try
             {
                 History history = new History();
-                history.actions = await Storage.GetUndeliveredActionsAsync();
-                history.events = await Storage.GetUndeliveredEventsAsync();
+                history.actions = await Storage.GetUndeliveredActions();
+                history.events = await Storage.GetUndeliveredEvents();
 
                 if ((history.events != null && history.events.Count > 0) || (history.actions != null && history.actions.Count > 0))
                 {
-                    var responseMessage = await ServiceManager.ApiConnction.SendHistory(history);
+                    var responseMessage = await ExecuteCall(async () => await ServiceManager.ApiConnction.SendHistory(history));
 
                     if (responseMessage.IsSuccess)
                     {
                         if ((history.events != null && history.events.Count > 0))
                         {
-                            await Storage.SetEventsAsDeliveredAsync();
+                            await Storage.SetEventsAsDelivered();
                         }
 
                         if (history.actions != null && history.actions.Count > 0)
                         {
-                            await Storage.SetActionsAsDeliveredAsync();
+                            await Storage.SetActionsAsDelivered();
                         }
                         return true;
                     }
@@ -130,15 +148,16 @@ namespace SensorbergSDK.Internal.Services
         }
 
 
+
         /// <summary>
         /// Saves the strings that make up a layout.
         /// </summary>
         /// <param name="headers"></param>
         /// <param name="content"></param>
         /// <param name="layoutRetrievedTime"></param>
-        private async Task SaveLayoutToLocalStorageAsync(string headers, string content, DateTimeOffset layoutRetrievedTime)
+        private async Task SaveLayoutToLocalStorage(string headers, string content, DateTimeOffset layoutRetrievedTime)
         {
-            if (await StoreDataAsync(KeyLayoutContent, content))
+            if (await StoreData(KeyLayoutContent, content))
             {
                 ApplicationData.Current.LocalSettings.Values[KeyLayoutHeaders] = headers;
                 ApplicationData.Current.LocalSettings.Values[KeyLayoutRetrievedTime] = layoutRetrievedTime;
@@ -151,7 +170,7 @@ namespace SensorbergSDK.Internal.Services
         /// <param name="fileName">The file name of the storage file.</param>
         /// <param name="data">The data to save.</param>
         /// <returns>True, if successful. False otherwise.</returns>
-        private async Task<bool> StoreDataAsync(string fileName, string data)
+        private async Task<bool> StoreData(string fileName, string data)
         {
             bool success = false;
 
@@ -163,10 +182,157 @@ namespace SensorbergSDK.Internal.Services
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("LayoutManager.StoreDataAsync(): Failed to save content: " + ex);
+                Debug.WriteLine("LayoutManager.StoreData(): Failed to save content: " + ex);
             }
 
             return success;
+        }
+
+        /// <summary>
+        /// Tries to load the layout from the local storage.
+        /// </summary>
+        /// <returns>A layout instance, if successful. Null, if not found.</returns>
+        public async Task<Layout> LoadLayoutFromLocalStorage()
+        {
+            Layout layout = null;
+            string headers = string.Empty;
+            string content = string.Empty;
+            DateTimeOffset layoutRetrievedTime = DateTimeOffset.Now;
+
+            if (ApplicationData.Current.LocalSettings.Values.ContainsKey(KeyLayoutHeaders))
+            {
+                headers = ApplicationData.Current.LocalSettings.Values[KeyLayoutHeaders].ToString();
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values.ContainsKey(KeyLayoutRetrievedTime))
+            {
+                layoutRetrievedTime = (DateTimeOffset)ApplicationData.Current.LocalSettings.Values[KeyLayoutRetrievedTime];
+            }
+
+            try
+            {
+                var contentFile = await ApplicationData.Current.LocalFolder.TryGetItemAsync(KeyLayoutContent);
+
+                if (contentFile != null)
+                {
+                    content = await FileIO.ReadTextAsync(contentFile as IStorageFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("LayoutManager.LoadLayoutFromLocalStorage(): Failed to load content: " + ex);
+            }
+
+            if (!string.IsNullOrEmpty(content))
+            {
+                content = Helper.EnsureEncodingIsUTF8(content);
+                try
+                {
+                    JsonValue contentAsJsonValue = JsonValue.Parse(content);
+                    layout = Layout.FromJson(headers, contentAsJsonValue.GetObject(), layoutRetrievedTime);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("LayoutManager.LoadLayoutFromLocalStorage(): Failed to parse layout: " + ex);
+                }
+            }
+
+            if (layout == null)
+            {
+                // Failed to parse the layout => invalidate it
+                await InvalidateLayout();
+            }
+
+            return layout;
+        }
+
+#region pure storage methods (sqlstorage class delegates)
+        public async Task SaveHistoryAction(string uuid, string beaconPid, DateTime now, int beaconEventType)
+        {
+            await Storage.SaveHistoryAction(uuid, beaconPid, now, beaconEventType);
+        }
+
+        public async Task SaveHistoryEvent(string pid, DateTimeOffset timestamp, int eventType)
+        {
+            await Storage.SaveHistoryEvents(pid, timestamp, eventType);
+        }
+
+        public async Task<IList<DBHistoryAction>> GetActions(string uuid)
+        {
+           return await Storage.GetActions(uuid);
+        }
+
+        public async Task<DBHistoryAction> GetAction(string uuid)
+        {
+           return await Storage.GetAction(uuid);
+        }
+
+        public async Task CleanDatabase()
+        {
+            await Storage.CleanDatabase();
+        }
+
+        public async Task<IList<BeaconAction>> GetBeaconActionsFromBackground()
+        {
+           return await Storage.GetBeaconActionsFromBackground();
+        }
+
+        public async Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds = 1000)
+        {
+           return await Storage.GetDelayedActions(maxDelayFromNowInSeconds);
+        }
+
+        public async Task SetDelayedActionAsExecuted(int id)
+        {
+            await Storage.SetDelayedActionAsExecuted(id);
+        }
+
+        public async Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice)
+        {
+            await Storage.SaveDelayedAction(action, dueTime, beaconPid, eventTypeDetectedByDevice);
+        }
+
+        public async Task<IList<DBBackgroundEventsHistory>> GetBeaconBackgroundEventsHistory(string pid)
+        {
+            return await Storage.GetBeaconBackgroundEventsHistory(pid);
+        }
+
+        public async Task SaveBeaconBackgroundEvent(string pid, BeaconEventType enter)
+        {
+            await Storage.SaveBeaconBackgroundEvent(pid, enter);
+        }
+
+        public async Task DeleteBackgroundEvent(string pid)
+        {
+            await Storage.DeleteBackgroundEvent(pid);
+        }
+
+        public async Task SaveBeaconActionFromBackground(BeaconAction beaconAction)
+        {
+            await Storage.SaveBeaconActionFromBackground(beaconAction);
+        }
+#endregion
+
+        /// <summary>
+        /// Invalidates both the current and cached layout.
+        /// </summary>
+        public async Task InvalidateLayout()
+        {
+            ApplicationData.Current.LocalSettings.Values[KeyLayoutHeaders] = null;
+            ApplicationData.Current.LocalSettings.Values[KeyLayoutRetrievedTime] = null;
+
+            try
+            {
+                var contentFile = await ApplicationData.Current.LocalFolder.TryGetItemAsync(KeyLayoutContent);
+
+                if (contentFile != null)
+                {
+                    await contentFile.DeleteAsync();
+                }
+            }
+            catch (Exception)
+            {
+            }
         }
 
         private async Task<ResponseMessage> ExecuteCall(Func<Task<ResponseMessage>> action)
