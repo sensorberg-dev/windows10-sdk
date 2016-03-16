@@ -15,28 +15,29 @@ namespace SensorbergSDKTests.Mocks
 {
     public class MockStorage:IStorage
     {
+        public IList<HistoryAction> UndeliveredActions { get; set; }
+        public IList<HistoryEvent> UndeliveredEvents { get; set; }
         public async Task InitStorage()
         {
         }
-
-        public Task<IList<HistoryEvent>> GetUndeliveredEvents()
+        public async Task<IList<HistoryEvent>> GetUndeliveredEvents()
         {
-            throw new NotImplementedException();
+            return UndeliveredEvents;
         }
 
-        public Task<IList<HistoryAction>> GetUndeliveredActions()
+        public async Task<IList<HistoryAction>> GetUndeliveredActions()
         {
-            throw new NotImplementedException();
+            return UndeliveredActions;
         }
 
-        public Task SetEventsAsDelivered()
+        public async Task SetEventsAsDelivered()
         {
-            throw new NotImplementedException();
+            UndeliveredEvents?.Clear();
         }
 
-        public Task SetActionsAsDelivered()
+        public async Task SetActionsAsDelivered()
         {
-            throw new NotImplementedException();
+            UndeliveredActions?.Clear();
         }
 
         public Task SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, int beaconEventType)

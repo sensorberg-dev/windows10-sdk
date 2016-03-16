@@ -4,6 +4,8 @@
 // 
 // All rights reserved.
 
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
@@ -78,7 +80,11 @@ namespace SensorbergSDKTests
         public async Task FlushHistoryTest()
         {
             StorageServiceExtend sse = (StorageServiceExtend) ServiceManager.StorageService;
-            sse.SetStorage(new MockStorage());
+            MockStorage mockStorage = new MockStorage();
+            sse.SetStorage(mockStorage);
+            mockStorage.UndeliveredActions = new List<HistoryAction>() {new HistoryAction(new DBHistoryAction())};
+            mockStorage.UndeliveredEvents = new List<HistoryEvent>() {new HistoryEvent(new DBHistoryEvent())};
+
             MockApiConnection connection = (MockApiConnection)ServiceManager.ApiConnction;
             IStorageService service = ServiceManager.StorageService;
 
@@ -86,8 +92,12 @@ namespace SensorbergSDKTests
             connection.FailNetwork = true;
             Assert.IsFalse(await service.FlushHistory(), "Flushing History not failed");
             connection.FailNetwork = false;
+            Assert.IsTrue(mockStorage.UndeliveredEvents.Count!= 0, "Event were resetet");
+            Assert.IsTrue(mockStorage.UndeliveredActions.Count != 0, "Actions were resetet");
 
-            Assert.IsFalse(await service.FlushHistory(), "Flushing History not succeed");
+            Assert.IsTrue(await service.FlushHistory(), "Flushing History not succeed");
+            Assert.IsTrue(mockStorage.UndeliveredEvents.Count == 0, "Event were not marked as send");
+            Assert.IsTrue(mockStorage.UndeliveredActions.Count == 0, "Actions were not marked as send");
         }
     }
 }

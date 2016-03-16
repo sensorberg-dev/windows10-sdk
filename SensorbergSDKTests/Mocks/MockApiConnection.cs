@@ -50,6 +50,18 @@ namespace SensorbergSDKTests.Mocks
 
         public Task<ResponseMessage> SendHistory(History history)
         {
+            if (APIInvalid)
+            {
+                return Task.FromResult(new ResponseMessage() { IsSuccess = false });
+            }
+            if (FailNetwork)
+            {
+                throw new IOException();
+            }
+            if (UnknownError)
+            {
+                throw new Exception("ups");
+            }
             return Task.FromResult(new ResponseMessage() {IsSuccess = true});
         }
 
