@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using System.Runtime.Serialization.Json;
 using System.IO;
-using System.Net.Http;
 using System.Text;
 using System.Net;
+using System.Runtime.Serialization;
 using System.Threading;
+using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Utils;
+using SensorbergSDK.Services;
 
 namespace SensorbergSDK.Internal
 {
@@ -17,12 +21,10 @@ namespace SensorbergSDK.Internal
     public sealed class EventHistory
     {
         private AutoResetEvent _asyncWaiter;
-        private Storage _storage;
 
         public EventHistory()
         {
             _asyncWaiter = new AutoResetEvent(true);
-            _storage = Storage.Instance;
         }
 
         /// <summary>
@@ -40,7 +42,7 @@ namespace SensorbergSDK.Internal
                 try
                 {
                     _asyncWaiter.WaitOne();
-                    DBHistoryAction dbHistoryAction = await _storage.GetActionAsync(resolvedAction.BeaconAction.Uuid);
+                    DBHistoryAction dbHistoryAction = await ServiceManager.StorageService.GetAction(resolvedAction.BeaconAction.Uuid);
 
                     if (dbHistoryAction != null)
                     {
@@ -72,7 +74,7 @@ namespace SensorbergSDK.Internal
                 try
                 {
                     _asyncWaiter.WaitOne();
-                    IList<DBHistoryAction> dbHistoryActions = await _storage.GetActionsAsync(resolvedAction.BeaconAction.Uuid);
+                    IList<DBHistoryAction> dbHistoryActions = await ServiceManager.StorageService.GetActions(resolvedAction.BeaconAction.Uuid);
 
                     if (dbHistoryActions != null)
                     {
@@ -103,7 +105,7 @@ namespace SensorbergSDK.Internal
         /// <param name="eventArgs"></param>
         public IAsyncAction SaveBeaconEventAsync(BeaconEventArgs eventArgs)
         {
-            return _storage.SaveHistoryEventsAsync(eventArgs.Beacon.Pid, eventArgs.Timestamp, (int)eventArgs.EventType).AsAsyncAction();
+            return ServiceManager.StorageService.SaveHistoryEvent(eventArgs.Beacon.Pid, eventArgs.Timestamp, (int)eventArgs.EventType).AsAsyncAction();
         }
 
         /// <summary>
@@ -113,7 +115,7 @@ namespace SensorbergSDK.Internal
         /// <param name="beaconAction"></param>
         public IAsyncAction SaveExecutedResolvedActionAsync(ResolvedActionsEventArgs eventArgs, BeaconAction beaconAction)
         {
-            return _storage.SaveHistoryActionAsync(
+            return ServiceManager.StorageService.SaveHistoryAction(
                 beaconAction.Uuid, eventArgs.BeaconPid, DateTime.Now, (int)eventArgs.BeaconEventType).AsAsyncAction();
         }
 
@@ -126,64 +128,18 @@ namespace SensorbergSDK.Internal
         /// <returns></returns>
         public IAsyncAction SaveExecutedResolvedActionAsync(BeaconAction beaconAction, string beaconPid, BeaconEventType beaconEventType)
         {
-            return _storage.SaveHistoryActionAsync(
+            return ServiceManager.StorageService.SaveHistoryAction(
                 beaconAction.Uuid, beaconPid, DateTime.Now, (int)beaconEventType).AsAsyncAction();
         }
 
         /// <summary>
         /// Checks if there are new events or actions in the history and sends them to the server.
         /// </summary>
-        public IAsyncAction FlushHistoryAsync()
+        public async Task FlushHistoryAsync()
         {
-            Func<Task> action = async () =>
-            {
-                try
-                {
-                    History history = new History();
-                    history.actions = await _storage.GetUndeliveredActionsAsync();
-                    history.events = await _storage.GetUndeliveredEventsAsync();
-
-                    if ((history.events != null && history.events.Count > 0) || (history.actions != null && history.actions.Count > 0))
-                    {
-                        MemoryStream stream1 = new MemoryStream();
-                        DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(History));
-                        ser.WriteObject(stream1, history);
-                        stream1.Position = 0;
-                        StreamReader sr = new StreamReader(stream1);
-
-                        HttpClient httpClient = new HttpClient();
-                        httpClient.DefaultRequestHeaders.Add(Constants.XApiKey, SDKData.Instance.ApiKey);
-                        httpClient.DefaultRequestHeaders.Add(Constants.Xiid, SDKData.Instance.DeviceId);
-                        var content = new StringContent(sr.ReadToEnd(), Encoding.UTF8, "application/json");
-
-                        HttpResponseMessage responseMessage = await httpClient.PostAsync(new Uri(Constants.LayoutApiUriAsString), content);
-
-                        if (responseMessage.StatusCode == HttpStatusCode.OK)
-                        {
-                            //TODO: When the server is ready move lines from the below here. Server needs to answer 400 OK for us
-                            //to set events and actions as delivered state
-                        }
-
-                        if ((history.events != null && history.events.Count > 0))
-                        {
-                            await _storage.SetEventsAsDeliveredAsync();
-                        }
-
-                        if (history.actions != null && history.actions.Count > 0)
-                        {
-                            await _storage.SetActionsAsDeliveredAsync();
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                }
-
-            };
-
-            return action().AsAsyncAction();
+            await ServiceManager.StorageService.FlushHistory();
         }
+
     }
 }
-
 

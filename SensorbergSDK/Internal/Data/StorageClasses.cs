@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Windows.Data.Json;
+using Newtonsoft.Json;
 
 namespace SensorbergSDK.Internal
 {
@@ -21,18 +23,16 @@ namespace SensorbergSDK.Internal
     [DataContract]
     public class History
     {
-        public History()
-        {
-            events = new List<HistoryEvent>();
-            actions = new List<HistoryAction>();
-        }
-
+        internal static readonly DateTimeFormat Formater = new DateTimeFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         [DataMember]
+        // ReSharper disable once InconsistentNaming
         public string deviceTimestamp { get; set; }
         [DataMember]
-        public IList<HistoryEvent> events { get; set; }
+        // ReSharper disable once InconsistentNaming
+        public IList<HistoryEvent> events { get; set; } = new List<HistoryEvent>();
         [DataMember]
-        public IList<HistoryAction> actions { get; set; }
+        // ReSharper disable once InconsistentNaming
+        public IList<HistoryAction> actions { get; set; } = new List<HistoryAction>();
     }
 
     [DataContract]
@@ -41,14 +41,18 @@ namespace SensorbergSDK.Internal
         public HistoryEvent(DBHistoryEvent dbEvent)
         {
             pid = dbEvent.pid;
-            dt = dbEvent.dt.ToString();
+            dt = dbEvent.dt.ToString("yyyy-MM-dd'T'HH:mm:ss.fffzzz");
+//            dt = dbEvent.dt.ToString(History.Formater.FormatProvider);
             trigger = dbEvent.trigger;
         }
         [DataMember]
+        // ReSharper disable once InconsistentNaming
         public string pid { get; set; } //beaconId
         [DataMember]
+        // ReSharper disable once InconsistentNaming
         public string dt { get; set; } //eventDate
         [DataMember]
+        // ReSharper disable once InconsistentNaming
         public int trigger { get; set; }
     }
 
@@ -59,7 +63,8 @@ namespace SensorbergSDK.Internal
         {
             eid = dbAction.eid;
             pid = dbAction.pid;
-            dt = dbAction.dt.ToString();
+            dt = dbAction.dt.ToString("yyyy-MM-dd'T'HH:mm:ss.fffzzz");
+            //            dt = dbAction.dt.ToString(History.Formater.FormatProvider);
             trigger = dbAction.trigger;
         }
         [DataMember]

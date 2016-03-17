@@ -25,11 +25,11 @@ namespace SensorbergSDK.Internal
             private set;
         }
 
-        public IList<BeaconAction> InstantActions
+        /*public IList<BeaconAction> InstantActions
         {
             get;
             private set;
-        }
+        }*/
 
         public DateTimeOffset LastUpdated
         {

@@ -1,6 +1,7 @@
 ﻿using SensorbergSDK.Internal;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace SensorbergSDK
 {
@@ -39,6 +40,7 @@ namespace SensorbergSDK
         public int CreateRequest(BeaconEventArgs beaconEventArgs)
         {
             int requestId = SDKData.Instance.NextId();
+            Debug.WriteLine("Resolver: Beacon " + beaconEventArgs.Beacon.Id1 + " " + beaconEventArgs.Beacon.Id2 + " " + beaconEventArgs.Beacon.Id3+" ---> Request: "+requestId);
             Request request = new Request(beaconEventArgs, requestId);
             request.Result += OnRequestResult;
             _requestQueue.Add(request);
@@ -58,9 +60,9 @@ namespace SensorbergSDK
             {
                 request.Result -= OnRequestResult;
 
+                System.Diagnostics.Debug.WriteLine("Resolver: OnRequestResult(): Request with ID " + request.RequestId + " was " + e);
                 if (e == RequestResultState.Success)
                 {
-                    System.Diagnostics.Debug.WriteLine("Resolver.OnRequestResult(): Request with ID " + request.RequestId + " was successful");
 
                     if (ActionsResolved != null)
                     {
@@ -79,7 +81,7 @@ namespace SensorbergSDK
                 }
                 else if (e == RequestResultState.Failed)
                 {
-                    System.Diagnostics.Debug.WriteLine("Resolver.OnRequestResult(): Request with ID " + request.RequestId + " failed");
+                    System.Diagnostics.Debug.WriteLine("Resolver: OnRequestResult(): Request with ID " + request.RequestId + " failed");
 
                     if (FailedToResolveActions != null)
                     {

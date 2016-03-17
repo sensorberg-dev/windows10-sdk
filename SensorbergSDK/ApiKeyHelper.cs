@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ServiceModel;
 using Windows.Web.Http.Headers;
 using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
 using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Services;
 
 namespace SensorbergSDK
 {
@@ -17,7 +19,7 @@ namespace SensorbergSDK
         UnknownError
     };
 
-    public enum FetchApiKeyResult
+    public enum NetworkResult
     {
         Success,
         NetworkError,
@@ -59,25 +61,7 @@ namespace SensorbergSDK
         /// <returns>The validation result.</returns>
         public async Task<ApiKeyValidationResult> ValidateApiKey(string apiKey)
         {
-            ApiKeyValidationResult result = ApiKeyValidationResult.UnknownError;
-            HttpResponseMessage responseMessage = await LayoutManager.Instance.RetrieveLayoutResponseAsync(apiKey);
-
-            if (responseMessage != null && responseMessage.IsSuccessStatusCode)
-            {
-                ulong responseMessageContentLength = 0;
-
-                if (responseMessage.Content.TryComputeLength(out responseMessageContentLength))
-                {
-                    result = (responseMessageContentLength > Constants.MinimumLayoutContentLength) ?
-                        ApiKeyValidationResult.Valid : ApiKeyValidationResult.Invalid;
-                }
-            }
-            else
-            {
-                result = ApiKeyValidationResult.NetworkError;
-            }
-
-            return result;
+            return await ServiceManager.StorageService.ValidateApiKey(apiKey);
         }
 
         /// <summary>
@@ -86,9 +70,9 @@ namespace SensorbergSDK
         /// <param name="email"></param>
         /// <param name="password"></param>
         /// <returns>The fetching operation result. If successful, the API key is placed in the ApiKey property of this class.</returns>
-        public async Task<FetchApiKeyResult> FetchApiKeyAsync(string email, string password)
+        public async Task<NetworkResult> FetchApiKeyAsync(string email, string password)
         {
-            FetchApiKeyResult result = FetchApiKeyResult.UnknownError;
+            NetworkResult result = NetworkResult.UnknownError;
 
             HttpBaseProtocolFilter httpBaseProtocolFilter = new HttpBaseProtocolFilter();
             httpBaseProtocolFilter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
@@ -110,7 +94,7 @@ namespace SensorbergSDK
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("ApiKeyHelper.FetchApiKeyAsync(): Network error: " + ex.Message);
-                return FetchApiKeyResult.NetworkError;
+                return NetworkResult.NetworkError;
             }
 
             if (response.StatusCode == HttpStatusCode.Ok)
@@ -124,7 +108,7 @@ namespace SensorbergSDK
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine("ApiKeyHelper.FetchApiKeyAsync(): Network error: " + ex.Message);
-                    return FetchApiKeyResult.NetworkError;
+                    return NetworkResult.NetworkError;
                 }
 
                 JsonValue responseAsJsonValue = null;
@@ -145,7 +129,7 @@ namespace SensorbergSDK
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine("ApiKeyHelper.FetchApiKeyAsync(): Parsing error: " + ex.Message);
-                    return FetchApiKeyResult.ParsingError;
+                    return NetworkResult.ParsingError;
                 }
 
                 if (!string.IsNullOrEmpty(authToken))
@@ -154,8 +138,6 @@ namespace SensorbergSDK
                     uri = new Uri(ApplicationsUrl);
                     client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue(authToken);
 
-                    responseAsString = string.Empty;
-
                     try
                     {
                         responseAsString = await client.GetStringAsync(uri);
@@ -163,11 +145,11 @@ namespace SensorbergSDK
                     catch (Exception ex)
                     {
                         System.Diagnostics.Debug.WriteLine("ApiKeyHelper.FetchApiKeyAsync(): Network error: " + ex.Message);
-                        return FetchApiKeyResult.NetworkError;
+                        return NetworkResult.NetworkError;
                     }
 
                     responseAsJsonValue = JsonValue.Parse(responseAsString);
-                    result = FetchApiKeyResult.NoWindowsCampains;
+                    result = NetworkResult.NoWindowsCampains;
 
                     if (responseAsJsonValue.ValueType == JsonValueType.Array)
                     {
@@ -179,7 +161,16 @@ namespace SensorbergSDK
                             if (applicationValue.ValueType == JsonValueType.Object)
                             {
                                 JsonObject applicationObject = applicationValue.GetObject();
-                                string apiKey = applicationObject.GetNamedString(KeyApiKey);
+                                string apiKey = string.Empty;
+
+                                var apiKeyValue = applicationObject[KeyApiKey];
+                                if (apiKeyValue.ValueType == JsonValueType.Null)
+                                {
+                                    continue;
+                                }
+
+                                apiKey = applicationObject.GetNamedString(KeyApiKey);
+
                                 string applicationName = applicationObject.GetNamedString(KeyName);
                                 string platform = applicationObject.GetNamedString(KeyPlatform);
 
@@ -187,7 +178,7 @@ namespace SensorbergSDK
                                 {
                                     ApiKey = apiKey;
                                     ApplicationName = applicationName;
-                                    result = FetchApiKeyResult.Success;
+                                    result = NetworkResult.Success;
                                     break;
                                 }
                             }
@@ -196,16 +187,16 @@ namespace SensorbergSDK
                 }
                 else // if (!string.IsNullOrEmpty(authToken)) - else
                 {
-                    result = FetchApiKeyResult.AuthenticationFailed;
+                    result = NetworkResult.AuthenticationFailed;
                 }
             }
             else if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
-                result = FetchApiKeyResult.AuthenticationFailed;
+                result = NetworkResult.AuthenticationFailed;
             }
             else
             {
-                result = FetchApiKeyResult.NetworkError;
+                result = NetworkResult.NetworkError;
             }
 
             return result;

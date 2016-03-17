@@ -6,12 +6,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SensorbergSDK.Internal.Services;
+using SensorbergSDKTests.Mocks;
 
 namespace SensorBergTests
 {
     [TestClass]
     public class UnitTestEventHistory
     {
+        [TestInitialize]
+        public async Task Setup()
+        {
+            ServiceManager.Clear();
+            ServiceManager.ApiConnction = new MockApiConnection();
+            ServiceManager.StorageService = new StorageService();
+            await ServiceManager.StorageService.InitStorage();
+            ServiceManager.ReadOnlyForTests = true;
+        }
+
         [TestMethod]
         public async Task EventHistory_ShouldSupress()
         {

@@ -38,25 +38,22 @@ namespace SensorbergSDK.Internal
         /// <param name="overwrite">If true, will update a matching beacon.</param>
         public void Add(Beacon beacon, bool overwrite = false)
         {
-            if (beacon != null)
+            if (beacon == null)
             {
-                if (overwrite)
+                return;
+            }
+
+            if (overwrite)
+            {
+                bool updateResult = TryUpdate(beacon);
+                if (updateResult == false)
                 {
-                    if (!Update(beacon))
-                    {
-                        lock (_beaconListLock)
-                        {
-                            _beacons.Add(beacon);
-                        }
-                    }
+                    SaveAddBeacon(beacon);
                 }
-                else
-                {
-                    lock (_beaconListLock)
-                    {
-                        _beacons.Add(beacon);
-                    }
-                }
+            }
+            else
+            {
+                SaveAddBeacon(beacon);
             }
         }
 
@@ -86,7 +83,7 @@ namespace SensorbergSDK.Internal
         /// </summary>
         /// <param name="beacon">The beacon, with latest data, to update.</param>
         /// <returns>True, if updated. False, if no matching beacon was found.</returns>
-        public bool Update(Beacon beacon)
+        public bool TryUpdate(Beacon beacon)
         {
             bool found = false;
 
@@ -111,7 +108,7 @@ namespace SensorbergSDK.Internal
         /// </summary>
         /// <param name="olderThanAgeInMilliseconds">The minimum age of the beacons, which should be removed.</param>
         /// <returns>A list of removed beacons.</returns>
-        public List<Beacon> RemoveBeaconsBasedOnAge(int olderThanAgeInMilliseconds)
+        public List<Beacon> RemoveBeaconsBasedOnAge(UInt64 olderThanAgeInMilliseconds)
         {
             List<Beacon> removedBeacons = new List<Beacon>();
 
@@ -147,7 +144,7 @@ namespace SensorbergSDK.Internal
         /// </summary>
         /// <param name="olderThanAgeInMilliseconds">The minimum age of the beacons to find.</param>
         /// <returns>A list of beacons matching the age criteria.</returns>
-        public List<Beacon> BeaconsBasedOnAge(int olderThanAgeInMilliseconds)
+        public List<Beacon> BeaconsBasedOnAge(UInt64 olderThanAgeInMilliseconds)
         {
             List<Beacon> beacons = new List<Beacon>();
             TimeSpan ageAsTimeSpan = TimeSpan.FromMilliseconds(olderThanAgeInMilliseconds);
@@ -164,6 +161,18 @@ namespace SensorbergSDK.Internal
             }
 
             return beacons;
+        }
+
+        /// <summary>
+        /// Locks collection and add beacon to it
+        /// </summary>
+        /// <param name="beacon">Beacon to add</param>
+        private void SaveAddBeacon(Beacon beacon)
+        {
+            lock (_beaconListLock)
+            {
+                _beacons.Add(beacon);
+            }
         }
     }
 }

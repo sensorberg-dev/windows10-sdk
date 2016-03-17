@@ -3,6 +3,8 @@ using SensorbergSDK;
 using SensorbergSDK.Internal;
 using System;
 using System.Threading;
+using SensorbergSDK.Internal.Services;
+using SensorbergSDKTests.Mocks;
 
 
 namespace SensorBergTests
@@ -15,6 +17,17 @@ namespace SensorBergTests
         Resolver res = new Resolver();
         BeaconEventArgs args = new BeaconEventArgs();
         ResolvedActionsEventArgs _e = null;
+
+        [TestInitialize]
+        public void Setup()
+        {
+            ServiceManager.Clear();
+            ServiceManager.ApiConnction = new MockApiConnection();
+            ServiceManager.LayoutManager = new LayoutManager();
+            ServiceManager.SettingsManager = new SettingsManager();
+            ServiceManager.StorageService = new StorageService();
+            ServiceManager.ReadOnlyForTests = true;
+        }
 
         [TestMethod]
         public void Integration_connection()
