@@ -8,6 +8,7 @@ using Windows.ApplicationModel.Background;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Background;
 using Windows.UI.Notifications;
+using SensorbergSDK.Internal.Services;
 
 namespace SensorbergSDKBackground
 {
@@ -157,13 +158,13 @@ namespace SensorbergSDKBackground
         {
             foreach (var beacon in _beacons)
             {
-                IList<DBBackgroundEventsHistory> history = await Storage.Instance.GetBeaconBackgroundEventsHistory(beacon.Pid);
+                IList<DBBackgroundEventsHistory> history = await ServiceManager.StorageService.GetBeaconBackgroundEventsHistory(beacon.Pid);
 
                 if (history.Count == 0)
                 {
                     // No history for this beacon. Let's save it and add it to event args array for solving.
                     AddBeaconArgs(beacon, BeaconEventType.Enter);
-                    await Storage.Instance.SaveBeaconBackgroundEvent(beacon.Pid, BeaconEventType.Enter);
+                    await ServiceManager.StorageService.SaveBeaconBackgroundEvent(beacon.Pid, BeaconEventType.Enter);
 #if LOUD_DEBUG
                     ToastNotification toastNotification = NotificationUtils.CreateToastNotification("Enter Beacon", _beacons[0].Id1 + " " + _beacons[0].BeaconId2 + " " + _beacons[0].BeaconId3);
                     NotificationUtils.ShowToastNotification(toastNotification);
@@ -177,7 +178,7 @@ namespace SensorbergSDKBackground
                         {
                             // Exit event
                             AddBeaconArgs(beacon, BeaconEventType.Exit);
-                            await Storage.Instance.DeleteBackgroundEventAsync(beacon.Pid);
+                            await ServiceManager.StorageService.DeleteBackgroundEvent(beacon.Pid);
 #if LOUD_DEBUG
                             ToastNotification toastNotification = NotificationUtils.CreateToastNotification("Exit Beacon", _beacons[0].Id1 + " " + _beacons[0].BeaconId2 + " " + _beacons[0].BeaconId3);
                             NotificationUtils.ShowToastNotification(toastNotification);
@@ -225,7 +226,7 @@ namespace SensorbergSDKBackground
         private async void OnBeaconActionResolvedAsync(object sender, BeaconAction beaconAction)
         {
             System.Diagnostics.Debug.WriteLine("BackgroundEngine.OnBeaconActionResolvedAsync()");
-            await Storage.Instance.SaveBeaconActionFromBackgroundAsync(beaconAction);
+            await ServiceManager.StorageService.SaveBeaconActionFromBackground(beaconAction);
             _newActionsFromBackground = true;
 
             if (SDKData.Instance.ShowNotificationsOnBackground())

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Windows.Foundation;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Services;
 
 namespace SensorbergSDKTests.Mocks
 {
@@ -26,10 +27,8 @@ namespace SensorbergSDKTests.Mocks
             return Task.FromResult<RequestResultState>(token.Fail ? RequestResultState.Failed : RequestResultState.Success).AsAsyncOperation();
         }
 
-        public IAsyncAction InvalidateLayoutAsync()
+        public async Task InvalidateLayout()
         {
-            Func<Task> action = async () => { };
-            return action().AsAsyncAction();
         }
 
         public bool IsLayoutValid { get; }

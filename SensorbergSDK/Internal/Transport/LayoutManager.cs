@@ -10,6 +10,8 @@ using Windows.Storage;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
 using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Utils;
+using SensorbergSDK.Services;
 
 namespace SensorbergSDK.Internal
 {
@@ -28,13 +30,8 @@ namespace SensorbergSDK.Internal
         /// </summary>
         public event EventHandler<bool> LayoutValidityChanged;
 
-        public Layout Layout
-        {
-            get { return _layout; }
-        }
+        public Layout Layout { get; private set; }
 
-        private SDKData _dataContext;
-        private Layout _layout;
         private ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
 
         /// <summary>
@@ -45,13 +42,8 @@ namespace SensorbergSDK.Internal
         {
             get
             {
-                return _layout != null && _layout.ValidTill >= DateTimeOffset.Now;
+                return Layout != null && Layout.ValidTill >= DateTimeOffset.Now;
             }
-        }
-
-        public LayoutManager()
-        {
-            _dataContext = SDKData.Instance;
         }
 
         /// <summary>
@@ -71,19 +63,23 @@ namespace SensorbergSDK.Internal
                 if (!forceUpdate)
                 {
                     // Check local storage first
-                    _layout = await LoadLayoutFromLocalStorageAsync();
+                    Layout = await ServiceManager.StorageService.LoadLayoutFromLocalStorage();
                 }
 
                 if (forceUpdate || !IsLayoutValid)
                 {
                     // Make sure that the existing layout (even if old) is not set to null in case
                     // we fail to load the fresh one from the web.
-                    Layout freshLayout = await RetrieveLayoutAsync();
+                    LayoutResult freshLayout = await ServiceManager.StorageService.RetrieveLayout();
 
-                    if (freshLayout != null)
+                    if (freshLayout != null && freshLayout.Result == NetworkResult.Success)
                     {
-                        _layout = freshLayout;
+                        Layout = freshLayout.Layout;
                         Debug.WriteLine("Layout changed.");
+                    }
+                    else
+                    {
+                        //TODO some thing should happen
                     }
                 }
             }
@@ -91,33 +87,6 @@ namespace SensorbergSDK.Internal
             return IsLayoutValid;
         }
 
-        /// <summary>
-        /// Invalidates both the current and cached layout.
-        /// </summary>
-        public IAsyncAction InvalidateLayoutAsync()
-        {
-            Func<Task> action = async () =>
-            {
-                _layout = null;
-                _localSettings.Values[KeyLayoutHeaders] = null;
-                _localSettings.Values[KeyLayoutRetrievedTime] = null;
-
-                try
-                {
-                    var contentFile = await ApplicationData.Current.LocalFolder.TryGetItemAsync(KeyLayoutContent);
-
-                    if (contentFile != null)
-                    {
-                        await contentFile.DeleteAsync();
-                    }
-                }
-                catch (Exception)
-                {
-                }
-            };
-
-            return action().AsAsyncAction();
-        }
 
         /// <summary>
         /// Executes the given request.
@@ -130,6 +99,15 @@ namespace SensorbergSDK.Internal
             return resultState;
         }
 
+        /// <summary>
+        /// Invalidates both the current and cached layout.
+        /// </summary>
+        public async Task InvalidateLayout()
+        {
+            Layout = null;
+            await ServiceManager.StorageService.InvalidateLayout();
+        }
+
         internal async Task<RequestResultState> InternalExecuteRequestAsync(Request request)
         {
             System.Diagnostics.Debug.WriteLine("LayoutManager.InternalExecuteRequestAsync(): Request ID is " + request.RequestId);
@@ -139,7 +117,7 @@ namespace SensorbergSDK.Internal
             {
                 if (await VerifyLayoutAsync(false))
                 {
-                    request.ResolvedActions = _layout.GetResolvedActionsForPidAndEvent(
+                    request.ResolvedActions = Layout.GetResolvedActionsForPidAndEvent(
                         request.BeaconEventArgs.Beacon.Pid, request.BeaconEventArgs.EventType);
 
                     foreach (ResolvedAction resolvedAction in request.ResolvedActions)
@@ -209,160 +187,6 @@ namespace SensorbergSDK.Internal
             }
 
             return hash;
-        }
-
-        /// <summary>
-        /// Retrieves the layout from the web.
-        /// </summary>
-        /// <returns></returns>
-        private async Task<Layout> RetrieveLayoutAsync()
-        {
-            Layout layout = null;
-            ResponseMessage responseMessage = await ServiceManager.ApiConnction.RetrieveLayoutResponseAsync(_dataContext);
-
-            if (responseMessage != null && responseMessage.IsSuccess)
-            {
-                string headersAsString = StripLineBreaksAndExcessWhitespaces(responseMessage.Header);
-                string contentAsString = StripLineBreaksAndExcessWhitespaces(responseMessage.Content);
-                contentAsString = EnsureEncodingIsUTF8(contentAsString);
-                DateTimeOffset layoutRetrievedTime = DateTimeOffset.Now;
-
-                if (contentAsString.Length > Constants.MinimumLayoutContentLength)
-                {
-                    JsonValue content = null;
-
-                    try
-                    {
-                        content = JsonValue.Parse(contentAsString);
-                        layout = Layout.FromJson(headersAsString, content.GetObject(), layoutRetrievedTime);
-                        Debug.WriteLine("LayoutManager: new Layout received: Beacons: "+layout.AccountBeaconId1s.Count+" Actions :"+layout.ResolvedActions.Count);
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine("LayoutManager.RetrieveLayoutAsync(): Failed to parse layout: " + ex.ToString());
-                        layout = null;
-                    }
-                }
-
-                if (layout != null)
-                {
-                    // Store the parsed layout
-                    await SaveLayoutToLocalStorageAsync(headersAsString, contentAsString, layoutRetrievedTime);
-                }
-            }
-
-            return layout;
-        }
-
-        /// <summary>
-        /// Tries to load the layout from the local storage.
-        /// </summary>
-        /// <returns>A layout instance, if successful. Null, if not found.</returns>
-        private async Task<Layout> LoadLayoutFromLocalStorageAsync()
-        {
-            Layout layout = null;
-            string headers = string.Empty;
-            string content = string.Empty;
-            DateTimeOffset layoutRetrievedTime = DateTimeOffset.Now;
-
-            if (_localSettings.Values.ContainsKey(KeyLayoutHeaders))
-            {
-                headers = _localSettings.Values[KeyLayoutHeaders].ToString();
-            }
-
-            if (_localSettings.Values.ContainsKey(KeyLayoutRetrievedTime))
-            {
-                layoutRetrievedTime = (DateTimeOffset)_localSettings.Values[KeyLayoutRetrievedTime];
-            }
-
-            try
-            {
-                var contentFile = await ApplicationData.Current.LocalFolder.TryGetItemAsync(KeyLayoutContent);
-
-                if (contentFile != null)
-                {
-                    content = await FileIO.ReadTextAsync(contentFile as IStorageFile);
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("LayoutManager.LoadLayoutFromLocalStorage(): Failed to load content: " + ex.ToString());
-            }
-
-            if (!string.IsNullOrEmpty(content))
-            {
-                content = EnsureEncodingIsUTF8(content);
-                try
-                {
-                    JsonValue contentAsJsonValue = JsonValue.Parse(content);
-                    layout = Layout.FromJson(headers, contentAsJsonValue.GetObject(), layoutRetrievedTime);
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine("LayoutManager.LoadLayoutFromLocalStorage(): Failed to parse layout: " + ex.ToString());
-                }
-            }
-
-            if (layout == null)
-            {
-                // Failed to parse the layout => invalidate it
-                await InvalidateLayoutAsync();
-            }
-
-            return layout;
-        }
-
-        /// <summary>
-        /// Saves the strings that make up a layout.
-        /// </summary>
-        /// <param name="headers"></param>
-        /// <param name="content"></param>
-        /// <param name="layoutRetrievedTime"></param>
-        private async Task SaveLayoutToLocalStorageAsync(string headers, string content, DateTimeOffset layoutRetrievedTime)
-        {
-            if (await StoreDataAsync(KeyLayoutContent, content))
-            {
-                _localSettings.Values[KeyLayoutHeaders] = headers;
-                _localSettings.Values[KeyLayoutRetrievedTime] = layoutRetrievedTime;
-            }
-        }
-
-        /// <summary>
-        /// Saves the given data to the specified file.
-        /// </summary>
-        /// <param name="fileName">The file name of the storage file.</param>
-        /// <param name="data">The data to save.</param>
-        /// <returns>True, if successful. False otherwise.</returns>
-        private async Task<bool> StoreDataAsync(string fileName, string data)
-        {
-            bool success = false;
-
-            try
-            {
-                var storageFile = await ApplicationData.Current.LocalFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
-                await FileIO.AppendTextAsync(storageFile, data);
-                success = true;
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("LayoutManager.StoreDataAsync(): Failed to save content: " + ex.ToString());
-            }
-
-            return success;
-        }
-
-        private string EnsureEncodingIsUTF8(string str)
-        {
-            byte[] bytes = Encoding.UTF8.GetBytes(str);
-            return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
-        }
-
-        private string StripLineBreaksAndExcessWhitespaces(string str)
-        {
-            string stripped = str.Replace("\r\n", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty);
-            stripped = Regex.Replace(stripped, @" +", " ");
-            stripped = stripped.Trim();
-            return stripped;
         }
     }
 }

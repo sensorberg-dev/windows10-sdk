@@ -4,11 +4,11 @@
 // 
 // All rights reserved.
 
-using System.IO;
 using System.Threading.Tasks;
-using Windows.Web.Http;
+using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Services;
 
-namespace SensorbergSDK.Internal.Services
+namespace SensorbergSDK.Services
 {
     public interface IApiConnection
     {
@@ -18,7 +18,7 @@ namespace SensorbergSDK.Internal.Services
         /// <param name="data">api key and device id for the request</param>
         /// <param name="apiId">optional api id, overrides the given id by SDKData</param>
         /// <returns>A HttpResponseMessage containing the server response or null in case of an error.</returns>
-        Task<ResponseMessage> RetrieveLayoutResponseAsync(SDKData data, string apiId = null);
+        Task<ResponseMessage> RetrieveLayoutResponse(SDKData data, string apiId = null);
 
         Task<string> LoadSettings(SDKData sdkData);
 

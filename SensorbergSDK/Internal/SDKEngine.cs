@@ -81,6 +81,7 @@ namespace SensorbergSDK.Internal
         /// <param name="createdOnForeground"></param>
         public SDKEngine(bool createdOnForeground)
         {
+            ServiceManager.Clear();
             ServiceManager.ApiConnction = new ApiConnection();
             ServiceManager.BeaconScanner = new Scanner();
             ServiceManager.LayoutManager = new LayoutManager();
@@ -101,9 +102,8 @@ namespace SensorbergSDK.Internal
         {
             if (!IsInitialized)
             {
-                
-                //Ensures that database tables are created
-                await Storage.Instance.CreateDBAsync();
+
+                await ServiceManager.StorageService.InitStorage();
 
                 ServiceManager.LayoutManager.LayoutValidityChanged += LayoutValidityChanged;
 
@@ -231,7 +231,7 @@ namespace SensorbergSDK.Internal
             if (SDKData.Instance.NewActionsFromBackground)
             {
                 SDKData.Instance.NewActionsFromBackground = false;
-                await Storage.Instance.GetBeaconActionsFromBackgroundAsync();
+                await ServiceManager.StorageService.GetBeaconActionsFromBackground();
             }
         }
 
@@ -242,7 +242,7 @@ namespace SensorbergSDK.Internal
         {
             DateTimeOffset nearestDueTime = DateTimeOffset.MaxValue;
 
-            IList<DelayedActionData> delayedActionDataList = await Storage.Instance.GetDelayedActionsAsync();
+            IList<DelayedActionData> delayedActionDataList = await ServiceManager.StorageService.GetDelayedActions();
 
             foreach (DelayedActionData delayedActionData in delayedActionDataList)
             {
@@ -250,7 +250,7 @@ namespace SensorbergSDK.Internal
                 {
                     // Time to execute
                     await ExecuteActionAsync(delayedActionData.resolvedAction, delayedActionData.beaconPid, delayedActionData.eventTypeDetectedByDevice);
-                    await Storage.Instance.SetDelayedActionAsExecutedAsync(delayedActionData.Id);
+                    await ServiceManager.StorageService.SetDelayedActionAsExecuted(delayedActionData.Id);
                 }
                 else if (delayedActionData.dueTime < nearestDueTime)
                 {
@@ -330,7 +330,7 @@ namespace SensorbergSDK.Internal
             if (SDKData.Instance.DatabaseCleaningTime < DateTimeOffset.Now.AddHours(-DatabaseExpirationInHours))
             {
                 SDKData.Instance.DatabaseCleaningTime = DateTimeOffset.Now;
-                await Storage.Instance.CleanDatabaseAsync();
+                await ServiceManager.StorageService.CleanDatabase();
             }
         }
 
@@ -353,8 +353,7 @@ namespace SensorbergSDK.Internal
                         // Delay action execution
                         DateTimeOffset dueTime = DateTimeOffset.Now.AddSeconds((int)action.Delay);
 
-                        await Storage.Instance.SaveDelayedActionAsync(
-                            action, dueTime, e.BeaconPid, action.EventTypeDetectedByDevice);
+                        await ServiceManager.StorageService.SaveDelayedAction(action, dueTime, e.BeaconPid, action.EventTypeDetectedByDevice);
 
                         if (_appIsOnForeground
                             && (_processDelayedActionsTimer == null || _nextTimeToProcessDelayedActions > dueTime))
@@ -405,7 +404,7 @@ namespace SensorbergSDK.Internal
             if (SDKData.Instance.NewActionsFromBackground)
             {
                 SDKData.Instance.NewActionsFromBackground = false;
-                IList<BeaconAction> list = await Storage.Instance.GetBeaconActionsFromBackgroundAsync();
+                IList<BeaconAction> list = await ServiceManager.StorageService.GetBeaconActionsFromBackground();
 
                 foreach (var beaconAction in list)
                 {
