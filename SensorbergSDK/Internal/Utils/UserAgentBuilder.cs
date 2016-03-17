@@ -16,7 +16,7 @@ namespace SensorbergSDK.Internal.Utils
         {
             try
             {
-                string osInfo = $"windows/{SystemInfoHelper.SystemVersion}/{SystemInfoHelper.DeviceManufacturer}/{SystemInfoHelper.DeviceModel}";
+                string osInfo = $"Windows10/{SystemInfoHelper.SystemVersion}/{SystemInfoHelper.DeviceManufacturer}/{SystemInfoHelper.DeviceModel}";
                 string sdkInfo = $"{SystemInfoHelper.SdkVersion}";
                 string appInfo = $"{SystemInfoHelper.PackageName}/{SystemInfoHelper.ApplicationName}/{SystemInfoHelper.ApplicationVersion}";
                 UserAgentModel userAgent = new UserAgentModel(osInfo, sdkInfo, appInfo);

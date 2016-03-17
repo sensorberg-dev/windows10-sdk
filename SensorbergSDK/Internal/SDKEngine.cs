@@ -81,6 +81,7 @@ namespace SensorbergSDK.Internal
         /// <param name="createdOnForeground"></param>
         public SDKEngine(bool createdOnForeground)
         {
+            ServiceManager.Clear();
             ServiceManager.ApiConnction = new ApiConnection();
             ServiceManager.BeaconScanner = new Scanner();
             ServiceManager.LayoutManager = new LayoutManager();
