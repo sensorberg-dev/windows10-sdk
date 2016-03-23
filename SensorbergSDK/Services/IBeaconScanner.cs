@@ -6,7 +6,7 @@
 
 using System;
 
-namespace SensorbergSDK.Internal.Services
+namespace SensorbergSDK.Services
 {
     /// <summary>
     /// Interface for all beacon scanner.

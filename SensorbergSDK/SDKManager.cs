@@ -8,6 +8,7 @@ using Windows.UI.Core;
 using SensorbergSDK.Data;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Services;
 
 namespace SensorbergSDK
 {
@@ -448,14 +449,9 @@ namespace SensorbergSDK
         /// Invalidates the current layout cache.
         /// </summary>
         /// <returns></returns>
-        public IAsyncAction InvalidateCacheAsync()
+        public async Task InvalidateCacheAsync()
         {
-            Func<Task> action = async () =>
-            {
-                await ServiceManager.LayoutManager.InvalidateLayoutAsync();
-            };
-
-            return action().AsAsyncAction();
+            await ServiceManager.LayoutManager.InvalidateLayout();
         }
 
         /// <summary>

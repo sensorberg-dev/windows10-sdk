@@ -14,6 +14,7 @@ using Windows.Web.Http;
 using Windows.Web.Http.Filters;
 using Newtonsoft.Json;
 using SensorbergSDK.Internal.Utils;
+using SensorbergSDK.Services;
 using HttpClient = Windows.Web.Http.HttpClient;
 using HttpMethod = Windows.Web.Http.HttpMethod;
 using HttpRequestMessage = Windows.Web.Http.HttpRequestMessage;
@@ -29,7 +30,7 @@ namespace SensorbergSDK.Internal.Services
         /// <param name="data">api key and device id for the request</param>
         /// <param name="apiId">optional api id, overrides the given id by SDKData</param>
         /// <returns>A HttpResponseMessage containing the server response or null in case of an error.</returns>
-        public async Task<ResponseMessage> RetrieveLayoutResponseAsync(SDKData data, string apiId = null)
+        public async Task<ResponseMessage> RetrieveLayoutResponse(SDKData data, string apiId = null)
         {
             HttpRequestMessage requestMessage = new HttpRequestMessage();
             HttpBaseProtocolFilter baseProtocolFilter = new HttpBaseProtocolFilter();

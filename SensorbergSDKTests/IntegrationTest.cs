@@ -25,6 +25,7 @@ namespace SensorBergTests
             ServiceManager.ApiConnction = new MockApiConnection();
             ServiceManager.LayoutManager = new LayoutManager();
             ServiceManager.SettingsManager = new SettingsManager();
+            ServiceManager.StorageService = new StorageService();
             ServiceManager.ReadOnlyForTests = true;
         }
 

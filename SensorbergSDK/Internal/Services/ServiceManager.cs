@@ -5,6 +5,7 @@
 // All rights reserved.
 
 using System.Diagnostics;
+using SensorbergSDK.Services;
 
 namespace SensorbergSDK.Internal.Services
 {

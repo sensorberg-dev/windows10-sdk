@@ -77,7 +77,6 @@ namespace SensorbergSDK
             HttpBaseProtocolFilter httpBaseProtocolFilter = new HttpBaseProtocolFilter();
             httpBaseProtocolFilter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
             httpBaseProtocolFilter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
-            //TODO kill me, ok extract me
             HttpClient client = new HttpClient(httpBaseProtocolFilter);
 
             var keyValues = new List<KeyValuePair<string, string>>();

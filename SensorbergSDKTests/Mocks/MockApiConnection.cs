@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Windows.Web.Http;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Services;
 
 namespace SensorbergSDKTests.Mocks
 {
@@ -34,7 +35,7 @@ namespace SensorbergSDKTests.Mocks
         }
 
 
-        public async Task<ResponseMessage> RetrieveLayoutResponseAsync(SDKData data, string apiId = null)
+        public async Task<ResponseMessage> RetrieveLayoutResponse(SDKData data, string apiId = null)
         {
             return new ResponseMessage()
             {
@@ -49,6 +50,18 @@ namespace SensorbergSDKTests.Mocks
 
         public Task<ResponseMessage> SendHistory(History history)
         {
+            if (APIInvalid)
+            {
+                return Task.FromResult(new ResponseMessage() { IsSuccess = false });
+            }
+            if (FailNetwork)
+            {
+                throw new IOException();
+            }
+            if (UnknownError)
+            {
+                throw new Exception("ups");
+            }
             return Task.FromResult(new ResponseMessage() {IsSuccess = true});
         }
 

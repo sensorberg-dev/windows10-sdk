@@ -14,15 +14,32 @@ using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.Storage;
 using SensorbergSDK.Data;
-using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Utils;
+using SensorbergSDK.Services;
 
 namespace SensorbergSDK.Internal.Services
 {
     public class StorageService : IStorageService
     {
+        private const string KeyLayoutHeaders = "layout_headers";
+        private const string KeyLayoutContent = "layout_content.cache"; // Cache file
+        private const string KeyLayoutRetrievedTime = "layout_retrieved_time";
+
         public int RetryCount { get; set; }
 
-        private Storage Storage { [DebuggerStepThrough] get; [DebuggerStepThrough] set; } = Internal.Storage.Instance;
+        protected IStorage Storage { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
+
+        public StorageService()
+        {
+            //Ensures that database tables are created
+            Storage = new SqlStorage();
+        }
+
+        public async Task InitStorage()
+        {
+           await Storage.InitStorage();
+        }
+
 
         /// <summary>
         /// Checks whether the given API key is valid or not.
@@ -31,63 +48,71 @@ namespace SensorbergSDK.Internal.Services
         /// <returns>The validation result.</returns>
         public async Task<ApiKeyValidationResult> ValidateApiKey(string apiKey)
         {
-            int retries = 0;
-            bool networkError = false;
-            do
+            ResponseMessage responseMessage = null;
+
+            responseMessage = await ExecuteCall(async () => await ServiceManager.ApiConnction.RetrieveLayoutResponse(SDKData.Instance, apiKey));
+
+            if (responseMessage != null && responseMessage.IsSuccess)
             {
-                ResponseMessage responseMessage = null;
-                try
-                {
-                    responseMessage = await ServiceManager.ApiConnction.RetrieveLayoutResponseAsync(SDKData.Instance, apiKey);
 
-                }
-                catch (TimeoutException e)
-                {
-                    networkError = true;
-                    Debug.WriteLine("timeout error while validation api key: " + e.Message);
-                    await WaitBackoff(retries);
-                }
-                catch (IOException e)
-                {
-                    networkError = true;
-                    Debug.WriteLine("Error while validation api key: " + e.Message);
-                    await WaitBackoff(retries);
-                }
-                catch (Exception e)
-                {
-                    networkError = false;
-                    Debug.WriteLine("Error while validation api key: " + e.Message);
-                    await WaitBackoff(retries);
-                }
-                finally
-                {
-                    retries++;
-                }
-                if (responseMessage != null && responseMessage.IsSuccess)
-                {
-
-                    return string.IsNullOrEmpty(responseMessage.Content) || responseMessage.Content.Length < Constants.MinimumLayoutContentLength
-                        ? ApiKeyValidationResult.Invalid
-                        : ApiKeyValidationResult.Valid;
-                }
-            } while (retries < RetryCount);
-
-            return networkError ? ApiKeyValidationResult.NetworkError : ApiKeyValidationResult.UnknownError;
+                return string.IsNullOrEmpty(responseMessage.Content) || responseMessage.Content.Length < Constants.MinimumLayoutContentLength
+                    ? ApiKeyValidationResult.Invalid
+                    : ApiKeyValidationResult.Valid;
+            }
+            return responseMessage.NetworResult == NetworkResult.NetworkError ? ApiKeyValidationResult.NetworkError : ApiKeyValidationResult.UnknownError;
         }
+
 
         private async Task WaitBackoff(int currentRetries)
         {
             await Task.Delay((int) Math.Pow(100*currentRetries + 1, currentRetries + 1));
         }
 
-        public Task<LayoutResult> RetrieveLayout()
+        public async Task<LayoutResult> RetrieveLayout()
         {
-            throw new System.NotImplementedException();
+            ResponseMessage responseMessage = await ExecuteCall(async () => await ServiceManager.ApiConnction.RetrieveLayoutResponse(SDKData.Instance));
+            if (responseMessage != null && responseMessage.IsSuccess)
+            {
+                Layout layout = null;
+                string headersAsString = Helper.StripLineBreaksAndExcessWhitespaces(responseMessage.Header);
+                string contentAsString = Helper.StripLineBreaksAndExcessWhitespaces(responseMessage.Content);
+                contentAsString = Helper.EnsureEncodingIsUTF8(contentAsString);
+                DateTimeOffset layoutRetrievedTime = DateTimeOffset.Now;
+
+                if (contentAsString.Length > Constants.MinimumLayoutContentLength)
+                {
+                    try
+                    {
+                        JsonValue content = JsonValue.Parse(contentAsString);
+                        layout = Layout.FromJson(headersAsString, content.GetObject(), layoutRetrievedTime);
+                        Debug.WriteLine("LayoutManager: new Layout received: Beacons: " + layout.AccountBeaconId1s.Count + " Actions :" + layout.ResolvedActions.Count);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("LayoutManager.RetrieveLayout(): Failed to parse layout: " + ex);
+                        layout = null;
+                    }
+                }
+
+                if (layout != null)
+                {
+                    // Store the parsed layout
+                    await SaveLayoutToLocalStorage(headersAsString, contentAsString, layoutRetrievedTime);
+                    return new LayoutResult() {Layout = layout, Result = NetworkResult.Success};
+                }
+            }
+            else
+            {
+               Layout layout= await LoadLayoutFromLocalStorage();
+                return new LayoutResult() {Result = layout != null ? NetworkResult.Success : NetworkResult.NetworkError, Layout = layout};
+            }
+
+            return new LayoutResult() {Result = responseMessage != null ? responseMessage.NetworResult : NetworkResult.UnknownError};
         }
 
         public Task<AppSettings> RetrieveAppSettings()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public async Task<bool> FlushHistory()
@@ -95,23 +120,23 @@ namespace SensorbergSDK.Internal.Services
             try
             {
                 History history = new History();
-                history.actions = await Storage.GetUndeliveredActionsAsync();
-                history.events = await Storage.GetUndeliveredEventsAsync();
+                history.actions = await Storage.GetUndeliveredActions();
+                history.events = await Storage.GetUndeliveredEvents();
 
                 if ((history.events != null && history.events.Count > 0) || (history.actions != null && history.actions.Count > 0))
                 {
-                    var responseMessage = await ServiceManager.ApiConnction.SendHistory(history);
+                    var responseMessage = await ExecuteCall(async () => await ServiceManager.ApiConnction.SendHistory(history));
 
                     if (responseMessage.IsSuccess)
                     {
                         if ((history.events != null && history.events.Count > 0))
                         {
-                            await Storage.SetEventsAsDeliveredAsync();
+                            await Storage.SetEventsAsDelivered();
                         }
 
                         if (history.actions != null && history.actions.Count > 0)
                         {
-                            await Storage.SetActionsAsDeliveredAsync();
+                            await Storage.SetActionsAsDelivered();
                         }
                         return true;
                     }

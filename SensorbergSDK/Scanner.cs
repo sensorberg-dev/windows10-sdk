@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
 using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Services;
 
 namespace SensorbergSDK
 {

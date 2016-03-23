@@ -11,6 +11,7 @@ using Windows.Data.Json;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Services;
 using SensorbergSDKTests.Mocks;
 
 namespace SensorbergSDK.Internal
@@ -25,6 +26,7 @@ namespace SensorbergSDK.Internal
             ServiceManager.ApiConnction = new MockApiConnection();
             ServiceManager.LayoutManager = new LayoutManager();
             ServiceManager.SettingsManager = new SettingsManager();
+            ServiceManager.StorageService = new StorageService();
             ServiceManager.ReadOnlyForTests = true;
         }
 
@@ -39,7 +41,7 @@ namespace SensorbergSDK.Internal
         {
             ILayoutManager manager = ServiceManager.LayoutManager;
             await ValidateBaseMockLayout(manager);
-            await manager.InvalidateLayoutAsync();
+            await manager.InvalidateLayout();
             Assert.IsFalse(manager.IsLayoutValid, "Layout still valid");
             Assert.IsNull(manager.Layout, "Layout still exists");
             Assert.IsTrue(await manager.VerifyLayoutAsync(true), "Verification failed");
@@ -50,6 +52,11 @@ namespace SensorbergSDK.Internal
         {
             Assert.IsTrue(await manager.VerifyLayoutAsync(true), "Verification failed");
             Layout layout = manager.Layout;
+            ValidateMockLayout(layout);
+        }
+
+        public static void ValidateMockLayout(Layout layout)
+        {
             Assert.IsNotNull(layout, "No Layout avialable");
             Assert.AreEqual(5, layout.AccountBeaconId1s.Count, "Number of proximity beacons not matching");
             Assert.IsTrue(layout.AccountBeaconId1s.Contains("7367672374000000ffff0000ffff0003"), "Beacon 1 not found");
