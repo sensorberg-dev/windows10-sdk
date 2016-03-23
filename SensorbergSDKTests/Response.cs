@@ -17,6 +17,7 @@ namespace SensorBergTests
         [TestInitialize]
         public void TestSetup()
         {
+            ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
         }
         [TestMethod]

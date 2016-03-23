@@ -20,6 +20,7 @@ namespace SensorBergTests
         [TestInitialize]
         public void TestSetup()
         {
+            ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.LayoutManager = new MockLayoutManager() {FindOneAction=true};
             ServiceManager.SettingsManager = new SettingsManager();

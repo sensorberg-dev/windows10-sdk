@@ -178,7 +178,6 @@ namespace SensorbergSDK.Internal
         /// <summary>
         /// De-initializes the SDK.
         /// </summary>
-        /// <param name="stopScanner">If true, will stop scanner if running.</param>
         public void Deinitialize()
         {
             if (IsInitialized)

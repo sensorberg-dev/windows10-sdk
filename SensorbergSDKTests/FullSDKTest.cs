@@ -25,6 +25,7 @@ namespace SensorbergSDK.Internal
         [TestInitialize]
         public void Setup()
         {
+            ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
             ServiceManager.BeaconScanner = new MockBeaconScanner();

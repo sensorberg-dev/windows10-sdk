@@ -21,7 +21,7 @@ namespace SensorbergSDK.Internal.Services
         {
             [DebuggerStepThrough]
             get { return _storageService; }
-            [DebuggerStepThrough]
+//            [DebuggerStepThrough]
             set
             {
                 if (_storageService == null || !ReadOnlyForTests)
@@ -91,6 +91,10 @@ namespace SensorbergSDK.Internal.Services
 
         public static void Clear()
         {
+            if (ReadOnlyForTests)
+            {
+                return;
+            }
             _apiConnction = null;
             _beaconScanner = null;
             _layoutManager = null;

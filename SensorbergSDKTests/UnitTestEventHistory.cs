@@ -17,6 +17,7 @@ namespace SensorBergTests
         [TestInitialize]
         public async Task Setup()
         {
+            ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
             ServiceManager.StorageService = new StorageService();

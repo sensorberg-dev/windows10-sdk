@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Text;
 
@@ -12,14 +13,18 @@ namespace SensorbergSDK
         [DataMember]
         public UInt16 ManufacturerId
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         [DataMember]
         public UInt16 Code
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
@@ -27,10 +32,12 @@ namespace SensorbergSDK
         [DataMember]
         public string Id1
         {
+            [DebuggerStepThrough]
             get
             {
                 return _id1;
             }
+            [DebuggerStepThrough]
             set
             {
                 if (_id1 != value)
@@ -45,10 +52,12 @@ namespace SensorbergSDK
         [DataMember]
         public UInt16 Id2
         {
+            [DebuggerStepThrough]
             get
             {
                 return _id2;
             }
+            [DebuggerStepThrough]
             set
             {
                 if (_id2 != value)
@@ -63,10 +72,12 @@ namespace SensorbergSDK
         [DataMember]
         public UInt16 Id3
         {
+            [DebuggerStepThrough]
             get
             {
                 return _id3;
             }
+            [DebuggerStepThrough]
             set
             {
                 if (_id3 != value)
@@ -79,7 +90,9 @@ namespace SensorbergSDK
 
         public byte Aux
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
             
@@ -90,14 +103,18 @@ namespace SensorbergSDK
         [DataMember]
         public string Pid
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             private set;
         }
 
         [DataMember]
         public double Distance
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             private set;
         }
 
@@ -105,10 +122,12 @@ namespace SensorbergSDK
         [DataMember]
         public int RawSignalStrengthInDBm
         {
+            [DebuggerStepThrough]
             get
             {
                 return _rawSignalStrengthInDBm;
             }
+            [DebuggerStepThrough]
             set
             {
                 if (_rawSignalStrengthInDBm != value)
@@ -123,10 +142,12 @@ namespace SensorbergSDK
         [DataMember]
         public int MeasuredPower
         {
+            [DebuggerStepThrough]
             get
             {
                 return _measuredPower;
             }
+            [DebuggerStepThrough]
             set
             {
                 if (_measuredPower != value)
@@ -140,7 +161,9 @@ namespace SensorbergSDK
         [DataMember]
         public DateTimeOffset Timestamp
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 

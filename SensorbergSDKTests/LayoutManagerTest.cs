@@ -22,6 +22,7 @@ namespace SensorbergSDK.Internal
         [TestInitialize]
         public void Setup()
         {
+            ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
             ServiceManager.LayoutManager = new LayoutManager();
@@ -68,7 +69,7 @@ namespace SensorbergSDK.Internal
             ResolvedAction a = layout.ResolvedActions.FirstOrDefault(t => t.BeaconAction.Uuid == "9ded63644e424d758b0218f7c70f2473");
             Assert.AreEqual(3, (int) a.EventTypeDetectedByDevice, "beacon 1 - Wrong trigger type");
             Assert.AreEqual(1, a.BeaconPids.Count, "beacon 1 - Beacon count wrong");
-            Assert.IsTrue(a.BeaconPids.ContainsKey("7367672374000000ffff0000ffff00043917830929"), "beacon 1 - No Beacon found!");
+            Assert.IsTrue(a.BeaconPids.Contains("7367672374000000ffff0000ffff00043917830929"), "beacon 1 - No Beacon found!");
 
             Assert.AreEqual(43200, a.SupressionTime, "beacon 1 - Wrong supression time!");
             Assert.AreEqual(0, a.Delay, "beacon 1 - Different delay is set");
@@ -88,7 +89,7 @@ namespace SensorbergSDK.Internal
             a = layout.ResolvedActions.FirstOrDefault(t => t.BeaconAction.Uuid == "3f30be2605524f82a9bf0ccb4a81618f");
             Assert.AreEqual(1, (int) a.EventTypeDetectedByDevice, "beacon 2 - Wrong trigger type");
             Assert.AreEqual(1, a.BeaconPids.Count, "beacon 2 - Beacon count wrong");
-            Assert.IsTrue(a.BeaconPids.ContainsKey("7367672374000000ffff0000ffff00034886921321"), "beacon 2 - No Beacon found!");
+            Assert.IsTrue(a.BeaconPids.Contains("7367672374000000ffff0000ffff00034886921321"), "beacon 2 - No Beacon found!");
 
             Assert.AreEqual(900, a.SupressionTime, "beacon 2 - Wrong supression time!");
             Assert.AreEqual(0, a.Delay, "beacon 2 - Different delay is set");
@@ -108,7 +109,7 @@ namespace SensorbergSDK.Internal
             a = layout.ResolvedActions.FirstOrDefault(t => t.BeaconAction.Uuid == "312a8594e07542bd814ecdd17f76538e");
             Assert.AreEqual(1, (int) a.EventTypeDetectedByDevice, "beacon 3 - Wrong trigger type");
             Assert.AreEqual(1, a.BeaconPids.Count, "beacon 3 - Beacon count wrong");
-            Assert.IsTrue(a.BeaconPids.ContainsKey("7367672374000000ffff0000ffff00034886921321"), "beacon 3 - No Beacon found!");
+            Assert.IsTrue(a.BeaconPids.Contains("7367672374000000ffff0000ffff00034886921321"), "beacon 3 - No Beacon found!");
 
             Assert.AreEqual(900, a.SupressionTime, "beacon 3 - Wrong supression time!");
             Assert.AreEqual(0, a.Delay, "beacon 3 - Different delay is set");
@@ -128,7 +129,7 @@ namespace SensorbergSDK.Internal
             a = layout.ResolvedActions.FirstOrDefault(t => t.BeaconAction.Uuid == "959ea393e3424ab7ad53584a8b789197");
             Assert.AreEqual(1, (int) a.EventTypeDetectedByDevice, "beacon 4 - Wrong trigger type");
             Assert.AreEqual(1, a.BeaconPids.Count, "beacon 4 - Beacon count wrong");
-            Assert.IsTrue(a.BeaconPids.ContainsKey("7367672374000000ffff0000ffff00034895330988"), "beacon 4 - No Beacon found!");
+            Assert.IsTrue(a.BeaconPids.Contains("7367672374000000ffff0000ffff00034895330988"), "beacon 4 - No Beacon found!");
 
             Assert.AreEqual(900, a.SupressionTime, "beacon 4 - Wrong supression time!");
             Assert.AreEqual(60, a.Delay, "beacon 4 - Different delay is set");
@@ -148,7 +149,7 @@ namespace SensorbergSDK.Internal
             a = layout.ResolvedActions.FirstOrDefault(t => t.BeaconAction.Uuid == "351fd4b8b1c34da6b827e53acd79ff17");
             Assert.AreEqual(1, (int) a.EventTypeDetectedByDevice, "beacon 5 - Wrong trigger type");
             Assert.AreEqual(1, a.BeaconPids.Count, "beacon 5 - Beacon count wrong");
-            Assert.IsTrue(a.BeaconPids.ContainsKey("7367672374000000ffff0000ffff00034886921321"), "beacon 5 - No Beacon found!");
+            Assert.IsTrue(a.BeaconPids.Contains("7367672374000000ffff0000ffff00034886921321"), "beacon 5 - No Beacon found!");
 
             Assert.AreEqual(900, a.SupressionTime, "beacon 5 - Wrong supression time!");
             Assert.AreEqual(0, a.Delay, "beacon 5 - Different delay is set");
@@ -168,7 +169,7 @@ namespace SensorbergSDK.Internal
             a = layout.ResolvedActions.FirstOrDefault(t => t.BeaconAction.Uuid == "a5009f851ded4ce68d9b1b4ff6db6137");
             Assert.AreEqual(1, (int) a.EventTypeDetectedByDevice, "beacon 7- Wrong trigger type");
             Assert.AreEqual(1, a.BeaconPids.Count, "beacon 7 - Beacon count wrong");
-            Assert.IsTrue(a.BeaconPids.ContainsKey("7367672374000000ffff0000ffff00073918758763"), "beacon 7 - No Beacon found!");
+            Assert.IsTrue(a.BeaconPids.Contains("7367672374000000ffff0000ffff00073918758763"), "beacon 7 - No Beacon found!");
 
             Assert.AreEqual(31536000, a.SupressionTime, "beacon 7 - Wrong supression time!");
             Assert.AreEqual(0, a.Delay, "beacon 7 - Different delay is set");
@@ -189,7 +190,7 @@ namespace SensorbergSDK.Internal
             a = layout.ResolvedActions.FirstOrDefault(t => t.BeaconAction.Uuid == "4224871362624826b510141da0d4fc5d");
             Assert.AreEqual(1, (int) a.EventTypeDetectedByDevice, "beacon 8- Wrong trigger type");
             Assert.AreEqual(1, a.BeaconPids.Count, "beacon 8 - Beacon count wrong");
-            Assert.IsTrue(a.BeaconPids.ContainsKey("7367672374000000ffff0000ffff00062343028018"), "beacon 8 - No Beacon found!");
+            Assert.IsTrue(a.BeaconPids.Contains("7367672374000000ffff0000ffff00062343028018"), "beacon 8 - No Beacon found!");
 
             Assert.AreEqual(-1, a.SupressionTime, "beacon 8 - Wrong supression time!");
             Assert.AreEqual(0, a.Delay, "beacon 8 - Different delay is set");

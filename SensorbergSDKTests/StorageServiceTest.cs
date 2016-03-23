@@ -22,6 +22,7 @@ namespace SensorbergSDKTests
         [TestInitialize]
         public void Setup()
         {
+            ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
             ServiceManager.LayoutManager = new LayoutManager();
