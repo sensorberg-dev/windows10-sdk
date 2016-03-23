@@ -44,6 +44,8 @@ namespace SensorbergSDK.Internal.Services
             HttpClient apiConnection = new HttpClient(baseProtocolFilter);
             apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, string.IsNullOrEmpty(apiId) ? data.ApiKey : apiId);
             apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, data.DeviceId);
+            apiConnection.DefaultRequestHeaders.Add(Constants.ADVERTISEMENT_IDENTIFIER_HEADER, Windows.System.UserProfile.AdvertisingManager.AdvertisingId);
+            apiConnection.DefaultRequestHeaders.Add(Constants.USER_IDENTIFIER_HEADER, data.UserId);
             HttpResponseMessage responseMessage = null;
 
             try
@@ -93,7 +95,9 @@ namespace SensorbergSDK.Internal.Services
             System.Net.Http.HttpClient apiConnection = new System.Net.Http.HttpClient();
             apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, SDKData.Instance.ApiKey);
             apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, SDKData.Instance.DeviceId);
-            bool result = apiConnection.DefaultRequestHeaders.TryAddWithoutValidation(Constants.XUserAgent, UserAgentBuilder.BuildUserAgentJson());
+            apiConnection.DefaultRequestHeaders.Add(Constants.ADVERTISEMENT_IDENTIFIER_HEADER, Windows.System.UserProfile.AdvertisingManager.AdvertisingId);
+            apiConnection.DefaultRequestHeaders.Add(Constants.USER_IDENTIFIER_HEADER, SDKData.Instance.UserId);
+            apiConnection.DefaultRequestHeaders.TryAddWithoutValidation(Constants.XUserAgent, UserAgentBuilder.BuildUserAgentJson());
             string serializeObject = JsonConvert.SerializeObject(history);
             var content = new StringContent(serializeObject, Encoding.UTF8, "application/json");
 

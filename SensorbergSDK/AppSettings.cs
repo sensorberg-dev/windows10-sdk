@@ -58,7 +58,7 @@ namespace SensorbergSDK.Data
             if (json.ContainsKey(BEACON_EXIT_TIMEOUT_KEY))
             {
                 var exitTimeout = json[BEACON_EXIT_TIMEOUT_KEY];
-                settings.BeaconExitTimeout = exitTimeout.ValueType == JsonValueType.Null ? Constants.DefaultBeaconExitTimeout : Convert.ToUInt64(exitTimeout.GetNumber());
+                settings.BeaconExitTimeout = exitTimeout.ValueType == JsonValueType.Null ? Constants.DefaultBeaconExitTimeout : Convert.ToUInt64(GetValueAsString(exitTimeout));
             }
             else
             {
@@ -68,7 +68,7 @@ namespace SensorbergSDK.Data
             if (json.ContainsKey(HISTORY_UPLOAD_INTERVAL_KEY))
             {
                 var historyInterval = json[HISTORY_UPLOAD_INTERVAL_KEY];
-                settings.HistoryUploadInterval = historyInterval.ValueType == JsonValueType.Null ? Constants.DefaultHistoryUploadInterval : Convert.ToUInt64(historyInterval.GetNumber());
+                settings.HistoryUploadInterval = historyInterval.ValueType == JsonValueType.Null ? Constants.DefaultHistoryUploadInterval : Convert.ToUInt64(GetValueAsString(historyInterval));
             }
             else
             {
@@ -80,7 +80,7 @@ namespace SensorbergSDK.Data
                 var rssiEnterThreshold = json[RSSI_ENTER_THRESHOLD_KEY];
                 if (rssiEnterThreshold.ValueType != JsonValueType.Null)
                 {
-                    settings.RssiEnterThreshold = Convert.ToInt16(rssiEnterThreshold.GetNumber());
+                    settings.RssiEnterThreshold = Convert.ToInt16(GetValueAsString(rssiEnterThreshold));
                 }
             }
 
@@ -89,14 +89,15 @@ namespace SensorbergSDK.Data
                 var enterDistanceThreshold = json[ENTER_DISTANCE_THRESHOLD_KEY];
                 if (enterDistanceThreshold.ValueType != JsonValueType.Null)
                 {
-                    settings.EnterDistanceThreshold = Convert.ToUInt64(enterDistanceThreshold.GetNumber());
+                    settings.EnterDistanceThreshold =
+                        Convert.ToUInt64(GetValueAsString(enterDistanceThreshold));
                 }
             }
 
             if (json.ContainsKey(LAYOUT_UPDATE_INTERVAL_KEY))
             {
                 var layoutUpdateInterval = json[LAYOUT_UPDATE_INTERVAL_KEY];
-                settings.LayoutUpdateInterval = layoutUpdateInterval.ValueType == JsonValueType.Null ? Constants.DefaultLayoutUpdateInterval : Convert.ToUInt64(layoutUpdateInterval.GetNumber());
+                settings.LayoutUpdateInterval = layoutUpdateInterval.ValueType == JsonValueType.Null ? Constants.DefaultLayoutUpdateInterval : Convert.ToUInt64(GetValueAsString(layoutUpdateInterval));
             }
             else
             {
@@ -106,7 +107,7 @@ namespace SensorbergSDK.Data
             if (json.ContainsKey(SETTINGS_UPDATE_INTERVAL_KEY))
             {
                 var settingsUpdateInterval = json[SETTINGS_UPDATE_INTERVAL_KEY];
-                settings.SettingsUpdateInterval = settingsUpdateInterval.ValueType == JsonValueType.Null ? Constants.DefaultSettingsUpdateInterval : Convert.ToUInt64(settingsUpdateInterval.GetNumber());
+                settings.SettingsUpdateInterval = settingsUpdateInterval.ValueType == JsonValueType.Null ? Constants.DefaultSettingsUpdateInterval : Convert.ToUInt64(GetValueAsString(settingsUpdateInterval));
             }
             else
             {
@@ -114,6 +115,13 @@ namespace SensorbergSDK.Data
             }
 
             return settings;
+        }
+
+        private static string GetValueAsString(IJsonValue enterDistanceThreshold)
+        {
+            return enterDistanceThreshold.ValueType == JsonValueType.String
+                ? enterDistanceThreshold.GetString()
+                : enterDistanceThreshold.GetNumber().ToString();
         }
 
         public override string ToString()
