@@ -27,11 +27,11 @@ namespace SensorbergSDK
         {
             add
             {
-                _sdkEngine.BeaconActionResolved += value;
+                SdkEngine.BeaconActionResolved += value;
             }
             remove
             {
-                _sdkEngine.BeaconActionResolved -= value;
+                SdkEngine.BeaconActionResolved -= value;
             }
         }
 
@@ -43,11 +43,11 @@ namespace SensorbergSDK
         {
             add
             {
-                _sdkEngine.FailedToResolveBeaconAction += value;
+                SdkEngine.FailedToResolveBeaconAction += value;
             }
             remove
             {
-                _sdkEngine.FailedToResolveBeaconAction -= value;
+                SdkEngine.FailedToResolveBeaconAction -= value;
             }
         }
 
@@ -58,11 +58,11 @@ namespace SensorbergSDK
         {
             add
             {
-                _sdkEngine.LayoutValidityChanged += value;
+                SdkEngine.LayoutValidityChanged += value;
             }
             remove
             {
-                _sdkEngine.LayoutValidityChanged -= value;
+                SdkEngine.LayoutValidityChanged -= value;
             }
         }
 
@@ -95,11 +95,19 @@ namespace SensorbergSDK
         }
 
         private static SDKManager _instance;
-        private SDKEngine _sdkEngine;
+
         private BackgroundTaskManager _backgroundTaskManager;
         private Timer _startScannerTimer;
         private bool _scannerShouldBeRunning;
 
+        /// <summary>
+        /// Instance of the SDKEngine.
+        /// </summary>
+        private SDKEngine SdkEngine
+        {
+            [DebuggerStepThrough]
+            get;
+        }
         /// <summary>
         /// The scanner instance.
         /// </summary>
@@ -165,7 +173,7 @@ namespace SensorbergSDK
             [DebuggerStepThrough]
             get
             {
-                return _sdkEngine.IsInitialized;
+                return SdkEngine.IsInitialized;
             }
         }
 
@@ -221,9 +229,25 @@ namespace SensorbergSDK
         public AppSettings DefaultAppSettings
         {
             [DebuggerStepThrough]
-            get { return _sdkEngine.DefaultAppSettings; }
+            get { return SdkEngine.DefaultAppSettings; }
             [DebuggerStepThrough]
-            set { _sdkEngine.DefaultAppSettings = value; }
+            set { SdkEngine.DefaultAppSettings = value; }
+        }
+
+        public static string UserId
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                Instance();
+                return _instance.SdkEngine.UserId;
+            }
+            [DebuggerStepThrough]
+            set
+            {
+                Instance();
+                _instance.SdkEngine.UserId = value;
+            }
         }
 
         /// <summary>
@@ -234,15 +258,20 @@ namespace SensorbergSDK
         /// <returns>The singleton instance of this class.</returns>
 		public static SDKManager Instance(UInt16 manufacturerId, UInt16 beaconCode)
         {
-            if (_instance == null)
-            {
-                _instance = new SDKManager();
-            }
+            Instance();
 
             _instance.ManufacturerId = manufacturerId;
             _instance.BeaconCode = beaconCode;
 
             return _instance;
+        }
+
+        private static void Instance()
+        {
+            if (_instance == null)
+            {
+                _instance = new SDKManager();
+            }
         }
 
         /// <summary>
@@ -252,7 +281,7 @@ namespace SensorbergSDK
         {
             ServiceManager.BeaconScanner.StopWatcher();
             _instance?._backgroundTaskManager.UnregisterBackgroundTask();
-            _instance?._sdkEngine.Deinitialize();
+            _instance?.SdkEngine.Deinitialize();
             _instance = null;
         }
 
@@ -261,7 +290,7 @@ namespace SensorbergSDK
         /// </summary>
         private SDKManager()
         {
-            _sdkEngine = new SDKEngine(true);
+            SdkEngine = new SDKEngine(true);
             _backgroundTaskManager = new BackgroundTaskManager();
         }
 
@@ -288,7 +317,7 @@ namespace SensorbergSDK
             if (!IsInitialized)
             {
                 sdkData.ApiKey = apiKey;
-                await _sdkEngine.InitializeAsync();
+                await SdkEngine.InitializeAsync();
                 await InitializeSettingsAsync();
             }
 
@@ -332,7 +361,7 @@ namespace SensorbergSDK
                     StopScanner();
                 }
 
-                _sdkEngine.Deinitialize();
+                SdkEngine.Deinitialize();
             }
             Dispose();
         }
@@ -412,7 +441,7 @@ namespace SensorbergSDK
         /// </summary>
         public void ClearPendingActions()
         {
-            _sdkEngine.DismissPendingBeaconActionsResolvedOnBackgroundAsync();
+            SdkEngine.DismissPendingBeaconActionsResolvedOnBackgroundAsync();
         }
 
         /// <summary>
@@ -452,7 +481,7 @@ namespace SensorbergSDK
         {
             if (!IsBackgroundTaskRegistered)
             {
-                await _sdkEngine.ResolveBeaconAction(e);
+                await SdkEngine.ResolveBeaconAction(e);
             }
         }
 
@@ -496,6 +525,13 @@ namespace SensorbergSDK
                 _appSettings = await ServiceManager.SettingsManager.GetSettings();
                 ServiceManager.SettingsManager.SettingsUpdated += OnSettingsUpdated;
             }
+        }
+        /// <summary>
+        /// Sends all pending history elements.
+        /// </summary>
+        public async Task FlushHistory()
+        {
+            await SdkEngine.FlushHistory();
         }
     }
 }

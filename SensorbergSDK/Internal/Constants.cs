@@ -39,7 +39,7 @@ namespace SensorbergSDK.Internal
         /// </summary>
         public const UInt64 DefaultSettingsUpdateInterval = 86400000;
         public const UInt64 DefaultBeaconExitTimeout = 10000;
-        public const UInt64 DefaultHistoryUploadInterval = 20*60*1000;
+        public const UInt64 DefaultHistoryUploadInterval = 5*60*1000;
         public const UInt64 DefaultLayoutUpdateInterval = 3600000;
         public const int DefaultBackgroundScannerEnterThreshold = -120;
 

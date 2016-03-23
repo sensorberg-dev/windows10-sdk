@@ -58,7 +58,7 @@ namespace SensorbergSDK.Internal
         {
             _requestQueue.Enqueue(request);
 
-            if (_requestQueue.Count > 0 && _workerTask == null)
+            if (_requestQueue.Count > 0 && (_workerTask == null || _workerTask.Status == TaskStatus.Canceled ||_workerTask.Status == TaskStatus.Faulted || _workerTask.Status == TaskStatus.RanToCompletion))
             {
                 _cancelToken = new CancellationTokenSource();
                 (_workerTask = Task.Run(ServeNextRequestAsync, _cancelToken.Token)).ConfigureAwait(false);

@@ -44,7 +44,9 @@ namespace SensorbergSDK.Internal
 
         public AppSettings DefaultAppSettings
         {
+            [DebuggerStepThrough]
             get { return ServiceManager.SettingsManager.DefaultAppSettings; }
+            [DebuggerStepThrough]
             set { ServiceManager.SettingsManager.DefaultAppSettings = value; }
         }
 
@@ -53,7 +55,9 @@ namespace SensorbergSDK.Internal
         /// </summary>
         public bool IsInitialized
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             private set;
         }
 
@@ -62,7 +66,9 @@ namespace SensorbergSDK.Internal
         /// </summary>
         public Resolver Resolver
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             private set;
         }
 
@@ -71,8 +77,18 @@ namespace SensorbergSDK.Internal
         /// </summary>
         public int UnresolvedActionCount
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             private set;
+        }
+
+        public string UserId
+        {
+            [DebuggerStepThrough]
+            get { return SDKData.Instance.UserId; }
+            [DebuggerStepThrough]
+            set { SDKData.Instance.UserId = value; }
         }
 
         /// <summary>
@@ -439,5 +455,10 @@ namespace SensorbergSDK.Internal
         }
 
         #endregion
+
+        public async Task FlushHistory()
+        {
+            await _eventHistory.FlushHistoryAsync();
+        }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Text;
 using Windows.Storage;
 
 namespace SensorbergSDK.Internal
@@ -20,6 +22,7 @@ namespace SensorbergSDK.Internal
         private const string KeyVisibilityLastUpdated = "sensorberg_sdk_visibility_last_updated";
 
         private const int AppVisibilityFallbackDelayInSeconds = 60;
+        private const string USERID = "userid";
 
         private ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
 
@@ -37,8 +40,29 @@ namespace SensorbergSDK.Internal
             }
         }
 
+        public string UserId
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                object id;
+                ApplicationData.Current.LocalSettings.Values.TryGetValue(USERID, out id);
+                return id as string;
+            }
+            [DebuggerStepThrough] set
+            {
+                string id = value;
+                if (!string.IsNullOrEmpty(id))
+                {
+                    id = Uri.EscapeDataString(id);
+                }
+                ApplicationData.Current.LocalSettings.Values[USERID] = id;
+            }
+        }
+
         public string ApiKey
         {
+            [DebuggerStepThrough]
             get
             {
                 string apiKey = string.Empty;
@@ -50,6 +74,7 @@ namespace SensorbergSDK.Internal
 
                 return apiKey;
             }
+            [DebuggerStepThrough]
             set
             {
                 if (!_localSettings.Values.ContainsKey(KeySensorbergSdkApiKey)
@@ -62,6 +87,7 @@ namespace SensorbergSDK.Internal
 
         public string DeviceId
         {
+            [DebuggerStepThrough]
             get
             {
                 if (!_localSettings.Values.ContainsKey(KeySensorbergSdkGuid))
@@ -69,12 +95,13 @@ namespace SensorbergSDK.Internal
                     _localSettings.Values[KeySensorbergSdkGuid] = Guid.NewGuid().ToString();
                 }
 
-                return _localSettings.Values[KeySensorbergSdkGuid].ToString();
+                return _localSettings.Values[KeySensorbergSdkGuid] + (string.IsNullOrEmpty(UserId) ? string.Empty : "/" + UserId);
             }
         }
 
         public string LayoutBeaconId1Hash
         {
+            [DebuggerStepThrough]
             get
             {
                 string hash = string.Empty;
@@ -86,6 +113,7 @@ namespace SensorbergSDK.Internal
 
                 return hash;
             }
+            [DebuggerStepThrough]
             set
             {
                 if (!_localSettings.Values.ContainsKey(KeyLayoutBeaconId1Hash)
@@ -98,6 +126,7 @@ namespace SensorbergSDK.Internal
 
         public DateTimeOffset DatabaseCleaningTime
         {
+            [DebuggerStepThrough]
             get
             {
                 if (!_localSettings.Values.ContainsKey(KeyDatabaseCleaningTime))
@@ -107,6 +136,7 @@ namespace SensorbergSDK.Internal
 
                 return (DateTimeOffset)_localSettings.Values[KeyDatabaseCleaningTime];
             }
+            [DebuggerStepThrough]
             set
             {
                 _localSettings.Values[KeyDatabaseCleaningTime] = value;
@@ -115,6 +145,7 @@ namespace SensorbergSDK.Internal
 
         public bool NewActionsFromBackground
         {
+            [DebuggerStepThrough]
             get
             {
                 if (!_localSettings.Values.ContainsKey(KeyNewActionsFromBackground))
@@ -124,6 +155,7 @@ namespace SensorbergSDK.Internal
 
                 return (bool)_localSettings.Values[KeyNewActionsFromBackground];
             }
+            [DebuggerStepThrough]
             set
             {
                 if (!_localSettings.Values.ContainsKey(KeyNewActionsFromBackground)
@@ -136,6 +168,7 @@ namespace SensorbergSDK.Internal
 
         public bool BackgroundTaskEnabled
         {
+            [DebuggerStepThrough]
             get
             {
                 if (!_localSettings.Values.ContainsKey(KeyBackgroundTaskEnabled))
@@ -145,6 +178,7 @@ namespace SensorbergSDK.Internal
 
                 return (bool)_localSettings.Values[KeyBackgroundTaskEnabled];
             }
+            [DebuggerStepThrough]
             set
             {
                 if (!_localSettings.Values.ContainsKey(KeyBackgroundTaskEnabled)
@@ -157,6 +191,7 @@ namespace SensorbergSDK.Internal
 
         public bool BackgroundFilterUpdateRequired
         {
+            [DebuggerStepThrough]
             get
             {
                 if (!_localSettings.Values.ContainsKey(KeyBackgroundFilterUpdateRequired))
@@ -166,6 +201,7 @@ namespace SensorbergSDK.Internal
 
                 return (bool)_localSettings.Values[KeyBackgroundFilterUpdateRequired];
             }
+            [DebuggerStepThrough]
             set
             {
                 if (!_localSettings.Values.ContainsKey(KeyBackgroundFilterUpdateRequired)
@@ -178,6 +214,7 @@ namespace SensorbergSDK.Internal
 
         public bool AppIsVisible
         {
+            [DebuggerStepThrough]
             get
             {
                 if (_localSettings.Values.ContainsKey(KeyAppIsVisible))
@@ -187,6 +224,7 @@ namespace SensorbergSDK.Internal
 
                 return false;
             }
+            [DebuggerStepThrough]
             set
             {
                 _localSettings.Values[KeyAppIsVisible] = value;

@@ -85,7 +85,7 @@ namespace SensorbergSDK.Internal
             return layout;
         }
 
-        private Layout()
+        public Layout()
         {
             AccountBeaconId1s = new List<string>();
             ResolvedActions = new List<ResolvedAction>();
@@ -103,7 +103,7 @@ namespace SensorbergSDK.Internal
 
             foreach (ResolvedAction item in ResolvedActions)
             {
-                if (item.BeaconPids.ContainsKey(pid)
+                if (item.BeaconPids.Contains(pid)
                     && (item.EventTypeDetectedByDevice == eventType || item.EventTypeDetectedByDevice == BeaconEventType.EnterExit))
                 { 
                     actions.Add(item);
@@ -145,15 +145,17 @@ namespace SensorbergSDK.Internal
         private void ResolveAccountBeaconId1s(JsonObject content)
         {
             AccountBeaconId1s.Clear();
+            if (!content.ContainsKey(KeyAccountBeaconId1s))
+            {
+                return;
+            }
             JsonArray responses = content.GetNamedArray(KeyAccountBeaconId1s);
-            string beaconId1 = string.Empty;
 
             foreach (JsonValue resp in responses)
             {
                 if (resp.ValueType == JsonValueType.String)
                 {
-                    beaconId1 = resp.GetString();
-                    AccountBeaconId1s.Add(beaconId1);
+                    AccountBeaconId1s.Add(resp.GetString());
                 }
             }
         }
@@ -161,6 +163,10 @@ namespace SensorbergSDK.Internal
         private void ResolveActions(JsonObject content)
         {
             ResolvedActions.Clear();
+            if (!content.ContainsKey(KeyActions))
+            {
+                return;
+            }
             var actions = content.GetNamedArray(KeyActions);
 
             foreach (JsonValue resp in actions)

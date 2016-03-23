@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
@@ -41,66 +42,86 @@ namespace SensorbergSDK.Internal
         private static readonly string KeyTimeframes = "timeframes";
         private static readonly string KeyStart = "start";
         private static readonly string KeyEnd = "end";
+        private ICollection<string> beaconPids;
 
         [DataMember]
         public BeaconAction BeaconAction
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         [DataMember]
-        public IDictionary<string, int> BeaconPids
+        public ICollection<string> BeaconPids
         {
-            get;
-            set;
+            [DebuggerStepThrough] get {
+                if (beaconPids == null)
+                {
+                    return new HashSet<string>() { "assdadasdasdsf fsdaf asdf sdfsdafsdfasfasf asdf asdf asdf asdf sadf sadf asdf asdfas sdaf sadf sadf a"};
+                }
+                return beaconPids;} 
+            [DebuggerStepThrough] set { beaconPids = value; }
         }
 
         [DataMember]
         public BeaconEventType EventTypeDetectedByDevice
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         [DataMember]
         public long Delay
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         [DataMember]
         public bool SendOnlyOnce
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         [DataMember]
         public int SupressionTime
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         [DataMember]
         public bool ReportImmediately
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         [DataMember]
         public IList<Timeframe> Timeframes
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         public ResolvedAction()
         {
-            BeaconPids = new Dictionary<string, int>();
+            BeaconPids = new HashSet<string>();
             Timeframes = new List<Timeframe>();
         }
 
@@ -161,7 +182,7 @@ namespace SensorbergSDK.Internal
             {
                 if (resp.ValueType == JsonValueType.String)
                 {
-                    resolvedAction.BeaconPids.Add(resp.GetString(), 1);
+                    resolvedAction.BeaconPids.Add(resp.GetString());
                 }
             }
 
