@@ -21,7 +21,7 @@ namespace SensorbergSDK.Internal.Services
         {
             [DebuggerStepThrough]
             get { return _storageService; }
-//            [DebuggerStepThrough]
+            [DebuggerStepThrough]
             set
             {
                 if (_storageService == null || !ReadOnlyForTests)

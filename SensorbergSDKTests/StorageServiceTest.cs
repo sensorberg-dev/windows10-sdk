@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Windows.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
@@ -58,6 +59,8 @@ namespace SensorbergSDKTests
             MockApiConnection connection = (MockApiConnection) ServiceManager.ApiConnction;
             IStorageService service = ServiceManager.StorageService;
 
+            ApplicationData.Current.LocalSettings.Values.Remove(LayoutManager.KeyLayoutHeaders);
+            ApplicationData.Current.LocalSettings.Values.Remove(LayoutManager.KeyLayoutRetrievedTime);
 
             connection.FailNetwork = true;
             LayoutResult layout = await service.RetrieveLayout();

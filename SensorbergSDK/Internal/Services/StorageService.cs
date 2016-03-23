@@ -25,7 +25,7 @@ namespace SensorbergSDK.Internal.Services
         private const string KeyLayoutContent = "layout_content.cache"; // Cache file
         private const string KeyLayoutRetrievedTime = "layout_retrieved_time";
 
-        public int RetryCount { get; set; }
+        public int RetryCount { get; set; } = 3;
 
         protected IStorage Storage { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
@@ -65,7 +65,7 @@ namespace SensorbergSDK.Internal.Services
 
         private async Task WaitBackoff(int currentRetries)
         {
-            await Task.Delay((int) Math.Pow(100*currentRetries + 1, currentRetries + 1));
+            await Task.Delay((int) Math.Pow(2, currentRetries + 1)*100);
         }
 
         public async Task<LayoutResult> RetrieveLayout()

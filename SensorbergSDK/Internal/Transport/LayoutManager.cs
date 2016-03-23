@@ -21,9 +21,9 @@ namespace SensorbergSDK.Internal
     /// </summary>
     public sealed class LayoutManager : ILayoutManager
     {
-        private const string KeyLayoutHeaders = "layout_headers";
+        public const string KeyLayoutHeaders = "layout_headers";
         private const string KeyLayoutContent = "layout_content.cache"; // Cache file
-        private const string KeyLayoutRetrievedTime = "layout_retrieved_time";
+        public const string KeyLayoutRetrievedTime = "layout_retrieved_time";
 
         /// <summary>
         /// Fired, when the layout becomes valid/invalid.
