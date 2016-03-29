@@ -31,6 +31,12 @@ namespace SensorbergSDK.Internal
             await _db.CreateTableAsync<DBBeaconActionFromBackground>();
         }
 
+        public void CloseConnection()
+        {
+            _db.CloseConnections();
+        }
+
+
         /// <summary>
         /// 
         /// </summary>

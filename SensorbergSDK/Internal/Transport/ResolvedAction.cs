@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using Windows.Data.Json;
@@ -56,13 +57,10 @@ namespace SensorbergSDK.Internal
         [DataMember]
         public ICollection<string> BeaconPids
         {
-            [DebuggerStepThrough] get {
-                if (beaconPids == null)
-                {
-                    return new HashSet<string>() { "assdadasdasdsf fsdaf asdf sdfsdafsdfasfasf asdf asdf asdf asdf sadf sadf asdf asdfas sdaf sadf sadf a"};
-                }
-                return beaconPids;} 
-            [DebuggerStepThrough] set { beaconPids = value; }
+            [DebuggerStepThrough]
+            get { return beaconPids; }
+            [DebuggerStepThrough]
+            set { beaconPids = value; }
         }
 
         [DataMember]
@@ -275,6 +273,46 @@ namespace SensorbergSDK.Internal
             }
 
             return false;
+        }
+
+        private bool Equals(ResolvedAction other)
+        {
+            return /*Equals(beaconPids, other.beaconPids)*/ !beaconPids.Except(other.beaconPids).GetEnumerator().MoveNext() && Equals(BeaconAction, other.BeaconAction) && EventTypeDetectedByDevice == other.EventTypeDetectedByDevice &&
+                   Delay == other.Delay && SendOnlyOnce == other.SendOnlyOnce && SupressionTime == other.SupressionTime && ReportImmediately == other.ReportImmediately &&
+                   Equals(Timeframes, other.Timeframes);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) { return false;}
+            if (ReferenceEquals(this, obj)) { return true;}
+            return obj is ResolvedAction && Equals((ResolvedAction) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (beaconPids != null ? beaconPids.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (BeaconAction != null ? BeaconAction.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (int) EventTypeDetectedByDevice;
+                hashCode = (hashCode*397) ^ Delay.GetHashCode();
+                hashCode = (hashCode*397) ^ SendOnlyOnce.GetHashCode();
+                hashCode = (hashCode*397) ^ SupressionTime;
+                hashCode = (hashCode*397) ^ ReportImmediately.GetHashCode();
+                hashCode = (hashCode*397) ^ (Timeframes != null ? Timeframes.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(ResolvedAction left, ResolvedAction right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(ResolvedAction left, ResolvedAction right)
+        {
+            return !Equals(left, right);
         }
     }
 }

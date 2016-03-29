@@ -1,5 +1,6 @@
 ﻿using SensorbergSDK.Internal;
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,42 +35,54 @@ namespace SensorbergSDK
         [DataMember]
         public int Id
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         [DataMember]
         public BeaconActionType Type
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         [DataMember]
         public string Uuid
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         [DataMember]
         public string Subject
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         [DataMember]
         public string Body
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         [DataMember]
         public string Url
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
@@ -79,7 +92,9 @@ namespace SensorbergSDK
         /// </summary>
         public JsonObject Payload
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
@@ -337,6 +352,44 @@ namespace SensorbergSDK
 
             MessageDialog messageDialog = new MessageDialog(message, Subject);
             return messageDialog;
+        }
+
+        private bool Equals(BeaconAction other)
+        {
+            return Id == other.Id && Type == other.Type && string.Equals(Uuid, other.Uuid) && string.Equals(Subject, other.Subject) && string.Equals(Body, other.Body) &&
+                   string.Equals(Url, other.Url) && Equals(Payload, other.Payload);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            return obj is BeaconAction && Equals((BeaconAction) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Id;
+                hashCode = (hashCode*397) ^ (int) Type;
+                hashCode = (hashCode*397) ^ (Uuid != null ? Uuid.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Subject != null ? Subject.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Body != null ? Body.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Url != null ? Url.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Payload != null ? Payload.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(BeaconAction left, BeaconAction right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(BeaconAction left, BeaconAction right)
+        {
+            return !Equals(left, right);
         }
     }
 }

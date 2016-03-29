@@ -298,6 +298,12 @@ namespace SQLite
 				}
 			});
 		}
+
+	    public void CloseConnections()
+	    {
+            SQLiteConnectionPool.Shared.Reset();
+
+        }
 	}
 
 	//
