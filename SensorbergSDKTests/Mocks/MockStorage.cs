@@ -40,12 +40,12 @@ namespace SensorbergSDKTests.Mocks
             UndeliveredActions?.Clear();
         }
 
-        public Task SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, int beaconEventType)
+        public Task SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType)
         {
             throw new NotImplementedException();
         }
 
-        public Task SaveHistoryEvents(string pid, DateTimeOffset timestamp, int eventType)
+        public Task SaveHistoryEvents(string pid, DateTimeOffset timestamp, BeaconEventType eventType)
         {
             throw new NotImplementedException();
         }
@@ -101,6 +101,16 @@ namespace SensorbergSDKTests.Mocks
         }
 
         public Task SaveBeaconActionFromBackground(BeaconAction beaconAction)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateBeaconBackgroundEvent(string pidIn, BeaconEventType triggerIn)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateBackgroundEvent(string pidIn, BeaconEventType eventType)
         {
             throw new NotImplementedException();
         }

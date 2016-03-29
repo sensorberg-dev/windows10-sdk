@@ -23,8 +23,8 @@ namespace SensorbergSDK.Services
         Task<IList<HistoryAction>> GetUndeliveredActions();
         Task SetEventsAsDelivered();
         Task SetActionsAsDelivered();
-        Task SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, int beaconEventType);
-        Task SaveHistoryEvents(string pid, DateTimeOffset timestamp, int eventType);
+        Task SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType);
+        Task SaveHistoryEvents(string pid, DateTimeOffset timestamp, BeaconEventType eventType);
         Task<IList<DBHistoryAction>> GetActions(string uuid);
         Task<DBHistoryAction> GetAction(string uuid);
 
@@ -54,5 +54,7 @@ namespace SensorbergSDK.Services
         Task SaveBeaconBackgroundEvent(string pid, BeaconEventType enter);
         Task DeleteBackgroundEvent(string pid);
         Task SaveBeaconActionFromBackground(BeaconAction beaconAction);
+        Task UpdateBeaconBackgroundEvent(string pidIn, BeaconEventType triggerIn);
+        Task UpdateBackgroundEvent(string pidIn, BeaconEventType eventType);
     }
 }

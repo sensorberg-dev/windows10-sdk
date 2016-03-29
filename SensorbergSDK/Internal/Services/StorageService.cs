@@ -249,12 +249,12 @@ namespace SensorbergSDK.Internal.Services
         }
 
 #region pure storage methods (sqlstorage class delegates)
-        public async Task SaveHistoryAction(string uuid, string beaconPid, DateTime now, int beaconEventType)
+        public async Task SaveHistoryAction(string uuid, string beaconPid, DateTime now, BeaconEventType beaconEventType)
         {
             await Storage.SaveHistoryAction(uuid, beaconPid, now, beaconEventType);
         }
 
-        public async Task SaveHistoryEvent(string pid, DateTimeOffset timestamp, int eventType)
+        public async Task SaveHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType)
         {
             await Storage.SaveHistoryEvents(pid, timestamp, eventType);
         }

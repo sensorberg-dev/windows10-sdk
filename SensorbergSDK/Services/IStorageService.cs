@@ -59,13 +59,12 @@ namespace SensorbergSDK.Services
         /// </summary>
         /// <param name="eventArgs"></param>
         /// <param name="beaconAction"></param>
-        Task SaveHistoryAction(string uuid, string beaconPid, DateTime now, int beaconEventType);
+        Task SaveHistoryAction(string uuid, string beaconPid, DateTime now, BeaconEventType beaconEventType);
 
         /// <summary>
         /// Stores a beacon event to the database.
         /// </summary>
-        /// <param name="eventArgs"></param>
-        Task SaveHistoryEvent(string pid, DateTimeOffset timestamp, int eventType);
+        Task SaveHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType);
 
         Task<IList<DBHistoryAction>> GetActions(string uuid);
         Task<DBHistoryAction> GetAction(string uuid);

@@ -105,7 +105,7 @@ namespace SensorbergSDK.Internal
         /// <param name="eventArgs"></param>
         public IAsyncAction SaveBeaconEventAsync(BeaconEventArgs eventArgs)
         {
-            return ServiceManager.StorageService.SaveHistoryEvent(eventArgs.Beacon.Pid, eventArgs.Timestamp, (int)eventArgs.EventType).AsAsyncAction();
+            return ServiceManager.StorageService.SaveHistoryEvent(eventArgs.Beacon.Pid, eventArgs.Timestamp, eventArgs.EventType).AsAsyncAction();
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace SensorbergSDK.Internal
         public IAsyncAction SaveExecutedResolvedActionAsync(ResolvedActionsEventArgs eventArgs, BeaconAction beaconAction)
         {
             return ServiceManager.StorageService.SaveHistoryAction(
-                beaconAction.Uuid, eventArgs.BeaconPid, DateTime.Now, (int)eventArgs.BeaconEventType).AsAsyncAction();
+                beaconAction.Uuid, eventArgs.BeaconPid, DateTime.Now, eventArgs.BeaconEventType).AsAsyncAction();
         }
 
         /// <summary>
@@ -124,12 +124,12 @@ namespace SensorbergSDK.Internal
         /// </summary>
         /// <param name="beaconAction"></param>
         /// <param name="beaconPid"></param>
-        /// <param name="beaconActionType"></param>
+        /// <param name="beaconEventType"></param>
         /// <returns></returns>
         public IAsyncAction SaveExecutedResolvedActionAsync(BeaconAction beaconAction, string beaconPid, BeaconEventType beaconEventType)
         {
             return ServiceManager.StorageService.SaveHistoryAction(
-                beaconAction.Uuid, beaconPid, DateTime.Now, (int)beaconEventType).AsAsyncAction();
+                beaconAction.Uuid, beaconPid, DateTime.Now, beaconEventType).AsAsyncAction();
         }
 
         /// <summary>

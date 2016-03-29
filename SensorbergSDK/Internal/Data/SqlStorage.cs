@@ -123,15 +123,15 @@ namespace SensorbergSDK.Internal
         }
 
 
-        public async Task SaveHistoryAction(string eidIn, string pidIn, DateTimeOffset dtIn, int triggerIn)
+        public async Task SaveHistoryAction(string eidIn, string pidIn, DateTimeOffset dtIn, BeaconEventType triggerIn)
         {
-            DBHistoryAction action = new DBHistoryAction() { delivered = false, eid = eidIn, pid = pidIn, dt = dtIn, trigger = triggerIn };
+            DBHistoryAction action = new DBHistoryAction() { delivered = false, eid = eidIn, pid = pidIn, dt = dtIn, trigger = (int)triggerIn };
             await _db.InsertAsync(action);
         }
 
-        public async Task SaveHistoryEvents(string pidIn, DateTimeOffset dtIn, int triggerIn)
+        public async Task SaveHistoryEvents(string pidIn, DateTimeOffset dtIn, BeaconEventType triggerIn)
         {
-            DBHistoryEvent actions = new DBHistoryEvent() { delivered = false, pid = pidIn, dt = dtIn, trigger = triggerIn };
+            DBHistoryEvent actions = new DBHistoryEvent() { delivered = false, pid = pidIn, dt = dtIn, trigger = (int) triggerIn };
             await _db.InsertAsync(actions);
         }
 
@@ -238,22 +238,21 @@ namespace SensorbergSDK.Internal
             List<BeaconAction> beaconActions = new List<BeaconAction>();
             var query = _db.Table<DBBeaconActionFromBackground>();
 
-            await query.ToListAsync().ContinueWith(async (t) =>
+            List<DBBeaconActionFromBackground> beaconActionFromBackgrounds = await query.ToListAsync();
+
+            foreach (var dbBeaconAction in beaconActionFromBackgrounds)
             {
-                foreach (var dbBeaconAction in t.Result)
+                BeaconAction beaconAction = ActionFactory.Deserialize(dbBeaconAction.BeaconAction);
+                JsonObject payload;
+
+                if (JsonObject.TryParse(dbBeaconAction.Payload, out payload))
                 {
-                    BeaconAction beaconAction = ActionFactory.Deserialize(dbBeaconAction.BeaconAction);
-                    JsonObject payload;
-
-                    if (JsonObject.TryParse(dbBeaconAction.Payload, out payload))
-                    {
-                        beaconAction.Payload = payload;
-                    }
-
-                    beaconActions.Add(beaconAction);
-                    await _db.DeleteAsync(dbBeaconAction);
+                    beaconAction.Payload = payload;
                 }
-            });
+
+                beaconActions.Add(beaconAction);
+                await _db.DeleteAsync(dbBeaconAction);
+            }
 
             return beaconActions;
         }

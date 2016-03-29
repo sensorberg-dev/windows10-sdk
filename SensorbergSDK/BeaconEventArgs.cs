@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace SensorbergSDK
 {
@@ -17,13 +18,17 @@ namespace SensorbergSDK
     {
         public BeaconEventType EventType
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         public Beacon Beacon
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
