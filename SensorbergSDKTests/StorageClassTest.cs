@@ -14,6 +14,7 @@ using Windows.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Services;
 using SQLite;
 
@@ -39,7 +40,17 @@ namespace SensorbergSDKTests
             {
 
             }
-            storage = new SqlStorage();
+            try
+            {
+                StorageFolder folder = await ApplicationData.Current.LocalFolder.GetFolderAsync("sensorberg-storage");
+                await folder.DeleteAsync();
+            }
+            catch (FileNotFoundException)
+            {
+
+            }
+            //            storage = new SqlStorage();
+            storage = new FileStorage();
         }
 
         [TestCleanup]
@@ -163,10 +174,10 @@ namespace SensorbergSDKTests
             Assert.AreEqual(action.BeaconAction.Id, delayAction.resolvedAction.BeaconAction.Id, "not same beacon action Id");
             Assert.AreEqual(action.BeaconAction.Type, delayAction.resolvedAction.BeaconAction.Type, "not same beacon action Type");
             Assert.AreEqual(action.BeaconAction.Uuid, delayAction.resolvedAction.BeaconAction.Uuid, "not same beacon action Uuid");
-            //            Assert.AreEqual(action.BeaconAction.Payload, delayAction.resolvedAction.BeaconAction.Payload, "not same beacon action Payload");
+                        Assert.AreEqual(action.BeaconAction.Payload, delayAction.resolvedAction.BeaconAction.Payload, "not same beacon action Payload");
 
 
-            //Assert.AreEqual(action, delayAction.resolvedAction, "not same action");
+            Assert.AreEqual(action, delayAction.resolvedAction, "not same action");
 
 
 
@@ -190,10 +201,10 @@ namespace SensorbergSDKTests
             Assert.AreEqual(action.BeaconAction.Id, delayAction.resolvedAction.BeaconAction.Id, "not same beacon action Id");
             Assert.AreEqual(action.BeaconAction.Type, delayAction.resolvedAction.BeaconAction.Type, "not same beacon action Type");
             Assert.AreEqual(action.BeaconAction.Uuid, delayAction.resolvedAction.BeaconAction.Uuid, "not same beacon action Uuid");
-            //            Assert.AreEqual(action.BeaconAction.Payload, delayAction.resolvedAction.BeaconAction.Payload, "not same beacon action Payload");
+                        Assert.AreEqual(action.BeaconAction.Payload, delayAction.resolvedAction.BeaconAction.Payload, "not same beacon action Payload");
 
 
-            //Assert.AreEqual(action, delayAction.resolvedAction, "not same action");
+            Assert.AreEqual(action, delayAction.resolvedAction, "not same action");
 
 
             await storage.SetDelayedActionAsExecuted(idToDelete);
@@ -346,9 +357,9 @@ namespace SensorbergSDKTests
             IList<DBBackgroundEventsHistory> backgroundEventsHistories = await storage.GetBeaconBackgroundEventsHistory("1");
             Assert.AreEqual(1, backgroundEventsHistories.Count, "Not 1 events found");
 
-//            Assert.AreEqual(3, (await storage.GetUndeliveredEvents()).Count, "not 3 undelivered Events found");
-//            await storage.SetEventsAsDelivered();
-//            Assert.AreEqual(0, (await storage.GetUndeliveredEvents()).Count, "Undelivered Events found");
+            Assert.AreEqual(3, (await storage.GetUndeliveredEvents()).Count, "not 3 undelivered Events found");
+            await storage.SetEventsAsDelivered();
+            Assert.AreEqual(0, (await storage.GetUndeliveredEvents()).Count, "Undelivered Events found");
 
 
 

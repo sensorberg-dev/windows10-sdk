@@ -44,51 +44,29 @@ namespace SensorbergSDK.Internal
 
         public AppSettings DefaultAppSettings
         {
-            [DebuggerStepThrough]
-            get { return ServiceManager.SettingsManager.DefaultAppSettings; }
-            [DebuggerStepThrough]
-            set { ServiceManager.SettingsManager.DefaultAppSettings = value; }
+            [DebuggerStepThrough] get { return ServiceManager.SettingsManager.DefaultAppSettings; }
+            [DebuggerStepThrough] set { ServiceManager.SettingsManager.DefaultAppSettings = value; }
         }
 
         /// <summary>
         /// Indicates whether the SDK engine is initialized and ready to function or not.
         /// </summary>
-        public bool IsInitialized
-        {
-            [DebuggerStepThrough]
-            get;
-            [DebuggerStepThrough]
-            private set;
-        }
+        public bool IsInitialized { [DebuggerStepThrough] get; [DebuggerStepThrough] private set; }
 
         /// <summary>
         /// The Resolver instance.
         /// </summary>
-        public Resolver Resolver
-        {
-            [DebuggerStepThrough]
-            get;
-            [DebuggerStepThrough]
-            private set;
-        }
+        public Resolver Resolver { [DebuggerStepThrough] get; [DebuggerStepThrough] private set; }
 
         /// <summary>
         /// Current count of unresolved actions
         /// </summary>
-        public int UnresolvedActionCount
-        {
-            [DebuggerStepThrough]
-            get;
-            [DebuggerStepThrough]
-            private set;
-        }
+        public int UnresolvedActionCount { [DebuggerStepThrough] get; [DebuggerStepThrough] private set; }
 
         public string UserId
         {
-            [DebuggerStepThrough]
-            get { return SDKData.Instance.UserId; }
-            [DebuggerStepThrough]
-            set { SDKData.Instance.UserId = value; }
+            [DebuggerStepThrough] get { return SDKData.Instance.UserId; }
+            [DebuggerStepThrough] set { SDKData.Instance.UserId = value; }
         }
 
         /// <summary>
@@ -152,7 +130,7 @@ namespace SensorbergSDK.Internal
                             CheckPendingBeaconActionsFromBackgroundIntervalInMilliseconds);
 
                     var layoutTimeSpam = TimeSpan.FromMilliseconds(AppSettings.LayoutUpdateInterval);
-                    _getLayoutTimer = new Timer(OnLayoutUpdatedAsync,null, layoutTimeSpam, layoutTimeSpam);
+                    _getLayoutTimer = new Timer(OnLayoutUpdatedAsync, null, layoutTimeSpam, layoutTimeSpam);
 
                     // Check for possible delayed actions
                     await ProcessDelayedActionsAsync();
@@ -229,7 +207,7 @@ namespace SensorbergSDK.Internal
             {
                 return;
             }
-            Debug.WriteLine("SDKEngine: resolve beacon " + eventArgs.Beacon.Id1 + " " + eventArgs.Beacon.Id2 + " " + eventArgs.Beacon.Id3+" "+eventArgs.EventType);
+            Debug.WriteLine("SDKEngine: resolve beacon " + eventArgs.Beacon.Id1 + " " + eventArgs.Beacon.Id2 + " " + eventArgs.Beacon.Id3 + " " + eventArgs.EventType);
             if (IsInitialized && eventArgs.EventType != BeaconEventType.None)
             {
                 UnresolvedActionCount++;
@@ -261,7 +239,7 @@ namespace SensorbergSDK.Internal
 
             foreach (DelayedActionData delayedActionData in delayedActionDataList)
             {
-                if (delayedActionData.dueTime < DateTimeOffset.Now.AddSeconds((double)DelayedActionExecutionTimeframeInSeconds))
+                if (delayedActionData.dueTime < DateTimeOffset.Now.AddSeconds((double) DelayedActionExecutionTimeframeInSeconds))
                 {
                     // Time to execute
                     await ExecuteActionAsync(delayedActionData.resolvedAction, delayedActionData.beaconPid, delayedActionData.eventTypeDetectedByDevice);
@@ -326,11 +304,11 @@ namespace SensorbergSDK.Internal
                 _processDelayedActionsTimer.Dispose();
             }
 
-            int millisecondsToNextProcessingOfDelayedActions = (int)nextDueTime.Subtract(DateTimeOffset.Now).TotalMilliseconds;
+            int millisecondsToNextProcessingOfDelayedActions = (int) nextDueTime.Subtract(DateTimeOffset.Now).TotalMilliseconds;
 
             System.Diagnostics.Debug.WriteLine("SDKManager.ResetProcessDelayedActionsTimer(): "
-                + Math.Round((double)millisecondsToNextProcessingOfDelayedActions / 1000, 0)
-                + " second(s) to next processing of delayed actions");
+                                               + Math.Round((double) millisecondsToNextProcessingOfDelayedActions/1000, 0)
+                                               + " second(s) to next processing of delayed actions");
 
             _processDelayedActionsTimer =
                 new Timer(OnProcessDelayedActionsTimerTimeoutAsync, null,
@@ -357,7 +335,7 @@ namespace SensorbergSDK.Internal
             {
                 return;
             }
-            Debug.WriteLine("SDKEngine: OnBeaconActionResolvedAsync "+e.RequestID + " BeaconEventType:" + e.BeaconEventType);
+            Debug.WriteLine("SDKEngine: OnBeaconActionResolvedAsync " + e.RequestID + " BeaconEventType:" + e.BeaconEventType);
             if (e.ResolvedActions.Count > 0 && BeaconActionResolved != null)
             {
                 foreach (ResolvedAction action in e.ResolvedActions)
@@ -366,7 +344,7 @@ namespace SensorbergSDK.Internal
                     {
                         Debug.WriteLine("SDKEngine: OnBeaconActionResolvedAsync " + e.RequestID + " delay");
                         // Delay action execution
-                        DateTimeOffset dueTime = DateTimeOffset.Now.AddSeconds((int)action.Delay);
+                        DateTimeOffset dueTime = DateTimeOffset.Now.AddSeconds((int) action.Delay);
 
                         await ServiceManager.StorageService.SaveDelayedAction(action, dueTime, e.BeaconPid, action.EventTypeDetectedByDevice);
 

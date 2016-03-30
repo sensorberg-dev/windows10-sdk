@@ -23,7 +23,7 @@ namespace SensorbergSDK.Internal
     [DataContract]
     public class History
     {
-        internal static readonly DateTimeFormat Formater = new DateTimeFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        public const string TIMEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.fffzzz";
         [DataMember]
         // ReSharper disable once InconsistentNaming
         public string deviceTimestamp { get; set; }
@@ -38,10 +38,15 @@ namespace SensorbergSDK.Internal
     [DataContract]
     public class HistoryEvent
     {
+
+        public HistoryEvent()
+        {
+        }
+
         public HistoryEvent(DBHistoryEvent dbEvent)
         {
             pid = dbEvent.pid;
-            dt = dbEvent.dt.ToString("yyyy-MM-dd'T'HH:mm:ss.fffzzz");
+            dt = dbEvent.dt.ToString(History.TIMEFORMAT);
 //            dt = dbEvent.dt.ToString(History.Formater.FormatProvider);
             trigger = dbEvent.trigger;
         }
@@ -54,6 +59,8 @@ namespace SensorbergSDK.Internal
         [DataMember]
         // ReSharper disable once InconsistentNaming
         public int trigger { get; set; }
+
+        public bool Delivered { get; set; }
     }
 
     [DataContract]
@@ -63,7 +70,7 @@ namespace SensorbergSDK.Internal
         {
             eid = dbAction.eid;
             pid = dbAction.pid;
-            dt = dbAction.dt.ToString("yyyy-MM-dd'T'HH:mm:ss.fffzzz");
+            dt = dbAction.dt.ToString(History.TIMEFORMAT);
             //            dt = dbAction.dt.ToString(History.Formater.FormatProvider);
             trigger = dbAction.trigger;
         }
