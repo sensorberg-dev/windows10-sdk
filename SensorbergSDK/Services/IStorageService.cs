@@ -71,7 +71,7 @@ namespace SensorbergSDK.Services
         Task CleanDatabase();
         Task<IList<BeaconAction>> GetBeaconActionsFromBackground();
         Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds = 1000);
-        Task SetDelayedActionAsExecuted(int id);
+        Task SetDelayedActionAsExecuted(string id);
 
         /// <summary>
         /// Initializes the StorageService, e.g. creates database.

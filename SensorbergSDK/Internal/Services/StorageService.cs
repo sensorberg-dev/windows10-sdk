@@ -284,7 +284,7 @@ namespace SensorbergSDK.Internal.Services
            return await Storage.GetDelayedActions(maxDelayFromNowInSeconds);
         }
 
-        public async Task SetDelayedActionAsExecuted(int id)
+        public async Task SetDelayedActionAsExecuted(string id)
         {
             await Storage.SetDelayedActionAsExecuted(id);
         }

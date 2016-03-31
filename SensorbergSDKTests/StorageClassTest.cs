@@ -120,10 +120,10 @@ namespace SensorbergSDKTests
             Assert.AreEqual(action.BeaconAction.Id, delayAction.resolvedAction.BeaconAction.Id, "not same beacon action Id");
             Assert.AreEqual(action.BeaconAction.Type, delayAction.resolvedAction.BeaconAction.Type, "not same beacon action Type");
             Assert.AreEqual(action.BeaconAction.Uuid, delayAction.resolvedAction.BeaconAction.Uuid, "not same beacon action Uuid");
-            //            Assert.AreEqual(action.BeaconAction.Payload, delayAction.resolvedAction.BeaconAction.Payload, "not same beacon action Payload");
+            Assert.AreEqual(action.BeaconAction.Payload.ToString(), delayAction.resolvedAction.BeaconAction.Payload.ToString(), "not same beacon action Payload");
 
 
-            //Assert.AreEqual(action, delayAction.resolvedAction, "not same action");
+            Assert.AreEqual(action, delayAction.resolvedAction, "not same action");
 
 
 
@@ -154,7 +154,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(2, delayedActions.Count, "to many actions found");
 
             delayAction = delayedActions.FirstOrDefault(d => d.beaconPid == "1");
-            int idToDelete = delayAction.Id;
+            string idToDelete = delayAction.Id;
             Assert.AreEqual("1", delayAction.beaconPid, "Not same beacon id");
             Assert.AreEqual(DateTimeOffset.Parse("2015-04-16T12:00:00.000+0000"), delayAction.dueTime, "not same delay time");
             Assert.AreEqual(BeaconEventType.Enter, delayAction.eventTypeDetectedByDevice, "not same event type");
@@ -174,7 +174,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(action.BeaconAction.Id, delayAction.resolvedAction.BeaconAction.Id, "not same beacon action Id");
             Assert.AreEqual(action.BeaconAction.Type, delayAction.resolvedAction.BeaconAction.Type, "not same beacon action Type");
             Assert.AreEqual(action.BeaconAction.Uuid, delayAction.resolvedAction.BeaconAction.Uuid, "not same beacon action Uuid");
-                        Assert.AreEqual(action.BeaconAction.Payload, delayAction.resolvedAction.BeaconAction.Payload, "not same beacon action Payload");
+            Assert.AreEqual(action.BeaconAction.Payload.ToString(), delayAction.resolvedAction.BeaconAction.Payload.ToString(), "not same beacon action Payload");
 
 
             Assert.AreEqual(action, delayAction.resolvedAction, "not same action");
@@ -201,7 +201,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(action.BeaconAction.Id, delayAction.resolvedAction.BeaconAction.Id, "not same beacon action Id");
             Assert.AreEqual(action.BeaconAction.Type, delayAction.resolvedAction.BeaconAction.Type, "not same beacon action Type");
             Assert.AreEqual(action.BeaconAction.Uuid, delayAction.resolvedAction.BeaconAction.Uuid, "not same beacon action Uuid");
-                        Assert.AreEqual(action.BeaconAction.Payload, delayAction.resolvedAction.BeaconAction.Payload, "not same beacon action Payload");
+            Assert.AreEqual(action.BeaconAction.Payload.ToString(), delayAction.resolvedAction.BeaconAction.Payload.ToString(), "not same beacon action Payload");
 
 
             Assert.AreEqual(action, delayAction.resolvedAction, "not same action");

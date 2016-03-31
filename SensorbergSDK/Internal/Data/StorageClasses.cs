@@ -7,9 +7,9 @@ using Newtonsoft.Json;
 
 namespace SensorbergSDK.Internal
 {
-    public struct DelayedActionData
+    public class DelayedActionData
     {
-        public int Id;
+        public string Id;
         public ResolvedAction resolvedAction;
         public DateTimeOffset dueTime;
         public string beaconPid;

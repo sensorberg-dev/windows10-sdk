@@ -7,6 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
+using Windows.Data.Json;
+using Windows.Foundation;
+using Newtonsoft.Json;
 
 namespace SensorbergSDK.Internal.Data
 {
@@ -169,6 +173,102 @@ namespace SensorbergSDK.Internal.Data
                 }
             }
             return ha;
+        }
+        public static string DelayedActionToString(DelayedActionHelper delayedActionHelper)
+        {
+            return DelayedActionToString(delayedActionHelper.Content, delayedActionHelper.Offset, delayedActionHelper.Executed, delayedActionHelper.Id);
+        }
+
+        public static string DelayedActionToString(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType beaconEventType)
+        {
+            return DelayedActionToString(action, dueTime, beaconPid, beaconEventType, Guid.NewGuid());
+        }
+
+        public static string DelayedActionToString(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType beaconEventType, Guid guid)
+        {
+            string serializeObject = JsonConvert.SerializeObject(new SerializedAction() {Action = action, Time = dueTime, Beacon =  beaconPid, Event = beaconEventType});
+            return DelayedActionToString(Convert.ToBase64String(Encoding.UTF8.GetBytes(serializeObject)), dueTime, false, guid.ToString());
+        }
+        public static string DelayedActionToString(string action, DateTimeOffset dueTime, bool executed, string guid)
+        {
+            return string.Format("{0},{1},{2},{3}\n", guid, dueTime.ToUnixTimeMilliseconds(), executed, action);
+        }
+
+
+        public static List<DelayedActionHelper> DelayedActionsFromStrings(IList<string> strings)
+        {
+            if (strings == null || strings.Count == 0)
+            {
+                return new List<DelayedActionHelper>();
+            }
+            List<DelayedActionHelper> actions = new List<DelayedActionHelper>();
+            foreach (string s in strings)
+            {
+                DelayedActionHelper ha = SimpleDelayedActionFromString(s);
+                if (ha != null)
+                {
+                    actions.Add(ha);
+                }
+            }
+            return actions;
+        }
+
+        public static DelayedActionHelper SimpleDelayedActionFromString(string s)
+        {
+            if (string.IsNullOrEmpty(s))
+            {
+                return null;
+            }
+
+            string[] ss = s.Split(new char[] { ',' });
+            if (ss.Length < 4)
+            {
+                return null;
+            }
+
+            DelayedActionHelper dah = new DelayedActionHelper();
+            dah.Id = ss[0];
+            dah.Offset = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(ss[1]));
+            dah.Executed = bool.Parse(ss[2]);
+            dah.Content = ss[3];
+            return dah;
+        }
+
+        public static DelayedActionData DelayedActionFromHelper(DelayedActionHelper delayedActionHelper)
+        {
+            string s = Encoding.UTF8.GetString(Convert.FromBase64String(delayedActionHelper.Content));
+            SerializedAction deserializeObject = JsonConvert.DeserializeObject<SerializedAction>(s);
+            DelayedActionData data = new DelayedActionData();
+            data.Id = delayedActionHelper.Id;
+            data.beaconPid = deserializeObject.Beacon;
+            data.dueTime = deserializeObject.Time;
+            data.eventTypeDetectedByDevice = deserializeObject.Event;
+
+            data.resolvedAction = deserializeObject.Action;
+            if (!string.IsNullOrEmpty(deserializeObject.Action.BeaconAction.PayloadString))
+            {
+                data.resolvedAction.BeaconAction.Payload = JsonObject.Parse(deserializeObject.Action.BeaconAction.PayloadString);
+            }
+            data.resolvedAction = deserializeObject.Action;
+
+            return data;
+        }
+
+        public class SerializedAction
+        {
+            public ResolvedAction Action { get; set; }
+            public DateTimeOffset Time { get; set; }
+            public string Beacon { get; set; }
+            public BeaconEventType Event { get; set; }
+        }
+
+        public class DelayedActionHelper
+        {
+            public string Id { get; set; }
+            public DateTimeOffset Offset { get; set; }
+            public string Content { get; set; }
+
+            public bool Executed { get; set; }
         }
 
     }

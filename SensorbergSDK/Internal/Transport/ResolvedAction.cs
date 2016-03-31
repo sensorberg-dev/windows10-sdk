@@ -21,6 +21,36 @@ namespace SensorbergSDK.Internal
             get;
             set;
         }
+
+        private bool Equals(Timeframe other)
+        {
+            return Start.Equals(other.Start) && End.Equals(other.End);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            return obj is Timeframe && Equals((Timeframe) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (Start.GetHashCode()*397) ^ End.GetHashCode();
+            }
+        }
+
+        public static bool operator ==(Timeframe left, Timeframe right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(Timeframe left, Timeframe right)
+        {
+            return !Equals(left, right);
+        }
     }
 
     /// <summary>
@@ -277,9 +307,9 @@ namespace SensorbergSDK.Internal
 
         private bool Equals(ResolvedAction other)
         {
-            return /*Equals(beaconPids, other.beaconPids)*/ !beaconPids.Except(other.beaconPids).GetEnumerator().MoveNext() && Equals(BeaconAction, other.BeaconAction) && EventTypeDetectedByDevice == other.EventTypeDetectedByDevice &&
+            return /*Equals(beaconPids, other.beaconPids)*/ (!beaconPids?.Except(other.beaconPids).GetEnumerator().MoveNext()).Value && Equals(BeaconAction.ToString(), other.BeaconAction.ToString()) && EventTypeDetectedByDevice == other.EventTypeDetectedByDevice &&
                    Delay == other.Delay && SendOnlyOnce == other.SendOnlyOnce && SupressionTime == other.SupressionTime && ReportImmediately == other.ReportImmediately &&
-                   Equals(Timeframes, other.Timeframes);
+                   /*Equals(Timeframes, other.Timeframes)*/ (!Timeframes?.Except(other.Timeframes).GetEnumerator().MoveNext()).Value;
         }
 
         public override bool Equals(object obj)

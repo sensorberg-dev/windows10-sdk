@@ -97,7 +97,7 @@ namespace SensorbergSDK.Internal
             foreach (DBDelayedAction serializedAction in serializedActions)
             {
                 DelayedActionData deserializedAction = new DelayedActionData();
-                deserializedAction.Id = serializedAction.Id;
+                deserializedAction.Id = serializedAction.Id.ToString();
                 deserializedAction.resolvedAction = ResolvedAction.Deserialize(serializedAction.ResolvedAction);
                 deserializedAction.dueTime = serializedAction.DueTime;
                 deserializedAction.beaconPid = serializedAction.BeaconPid;
@@ -117,7 +117,7 @@ namespace SensorbergSDK.Internal
             return deserializedActions;
         }
 
-        public async Task SetDelayedActionAsExecuted(int delayedActionId)
+        public async Task SetDelayedActionAsExecuted(string delayedActionId)
         {
             await _db.ExecuteAsync("UPDATE DBDelayedAction SET Executed = 1 WHERE Id = ?", delayedActionId);
         }

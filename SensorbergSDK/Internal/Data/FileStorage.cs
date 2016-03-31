@@ -33,6 +33,7 @@ namespace SensorbergSDK.Internal.Data
         private const string EVENTS_FOLDER_NAME = "events";
         private const string FOLDER_LOCK_FILE = "folderlock";
         private const string ACTIONS_FILE_NAME = "actions.ini";
+        private const string DELAYED_ACTIONS_FILE_NAME = "delayedactions.ini";
 
         public bool Background { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
@@ -186,19 +187,56 @@ namespace SensorbergSDK.Internal.Data
             throw new NotImplementedException();
         }
 
-        public Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds)
+        public async Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds)
         {
-            throw new NotImplementedException();
+            DateTimeOffset maxDelayfromNow = DateTimeOffset.Now.AddSeconds(maxDelayFromNowInSeconds);
+            List<DelayedActionData> actions = new List<DelayedActionData>();
+
+            StorageFolder folder = await GetFolder(FOREGROUND_ACTIONS_FOLDER, true);
+            StorageFile file = await folder.CreateFileAsync(DELAYED_ACTIONS_FILE_NAME, CreationCollisionOption.OpenIfExists);
+            List<FileStorageHelper.DelayedActionHelper> delayedActionHelpers = FileStorageHelper.DelayedActionsFromStrings(await FileIO.ReadLinesAsync(file));
+
+            foreach (FileStorageHelper.DelayedActionHelper delayedActionHelper in delayedActionHelpers)
+            {
+                if (delayedActionHelper.Offset < maxDelayfromNow && !delayedActionHelper.Executed)
+                {
+                    DelayedActionData data = FileStorageHelper.DelayedActionFromHelper(delayedActionHelper);
+                    actions.Add(data);
+                }
+            }
+
+            return actions;
         }
 
-        public Task SetDelayedActionAsExecuted(int id)
+        public async Task SetDelayedActionAsExecuted(string id)
         {
-            throw new NotImplementedException();
+            StorageFolder folder = await GetFolder(FOREGROUND_ACTIONS_FOLDER, true);
+            StorageFile file = await folder.CreateFileAsync(DELAYED_ACTIONS_FILE_NAME, CreationCollisionOption.OpenIfExists);
+            List<FileStorageHelper.DelayedActionHelper> delayedActionHelpers = FileStorageHelper.DelayedActionsFromStrings(await FileIO.ReadLinesAsync(file));
+
+            bool needed = false;
+            List<string> strings = new List<string>();
+            foreach (FileStorageHelper.DelayedActionHelper delayedActionHelper in delayedActionHelpers)
+            {
+                if(delayedActionHelper.Id == id)
+                {
+                    delayedActionHelper.Executed = true;
+                    needed = true;
+                }
+                strings.Add(FileStorageHelper.DelayedActionToString(delayedActionHelper));
+            }
+            if (needed)
+            {
+                await FileIO.WriteLinesAsync(file, strings);
+            }
+
         }
 
-        public Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice)
+        public async Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType beaconEventType)
         {
-            throw new NotImplementedException();
+            StorageFolder folder = await GetFolder(FOREGROUND_ACTIONS_FOLDER, true);
+            StorageFile file = await folder.CreateFileAsync(DELAYED_ACTIONS_FILE_NAME, CreationCollisionOption.OpenIfExists);
+            await FileIO.AppendTextAsync(file, FileStorageHelper.DelayedActionToString(action, dueTime, beaconPid, beaconEventType));
         }
 
         public Task<IList<DBBackgroundEventsHistory>> GetBeaconBackgroundEventsHistory(string pid)

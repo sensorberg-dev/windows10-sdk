@@ -48,7 +48,7 @@ namespace SensorbergSDK.Services
         /// <param name="maxDelayFromNowInSeconds"></param>
         /// <returns></returns>
         Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds);
-        Task SetDelayedActionAsExecuted(int id);
+        Task SetDelayedActionAsExecuted(string id);
         Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice);
         Task<IList<DBBackgroundEventsHistory>> GetBeaconBackgroundEventsHistory(string pid);
         Task SaveBeaconBackgroundEvent(string pid, BeaconEventType enter);

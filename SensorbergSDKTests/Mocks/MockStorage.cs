@@ -75,7 +75,7 @@ namespace SensorbergSDKTests.Mocks
             throw new NotImplementedException();
         }
 
-        public Task SetDelayedActionAsExecuted(int id)
+        public Task SetDelayedActionAsExecuted(string id)
         {
             throw new NotImplementedException();
         }
