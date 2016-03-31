@@ -32,6 +32,7 @@ namespace SensorbergSDK.Internal.Data
         private const string ACTIONS_FOLDER_NAME = "actions";
         private const string EVENTS_FOLDER_NAME = "events";
         private const string FOLDER_LOCK_FILE = "folderlock";
+        private const string ACTIONS_FILE_NAME = "actions.ini";
 
         public bool Background { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
@@ -52,49 +53,11 @@ namespace SensorbergSDK.Internal.Data
             return await GetUndeliveredEvents(true);
         }
 
-        private async Task<IList<HistoryEvent>> GetUndeliveredEvents(bool lockFolder)
-        {
-            IList<HistoryEvent> events = new List<HistoryEvent>();
-
-            StorageFolder folder = await GetFolder(FOREGROUND_EVENTS_FOLDER);
-            if (lockFolder)
-            {
-                await CreateEventMarker(folder);
-            }
-            IReadOnlyList<StorageFolder> folders = await (await folder.GetParentAsync()).GetFoldersAsync();
-            foreach (StorageFolder storageFolder in folders)
-            {
-                IReadOnlyList<StorageFile> files = await storageFolder.GetFilesAsync();
-
-                //when no lock ignore unlocked folders
-                if (!lockFolder && files.FirstOrDefault(f => f.Name == FOLDER_LOCK_FILE) == null)
-                {
-                    continue;
-                }
-
-                foreach (StorageFile file in files)
-                {
-                    List<HistoryEvent> fileEvents = FileStorageHelper.EventsFromStrings(await FileIO.ReadLinesAsync(file));
-                    if (fileEvents != null)
-                    {
-                        foreach (HistoryEvent historyEvent in fileEvents)
-                        {
-                            if (!historyEvent.Delivered)
-                            {
-                                events.Add(historyEvent);
-                            }
-                        }
-                    }
-                }
-            }
-
-            return events;
-        }
 
         public async Task SetEventsAsDelivered()
         {
-            StorageFolder folder = await GetFolder(FOREGROUND_EVENTS_FOLDER);
-            IReadOnlyList<StorageFolder> folders = await (await folder.GetParentAsync()).GetFoldersAsync();
+            StorageFolder folder = await GetFolder(FOREGROUND_EVENTS_FOLDER, true);
+            IReadOnlyList<StorageFolder> folders = await folder.GetFoldersAsync();
             foreach (StorageFolder storageFolder in folders)
             {
                 IReadOnlyList<StorageFile> files = await storageFolder.GetFilesAsync();
@@ -110,19 +73,49 @@ namespace SensorbergSDK.Internal.Data
         }
 
 
-        public Task<IList<HistoryAction>> GetUndeliveredActions()
+        public async Task<IList<HistoryAction>> GetUndeliveredActions()
         {
-            throw new NotImplementedException();
+            return await GetUndeliveredActions(true);
+
         }
 
-        public Task SetActionsAsDelivered()
+        public async Task SetActionsAsDelivered()
         {
-            throw new NotImplementedException();
+            StorageFolder folder = await GetFolder(FOREGROUND_ACTIONS_FOLDER, true);
+            StorageFile deliveredActionsFile = await folder.CreateFileAsync(ACTIONS_FILE_NAME, CreationCollisionOption.OpenIfExists);
+            IReadOnlyList<StorageFolder> folders = await folder.GetFoldersAsync();
+            foreach (StorageFolder storageFolder in folders)
+            {
+                IReadOnlyList<StorageFile> files = await storageFolder.GetFilesAsync();
+
+                //ignore unlocked folders
+                if (files.FirstOrDefault(f => f.Name == FOLDER_LOCK_FILE) == null)
+                {
+                    continue;
+                }
+
+                StorageFile actionFile = files.FirstOrDefault(f => f.Name == ACTIONS_FILE_NAME);
+                if (actionFile != null)
+                {
+                    List<HistoryAction> actions = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(actionFile));
+
+                    List<string> stringActions = new List<string>();
+                    foreach (HistoryAction historyAction in actions)
+                    {
+                        historyAction.Delivered = true;
+                        stringActions.Add(FileStorageHelper.ActionToString(historyAction));
+                    }
+                    await FileIO.AppendLinesAsync(deliveredActionsFile, stringActions);
+                }
+                await storageFolder.DeleteAsync();
+            }
         }
 
-        public Task SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType)
+        public async Task SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType)
         {
-            throw new NotImplementedException();
+            StorageFolder folder = await GetFolder(Background ? BACKGROUND_ACTIONS_FOLDER : FOREGROUND_ACTIONS_FOLDER);
+            StorageFile file = await folder.CreateFileAsync(ACTIONS_FILE_NAME, CreationCollisionOption.OpenIfExists);
+            await FileIO.AppendTextAsync(file, FileStorageHelper.ActionToString(uuid, beaconPid, now, beaconEventType));
         }
 
         public async Task SaveHistoryEvents(string pid, DateTimeOffset timestamp, BeaconEventType eventType)
@@ -133,14 +126,54 @@ namespace SensorbergSDK.Internal.Data
         }
 
 
-        public Task<IList<DBHistoryAction>> GetActions(string uuid)
+        public async Task<IList<DBHistoryAction>> GetActions(string uuid)
         {
-            throw new NotImplementedException();
+            List<DBHistoryAction> returnActions = new List<DBHistoryAction>();
+            IList<HistoryAction> actions = await GetUndeliveredActions(false);
+
+            foreach (HistoryAction historyAction in actions)
+            {
+                if (historyAction.eid == uuid)
+                {
+                    returnActions.Add(new DBHistoryAction()
+                    {
+                        delivered = historyAction.Delivered,
+                        dt = DateTimeOffset.Parse(historyAction.dt),
+                        eid = historyAction.eid,
+                        pid = historyAction.pid,
+                        trigger = historyAction.trigger
+                    });
+                }
+            }
+            try
+            {
+                StorageFolder folder = await GetFolder(FOREGROUND_ACTIONS_FOLDER, true);
+                StorageFile storageFile = await folder.GetFileAsync(ACTIONS_FILE_NAME);
+                List<HistoryAction> actionsFromStrings = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(storageFile));
+                foreach (HistoryAction historyAction in actionsFromStrings)
+                {
+                    if (historyAction.eid == uuid)
+                    {
+                        returnActions.Add(new DBHistoryAction()
+                        {
+                            delivered = historyAction.Delivered,
+                            dt = DateTimeOffset.Parse(historyAction.dt),
+                            eid = historyAction.eid,
+                            pid = historyAction.pid,
+                            trigger = historyAction.trigger
+                        });
+                    }
+                }
+            }
+            catch (FileNotFoundException)
+            {
+            }
+            return returnActions;
         }
 
-        public Task<DBHistoryAction> GetAction(string uuid)
+        public async Task<DBHistoryAction> GetAction(string uuid)
         {
-            throw new NotImplementedException();
+            return (await GetActions(uuid)).FirstOrDefault();
         }
 
         public Task CleanDatabase()
@@ -226,6 +259,96 @@ namespace SensorbergSDK.Internal.Data
                 }
             }
             return await folder.CreateFolderAsync(DateTime.UtcNow.ToString("yyyy-MM-dd-HHmmss"), CreationCollisionOption.OpenIfExists);
+        }
+        private async Task<IList<HistoryEvent>> GetUndeliveredEvents(bool lockFolder)
+        {
+            IList<HistoryEvent> events = new List<HistoryEvent>();
+
+            StorageFolder folder = await GetFolder(FOREGROUND_EVENTS_FOLDER);
+            if (lockFolder)
+            {
+                await CreateEventMarker(folder);
+            }
+            IReadOnlyList<StorageFolder> folders = await (await folder.GetParentAsync()).GetFoldersAsync();
+            foreach (StorageFolder storageFolder in folders)
+            {
+                IReadOnlyList<StorageFile> files = await storageFolder.GetFilesAsync();
+
+                //when no lock ignore unlocked folders
+                if (!lockFolder && files.FirstOrDefault(f => f.Name == FOLDER_LOCK_FILE) == null)
+                {
+                    continue;
+                }
+
+                foreach (StorageFile file in files)
+                {
+                    List<HistoryEvent> fileEvents = FileStorageHelper.EventsFromStrings(await FileIO.ReadLinesAsync(file));
+                    if (fileEvents != null)
+                    {
+                        foreach (HistoryEvent historyEvent in fileEvents)
+                        {
+                            if (!historyEvent.Delivered)
+                            {
+                                events.Add(historyEvent);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return events;
+        }
+        private async Task<IList<HistoryAction>> GetUndeliveredActions(bool lockFolder)
+        {
+            IList<HistoryAction> actions = new List<HistoryAction>();
+
+            StorageFolder folder = await GetFolder(FOREGROUND_ACTIONS_FOLDER);
+            if (lockFolder)
+            {
+                await CreateEventMarker(folder);
+            }
+            IReadOnlyList<StorageFolder> folders = await (await folder.GetParentAsync()).GetFoldersAsync();
+            foreach (StorageFolder storageFolder in folders)
+            {
+                try
+                {
+                    IReadOnlyList<StorageFile> files = await storageFolder.GetFilesAsync();
+
+                    //when no lock ignore unlocked folders
+                    if (!lockFolder && files.FirstOrDefault(f => f.Name == FOLDER_LOCK_FILE) == null)
+                    {
+                        continue;
+                    }
+
+                    StorageFile first = null;
+                    foreach (var f in files)
+                    {
+                        if (f.Name == ACTIONS_FILE_NAME)
+                        {
+                            first = f;
+                            break;
+                        }
+                    }
+                    if (first != null)
+                    {
+                        List<HistoryAction> fileActions = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(first));
+                        if (fileActions != null)
+                        {
+                            foreach (HistoryAction historyAction in fileActions)
+                            {
+                                if (!historyAction.Delivered)
+                                {
+                                    actions.Add(historyAction);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (FileNotFoundException)
+                {}
+            }
+
+            return actions;
         }
     }
 }

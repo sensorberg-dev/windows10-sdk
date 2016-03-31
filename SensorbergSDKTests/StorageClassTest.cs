@@ -278,9 +278,8 @@ namespace SensorbergSDKTests
             Assert.AreEqual(0, historyActions.Count, "not all actions as delivered marked");
 
 
-            //TODO verfy old behaviour
-            Assert.IsNotNull(await storage.GetActions("3"), "delivered message found");
-            Assert.AreEqual(2, (await storage.GetActions("3")).Count, "not all actions as delivered marked from eid 3");
+            Assert.IsNotNull(await storage.GetActions("3"), "no delivered message found");
+            Assert.AreEqual(2, (await storage.GetActions("3")).Count, "not all actions as delivered marked from eid 3 found");
         }
 
         [TestMethod]

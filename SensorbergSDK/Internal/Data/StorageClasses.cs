@@ -66,6 +66,9 @@ namespace SensorbergSDK.Internal
     [DataContract]
     public class HistoryAction
     {
+        public HistoryAction()
+        {
+        }
         public HistoryAction(DBHistoryAction dbAction)
         {
             eid = dbAction.eid;
@@ -82,6 +85,7 @@ namespace SensorbergSDK.Internal
         public string dt { get; set; } //eventDate
         [DataMember]
         public int trigger { get; set; }
+        public bool Delivered { get; set; }
     }
 
     /// <summary>
