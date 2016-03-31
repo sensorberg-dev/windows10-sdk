@@ -309,6 +309,24 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
+        public async Task EventHistoryIssueTest()
+        {
+            await storage.InitStorage();
+
+            await storage.SaveHistoryEvents("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter);
+            await storage.SaveHistoryEvents("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit);
+            await storage.SaveHistoryEvents("1", DateTimeOffset.Parse("2016-04-16T16:00:00.000+0000"), BeaconEventType.EnterExit);
+            await storage.SaveHistoryEvents("2", DateTimeOffset.Parse("2016-04-16T17:00:00.000+0000"), BeaconEventType.Enter);
+
+            IList<HistoryEvent> historyEvents = await storage.GetUndeliveredEvents();
+            await storage.SaveHistoryEvents("3", DateTimeOffset.Parse("2016-04-16T17:00:00.000+0000"), BeaconEventType.Enter);
+            await storage.SetEventsAsDelivered();
+
+            historyEvents = await storage.GetUndeliveredEvents();
+            Assert.AreEqual(1, historyEvents.Count, "the new event is missing");
+        }
+
+        [TestMethod]
         public async Task StorageClearTest()
         {
             await storage.InitStorage();
