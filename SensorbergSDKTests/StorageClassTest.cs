@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
@@ -372,7 +373,7 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
-        public async Task BackgroundStorageTest()
+        public async Task BackgroundEventStorageTest()
         {
             IStorage foregroundStorage = storage;
             await foregroundStorage.InitStorage();
@@ -404,7 +405,7 @@ namespace SensorbergSDKTests
 
             historyEvents = await backgroundStorage.GetUndeliveredEvents();
             historyEvent = historyEvents.FirstOrDefault(h => h.dt == "2016-04-15T15:00:00.000+00:00");
-            Assert.AreEqual("1", historyEvent.pid, "Wrong pid");
+            Assert.AreEqual("3", historyEvent.pid, "Wrong pid");
             Assert.AreEqual("2016-04-15T15:00:00.000+00:00", historyEvent.dt, "Wrong date");
             Assert.AreEqual((int) BeaconEventType.Exit, historyEvent.trigger, "Wrong trigger");
 
@@ -412,7 +413,15 @@ namespace SensorbergSDKTests
 
             historyEvents = await backgroundStorage.GetUndeliveredEvents();
             Assert.AreEqual(0, historyEvents.Count, "not all events as delivered marked");
+        }
 
+        [TestMethod]
+        public async Task GetEventInForegroundFromBackgroundStorageTest()
+        {
+            IStorage foregroundStorage = storage;
+            await foregroundStorage.InitStorage();
+            IStorage backgroundStorage = new FileStorage() {Background = true};
+            await backgroundStorage.InitStorage();
 
             await foregroundStorage.SaveHistoryEvents("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter);
             await foregroundStorage.SaveHistoryEvents("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit);
@@ -425,9 +434,9 @@ namespace SensorbergSDKTests
             await backgroundStorage.SaveHistoryEvents("4", DateTimeOffset.Parse("2016-04-15T17:00:00.000+0000"), BeaconEventType.Enter);
 
             //verify every storage api accesses every data
-            historyEvents = await backgroundStorage.GetUndeliveredEvents();
-            historyEvent = historyEvents.FirstOrDefault(h => h.dt == "2016-04-15T15:00:00.000+00:00");
-            Assert.AreEqual("1", historyEvent.pid, "Wrong pid");
+            IList<HistoryEvent> historyEvents = await backgroundStorage.GetUndeliveredEvents();
+            HistoryEvent historyEvent = historyEvents.FirstOrDefault(h => h.dt == "2016-04-15T15:00:00.000+00:00");
+            Assert.AreEqual("3", historyEvent.pid, "Wrong pid");
             Assert.AreEqual("2016-04-15T15:00:00.000+00:00", historyEvent.dt, "Wrong date");
             Assert.AreEqual((int) BeaconEventType.Exit, historyEvent.trigger, "Wrong trigger");
 
@@ -439,7 +448,7 @@ namespace SensorbergSDKTests
 
             historyEvents = await foregroundStorage.GetUndeliveredEvents();
             historyEvent = historyEvents.FirstOrDefault(h => h.dt == "2016-04-15T15:00:00.000+00:00");
-            Assert.AreEqual("1", historyEvent.pid, "Wrong pid");
+            Assert.AreEqual("3", historyEvent.pid, "Wrong pid");
             Assert.AreEqual("2016-04-15T15:00:00.000+00:00", historyEvent.dt, "Wrong date");
             Assert.AreEqual((int) BeaconEventType.Exit, historyEvent.trigger, "Wrong trigger");
 
@@ -455,11 +464,16 @@ namespace SensorbergSDKTests
 
             historyEvents = await foregroundStorage.GetUndeliveredEvents();
             Assert.AreEqual(0, historyEvents.Count, "not all events as delivered marked - foreground");
+        }
 
+        [TestMethod]
+        public async Task BackgroundActionStorageTest()
+        {
+            IStorage foregroundStorage = storage;
+            await foregroundStorage.InitStorage();
+            IStorage backgroundStorage = new FileStorage() {Background = true};
+            await backgroundStorage.InitStorage();
 
-            /***********************************************/
-            /***************** actions *********************/
-            /***********************************************/
             await foregroundStorage.SaveHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter);
             await foregroundStorage.SaveHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit);
             await foregroundStorage.SaveHistoryAction("3", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit);
@@ -468,19 +482,19 @@ namespace SensorbergSDKTests
             IList<HistoryAction> historyActions = await foregroundStorage.GetUndeliveredActions();
             Assert.AreEqual(4, historyActions.Count, "Not 4 actions");
 
-            HistoryAction action = historyActions.First(t => t.trigger == (int)BeaconEventType.Enter);
+            HistoryAction action = historyActions.First(t => t.trigger == (int) BeaconEventType.Enter);
             Assert.AreEqual("1", action.pid, "not same pid");
             Assert.AreEqual("1", action.eid, "not same eid");
             Assert.AreEqual("2016-04-16T12:00:00.000+00:00", action.dt, "not same date");
 
 
-            action = historyActions.First(t => t.trigger == (int)BeaconEventType.Exit);
+            action = historyActions.First(t => t.trigger == (int) BeaconEventType.Exit);
             Assert.AreEqual("2", action.pid, "not same pid");
             Assert.AreEqual("2", action.eid, "not same eid");
             Assert.AreEqual("2016-04-16T13:00:00.000+00:00", action.dt, "not same date");
 
             DBHistoryAction dbHistoryAction = await foregroundStorage.GetAction("2");
-            Assert.AreEqual((int)BeaconEventType.Exit, dbHistoryAction.trigger, "not same type");
+            Assert.AreEqual((int) BeaconEventType.Exit, dbHistoryAction.trigger, "not same type");
             Assert.AreEqual("2", dbHistoryAction.pid, "not same pid");
             Assert.AreEqual("2", dbHistoryAction.eid, "not same eid");
             Assert.AreEqual(DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), dbHistoryAction.dt, "not same date");
@@ -507,26 +521,26 @@ namespace SensorbergSDKTests
             historyActions = await backgroundStorage.GetUndeliveredActions();
             Assert.AreEqual(4, historyActions.Count, "Not 4 actions");
 
-             action = historyActions.First(t => t.trigger == (int)BeaconEventType.Enter);
+            action = historyActions.First(t => t.trigger == (int) BeaconEventType.Enter);
             Assert.AreEqual("1", action.pid, "not same pid");
             Assert.AreEqual("4", action.eid, "not same eid");
             Assert.AreEqual("2016-04-16T12:00:00.000+00:00", action.dt, "not same date");
 
 
-            action = historyActions.First(t => t.trigger == (int)BeaconEventType.Exit);
+            action = historyActions.First(t => t.trigger == (int) BeaconEventType.Exit);
             Assert.AreEqual("2", action.pid, "not same pid");
             Assert.AreEqual("5", action.eid, "not same eid");
             Assert.AreEqual("2016-04-16T13:00:00.000+00:00", action.dt, "not same date");
 
 
-            dbHistoryAction = await backgroundStorage.GetAction("2");
-            Assert.AreEqual((int)BeaconEventType.Exit, dbHistoryAction.trigger, "not same type");
+            dbHistoryAction = await backgroundStorage.GetAction("5");
+            Assert.AreEqual((int) BeaconEventType.Exit, dbHistoryAction.trigger, "not same type");
             Assert.AreEqual("2", dbHistoryAction.pid, "not same pid");
             Assert.AreEqual("5", dbHistoryAction.eid, "not same eid");
             Assert.AreEqual(DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), dbHistoryAction.dt, "not same date");
 
 
-             dbHistoryActions = await backgroundStorage.GetActions("6");
+            dbHistoryActions = await backgroundStorage.GetActions("6");
             Assert.AreEqual(2, dbHistoryActions.Count, "Not 2 actions");
 
             Assert.AreEqual(0, (await backgroundStorage.GetActions("")).Count, "fails on empty id");
@@ -535,9 +549,14 @@ namespace SensorbergSDKTests
             await backgroundStorage.SetActionsAsDelivered();
             historyActions = await backgroundStorage.GetUndeliveredActions();
             Assert.AreEqual(0, historyActions.Count, "not all actions as delivered marked");
+        }
 
-
-
+        [TestMethod]
+        public async Task GetBackgroundActionsFromBackgroundinForegroundTest()
+        {
+            IStorage foregroundStorage = storage;
+            IStorage backgroundStorage = new FileStorage() { Background = true };
+            await backgroundStorage.InitStorage();
 
             await backgroundStorage.SaveHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter);
             await backgroundStorage.SaveHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit);
@@ -558,35 +577,96 @@ namespace SensorbergSDKTests
             await foregroundStorage.SaveHistoryAction("6", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit);
 
 
-            historyActions = await backgroundStorage.GetUndeliveredActions();
+            IList<HistoryAction>  historyActions = await backgroundStorage.GetUndeliveredActions();
             Assert.AreEqual(16, historyActions.Count, "Not 16 actions");
 
             historyActions = await foregroundStorage.GetUndeliveredActions();
             Assert.AreEqual(16, historyActions.Count, "Not 16 actions");
 
-            dbHistoryAction = await backgroundStorage.GetAction("2");
+            DBHistoryAction dbHistoryAction = await backgroundStorage.GetAction("5");
             Assert.AreEqual((int)BeaconEventType.Exit, dbHistoryAction.trigger, "not same type");
             Assert.AreEqual("2", dbHistoryAction.pid, "not same pid");
             Assert.AreEqual("5", dbHistoryAction.eid, "not same eid");
             Assert.AreEqual(DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), dbHistoryAction.dt, "not same date");
 
-            dbHistoryAction = await foregroundStorage.GetAction("2");
+            dbHistoryAction = await foregroundStorage.GetAction("5");
             Assert.AreEqual((int)BeaconEventType.Exit, dbHistoryAction.trigger, "not same type");
             Assert.AreEqual("2", dbHistoryAction.pid, "not same pid");
             Assert.AreEqual("5", dbHistoryAction.eid, "not same eid");
             Assert.AreEqual(DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), dbHistoryAction.dt, "not same date");
 
 
-            dbHistoryActions = await backgroundStorage.GetActions("6");
-            Assert.AreEqual(6, dbHistoryActions.Count, "Not 6 actions");
+            IList< DBHistoryAction> dbHistoryActions = await backgroundStorage.GetActions("6");
+            Assert.AreEqual(4, dbHistoryActions.Count, "Not 4 actions");
 
             dbHistoryActions = await foregroundStorage.GetActions("6");
-            Assert.AreEqual(6, dbHistoryActions.Count, "Not 6 actions");
+            Assert.AreEqual(4, dbHistoryActions.Count, "Not 4 actions");
 
 
             await foregroundStorage.SetActionsAsDelivered();
             historyActions = await backgroundStorage.GetUndeliveredActions();
             Assert.AreEqual(0, historyActions.Count, "not all actions as delivered marked");
+
+        }
+
+        [TestMethod]
+        public async Task TestFileLock()
+        {
+            await storage.InitStorage();
+            await storage.SaveHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter);
+            await storage.SaveHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit);
+
+            StorageFolder folder = await ((FileStorage)storage).GetFolder(FileStorage.FOREGROUND_ACTIONS_FOLDER);
+            StorageFile file = await folder.CreateFileAsync(FileStorage.ACTIONS_FILE_NAME, CreationCollisionOption.OpenIfExists);
+            IRandomAccessStream randomAccessStream ;
+            using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
+            {
+                Task.Run(() =>
+                {
+                    Task.Delay(200);
+                    randomAccessStream.Dispose();
+                }).ConfigureAwait(false);
+                await storage.SaveHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter);
+            }
+            using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
+            {
+                try
+                {
+                    await storage.SaveHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit);
+                    Assert.Fail("No exception thrown");
+                }
+                catch (UnauthorizedAccessException)
+                {
+                }
+                randomAccessStream.Dispose();
+            }
+            folder = await ((FileStorage)storage).GetFolder(FileStorage.FOREGROUND_EVENTS_FOLDER);
+            file = await folder.CreateFileAsync("1", CreationCollisionOption.OpenIfExists);
+            await storage.SaveHistoryEvents("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter);
+            await storage.SaveHistoryEvents("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit);
+
+            using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
+            {
+                Task.Run(() =>
+                {
+                    Task.Delay(200);
+                    randomAccessStream.Dispose();
+                }).ConfigureAwait(false);
+                await storage.SaveHistoryEvents("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter);
+            }
+            using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
+            {
+                try
+                {
+                    await storage.SaveHistoryEvents("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit);
+                    Assert.Fail("No exception thrown");
+                }
+                catch (UnauthorizedAccessException)
+                {
+                }
+                randomAccessStream.Dispose();
+            }
+
 
         }
     }
