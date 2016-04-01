@@ -304,7 +304,8 @@ namespace SensorbergSDK.Internal.Data
 
         private async Task CreateEventMarker(StorageFolder folder)
         {
-            await folder.CreateFileAsync(FOLDER_LOCK_FILE, CreationCollisionOption.OpenIfExists);
+            StorageFile storageFile = await folder.CreateFileAsync(FOLDER_LOCK_FILE, CreationCollisionOption.OpenIfExists);
+            await FileIO.WriteTextAsync(storageFile, "lock");
         }
 
         public async Task<StorageFolder> GetFolder(string path, bool parentOnly = false)
@@ -390,13 +391,6 @@ namespace SensorbergSDK.Internal.Data
                     try
                     {
                         IReadOnlyList<StorageFile> files = await storageFolder.GetFilesAsync();
-
-                        //when no lock ignore unlocked folders
-                        if (!lockFolder && files.FirstOrDefault(f => f.Name == FOLDER_LOCK_FILE) == null)
-                        {
-                            continue;
-                        }
-
                         StorageFile first = null;
                         foreach (var f in files)
                         {

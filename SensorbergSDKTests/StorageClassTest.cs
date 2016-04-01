@@ -17,7 +17,6 @@ using SensorbergSDK;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Services;
-using SQLite;
 
 namespace SensorbergSDKTests
 {
@@ -54,10 +53,10 @@ namespace SensorbergSDKTests
             storage = new FileStorage();
         }
 
-        [TestCleanup]
-        public void Cleanup()
+        [TestMethod]
+        public async Task Cleanup()
         {
-            (storage as SqlStorage)?.CloseConnection();
+            await storage.CleanDatabase();
         }
 
 

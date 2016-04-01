@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.Storage;
 using SensorbergSDK.Data;
+using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Utils;
 using SensorbergSDK.Services;
 
@@ -32,7 +33,7 @@ namespace SensorbergSDK.Internal.Services
         public StorageService()
         {
             //Ensures that database tables are created
-            Storage = new SqlStorage();
+            Storage = new FileStorage();
         }
 
         public async Task InitStorage()

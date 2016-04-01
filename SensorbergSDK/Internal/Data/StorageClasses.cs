@@ -1,5 +1,4 @@
-﻿using SQLite;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Windows.Data.Json;
@@ -117,7 +116,6 @@ namespace SensorbergSDK.Internal
     /// </summary>
     public class DBDelayedAction
     {
-        [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
         public DateTimeOffset DueTime { get; set; } // Time when this action should be executed
         public string ResolvedAction { get; set; }
@@ -132,7 +130,6 @@ namespace SensorbergSDK.Internal
     /// </summary>
     public class DBBackgroundEventsHistory
     {
-        [PrimaryKey]
         public string BeaconPid { get; set; }
 
         public DateTimeOffset EventTime { get; set; } // Time when this action should be executed
@@ -144,7 +141,6 @@ namespace SensorbergSDK.Internal
     //These actions are solved on background. Foreground app should deliver them to the listener app
     public class DBBeaconActionFromBackground
     {
-        [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
         public string BeaconAction { get; set; }
         public string Payload { get; set; }
