@@ -177,9 +177,18 @@ namespace SensorbergSDK.Internal.Data
             return (await GetActions(uuid)).FirstOrDefault();
         }
 
-        public Task CleanDatabase()
+        public async Task CleanDatabase()
         {
-            throw new NotImplementedException();
+            try
+            {
+                StorageFolder folder = ApplicationData.Current.LocalFolder;
+                StorageFolder root = await folder.CreateFolderAsync(ROOT_FOLDER, CreationCollisionOption.OpenIfExists);
+                await root.DeleteAsync();
+            }
+            catch (FileNotFoundException )
+            {
+            }
+            await InitStorage();
         }
 
         public Task<IList<BeaconAction>> GetBeaconActionsFromBackground()
@@ -234,21 +243,38 @@ namespace SensorbergSDK.Internal.Data
 
         public async Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType beaconEventType)
         {
-            StorageFolder folder = await GetFolder(FOREGROUND_ACTIONS_FOLDER, true);
+            StorageFolder folder = await GetFolder(Background?BACKGROUND_ACTIONS_FOLDER:FOREGROUND_ACTIONS_FOLDER, true);
             StorageFile file = await folder.CreateFileAsync(DELAYED_ACTIONS_FILE_NAME, CreationCollisionOption.OpenIfExists);
             await FileIO.AppendTextAsync(file, FileStorageHelper.DelayedActionToString(action, dueTime, beaconPid, beaconEventType));
         }
 
-        public Task<IList<DBBackgroundEventsHistory>> GetBeaconBackgroundEventsHistory(string pid)
+        public async Task<IList<DBBackgroundEventsHistory>> GetBeaconBackgroundEventsHistory(string pid)
         {
-            throw new NotImplementedException();
+            StorageFolder folder = await GetFolder(BACKGROUND_ACTIONS_FOLDER, true);
+            StorageFile file = await folder.CreateFileAsync(ACTIONS_FILE_NAME, CreationCollisionOption.OpenIfExists);
+            Dictionary<string, Dictionary<string, long>> dic = FileStorageHelper.BackoundEventsFromString(await FileIO.ReadTextAsync(file));
+            IList<DBBackgroundEventsHistory> histories = new List<DBBackgroundEventsHistory>();
+            if (dic.ContainsKey(pid))
+            {
+                Dictionary<string, long> historyDictionary = dic[pid];
+                DBBackgroundEventsHistory h = new DBBackgroundEventsHistory();
+                h.BeaconPid = pid;
+                h.EventTime = DateTimeOffset.FromUnixTimeMilliseconds(historyDictionary["time"]);
+                h.EventType = (int) historyDictionary["event"];
+                histories.Add(h);
+            }
+            return histories;
         }
 
-        public Task SaveBeaconBackgroundEvent(string pid, BeaconEventType enter)
+        public async Task SaveBeaconBackgroundEvent(string pid, BeaconEventType enter)
         {
-            throw new NotImplementedException();
+            await SaveHistoryEvents(pid, DateTimeOffset.Now, enter);
         }
 
+        public async Task UpdateBackgroundEvent(string pidIn, BeaconEventType eventType)
+        {
+            await SaveBeaconBackgroundEvent(pidIn, eventType);
+        }
         public Task DeleteBackgroundEvent(string pid)
         {
             throw new NotImplementedException();
@@ -264,10 +290,6 @@ namespace SensorbergSDK.Internal.Data
             throw new NotImplementedException();
         }
 
-        public Task UpdateBackgroundEvent(string pidIn, BeaconEventType eventType)
-        {
-            throw new NotImplementedException();
-        }
 
         private async Task CreateEventMarker(StorageFolder folder)
         {

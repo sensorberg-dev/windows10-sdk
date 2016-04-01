@@ -254,6 +254,21 @@ namespace SensorbergSDK.Internal.Data
             return data;
         }
 
+        public static Dictionary<string, Dictionary<string, long>> BackoundEventsFromString(string s)
+        {
+            Dictionary<string, Dictionary<string, long>> dict = JsonConvert.DeserializeObject< Dictionary<string, Dictionary<string, long>>>(s);
+            if (dict == null)
+            {
+                dict = new Dictionary<string, Dictionary<string, long>>();
+            }
+            return dict;
+        }
+
+        public static string BackoundEventsToString(Dictionary<string, Dictionary<string, long>> dic)
+        {
+            return JsonConvert.SerializeObject(dic);
+        }
+
         public class SerializedAction
         {
             public ResolvedAction Action { get; set; }
@@ -270,6 +285,5 @@ namespace SensorbergSDK.Internal.Data
 
             public bool Executed { get; set; }
         }
-
     }
 }

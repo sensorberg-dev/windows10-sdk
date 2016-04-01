@@ -172,5 +172,41 @@ namespace SensorbergSDKTests
             Assert.AreEqual(guid.ToString(), data.Id, "ID isnt set");
             Assert.AreEqual(action, data.resolvedAction);
         }
+
+        [TestMethod]
+        public void TestBackgroundEventFromString()
+        {
+            string s = "{\"1\":{\"time\":1429192800000,\"event\":1},\"2\":{\"time\":1429192800000,\"event\":1}}";
+            Dictionary<string, Dictionary<string, long>> dict = new Dictionary<string, Dictionary<string, long>>
+            {
+                {
+                    "1", new Dictionary<string, long> {{"time", 1429192800000}, {"event", (long) BeaconEventType.Enter}}
+                },
+                {
+                    "2", new Dictionary<string, long> {{"time", 1429192800000}, {"event", (long) BeaconEventType.Enter}}
+                }
+            };
+            Dictionary<string, Dictionary<string, long>> readDict = FileStorageHelper.BackoundEventsFromString(s);
+            Assert.AreEqual(dict.Count, readDict.Count, "Not same element count");
+                        CollectionAssert.AreEqual(dict["1"], readDict["1"]);
+                        CollectionAssert.AreEqual(dict["2"], readDict["2"]);
+
+            //            CollectionAssert.AreEqual(dict, readDict);
+        }
+        [TestMethod]
+        public void TestBackgroundEventToString()
+        {
+            string s = "{\"1\":{\"time\":1429192800000,\"event\":1},\"2\":{\"time\":1429192800000,\"event\":1}}";
+            Dictionary<string, Dictionary<string, long>> dict = new Dictionary<string, Dictionary<string, long>>
+            {
+                {
+                    "1", new Dictionary<string, long> {{"time", 1429192800000}, {"event", (long) BeaconEventType.Enter}}
+                },
+                {
+                    "2", new Dictionary<string, long> {{"time", 1429192800000}, {"event", (long) BeaconEventType.Enter}}
+                }
+            };
+            Assert.AreEqual(s, FileStorageHelper.BackoundEventsToString(dict));
+        }
     }
 }
