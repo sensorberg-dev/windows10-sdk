@@ -30,10 +30,10 @@ namespace SensorbergSDK.Internal.Services
 
         protected IStorage Storage { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
-        public StorageService()
+        public StorageService(bool createdOnForeground = true)
         {
             //Ensures that database tables are created
-            Storage = new FileStorage();
+            Storage = new FileStorage() {Background = !createdOnForeground};
         }
 
         public async Task InitStorage()
@@ -275,11 +275,6 @@ namespace SensorbergSDK.Internal.Services
             await Storage.CleanDatabase();
         }
 
-        public async Task<IList<BeaconAction>> GetBeaconActionsFromBackground()
-        {
-           return await Storage.GetBeaconActionsFromBackground();
-        }
-
         public async Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds = 1000)
         {
            return await Storage.GetDelayedActions(maxDelayFromNowInSeconds);
@@ -295,26 +290,22 @@ namespace SensorbergSDK.Internal.Services
             await Storage.SaveDelayedAction(action, dueTime, beaconPid, eventTypeDetectedByDevice);
         }
 
-        public async Task<IList<DBBackgroundEventsHistory>> GetBeaconBackgroundEventsHistory(string pid)
+        public async Task<BackgroundEvent> GetLastEventStateForBeacon(string pid)
         {
-            return await Storage.GetBeaconBackgroundEventsHistory(pid);
+            return await Storage.GetLastEventStateForBeacon(pid);
         }
 
-        public async Task SaveBeaconBackgroundEvent(string pid, BeaconEventType enter)
+        public async Task SaveBeaconEventState(string pid, BeaconEventType enter)
         {
-            await Storage.SaveBeaconBackgroundEvent(pid, enter);
+            await Storage.SaveBeaconEventState(pid, enter);
         }
 
-        public async Task DeleteBackgroundEvent(string pid)
+        public async Task SaveHistoryAction(BeaconAction beaconAction)
         {
-            await Storage.DeleteBackgroundEvent(pid);
+            await Storage.SaveHistoryAction(beaconAction);
         }
 
-        public async Task SaveBeaconActionFromBackground(BeaconAction beaconAction)
-        {
-            await Storage.SaveBeaconActionFromBackground(beaconAction);
-        }
-#endregion
+        #endregion
 
         /// <summary>
         /// Invalidates both the current and cached layout.

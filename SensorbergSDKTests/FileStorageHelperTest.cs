@@ -208,5 +208,17 @@ namespace SensorbergSDKTests
             };
             Assert.AreEqual(s, FileStorageHelper.BackoundEventsToString(dict));
         }
+
+        [TestMethod]
+        public void TestEventStateStorage()
+        {
+            string s = FileStorageHelper.BeaconEventStateToString("1", BeaconEventType.Enter, DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"));
+            Assert.AreEqual("1,1,1429192800000",s);
+
+            BackgroundEvent be = FileStorageHelper.BeaconEventStateFromString(s);
+            Assert.AreEqual("1",be.BeaconID);
+            Assert.AreEqual(DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), be.EventTime);
+            Assert.AreEqual(BeaconEventType.Enter,be.LastEvent);
+        }
     }
 }

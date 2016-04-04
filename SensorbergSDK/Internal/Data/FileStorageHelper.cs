@@ -269,6 +269,30 @@ namespace SensorbergSDK.Internal.Data
             return JsonConvert.SerializeObject(dic);
         }
 
+        public static string BeaconEventStateToString(string pid, BeaconEventType type, DateTimeOffset now)
+        {
+            return string.Format("{0},{1},{2}", pid, (int)type, now.ToUnixTimeMilliseconds());
+        }
+        public static BackgroundEvent BeaconEventStateFromString(string s)
+        {
+            if (string.IsNullOrEmpty(s))
+            {
+                return null;
+            }
+
+            string[] ss = s.Split(new char[] { ',' });
+            if (ss.Length < 3)
+            {
+                return null;
+            }
+
+            BackgroundEvent be = new BackgroundEvent();
+            be.BeaconID = ss[0];
+            be.LastEvent = (BeaconEventType)int.Parse(ss[1]);
+            be.EventTime = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(ss[2]));
+            return be;
+        }
+
         public class SerializedAction
         {
             public ResolvedAction Action { get; set; }
@@ -285,5 +309,6 @@ namespace SensorbergSDK.Internal.Data
 
             public bool Executed { get; set; }
         }
+
     }
 }

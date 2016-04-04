@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDK.Services
 {
@@ -35,13 +36,6 @@ namespace SensorbergSDK.Services
         Task CleanDatabase();
 
         /// <summary>
-        /// Returns the beacon actions, which have been resolved in the background, but not handled
-        /// yet by the user. The returned actions are deleted from the database.
-        /// </summary>
-        /// <returns>The pending beacon actions resolved by the background task.</returns>
-        Task<IList<BeaconAction>> GetBeaconActionsFromBackground();
-
-        /// <summary>
         /// Returns delayed actions which should be executed now or maxDelayFromNowInSeconds
         /// seconds in the future.
         /// </summary>
@@ -50,11 +44,8 @@ namespace SensorbergSDK.Services
         Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds);
         Task SetDelayedActionAsExecuted(string id);
         Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice);
-        Task<IList<DBBackgroundEventsHistory>> GetBeaconBackgroundEventsHistory(string pid);
-        Task SaveBeaconBackgroundEvent(string pid, BeaconEventType enter);
-        Task DeleteBackgroundEvent(string pid);
-        Task SaveBeaconActionFromBackground(BeaconAction beaconAction);
-        Task UpdateBeaconBackgroundEvent(string pidIn, BeaconEventType triggerIn);
-        Task UpdateBackgroundEvent(string pidIn, BeaconEventType eventType);
+        Task SaveHistoryAction(BeaconAction beaconAction);
+        Task SaveBeaconEventState(string pid, BeaconEventType enter);
+        Task<BackgroundEvent> GetLastEventStateForBeacon(string pid);
     }
 }

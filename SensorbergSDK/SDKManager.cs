@@ -438,14 +438,6 @@ namespace SensorbergSDK
         }
 
         /// <summary>
-        /// Clears the pending beacon actions, which have been resolved by the background task.
-        /// </summary>
-        public void ClearPendingActions()
-        {
-            SdkEngine.DismissPendingBeaconActionsResolvedOnBackgroundAsync();
-        }
-
-        /// <summary>
         /// Invalidates the current layout cache.
         /// </summary>
         /// <returns></returns>

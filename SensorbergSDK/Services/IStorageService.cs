@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using SensorbergSDK.Data;
 using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDK.Services
 {
@@ -69,7 +70,6 @@ namespace SensorbergSDK.Services
         Task<IList<DBHistoryAction>> GetActions(string uuid);
         Task<DBHistoryAction> GetAction(string uuid);
         Task CleanDatabase();
-        Task<IList<BeaconAction>> GetBeaconActionsFromBackground();
         Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds = 1000);
         Task SetDelayedActionAsExecuted(string id);
 
@@ -80,9 +80,8 @@ namespace SensorbergSDK.Services
         Task InitStorage();
 
         Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice);
-        Task<IList<DBBackgroundEventsHistory>> GetBeaconBackgroundEventsHistory(string pid);
-        Task SaveBeaconBackgroundEvent(string pid, BeaconEventType enter);
-        Task DeleteBackgroundEvent(string pid);
-        Task SaveBeaconActionFromBackground(BeaconAction beaconAction);
+        Task<BackgroundEvent> GetLastEventStateForBeacon(string pid);
+        Task SaveBeaconEventState(string pid, BeaconEventType enter);
+        Task SaveHistoryAction(BeaconAction beaconAction);
     }
 }

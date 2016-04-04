@@ -15,6 +15,7 @@ namespace SensorbergSDK.Internal
         private const int UpdateVisibilityTimerIntervalInMilliseconds = 60000;
         private const int CheckPendingBeaconActionsFromBackgroundIntervalInMilliseconds = 1000;
         private const int DatabaseExpirationInHours = 1;
+        private const int WORKER_TIMER_PERIDODE = 1000;
 
         /// <summary>
         /// Fired when a beacon action has been successfully resolved and is ready to be exeuted.
@@ -37,7 +38,8 @@ namespace SensorbergSDK.Internal
         private Timer _flushHistoryTimer;
         private Timer _updateVisibilityTimer;
         private Timer _getLayoutTimer;
-        private Timer _fetchActionsResolvedByBackgroundTimer;
+        private Timer PeriodicWorkerTimer { get; set; }
+//        private Timer _fetchActionsResolvedByBackgroundTimer;
         private DateTimeOffset _nextTimeToProcessDelayedActions;
         private bool _appIsOnForeground;
         public AppSettings AppSettings { get; set; }
@@ -79,7 +81,7 @@ namespace SensorbergSDK.Internal
             ServiceManager.ApiConnction = new ApiConnection();
             ServiceManager.BeaconScanner = new Scanner();
             ServiceManager.LayoutManager = new LayoutManager();
-            ServiceManager.StorageService = new StorageService();
+            ServiceManager.StorageService = new StorageService(createdOnForeground);
             ServiceManager.SettingsManager = new SettingsManager();
 
             _appIsOnForeground = createdOnForeground;
@@ -124,10 +126,11 @@ namespace SensorbergSDK.Internal
                             UpdateVisibilityTimerIntervalInMilliseconds,
                             UpdateVisibilityTimerIntervalInMilliseconds);
 
-                    _fetchActionsResolvedByBackgroundTimer =
-                        new Timer(OnCheckActionsResolvedByBackground, null,
-                            CheckPendingBeaconActionsFromBackgroundIntervalInMilliseconds,
-                            CheckPendingBeaconActionsFromBackgroundIntervalInMilliseconds);
+                    PeriodicWorkerTimer = new Timer(OnWorkerTimerActivated, null, WORKER_TIMER_PERIDODE, WORKER_TIMER_PERIDODE);
+//                    _fetchActionsResolvedByBackgroundTimer =
+//                        new Timer(OnCheckActionsResolvedByBackground, null,
+//                            CheckPendingBeaconActionsFromBackgroundIntervalInMilliseconds,
+//                            CheckPendingBeaconActionsFromBackgroundIntervalInMilliseconds);
 
                     var layoutTimeSpam = TimeSpan.FromMilliseconds(AppSettings.LayoutUpdateInterval);
                     _getLayoutTimer = new Timer(OnLayoutUpdatedAsync, null, layoutTimeSpam, layoutTimeSpam);
@@ -178,11 +181,13 @@ namespace SensorbergSDK.Internal
                     _processDelayedActionsTimer = null;
                 }
 
-                if (_fetchActionsResolvedByBackgroundTimer != null)
-                {
-                    _fetchActionsResolvedByBackgroundTimer.Dispose();
-                    _fetchActionsResolvedByBackgroundTimer = null;
-                }
+                PeriodicWorkerTimer?.Dispose();
+                PeriodicWorkerTimer = null;
+//                if (_fetchActionsResolvedByBackgroundTimer != null)
+//                {
+//                    _fetchActionsResolvedByBackgroundTimer.Dispose();
+//                    _fetchActionsResolvedByBackgroundTimer = null;
+//                }
 
                 IsInitialized = false;
             }
@@ -213,18 +218,6 @@ namespace SensorbergSDK.Internal
                 UnresolvedActionCount++;
                 Resolver.CreateRequest(eventArgs);
                 await _eventHistory.SaveBeaconEventAsync(eventArgs);
-            }
-        }
-
-        /// <summary>
-        /// Dismisses the pending beacon actions, which have been resolved by the background task.
-        /// </summary>
-        public async void DismissPendingBeaconActionsResolvedOnBackgroundAsync()
-        {
-            if (SDKData.Instance.NewActionsFromBackground)
-            {
-                SDKData.Instance.NewActionsFromBackground = false;
-                await ServiceManager.StorageService.GetBeaconActionsFromBackground();
             }
         }
 
@@ -336,6 +329,7 @@ namespace SensorbergSDK.Internal
                 return;
             }
             Debug.WriteLine("SDKEngine: OnBeaconActionResolvedAsync " + e.RequestID + " BeaconEventType:" + e.BeaconEventType);
+            //TODO verify event needed?
             if (e.ResolvedActions.Count > 0 && BeaconActionResolved != null)
             {
                 foreach (ResolvedAction action in e.ResolvedActions)
@@ -387,7 +381,11 @@ namespace SensorbergSDK.Internal
 
         #region Timer callbacks
 
-        /// <summary>
+        public async void OnWorkerTimerActivated(object state)
+        {
+//            await ServiceManager.StorageService.get
+        }
+       /* /// <summary>
         /// Checks, if there are pending beacon actions resolved by the background task.
         /// This callback is called only when the application is on foreground.
         /// </summary>
@@ -407,7 +405,7 @@ namespace SensorbergSDK.Internal
                     }
                 }
             }
-        }
+        }*/
 
         private async void OnProcessDelayedActionsTimerTimeoutAsync(object state)
         {

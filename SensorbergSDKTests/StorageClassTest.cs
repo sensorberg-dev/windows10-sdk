@@ -665,8 +665,24 @@ namespace SensorbergSDKTests
                 }
                 randomAccessStream.Dispose();
             }
+        }
+
+        [TestMethod]
+        public async Task EventStateTest()
+        {
+            await storage.InitStorage();
+            await storage.SaveBeaconEventState("1", BeaconEventType.Enter);
+            await storage.SaveBeaconEventState("2", BeaconEventType.Enter);
+            await storage.SaveBeaconEventState("3", BeaconEventType.Enter);
+            await storage.SaveBeaconEventState("1", BeaconEventType.Exit);
+            await storage.SaveBeaconEventState("4", BeaconEventType.Exit);
 
 
+            Assert.AreEqual(BeaconEventType.Exit, (await storage.GetLastEventStateForBeacon("1")).LastEvent, "Last event was not exit for 1");
+            Assert.AreEqual(BeaconEventType.Enter, (await storage.GetLastEventStateForBeacon("2")).LastEvent, "Last event was not enter for 2");
+            Assert.AreEqual(BeaconEventType.Enter, (await storage.GetLastEventStateForBeacon("3")).LastEvent, "Last event was not enter for 3");
+            Assert.AreEqual(BeaconEventType.Exit, (await storage.GetLastEventStateForBeacon("4")).LastEvent, "Last event was not exit for 4");
+            Assert.IsNull(await storage.GetLastEventStateForBeacon("5"), "not null object");
         }
     }
 }

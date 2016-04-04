@@ -19,23 +19,25 @@ namespace SensorbergSDK.Internal.Data
 {
     public class FileStorage : IStorage
     {
+        private const string BACKGROUND_FOLDER_NAME = "background";
+        private const string FOREGROUND_FOLDER_NAME = "foreground";
+        private const string ACTIONS_FOLDER_NAME = "actions";
+        private const string EVENTS_FOLDER_NAME = "events";
+        private const string SETTINGS_FOLDER_NAME = "settings";
+        private const string FOLDER_LOCK_FILE = "folderlock";
+        public const string ACTIONS_FILE_NAME = "actions.ini";
+        private const string DELAYED_ACTIONS_FILE_NAME = "delayedactions.ini";
         const string SERPERATOR = "\\";
         const string ROOT_FOLDER = "sensorberg-storage";
         const string BACKGROUND_FOLDER = ROOT_FOLDER + SERPERATOR + BACKGROUND_FOLDER_NAME;
         const string FOREGROUND_FOLDER = ROOT_FOLDER + SERPERATOR + FOREGROUND_FOLDER_NAME;
         const string BACKGROUND_ACTIONS_FOLDER = BACKGROUND_FOLDER + SERPERATOR + ACTIONS_FOLDER_NAME;
         const string BACKGROUND_EVENTS_FOLDER = BACKGROUND_FOLDER + SERPERATOR + EVENTS_FOLDER_NAME;
+        const string BACKGROUND_SETTINGS_FOLDER = BACKGROUND_FOLDER + SERPERATOR + SETTINGS_FOLDER_NAME;
         public const string FOREGROUND_ACTIONS_FOLDER = FOREGROUND_FOLDER + SERPERATOR + ACTIONS_FOLDER_NAME;
         public const string FOREGROUND_EVENTS_FOLDER = FOREGROUND_FOLDER + SERPERATOR + EVENTS_FOLDER_NAME;
-        private readonly string[] EVENT_FOLDERS = new string[] { BACKGROUND_EVENTS_FOLDER, FOREGROUND_EVENTS_FOLDER };
-        private readonly string[] ACTION_FOLDERS = new string[] { BACKGROUND_ACTIONS_FOLDER, FOREGROUND_ACTIONS_FOLDER };
-        private const string BACKGROUND_FOLDER_NAME = "background";
-        private const string FOREGROUND_FOLDER_NAME = "foreground";
-        private const string ACTIONS_FOLDER_NAME = "actions";
-        private const string EVENTS_FOLDER_NAME = "events";
-        private const string FOLDER_LOCK_FILE = "folderlock";
-        public const string ACTIONS_FILE_NAME = "actions.ini";
-        private const string DELAYED_ACTIONS_FILE_NAME = "delayedactions.ini";
+        private readonly string[] EVENT_FOLDERS = new string[] {BACKGROUND_EVENTS_FOLDER, FOREGROUND_EVENTS_FOLDER};
+        private readonly string[] ACTION_FOLDERS = new string[] {BACKGROUND_ACTIONS_FOLDER, FOREGROUND_ACTIONS_FOLDER};
 
         public bool Background { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
@@ -47,8 +49,10 @@ namespace SensorbergSDK.Internal.Data
             StorageFolder foreground = await root.CreateFolderAsync(FOREGROUND_FOLDER_NAME, CreationCollisionOption.OpenIfExists);
             await background.CreateFolderAsync(ACTIONS_FOLDER_NAME, CreationCollisionOption.OpenIfExists);
             await background.CreateFolderAsync(EVENTS_FOLDER_NAME, CreationCollisionOption.OpenIfExists);
+            await background.CreateFolderAsync(SETTINGS_FOLDER_NAME, CreationCollisionOption.OpenIfExists);
             await foreground.CreateFolderAsync(ACTIONS_FOLDER_NAME, CreationCollisionOption.OpenIfExists);
             await foreground.CreateFolderAsync(EVENTS_FOLDER_NAME, CreationCollisionOption.OpenIfExists);
+            await foreground.CreateFolderAsync(SETTINGS_FOLDER_NAME, CreationCollisionOption.OpenIfExists);
         }
 
         public async Task<IList<HistoryEvent>> GetUndeliveredEvents()
@@ -194,15 +198,10 @@ namespace SensorbergSDK.Internal.Data
                 StorageFolder root = await folder.CreateFolderAsync(ROOT_FOLDER, CreationCollisionOption.OpenIfExists);
                 await root.DeleteAsync();
             }
-            catch (FileNotFoundException )
+            catch (FileNotFoundException)
             {
             }
             await InitStorage();
-        }
-
-        public Task<IList<BeaconAction>> GetBeaconActionsFromBackground()
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds)
@@ -236,7 +235,7 @@ namespace SensorbergSDK.Internal.Data
             List<string> strings = new List<string>();
             foreach (FileStorageHelper.DelayedActionHelper delayedActionHelper in delayedActionHelpers)
             {
-                if(delayedActionHelper.Id == id)
+                if (delayedActionHelper.Id == id)
                 {
                     delayedActionHelper.Executed = true;
                     needed = true;
@@ -252,53 +251,37 @@ namespace SensorbergSDK.Internal.Data
 
         public async Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType beaconEventType)
         {
-            StorageFolder folder = await GetFolder(Background?BACKGROUND_ACTIONS_FOLDER:FOREGROUND_ACTIONS_FOLDER, true);
+            StorageFolder folder = await GetFolder(Background ? BACKGROUND_ACTIONS_FOLDER : FOREGROUND_ACTIONS_FOLDER, true);
             StorageFile file = await folder.CreateFileAsync(DELAYED_ACTIONS_FILE_NAME, CreationCollisionOption.OpenIfExists);
             string actionToString = FileStorageHelper.DelayedActionToString(action, dueTime, beaconPid, beaconEventType);
             await RetryAppending(file, actionToString);
 
         }
 
-        public async Task<IList<DBBackgroundEventsHistory>> GetBeaconBackgroundEventsHistory(string pid)
+        public Task SaveHistoryAction(BeaconAction beaconAction)
         {
-            StorageFolder folder = await GetFolder(BACKGROUND_ACTIONS_FOLDER, true);
-            StorageFile file = await folder.CreateFileAsync(ACTIONS_FILE_NAME, CreationCollisionOption.OpenIfExists);
-            Dictionary<string, Dictionary<string, long>> dic = FileStorageHelper.BackoundEventsFromString(await FileIO.ReadTextAsync(file));
-            IList<DBBackgroundEventsHistory> histories = new List<DBBackgroundEventsHistory>();
-            if (dic.ContainsKey(pid))
+            throw new NotImplementedException();
+        }
+
+        public async Task SaveBeaconEventState(string pid, BeaconEventType type)
+        {
+            StorageFolder folder = await GetFolder(BACKGROUND_SETTINGS_FOLDER, true);
+            StorageFile file = await folder.CreateFileAsync(pid, CreationCollisionOption.OpenIfExists);
+            await RetryWriting(file, FileStorageHelper.BeaconEventStateToString(pid,type,DateTimeOffset.Now));
+        }
+
+        public async Task<BackgroundEvent> GetLastEventStateForBeacon(string pid)
+        {
+            StorageFolder folder = await GetFolder(BACKGROUND_SETTINGS_FOLDER, true);
+            StorageFile file = await folder.CreateFileAsync(pid, CreationCollisionOption.OpenIfExists);
+            try
             {
-                Dictionary<string, long> historyDictionary = dic[pid];
-                DBBackgroundEventsHistory h = new DBBackgroundEventsHistory();
-                h.BeaconPid = pid;
-                h.EventTime = DateTimeOffset.FromUnixTimeMilliseconds(historyDictionary["time"]);
-                h.EventType = (int) historyDictionary["event"];
-                histories.Add(h);
+                return FileStorageHelper.BeaconEventStateFromString(await FileIO.ReadTextAsync(file));
             }
-            return histories;
-        }
-
-        public async Task SaveBeaconBackgroundEvent(string pid, BeaconEventType enter)
-        {
-            await SaveHistoryEvents(pid, DateTimeOffset.Now, enter);
-        }
-
-        public async Task UpdateBackgroundEvent(string pidIn, BeaconEventType eventType)
-        {
-            await SaveBeaconBackgroundEvent(pidIn, eventType);
-        }
-        public Task DeleteBackgroundEvent(string pid)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SaveBeaconActionFromBackground(BeaconAction beaconAction)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateBeaconBackgroundEvent(string pidIn, BeaconEventType triggerIn)
-        {
-            throw new NotImplementedException();
+            catch (FileNotFoundException )
+            {
+                return null;
+            }
         }
 
 
@@ -336,7 +319,7 @@ namespace SensorbergSDK.Internal.Data
         private async Task<IList<HistoryEvent>> GetUndeliveredEvents(bool lockFolder)
         {
             IList<HistoryEvent> events = new List<HistoryEvent>();
-            
+
             foreach (string currentfolder in EVENT_FOLDERS)
             {
                 StorageFolder folder = await GetFolder(currentfolder);
@@ -374,6 +357,7 @@ namespace SensorbergSDK.Internal.Data
 
             return events;
         }
+
         private async Task<IList<HistoryAction>> GetUndeliveredActions(bool lockFolder)
         {
             IList<HistoryAction> actions = new List<HistoryAction>();
@@ -422,6 +406,12 @@ namespace SensorbergSDK.Internal.Data
             }
             return actions;
         }
+
+        /// <summary>
+        /// Retry of append to file.
+        /// </summary>
+        /// <param name="file">File to write.</param>
+        /// <param name="s">String to write.</param>
         private static async Task RetryAppending(StorageFile file, string s)
         {
             int retry = 0;
@@ -431,6 +421,34 @@ namespace SensorbergSDK.Internal.Data
                 try
                 {
                     await FileIO.AppendTextAsync(file, s);
+                    return;
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    //file is locked
+                }
+                finally
+                {
+                    retry++;
+                }
+                await Task.Delay((int) Math.Pow(2, retry + 1)*10);
+            } while (retry < maxRetry);
+            throw new UnauthorizedAccessException("File was locked");
+        }
+        /// <summary>
+        /// Retry of writing to file.
+        /// </summary>
+        /// <param name="file">File to write.</param>
+        /// <param name="s">String to write.</param>
+        private static async Task RetryWriting(StorageFile file, string s)
+        {
+            int retry = 0;
+            int maxRetry = 6;
+            do
+            {
+                try
+                {
+                    await FileIO.WriteTextAsync(file, s);
                     return;
                 }
                 catch (UnauthorizedAccessException)

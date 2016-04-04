@@ -8,6 +8,8 @@ using Windows.ApplicationModel.Background;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Background;
 using Windows.UI.Notifications;
+using SensorbergSDK.Data;
+using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
 
 namespace SensorbergSDKBackground
@@ -24,7 +26,7 @@ namespace SensorbergSDKBackground
 
         public event EventHandler<int> Finished;
 
-        private SDKEngine _sdkEngine;
+        private SDKEngine SdkEngine { get; }
         private BackgroundTaskDeferral _deferral;
         private IBackgroundTaskInstance _backgroundTaskInstance;
         private IList<Beacon> _beacons;
@@ -34,14 +36,15 @@ namespace SensorbergSDKBackground
         private bool _newActionsFromBackground;
         private bool _readyToFinish = false;
         private int _finishingRounds = 5;
+        private AppSettings AppSettings { get; set; }
 
         public BackgroundEngine()
         {
-            _sdkEngine = new SDKEngine(false);
+            SdkEngine = new SDKEngine(false);
             _beacons = new List<Beacon>();
             _beaconArgs = new List<BeaconEventArgs>();
-            _sdkEngine.Resolver.RequestQueueCountChanged += OnRequestQueueCountChanged;
-            _sdkEngine.BeaconActionResolved += OnBeaconActionResolvedAsync;
+            SdkEngine.Resolver.RequestQueueCountChanged += OnRequestQueueCountChanged;
+            SdkEngine.BeaconActionResolved += OnBeaconActionResolvedAsync;
         }
 
         /// <summary>
@@ -51,13 +54,13 @@ namespace SensorbergSDKBackground
         {
             _deferral = taskInstance.GetDeferral();
             _backgroundTaskInstance = taskInstance;
-            await _sdkEngine.InitializeAsync();
+            await SdkEngine.InitializeAsync();
+            AppSettings = await ServiceManager.SettingsManager.GetSettings();
 
+            //TODO verfiy
             if (BackgroundTaskManager.CheckIfBackgroundFilterUpdateIsRequired())
             {
-                ToastNotification toastNotification =
-                    NotificationUtils.CreateToastNotification(
-                        "New beacon signature available", "Launch the application to update");
+                ToastNotification toastNotification = NotificationUtils.CreateToastNotification("New beacon signature available", "Launch the application to update");
                 NotificationUtils.ShowToastNotification(toastNotification);
             }
         }
@@ -85,7 +88,7 @@ namespace SensorbergSDKBackground
 
                     foreach (var beaconArg in _beaconArgs)
                     {
-                        await _sdkEngine.ResolveBeaconAction(beaconArg);
+                        await SdkEngine.ResolveBeaconAction(beaconArg);
                     }
                 }
                 else
@@ -100,7 +103,7 @@ namespace SensorbergSDKBackground
         /// </summary>
         public async Task ProcessDelayedActionsAsync()
         {
-            await _sdkEngine.ProcessDelayedActionsAsync();
+            await SdkEngine.ProcessDelayedActionsAsync();
             Finish();
         }
 
@@ -127,10 +130,10 @@ namespace SensorbergSDKBackground
                 SDKData.Instance.NewActionsFromBackground = true;
             }
 
-            _sdkEngine.Resolver.RequestQueueCountChanged -= OnRequestQueueCountChanged;
-            _sdkEngine.BeaconActionResolved -= OnBeaconActionResolvedAsync;
+            SdkEngine.Resolver.RequestQueueCountChanged -= OnRequestQueueCountChanged;
+            SdkEngine.BeaconActionResolved -= OnBeaconActionResolvedAsync;
 
-            _sdkEngine.Deinitialize();
+            SdkEngine.Deinitialize();
             _deferral.Complete();
         }
 
@@ -158,35 +161,38 @@ namespace SensorbergSDKBackground
         {
             foreach (var beacon in _beacons)
             {
-                IList<DBBackgroundEventsHistory> history = await ServiceManager.StorageService.GetBeaconBackgroundEventsHistory(beacon.Pid);
+                BackgroundEvent history = await ServiceManager.StorageService.GetLastEventStateForBeacon(beacon.Pid);
 
-                if (history.Count == 0)
+                if (history == null || history.LastEvent == BeaconEventType.Exit ||
+                    (!IsOutOfRange(filter, beacon) && history.EventTime.AddMilliseconds(AppSettings.BeaconExitTimeout) < DateTimeOffset.Now))
                 {
                     // No history for this beacon. Let's save it and add it to event args array for solving.
                     AddBeaconArgs(beacon, BeaconEventType.Enter);
-                    await ServiceManager.StorageService.SaveBeaconBackgroundEvent(beacon.Pid, BeaconEventType.Enter);
+                    await ServiceManager.StorageService.SaveBeaconEventState(beacon.Pid, BeaconEventType.Enter);
 #if LOUD_DEBUG
                     ToastNotification toastNotification = NotificationUtils.CreateToastNotification("Enter Beacon", _beacons[0].Id1 + " " + _beacons[0].BeaconId2 + " " + _beacons[0].BeaconId3);
                     NotificationUtils.ShowToastNotification(toastNotification);
 #endif
                 }
-                else if (history.Count == 1)
+                else if (history.LastEvent == BeaconEventType.Enter)
                 {
-                    if (history[0].EventType == (int)BeaconEventType.Enter)
+                    if (IsOutOfRange(filter, beacon))
                     {
-                        if (beacon.RawSignalStrengthInDBm == filter.OutOfRangeThresholdInDBm)
-                        {
-                            // Exit event
-                            AddBeaconArgs(beacon, BeaconEventType.Exit);
-                            await ServiceManager.StorageService.DeleteBackgroundEvent(beacon.Pid);
+                        // Exit event
+                        AddBeaconArgs(beacon, BeaconEventType.Exit);
+                        await ServiceManager.StorageService.SaveBeaconEventState(beacon.Pid, BeaconEventType.Exit);
 #if LOUD_DEBUG
                             ToastNotification toastNotification = NotificationUtils.CreateToastNotification("Exit Beacon", _beacons[0].Id1 + " " + _beacons[0].BeaconId2 + " " + _beacons[0].BeaconId3);
                             NotificationUtils.ShowToastNotification(toastNotification);
 #endif
-                        }
                     }
                 }
             }
+        }
+
+        private static bool IsOutOfRange(BluetoothSignalStrengthFilter filter, Beacon beacon)
+        {
+            return beacon.RawSignalStrengthInDBm == filter.OutOfRangeThresholdInDBm;
         }
 
         private void AddBeaconArgs(Beacon beacon, BeaconEventType eventType)
@@ -226,7 +232,7 @@ namespace SensorbergSDKBackground
         private async void OnBeaconActionResolvedAsync(object sender, BeaconAction beaconAction)
         {
             System.Diagnostics.Debug.WriteLine("BackgroundEngine.OnBeaconActionResolvedAsync()");
-            await ServiceManager.StorageService.SaveBeaconActionFromBackground(beaconAction);
+            await ServiceManager.StorageService.SaveHistoryAction(beaconAction);
             _newActionsFromBackground = true;
 
             if (SDKData.Instance.ShowNotificationsOnBackground())
@@ -247,7 +253,7 @@ namespace SensorbergSDKBackground
             
             // Finish when there are no more unresolved actions or timer has been called 5 times
             // (1 second in total)
-            if (_sdkEngine.UnresolvedActionCount <= 0 || _finishingRounds-- <= 0)
+            if (SdkEngine.UnresolvedActionCount <= 0 || _finishingRounds-- <= 0)
             {
                 // Signals that we are ready to finish. Waits one more cycle to ensure everything
                 // has been finished.

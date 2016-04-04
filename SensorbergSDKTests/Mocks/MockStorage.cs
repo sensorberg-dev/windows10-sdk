@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Services;
 
 namespace SensorbergSDKTests.Mocks
@@ -65,11 +66,6 @@ namespace SensorbergSDKTests.Mocks
             throw new NotImplementedException();
         }
 
-        public Task<IList<BeaconAction>> GetBeaconActionsFromBackground()
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds)
         {
             throw new NotImplementedException();
@@ -85,32 +81,17 @@ namespace SensorbergSDKTests.Mocks
             throw new NotImplementedException();
         }
 
-        public Task<IList<DBBackgroundEventsHistory>> GetBeaconBackgroundEventsHistory(string pid)
+        public Task SaveHistoryAction(BeaconAction beaconAction)
         {
             throw new NotImplementedException();
         }
 
-        public Task SaveBeaconBackgroundEvent(string pid, BeaconEventType enter)
+        public Task SaveBeaconEventState(string pid, BeaconEventType enter)
         {
             throw new NotImplementedException();
         }
 
-        public Task DeleteBackgroundEvent(string pid)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SaveBeaconActionFromBackground(BeaconAction beaconAction)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateBeaconBackgroundEvent(string pidIn, BeaconEventType triggerIn)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateBackgroundEvent(string pidIn, BeaconEventType eventType)
+        public Task<BackgroundEvent> GetLastEventStateForBeacon(string pid)
         {
             throw new NotImplementedException();
         }
