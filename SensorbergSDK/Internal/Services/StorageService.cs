@@ -300,11 +300,6 @@ namespace SensorbergSDK.Internal.Services
             await Storage.SaveBeaconEventState(pid, enter);
         }
 
-        public async Task SaveHistoryAction(BeaconAction beaconAction)
-        {
-            await Storage.SaveHistoryAction(beaconAction);
-        }
-
         #endregion
 
         /// <summary>

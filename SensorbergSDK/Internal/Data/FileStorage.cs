@@ -258,11 +258,6 @@ namespace SensorbergSDK.Internal.Data
 
         }
 
-        public Task SaveHistoryAction(BeaconAction beaconAction)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task SaveBeaconEventState(string pid, BeaconEventType type)
         {
             StorageFolder folder = await GetFolder(BACKGROUND_SETTINGS_FOLDER, true);

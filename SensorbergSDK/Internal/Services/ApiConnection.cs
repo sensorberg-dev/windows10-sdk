@@ -83,7 +83,7 @@ namespace SensorbergSDK.Internal.Services
             var responseMessage = await httpClient.SendRequestAsync(requestMessage);
 
 
-            if (responseMessage == null || responseMessage.IsSuccessStatusCode == false)
+            if (responseMessage == null || !responseMessage.IsSuccessStatusCode )
             {
             }
 

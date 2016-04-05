@@ -19,7 +19,7 @@ namespace SensorbergSDKBackground
     /// and resolves delayed actions. This is not part of the public API. Making modifications into
     /// background tasks is not required in order to use the SDK.
     /// </summary>
-    class BackgroundEngine
+    public class BackgroundEngine
     {
         private const int ExitEventDelayInSeconds = 13;
         private const int KillTimerDelayInMilliseconds = 200;
@@ -232,7 +232,8 @@ namespace SensorbergSDKBackground
         private async void OnBeaconActionResolvedAsync(object sender, BeaconAction beaconAction)
         {
             System.Diagnostics.Debug.WriteLine("BackgroundEngine.OnBeaconActionResolvedAsync()");
-            await ServiceManager.StorageService.SaveHistoryAction(beaconAction);
+            //TODO delegate to task
+//            await ServiceManager.StorageService.SaveHistoryAction(beaconAction);
             _newActionsFromBackground = true;
 
             if (SDKData.Instance.ShowNotificationsOnBackground())

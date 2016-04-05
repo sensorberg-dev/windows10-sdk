@@ -101,8 +101,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiKeyHelper.cs" />
-    <Compile Include="BeaconAction.cs" />
     <Compile Include="BackgroundTaskManager.cs" />
+    <Compile Include="BeaconAction.cs" />
+    <Compile Include="BackgroundTaskManager_.cs" />
     <Compile Include="Internal\Constants.cs" />
     <Compile Include="AppSettings.cs" />
     <Compile Include="Internal\Data\BackgroundEvent.cs" />
@@ -112,6 +113,9 @@
     <Compile Include="Internal\Data\UserAgentModel.cs" />
     <Compile Include="Internal\SDKEngine.cs" />
     <Compile Include="Internal\Services\ApiConnection.cs" />
+    <Compile Include="SensorbergSDKBackground\BackgroundEngine.cs" />
+    <Compile Include="SensorbergSDKBackground\AdvertisementWatcherBackgroundWorker.cs" />
+    <Compile Include="SensorbergSDKBackground\TimedBackgroundWorker.cs" />
     <Compile Include="Services\IApiConnection.cs" />
     <Compile Include="Services\IBeaconScanner.cs" />
     <Compile Include="Services\ILayoutManager.cs" />
