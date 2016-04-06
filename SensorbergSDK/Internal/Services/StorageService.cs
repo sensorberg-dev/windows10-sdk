@@ -260,12 +260,12 @@ namespace SensorbergSDK.Internal.Services
             await Storage.SaveHistoryEvents(pid, timestamp, eventType);
         }
 
-        public async Task<IList<DBHistoryAction>> GetActions(string uuid)
+        public async Task<IList<HistoryAction>> GetActions(string uuid)
         {
            return await Storage.GetActions(uuid);
         }
 
-        public async Task<DBHistoryAction> GetAction(string uuid)
+        public async Task<HistoryAction> GetAction(string uuid)
         {
            return await Storage.GetAction(uuid);
         }
@@ -298,6 +298,11 @@ namespace SensorbergSDK.Internal.Services
         public async Task SaveBeaconEventState(string pid, BeaconEventType enter)
         {
             await Storage.SaveBeaconEventState(pid, enter);
+        }
+
+        public async Task SaveActionForForeground(BeaconAction beaconAction)
+        {
+            await Storage.SaveActionForForeground(beaconAction);
         }
 
         #endregion

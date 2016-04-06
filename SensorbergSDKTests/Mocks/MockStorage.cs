@@ -51,12 +51,12 @@ namespace SensorbergSDKTests.Mocks
             throw new NotImplementedException();
         }
 
-        public Task<IList<DBHistoryAction>> GetActions(string uuid)
+        public Task<IList<HistoryAction>> GetActions(string uuid)
         {
             throw new NotImplementedException();
         }
 
-        public Task<DBHistoryAction> GetAction(string uuid)
+        public Task<HistoryAction> GetAction(string uuid)
         {
             throw new NotImplementedException();
         }
@@ -92,6 +92,11 @@ namespace SensorbergSDKTests.Mocks
         }
 
         public Task<BackgroundEvent> GetLastEventStateForBeacon(string pid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SaveActionForForeground(BeaconAction beaconAction)
         {
             throw new NotImplementedException();
         }

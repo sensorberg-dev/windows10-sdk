@@ -220,5 +220,40 @@ namespace SensorbergSDKTests
             Assert.AreEqual(DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), be.EventTime);
             Assert.AreEqual(BeaconEventType.Enter,be.LastEvent);
         }
+
+        [TestMethod]
+        public void TestBeaconActionToString()
+        {
+            string s = "";
+            BeaconAction beaconAction = new BeaconAction();
+            beaconAction.Body = "body";
+            beaconAction.Id = 1;
+            beaconAction.Payload = JsonObject.Parse("{\"pay\":\"load\"}");
+            beaconAction.Subject = "Subject";
+            beaconAction.Type = BeaconActionType.InApp;
+            beaconAction.Url = "http://sensorberg.com";
+            beaconAction.Uuid = "uuid";
+
+            string beaconString = FileStorageHelper.BeaconActionToString(beaconAction);
+            Assert.AreEqual(s,beaconString);
+        }
+
+        [TestMethod]
+        public void TestBeaconActionFromString()
+        {
+            string s = "";
+            BeaconAction beaconAction = new BeaconAction();
+            beaconAction.Body = "body";
+            beaconAction.Id = 1;
+            beaconAction.Payload = JsonObject.Parse("{\"pay\":\"load\"}");
+            beaconAction.Subject = "Subject";
+            beaconAction.Type = BeaconActionType.InApp;
+            beaconAction.Url = "http://sensorberg.com";
+            beaconAction.Uuid = "uuid";
+
+            BeaconAction action = FileStorageHelper.BeaconActionFromString(s);
+
+            Assert.AreEqual(beaconAction, action);
+        }
     }
 }

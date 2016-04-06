@@ -34,58 +34,22 @@ namespace SensorbergSDK
         }
 
         [DataMember]
-        public int Id
-        {
-            [DebuggerStepThrough]
-            get;
-            [DebuggerStepThrough]
-            set;
-        }
+        public int Id { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
         [DataMember]
-        public BeaconActionType Type
-        {
-            [DebuggerStepThrough]
-            get;
-            [DebuggerStepThrough]
-            set;
-        }
+        public BeaconActionType Type { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
         [DataMember]
-        public string Uuid
-        {
-            [DebuggerStepThrough]
-            get;
-            [DebuggerStepThrough]
-            set;
-        }
+        public string Uuid { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
         [DataMember]
-        public string Subject
-        {
-            [DebuggerStepThrough]
-            get;
-            [DebuggerStepThrough]
-            set;
-        }
+        public string Subject { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
         [DataMember]
-        public string Body
-        {
-            [DebuggerStepThrough]
-            get;
-            [DebuggerStepThrough]
-            set;
-        }
+        public string Body { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
         [DataMember]
-        public string Url
-        {
-            [DebuggerStepThrough]
-            get;
-            [DebuggerStepThrough]
-            set;
-        }
+        public string Url { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
         /// <summary>
         /// String representation of the payload.
@@ -101,13 +65,7 @@ namespace SensorbergSDK
         /// Payload message set for Action on the service. 
         /// Value is null, if payload is not set.
         /// </summary>
-        public JsonObject Payload
-        {
-            [DebuggerStepThrough]
-            get;
-            [DebuggerStepThrough]
-            set;
-        }
+        public JsonObject Payload { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
         /// <summary>
         /// Sets the beacon action type based on the given value.
@@ -175,13 +133,14 @@ namespace SensorbergSDK
         {
             bool valid = false;
 
-            switch (Type) {
+            switch (Type)
+            {
                 case BeaconActionType.UrlMessage:
                     if (Subject.Length > 0 && Url.Length > 0 && Body.Length > 0)
                     {
                         valid = true;
                     }
-                        
+
                     break;
                 case BeaconActionType.VisitWebsite:
                 case BeaconActionType.InApp:
@@ -331,15 +290,15 @@ namespace SensorbergSDK
             return stringBuilder.ToString();
         }
 
-        /// <summary>
-        /// Creates a toast notification instance with populates it with data associated to this
-        /// beacon action.
-        /// </summary>
-        /// <returns>A newly created toast notification.</returns>
-        public ToastNotification ToToastNotification()
-        {
-            return NotificationUtils.CreateToastNotification(this);
-        }
+//        /// <summary>
+//        /// Creates a toast notification instance with populates it with data associated to this
+//        /// beacon action.
+//        /// </summary>
+//        /// <returns>A newly created toast notification.</returns>
+//        public ToastNotification ToToastNotification()
+//        {
+//            return NotificationUtils.CreateToastNotification(this);
+//        }
 
         /// <summary>
         /// Creates a message dialog based on the data of this beacon action.

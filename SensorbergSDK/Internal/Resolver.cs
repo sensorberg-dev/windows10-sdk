@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using MetroLog;
 
 namespace SensorbergSDK
 {
@@ -9,7 +10,8 @@ namespace SensorbergSDK
     /// Manages resolving the actions associated to beacon events.
     /// </summary>
 	public sealed class Resolver
-	{
+    {
+        private readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<Resolver>();
         public event EventHandler<ResolvedActionsEventArgs> ActionsResolved;
         public event EventHandler<string> FailedToResolveActions;
 
@@ -40,7 +42,7 @@ namespace SensorbergSDK
         public int CreateRequest(BeaconEventArgs beaconEventArgs)
         {
             int requestId = SDKData.Instance.NextId();
-            Debug.WriteLine("Resolver: Beacon " + beaconEventArgs.Beacon.Id1 + " " + beaconEventArgs.Beacon.Id2 + " " + beaconEventArgs.Beacon.Id3+" ---> Request: "+requestId);
+            logger.Debug("Resolver: Beacon " + beaconEventArgs.Beacon.Id1 + " " + beaconEventArgs.Beacon.Id2 + " " + beaconEventArgs.Beacon.Id3+" ---> Request: "+requestId);
             Request request = new Request(beaconEventArgs, requestId);
             request.Result += OnRequestResult;
             _requestQueue.Add(request);
@@ -60,7 +62,7 @@ namespace SensorbergSDK
             {
                 request.Result -= OnRequestResult;
 
-                System.Diagnostics.Debug.WriteLine("Resolver: OnRequestResult(): Request with ID " + request.RequestId + " was " + e);
+                logger.Debug("Resolver: OnRequestResult(): Request with ID " + request.RequestId + " was " + e);
                 if (e == RequestResultState.Success)
                 {
 
@@ -81,15 +83,10 @@ namespace SensorbergSDK
                 }
                 else if (e == RequestResultState.Failed)
                 {
-                    System.Diagnostics.Debug.WriteLine("Resolver: OnRequestResult(): Request with ID " + request.RequestId + " failed");
+                    logger.Info("Resolver: OnRequestResult(): Request with ID " + request.RequestId + " failed");
 
-                    if (FailedToResolveActions != null)
-                    {
-                        FailedToResolveActions(this, request.ErrorMessage);
-                    }
+                    FailedToResolveActions?.Invoke(this, request.ErrorMessage);
                 }
-
-                request = null;        
             }
         }
     }

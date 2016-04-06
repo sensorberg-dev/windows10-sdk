@@ -38,6 +38,24 @@ namespace SensorbergSDKBackground
         private int _finishingRounds = 5;
         private AppSettings AppSettings { get; set; }
 
+        public event EventHandler<BeaconAction> BeaconActionResolved
+        {
+            add { SdkEngine.BeaconActionResolved += value; }
+            remove { SdkEngine.BeaconActionResolved -= value; }
+        }
+
+        public event EventHandler<string> FailedToResolveBeaconAction
+        {
+            add { SdkEngine.FailedToResolveBeaconAction += value; }
+            remove { SdkEngine.FailedToResolveBeaconAction -= value; }
+        }
+
+        public event EventHandler<bool> LayoutValidityChanged
+        {
+            add { SdkEngine.LayoutValidityChanged += value; }
+            remove { SdkEngine.LayoutValidityChanged -= value; }
+        }
+
         public BackgroundEngine()
         {
             SdkEngine = new SDKEngine(false);
@@ -119,10 +137,7 @@ namespace SensorbergSDKBackground
                 _killTimer = null;
             }
 
-            if (Finished != null)
-            {
-                Finished(this, 0);
-            }
+            Finished?.Invoke(this, 0);
 
             if (_newActionsFromBackground)
             {
@@ -233,15 +248,15 @@ namespace SensorbergSDKBackground
         {
             System.Diagnostics.Debug.WriteLine("BackgroundEngine.OnBeaconActionResolvedAsync()");
             //TODO delegate to task
-//            await ServiceManager.StorageService.SaveHistoryAction(beaconAction);
+            await ServiceManager.StorageService.SaveActionForForeground(beaconAction);
             _newActionsFromBackground = true;
 
-            if (SDKData.Instance.ShowNotificationsOnBackground())
-            {
-                // Toast notifications are shown only if the app is not visible
-                ToastNotification toastNotification = beaconAction.ToToastNotification();
-                NotificationUtils.ShowToastNotification(toastNotification);
-            }
+//            if (SDKData.Instance.ShowNotificationsOnBackground())
+//            {
+//                // Toast notifications are shown only if the app is not visible
+//                ToastNotification toastNotification = beaconAction.ToToastNotification();
+//                NotificationUtils.ShowToastNotification(toastNotification);
+//            }
         }
 
         private void OnKill(object state)

@@ -13,12 +13,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using MetroLog;
 using SensorbergSDK.Services;
 
 namespace SensorbergSDK.Internal.Data
 {
     public class FileStorage : IStorage
     {
+        private readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<FileStorage>();
         private const string BACKGROUND_FOLDER_NAME = "background";
         private const string FOREGROUND_FOLDER_NAME = "foreground";
         private const string ACTIONS_FOLDER_NAME = "actions";
@@ -140,23 +142,17 @@ namespace SensorbergSDK.Internal.Data
         }
 
 
-        public async Task<IList<DBHistoryAction>> GetActions(string uuid)
+        public async Task<IList<HistoryAction>> GetActions(string uuid)
         {
-            List<DBHistoryAction> returnActions = new List<DBHistoryAction>();
+            logger.Trace("GetActions {0}", uuid);
+            List<HistoryAction> returnActions = new List<HistoryAction>();
             IList<HistoryAction> actions = await GetUndeliveredActions(false);
 
             foreach (HistoryAction historyAction in actions)
             {
                 if (historyAction.eid == uuid)
                 {
-                    returnActions.Add(new DBHistoryAction()
-                    {
-                        delivered = historyAction.Delivered,
-                        dt = DateTimeOffset.Parse(historyAction.dt),
-                        eid = historyAction.eid,
-                        pid = historyAction.pid,
-                        trigger = historyAction.trigger
-                    });
+                    returnActions.Add(historyAction);
                 }
             }
             try
@@ -168,24 +164,18 @@ namespace SensorbergSDK.Internal.Data
                 {
                     if (historyAction.eid == uuid)
                     {
-                        returnActions.Add(new DBHistoryAction()
-                        {
-                            delivered = historyAction.Delivered,
-                            dt = DateTimeOffset.Parse(historyAction.dt),
-                            eid = historyAction.eid,
-                            pid = historyAction.pid,
-                            trigger = historyAction.trigger
-                        });
+                        returnActions.Add(historyAction);
                     }
                 }
             }
             catch (FileNotFoundException)
             {
             }
+            logger.Trace("GetActions {0} End", uuid);
             return returnActions;
         }
 
-        public async Task<DBHistoryAction> GetAction(string uuid)
+        public async Task<HistoryAction> GetAction(string uuid)
         {
             return (await GetActions(uuid)).FirstOrDefault();
         }
@@ -277,6 +267,11 @@ namespace SensorbergSDK.Internal.Data
             {
                 return null;
             }
+        }
+
+        public Task SaveActionForForeground(BeaconAction beaconAction)
+        {
+            throw new NotImplementedException();
         }
 
 
@@ -401,6 +396,7 @@ namespace SensorbergSDK.Internal.Data
             }
             return actions;
         }
+
 
         /// <summary>
         /// Retry of append to file.

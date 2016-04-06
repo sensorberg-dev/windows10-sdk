@@ -14,6 +14,11 @@ using SensorbergSDK.Services;
 
 namespace SensorbergSDK
 {
+    public struct BackgroundTaskRegistrationResult
+    {
+        public bool success;
+        public Exception exception;
+    }
     public class BackgroundTaskManager
     {
         private const int TIME_TRIGGER_INTERVAL_IN_MINUTES = 15;

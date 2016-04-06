@@ -103,7 +103,6 @@
     <Compile Include="ApiKeyHelper.cs" />
     <Compile Include="BackgroundTaskManager.cs" />
     <Compile Include="BeaconAction.cs" />
-    <Compile Include="BackgroundTaskManager_.cs" />
     <Compile Include="Internal\Constants.cs" />
     <Compile Include="AppSettings.cs" />
     <Compile Include="Internal\Data\BackgroundEvent.cs" />

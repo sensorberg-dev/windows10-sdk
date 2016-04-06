@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
+using MetroLog;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
 
@@ -23,6 +24,7 @@ namespace SensorbergSDK
     /// </summary>
 	public sealed class Scanner : IBeaconScanner
     {
+        private readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<Scanner>();
         /// <summary>
         /// Triggered when the scanner is either started, stopped or aborted.
         /// Aborted status may indicate that the bluetooth has not been turned on on the device.
@@ -142,7 +144,7 @@ namespace SensorbergSDK
                 _bluetoothLEAdvertisementWatcher.Start();
 
                 Status = ScannerStatus.Started;
-                Debug.WriteLine("Scanner.StartWatcher(): Watcher started");
+                logger.Debug("Scanner.StartWatcher(): Watcher started");
             }
         }
 
@@ -153,10 +155,7 @@ namespace SensorbergSDK
         {
             if (Status == ScannerStatus.Started)
             {
-                if (_bluetoothLEAdvertisementWatcher != null)
-                {
-                    _bluetoothLEAdvertisementWatcher.Stop();
-                }
+                _bluetoothLEAdvertisementWatcher?.Stop();
             }
         }
 
@@ -197,8 +196,6 @@ namespace SensorbergSDK
                 }
             }
 
-            beacons = null;
-
             if (Status != ScannerStatus.Started && _beaconsContainer.Count == 0 && _beaconListRefreshTimer != null)
             {
                 _beaconListRefreshTimer.Dispose();
@@ -216,7 +213,7 @@ namespace SensorbergSDK
         /// <param name="args"></param>
         private void OnAdvertisementReceived(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
         {
-            Debug.WriteLine("Scanner: Advertisement received " + args.Timestamp.ToString("HH:mm:ss.fff"));
+            logger.Debug("Scanner: Advertisement received " + args.Timestamp.ToString("HH:mm:ss.fff"));
             Beacon beacon = BeaconFactory.BeaconFromBluetoothLEAdvertisementReceivedEventArgs(args);
 
             if (beacon != null)
@@ -227,7 +224,7 @@ namespace SensorbergSDK
                 }
 
                 bool isExistingBeacon = _beaconsContainer.TryUpdate(beacon);
-                Debug.WriteLine("Scanner: beacon exists:" + isExistingBeacon + " " + beacon.Id1 + " " + beacon.Id2 + " " + beacon.Id3);
+                logger.Trace("Scanner: beacon exists:" + isExistingBeacon + " " + beacon.Id1 + " " + beacon.Id2 + " " + beacon.Id3);
                 if (isExistingBeacon)
                 {
                     NotifyBeaconEvent(beacon, BeaconEventType.None);
@@ -245,7 +242,7 @@ namespace SensorbergSDK
         {
             if (_bluetoothLEAdvertisementWatcher != null)
             {
-                Debug.WriteLine("Scanner: .OnWatcherStopped(): Status: " + _bluetoothLEAdvertisementWatcher.Status);
+                logger.Debug("Scanner: .OnWatcherStopped(): Status: " + _bluetoothLEAdvertisementWatcher.Status);
 
                 if (_bluetoothLEAdvertisementWatcher.Status == BluetoothLEAdvertisementWatcherStatus.Aborted)
                 {

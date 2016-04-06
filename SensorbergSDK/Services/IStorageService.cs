@@ -67,8 +67,8 @@ namespace SensorbergSDK.Services
         /// </summary>
         Task SaveHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType);
 
-        Task<IList<DBHistoryAction>> GetActions(string uuid);
-        Task<DBHistoryAction> GetAction(string uuid);
+        Task<IList<HistoryAction>> GetActions(string uuid);
+        Task<HistoryAction> GetAction(string uuid);
         Task CleanDatabase();
         Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds = 1000);
         Task SetDelayedActionAsExecuted(string id);
@@ -82,5 +82,6 @@ namespace SensorbergSDK.Services
         Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice);
         Task<BackgroundEvent> GetLastEventStateForBeacon(string pid);
         Task SaveBeaconEventState(string pid, BeaconEventType enter);
+        Task SaveActionForForeground(BeaconAction beaconAction);
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using MetroLog;
 using SensorbergSDK.Internal.Services;
 
 namespace SensorbergSDK.Internal
@@ -12,6 +13,7 @@ namespace SensorbergSDK.Internal
     /// </summary>
     public sealed class RequestQueue : IDisposable
     {
+        private readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<RequestQueue>();
         public event EventHandler<int> QueueCountChanged;
         private Task _workerTask;
 
@@ -26,7 +28,10 @@ namespace SensorbergSDK.Internal
         /// <summary>
         /// Returns the element count inside the queue.
         /// </summary>
-        public int QueueSize { get { return _requestQueue.Count; } }
+        public int QueueSize
+        {
+            get { return _requestQueue.Count; }
+        }
 
         /// <summary>
         /// Clears the queue while failing all pending requests.
@@ -57,8 +62,9 @@ namespace SensorbergSDK.Internal
         public void Add(Request request)
         {
             _requestQueue.Enqueue(request);
-
-            if (_requestQueue.Count > 0 && (_workerTask == null || _workerTask.Status == TaskStatus.Canceled ||_workerTask.Status == TaskStatus.Faulted || _workerTask.Status == TaskStatus.RanToCompletion))
+            logger.Trace("Add new request {0}", request.RequestId);
+            if (_requestQueue.Count > 0 &&
+                (_workerTask == null || _workerTask.Status == TaskStatus.Canceled || _workerTask.Status == TaskStatus.Faulted || _workerTask.Status == TaskStatus.RanToCompletion))
             {
                 _cancelToken = new CancellationTokenSource();
                 (_workerTask = Task.Run(ServeNextRequestAsync, _cancelToken.Token)).ConfigureAwait(false);
@@ -79,7 +85,7 @@ namespace SensorbergSDK.Internal
 
                     if (currentRequest != null && !currentRequest.IsBeingProcessed)
                     {
-                        Debug.WriteLine("RequestQueue: take next request " + currentRequest.RequestId);
+                        logger.Trace("RequestQueue: take next request " + currentRequest.RequestId);
                         currentRequest.IsBeingProcessed = true;
                         currentRequest.TryCount++;
                         RequestResultState requestResult = RequestResultState.None;
@@ -98,7 +104,7 @@ namespace SensorbergSDK.Internal
                             currentRequest.ErrorMessage = ex.Message;
                             requestResult = RequestResultState.Failed;
                         }
-                        Debug.WriteLine("RequestQueue: request result " + currentRequest.RequestId + " " + requestResult);
+                        logger.Debug("RequestQueue: request result " + currentRequest.RequestId + " " + requestResult);
 
                         switch (requestResult)
                         {
@@ -113,9 +119,9 @@ namespace SensorbergSDK.Internal
                                 {
                                     int numberOfTriesLeft = currentRequest.MaxNumberOfRetries - currentRequest.TryCount;
 
-                                    Debug.WriteLine("RequestQueue.ServeNextRequestAsync(): Request with ID "
-                                                    + currentRequest.RequestId + " failed, will try "
-                                                    + numberOfTriesLeft + " more " + (numberOfTriesLeft > 1 ? "times" : "time"));
+                                    logger.Debug("RequestQueue.ServeNextRequestAsync(): Request with ID "
+                                                 + currentRequest.RequestId + " failed, will try "
+                                                 + numberOfTriesLeft + " more " + (numberOfTriesLeft > 1 ? "times" : "time"));
 
                                     _requestQueue.Enqueue(currentRequest);
                                 }

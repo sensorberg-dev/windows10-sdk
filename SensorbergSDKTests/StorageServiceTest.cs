@@ -4,6 +4,7 @@
 // 
 // All rights reserved.
 
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -102,6 +103,20 @@ namespace SensorbergSDKTests
             Assert.IsTrue(await service.FlushHistory(), "Flushing History not succeed");
             Assert.IsTrue(mockStorage.UndeliveredEvents.Count == 0, "Event were not marked as send");
             Assert.IsTrue(mockStorage.UndeliveredActions.Count == 0, "Actions were not marked as send");
+        }
+
+        [TestMethod]
+        public async Task TestHistorActionCacheTest()
+        {
+            IStorageService service = ServiceManager.StorageService;
+            await service.SaveHistoryAction("1", "11", DateTime.Now, BeaconEventType.Enter);
+            await service.SaveHistoryAction("2", "11", DateTime.Now, BeaconEventType.Enter);
+            await service.SaveHistoryAction("3", "11", DateTime.Now, BeaconEventType.Enter);
+            await service.SaveHistoryAction("1", "11", DateTime.Now, BeaconEventType.Enter);
+            await service.SaveHistoryAction("5", "11", DateTime.Now, BeaconEventType.Enter);
+
+            IList<HistoryAction> dbHistoryActions = await service.GetActions("1");
+
         }
     }
 }
