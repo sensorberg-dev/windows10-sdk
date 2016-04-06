@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Windows.Data.Json;
@@ -25,15 +26,17 @@ namespace SensorbergSDK.Internal.Services
         private const string KeyLayoutHeaders = "layout_headers";
         private const string KeyLayoutContent = "layout_content.cache"; // Cache file
         private const string KeyLayoutRetrievedTime = "layout_retrieved_time";
+        private readonly Dictionary<string, List<HistoryAction>> historyActionsCache;
 
         public int RetryCount { get; set; } = 3;
 
-        protected IStorage Storage { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
+        public IStorage Storage { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
         public StorageService(bool createdOnForeground = true)
         {
             //Ensures that database tables are created
             Storage = new FileStorage() {Background = !createdOnForeground};
+            historyActionsCache = new Dictionary<string, List<HistoryAction>>();
         }
 
         public async Task InitStorage()
@@ -249,25 +252,47 @@ namespace SensorbergSDK.Internal.Services
             return layout;
         }
 
-#region pure storage methods (sqlstorage class delegates)
-        public async Task SaveHistoryAction(string uuid, string beaconPid, DateTime now, BeaconEventType beaconEventType)
+#region storage methods
+        public async Task SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType)
         {
-            await Storage.SaveHistoryAction(uuid, beaconPid, now, beaconEventType);
+            HistoryAction action = FileStorageHelper.ToHistoryAction(uuid, beaconPid, now, beaconEventType);
+            if(!historyActionsCache.ContainsKey(uuid))
+            {
+                historyActionsCache[uuid] = new List<HistoryAction>();
+            }
+            historyActionsCache[uuid].Add(action);
+            await Storage.SaveHistoryAction(action);
         }
 
         public async Task SaveHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType)
         {
-            await Storage.SaveHistoryEvents(pid, timestamp, eventType);
+            await Storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent(pid,timestamp,eventType));
         }
 
-        public async Task<IList<HistoryAction>> GetActions(string uuid)
+        public async Task<IList<HistoryAction>> GetActions(string uuid, bool forceUpdate = false)
         {
+            if (!forceUpdate)
+            {
+                if (historyActionsCache.ContainsKey(uuid))
+                {
+                    return historyActionsCache[uuid];
+                }
+                return null;
+            }
            return await Storage.GetActions(uuid);
         }
 
-        public async Task<HistoryAction> GetAction(string uuid)
+        public async Task<HistoryAction> GetAction(string uuid, bool forceUpdate = false)
         {
-           return await Storage.GetAction(uuid);
+            if (!forceUpdate)
+            {
+                if (historyActionsCache.ContainsKey(uuid))
+                {
+                    return historyActionsCache[uuid].FirstOrDefault();
+                }
+                return null;
+            }
+            return await Storage.GetAction(uuid);
         }
 
         public async Task CleanDatabase()

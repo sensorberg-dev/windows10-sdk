@@ -49,7 +49,12 @@ namespace SensorbergSDKTests
         [TestMethod]
         public void TestHistoryEventToString()
         {
-            string s = FileStorageHelper.EventToString("1", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.Enter);
+            string s = FileStorageHelper.EventToString(new HistoryEvent()
+            {
+                pid = "1",
+                dt = DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000").ToString(History.TIMEFORMAT),
+                trigger = (int) BeaconEventType.Enter
+            });
             Assert.AreEqual("1,1429192800000,1,False\n", s);
         }
 

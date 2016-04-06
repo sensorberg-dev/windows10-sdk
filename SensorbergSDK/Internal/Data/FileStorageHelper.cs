@@ -19,13 +19,11 @@ namespace SensorbergSDK.Internal.Data
         /// <summary>
         /// Creates from the given parameters a string.
         /// </summary>
-        /// <param name="pid">Beacon ID</param>
-        /// <param name="timestamp">Timestampe of event</param>
-        /// <param name="eventType">Type of event</param>
+        /// <param name="he">Historyevent to convert</param>
         /// <returns>String representing the HistoryEvent</returns>
-        public static string EventToString(string pid, DateTimeOffset timestamp, BeaconEventType eventType)
+        public static string EventToString(HistoryEvent he)
         {
-            return string.Format("{0},{1},{2},{3}\n", pid, timestamp.ToUnixTimeMilliseconds(), (int)eventType, false);
+            return string.Format("{0},{1},{2},{3}\n", he.pid, DateTimeOffset.Parse(he.dt).ToUnixTimeMilliseconds(), he.trigger, false);
         }
 
         /// <summary>
@@ -303,6 +301,16 @@ namespace SensorbergSDK.Internal.Data
         public static BeaconAction BeaconActionFromString(string s)
         {
             throw new NotImplementedException();
+        }
+
+        public static HistoryAction ToHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType)
+        {
+            return new HistoryAction() { pid = beaconPid, dt = now.ToString(History.TIMEFORMAT), eid = uuid, trigger = (int)beaconEventType };
+        }
+
+        public static HistoryEvent ToHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType)
+        {
+            return new HistoryEvent() { pid = pid, dt = timestamp.ToString(History.TIMEFORMAT), trigger = (int)eventType };
         }
 
         public class SerializedAction

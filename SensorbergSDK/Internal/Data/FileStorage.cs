@@ -125,19 +125,19 @@ namespace SensorbergSDK.Internal.Data
             }
         }
 
-        public async Task SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType)
+        public async Task SaveHistoryAction(HistoryAction action)
         {
             StorageFolder folder = await GetFolder(Background ? BACKGROUND_ACTIONS_FOLDER : FOREGROUND_ACTIONS_FOLDER);
             StorageFile file = await folder.CreateFileAsync(ACTIONS_FILE_NAME, CreationCollisionOption.OpenIfExists);
-            string actionToString = FileStorageHelper.ActionToString(uuid, beaconPid, now, beaconEventType);
+            string actionToString = FileStorageHelper.ActionToString(action);
             await RetryAppending(file, actionToString);
         }
 
-        public async Task SaveHistoryEvents(string pid, DateTimeOffset timestamp, BeaconEventType eventType)
+        public async Task SaveHistoryEvents(HistoryEvent he)
         {
             StorageFolder folder = await GetFolder(Background ? BACKGROUND_EVENTS_FOLDER : FOREGROUND_EVENTS_FOLDER);
-            StorageFile file = await folder.CreateFileAsync(pid, CreationCollisionOption.OpenIfExists);
-            string eventToString = FileStorageHelper.EventToString(pid, timestamp, eventType);
+            StorageFile file = await folder.CreateFileAsync(he.pid, CreationCollisionOption.OpenIfExists);
+            string eventToString = FileStorageHelper.EventToString(he);
             await RetryAppending(file, eventToString);
         }
 

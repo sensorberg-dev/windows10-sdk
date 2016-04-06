@@ -60,15 +60,28 @@ namespace SensorbergSDK.Services
         /// </summary>
         /// <param name="eventArgs"></param>
         /// <param name="beaconAction"></param>
-        Task SaveHistoryAction(string uuid, string beaconPid, DateTime now, BeaconEventType beaconEventType);
+        Task SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType);
 
         /// <summary>
         /// Stores a beacon event to the database.
         /// </summary>
         Task SaveHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType);
 
-        Task<IList<HistoryAction>> GetActions(string uuid);
-        Task<HistoryAction> GetAction(string uuid);
+        /// <summary>
+        /// Get all triggered actions by the given action uuid.
+        /// </summary>
+        /// <param name="uuid">uuid from the action to search.</param>
+        /// <param name="forceUpdate">Force to ignore any cache.</param>
+        /// <returns>List of found actions</returns>
+        Task<IList<HistoryAction>> GetActions(string uuid, bool forceUpdate = false);
+
+        /// <summary>
+        /// Get the first triggered action by the given action uuid.
+        /// </summary>
+        /// <param name="uuid">uuid from the action to search.</param>
+        /// <param name="forceUpdate">Force to ignore any cache.</param>
+        /// <returns>The first found action or null</returns>
+        Task<HistoryAction> GetAction(string uuid, bool forceUpdate = false);
         Task CleanDatabase();
         Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds = 1000);
         Task SetDelayedActionAsExecuted(string id);

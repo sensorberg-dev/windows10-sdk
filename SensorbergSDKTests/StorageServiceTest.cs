@@ -6,12 +6,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
 using SensorbergSDKTests.Mocks;
@@ -22,7 +24,7 @@ namespace SensorbergSDKTests
     public class StorageServiceTest
     {
         [TestInitialize]
-        public void Setup()
+        public async Task Setup()
         {
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
@@ -31,6 +33,18 @@ namespace SensorbergSDKTests
             ServiceManager.StorageService = new StorageServiceExtend();
             ServiceManager.SettingsManager = new SettingsManager();
             ServiceManager.ReadOnlyForTests = true;
+
+
+            try
+            {
+                StorageFolder folder = await ApplicationData.Current.LocalFolder.GetFolderAsync("sensorberg-storage");
+                await folder.DeleteAsync();
+            }
+            catch (FileNotFoundException)
+            {
+
+            }
+            await ServiceManager.StorageService.InitStorage();
         }
 
         [TestMethod]
@@ -117,6 +131,19 @@ namespace SensorbergSDKTests
 
             IList<HistoryAction> dbHistoryActions = await service.GetActions("1");
 
+            Assert.AreEqual(2, dbHistoryActions.Count, "Not 2 actions found");
+
+            StorageService serviceInstance = (StorageService) service;
+            IStorage storage = serviceInstance.Storage;
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "11", DateTime.Now, BeaconEventType.Enter));
+
+            dbHistoryActions = await service.GetActions("1");
+
+            Assert.AreEqual(2, dbHistoryActions.Count, "Not 2 actions found, cache not worked");
+
+            dbHistoryActions = await service.GetActions("1");
+
+            Assert.AreEqual(2, dbHistoryActions.Count, "Not 2 actions found");
         }
     }
 }

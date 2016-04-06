@@ -41,12 +41,12 @@ namespace SensorbergSDKTests.Mocks
             UndeliveredActions?.Clear();
         }
 
-        public Task SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType)
+        public Task SaveHistoryAction(HistoryAction action)
         {
             throw new NotImplementedException();
         }
 
-        public Task SaveHistoryEvents(string pid, DateTimeOffset timestamp, BeaconEventType eventType)
+        public Task SaveHistoryEvents(HistoryEvent he)
         {
             throw new NotImplementedException();
         }

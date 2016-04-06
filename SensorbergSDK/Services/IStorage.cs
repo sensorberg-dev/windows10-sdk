@@ -24,8 +24,8 @@ namespace SensorbergSDK.Services
         Task<IList<HistoryAction>> GetUndeliveredActions();
         Task SetEventsAsDelivered();
         Task SetActionsAsDelivered();
-        Task SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType);
-        Task SaveHistoryEvents(string pid, DateTimeOffset timestamp, BeaconEventType eventType);
+        Task SaveHistoryAction(HistoryAction action);
+        Task SaveHistoryEvents(HistoryEvent he);
         Task<IList<HistoryAction>> GetActions(string uuid);
         Task<HistoryAction> GetAction(string uuid);
 
