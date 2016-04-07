@@ -327,7 +327,7 @@ namespace SensorbergSDK
         private bool Equals(BeaconAction other)
         {
             return Id == other.Id && Type == other.Type && string.Equals(Uuid, other.Uuid) && string.Equals(Subject, other.Subject) && string.Equals(Body, other.Body) &&
-                   string.Equals(Url, other.Url) && Equals(Payload, other.Payload);
+                   string.Equals(Url, other.Url) && Equals(Payload?.ToString(), other.Payload?.ToString());
         }
 
         public override bool Equals(object obj)

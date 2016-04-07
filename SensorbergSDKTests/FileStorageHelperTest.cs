@@ -176,6 +176,10 @@ namespace SensorbergSDKTests
             Assert.AreEqual(DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), data.dueTime, "Wrong time");
             Assert.AreEqual(guid.ToString(), data.Id, "ID isnt set");
             Assert.AreEqual(action, data.resolvedAction);
+
+            Assert.IsNull(FileStorageHelper.SimpleDelayedActionFromString(""));
+            Assert.IsNull(FileStorageHelper.SimpleDelayedActionFromString(null));
+            Assert.IsNull(FileStorageHelper.DelayedActionFromHelper(null));
         }
 
         [TestMethod]
@@ -196,7 +200,8 @@ namespace SensorbergSDKTests
                         CollectionAssert.AreEqual(dict["1"], readDict["1"]);
                         CollectionAssert.AreEqual(dict["2"], readDict["2"]);
 
-            //            CollectionAssert.AreEqual(dict, readDict);
+
+            Assert.IsNull(FileStorageHelper.BackoundEventsFromString(null));
         }
         [TestMethod]
         public void TestBackgroundEventToString()
@@ -224,12 +229,14 @@ namespace SensorbergSDKTests
             Assert.AreEqual("1",be.BeaconID);
             Assert.AreEqual(DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), be.EventTime);
             Assert.AreEqual(BeaconEventType.Enter,be.LastEvent);
+            Assert.IsNull(FileStorageHelper.BeaconEventStateFromString(""));
+            Assert.IsNull(FileStorageHelper.BeaconEventStateFromString(null));
         }
 
         [TestMethod]
         public void TestBeaconActionToString()
         {
-            string s = "";
+            string s = "{\"Id\":1,\"Type\":3,\"Uuid\":\"uuid\",\"Subject\":\"Subject\",\"Body\":\"body\",\"Url\":\"http://sensorberg.com\",\"PayloadString\":\"{\\\"pay\\\":\\\"load\\\"}\"}";
             BeaconAction beaconAction = new BeaconAction();
             beaconAction.Body = "body";
             beaconAction.Id = 1;
@@ -246,7 +253,7 @@ namespace SensorbergSDKTests
         [TestMethod]
         public void TestBeaconActionFromString()
         {
-            string s = "";
+            string s = "{\"Id\":1,\"Type\":3,\"Uuid\":\"uuid\",\"Subject\":\"Subject\",\"Body\":\"body\",\"Url\":\"http://sensorberg.com\",\"PayloadString\":\"{\\\"pay\\\":\\\"load\\\"}\"}";
             BeaconAction beaconAction = new BeaconAction();
             beaconAction.Body = "body";
             beaconAction.Id = 1;

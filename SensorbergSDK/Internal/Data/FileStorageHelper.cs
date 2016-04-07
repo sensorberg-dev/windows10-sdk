@@ -234,6 +234,10 @@ namespace SensorbergSDK.Internal.Data
 
         public static DelayedActionData DelayedActionFromHelper(DelayedActionHelper delayedActionHelper)
         {
+            if (delayedActionHelper == null)
+            {
+                return null;
+            }
             string s = Encoding.UTF8.GetString(Convert.FromBase64String(delayedActionHelper.Content));
             SerializedAction deserializeObject = JsonConvert.DeserializeObject<SerializedAction>(s);
             DelayedActionData data = new DelayedActionData();
@@ -254,6 +258,10 @@ namespace SensorbergSDK.Internal.Data
 
         public static Dictionary<string, Dictionary<string, long>> BackoundEventsFromString(string s)
         {
+            if (string.IsNullOrEmpty(s))
+            {
+                return null;
+            }
             Dictionary<string, Dictionary<string, long>> dict = JsonConvert.DeserializeObject< Dictionary<string, Dictionary<string, long>>>(s);
             if (dict == null)
             {
@@ -294,13 +302,17 @@ namespace SensorbergSDK.Internal.Data
 
         public static string BeaconActionToString(BeaconAction action)
         {
-            throw new NotImplementedException();
-            //            return JsonConvert.SerializeObject(action);
+            return JsonConvert.SerializeObject(action);
         }
 
         public static BeaconAction BeaconActionFromString(string s)
         {
-            throw new NotImplementedException();
+            BeaconAction action = JsonConvert.DeserializeObject<BeaconAction>(s);
+            if (!string.IsNullOrEmpty(action?.PayloadString))
+            {
+                action.Payload = JsonObject.Parse(action.PayloadString);
+            }
+            return action;
         }
 
         public static HistoryAction ToHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType)
