@@ -26,7 +26,7 @@ namespace SensorbergSDK.Internal.Services
         private const string KeyLayoutHeaders = "layout_headers";
         private const string KeyLayoutContent = "layout_content.cache"; // Cache file
         private const string KeyLayoutRetrievedTime = "layout_retrieved_time";
-        private readonly Dictionary<string, List<HistoryAction>> historyActionsCache;
+        private readonly Dictionary<string, IList<HistoryAction>> historyActionsCache;
 
         public int RetryCount { get; set; } = 3;
 
@@ -36,7 +36,7 @@ namespace SensorbergSDK.Internal.Services
         {
             //Ensures that database tables are created
             Storage = new FileStorage() {Background = !createdOnForeground};
-            historyActionsCache = new Dictionary<string, List<HistoryAction>>();
+            historyActionsCache = new Dictionary<string, IList<HistoryAction>>();
         }
 
         public async Task InitStorage()
@@ -277,22 +277,13 @@ namespace SensorbergSDK.Internal.Services
                 {
                     return historyActionsCache[uuid];
                 }
-                return null;
             }
-           return await Storage.GetActions(uuid);
+            return historyActionsCache[uuid] = await Storage.GetActions(uuid);
         }
 
         public async Task<HistoryAction> GetAction(string uuid, bool forceUpdate = false)
         {
-            if (!forceUpdate)
-            {
-                if (historyActionsCache.ContainsKey(uuid))
-                {
-                    return historyActionsCache[uuid].FirstOrDefault();
-                }
-                return null;
-            }
-            return await Storage.GetAction(uuid);
+            return (await GetActions(uuid,forceUpdate)).FirstOrDefault();
         }
 
         public async Task CleanDatabase()

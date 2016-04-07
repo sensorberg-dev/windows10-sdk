@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
@@ -144,6 +143,12 @@ namespace SensorbergSDKTests
             dbHistoryActions = await service.GetActions("1");
 
             Assert.AreEqual(2, dbHistoryActions.Count, "Not 2 actions found");
+
+
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("6", "11", DateTime.Now, BeaconEventType.Enter));
+            dbHistoryActions = await service.GetActions("6");
+
+            Assert.AreEqual(1, dbHistoryActions.Count, "Not 1 actions found");
         }
     }
 }
