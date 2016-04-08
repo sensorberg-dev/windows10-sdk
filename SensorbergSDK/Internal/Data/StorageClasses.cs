@@ -85,6 +85,7 @@ namespace SensorbergSDK.Internal
         [DataMember]
         public int trigger { get; set; }
         public bool Delivered { get; set; }
+        public bool Background { get; set; }
     }
 
     /// <summary>

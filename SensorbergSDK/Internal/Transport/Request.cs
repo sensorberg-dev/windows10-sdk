@@ -96,10 +96,7 @@ namespace SensorbergSDK.Internal
         {
             ResultState = resultState;
 
-            if (Result != null)
-            {
-                Result(this, ResultState);
-            }
+            Result?.Invoke(this, ResultState);
         }
     }
 }

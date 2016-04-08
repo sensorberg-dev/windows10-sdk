@@ -10,7 +10,10 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text;
 using System.Threading.Tasks;
+using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using MetroLog;
@@ -20,7 +23,7 @@ namespace SensorbergSDK.Internal.Data
 {
     public class FileStorage : IStorage
     {
-        private readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<FileStorage>();
+        private static readonly  ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<FileStorage>();
         private const string BACKGROUND_FOLDER_NAME = "background";
         private const string FOREGROUND_FOLDER_NAME = "foreground";
         private const string ACTIONS_FOLDER_NAME = "actions";
@@ -129,6 +132,7 @@ namespace SensorbergSDK.Internal.Data
         {
             StorageFolder folder = await GetFolder(Background ? BACKGROUND_ACTIONS_FOLDER : FOREGROUND_ACTIONS_FOLDER);
             StorageFile file = await folder.CreateFileAsync(ACTIONS_FILE_NAME, CreationCollisionOption.OpenIfExists);
+            action.Background = Background;
             string actionToString = FileStorageHelper.ActionToString(action);
             await RetryAppending(file, actionToString);
         }
@@ -269,11 +273,10 @@ namespace SensorbergSDK.Internal.Data
             }
         }
 
-        public Task SaveActionForForeground(BeaconAction beaconAction)
+        public async Task<List<HistoryAction>> GetActionsForForeground(bool doNotDelete = false)
         {
-            throw new NotImplementedException();
+            return (await GetUndeliveredActions(false)).Where(a => a.Background).ToList();
         }
-
 
         private async Task CreateEventMarker(StorageFolder folder)
         {
@@ -433,12 +436,18 @@ namespace SensorbergSDK.Internal.Data
         /// <param name="s">String to write.</param>
         private static async Task RetryWriting(StorageFile file, string s)
         {
+            logger.Trace("RetryWriting "+s);
             int retry = 0;
             int maxRetry = 6;
             do
             {
                 try
                 {
+//                    using (IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.ReadWrite))
+//                    {
+//                        await stream.WriteAsync(Encoding.UTF8.GetBytes(s).AsBuffer());
+//                        await stream.FlushAsync();
+//                    }
                     await FileIO.WriteTextAsync(file, s);
                     return;
                 }

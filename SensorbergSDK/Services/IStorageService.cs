@@ -95,6 +95,6 @@ namespace SensorbergSDK.Services
         Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice);
         Task<BackgroundEvent> GetLastEventStateForBeacon(string pid);
         Task SaveBeaconEventState(string pid, BeaconEventType enter);
-        Task SaveActionForForeground(BeaconAction beaconAction);
+        Task<List<BeaconAction>> GetActionsForForeground(bool doNotDelete = false);
     }
 }

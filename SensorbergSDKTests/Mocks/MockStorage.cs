@@ -100,5 +100,10 @@ namespace SensorbergSDKTests.Mocks
         {
             throw new NotImplementedException();
         }
+
+        public Task<List<HistoryAction>> GetActionsForForeground(bool doNotDelete = false)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

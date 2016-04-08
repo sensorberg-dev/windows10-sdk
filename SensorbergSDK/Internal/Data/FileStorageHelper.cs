@@ -97,16 +97,16 @@ namespace SensorbergSDK.Internal.Data
 
         public static string ActionToString(HistoryAction historyAction)
         {
-            return ActionToString(historyAction.eid, historyAction.pid, DateTimeOffset.Parse(historyAction.dt), historyAction.trigger, historyAction.Delivered);
+            return ActionToString(historyAction.eid, historyAction.pid, DateTimeOffset.Parse(historyAction.dt), historyAction.trigger, historyAction.Delivered, historyAction.Background);
         }
         public static string ActionToString(string uuid, string beaconPid, DateTimeOffset timestamp, BeaconEventType beaconEventType)
         {
-            return ActionToString(uuid, beaconPid, timestamp, (int) beaconEventType, false);
+            return ActionToString(uuid, beaconPid, timestamp, (int) beaconEventType, false, false);
         }
 
-        internal static string ActionToString(string uuid, string beaconPid, DateTimeOffset timestamp, int beaconEventType, bool delivered)
+        internal static string ActionToString(string uuid, string beaconPid, DateTimeOffset timestamp, int beaconEventType, bool delivered, bool background)
         {
-            return string.Format("{0},{1},{2},{3},{4}\n", uuid, beaconPid, timestamp.ToUnixTimeMilliseconds(), beaconEventType, delivered);
+            return string.Format("{0},{1},{2},{3},{4},{5}\n", uuid, beaconPid, timestamp.ToUnixTimeMilliseconds(), beaconEventType, delivered, background);
         }
 
         public static List<HistoryAction> ActionsFromStrings(IList<string> strings)
@@ -126,6 +126,7 @@ namespace SensorbergSDK.Internal.Data
             }
             return actions;
         }
+
         /// <summary>
         /// Parse the given string to a HistoryAction.
         /// </summary>
@@ -138,8 +139,8 @@ namespace SensorbergSDK.Internal.Data
                 return null;
             }
 
-            string[] ss = s.Split(new char[] { ',' });
-            if (ss.Length < 4)
+            string[] ss = s.Split(new char[] {','});
+            if (ss.Length < 5)
             {
                 return null;
             }
@@ -159,19 +160,26 @@ namespace SensorbergSDK.Internal.Data
             }
 
             ha.trigger = int.Parse(ss[3]);
-            if (ss.Length > 4)
+            try
             {
-                try
-                {
-                    ha.Delivered = bool.Parse(ss[4]);
-                }
-                catch (FormatException)
-                {
-                    Debug.WriteLine("ERROR: parsing action: " + s);
-                }
+                ha.Delivered = bool.Parse(ss[4]);
             }
+            catch (FormatException)
+            {
+                Debug.WriteLine("ERROR: parsing action: " + s);
+            }
+            try
+            {
+                ha.Background = bool.Parse(ss[5]);
+            }
+            catch (FormatException)
+            {
+                Debug.WriteLine("ERROR: parsing action: " + s);
+            }
+
             return ha;
         }
+
         public static string DelayedActionToString(DelayedActionHelper delayedActionHelper)
         {
             return DelayedActionToString(delayedActionHelper.Content, delayedActionHelper.Offset, delayedActionHelper.Executed, delayedActionHelper.Id);

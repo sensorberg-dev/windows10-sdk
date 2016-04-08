@@ -103,6 +103,7 @@
     <Content Include="Assets\raw\mock\layout_request.json" />
     <Content Include="Assets\raw\mock\layout_request_header.txt" />
     <None Include=".runsettings" />
+    <Content Include="Assets\raw\mock\mock_layout.json" />
     <None Include="project.json" />
     <SDKReference Include="MSTestFramework.Universal, Version=$(UnitTestPlatformVersion)" />
     <SDKReference Include="TestPlatform.Universal, Version=$(UnitTestPlatformVersion)" />
@@ -113,6 +114,7 @@
     <Compile Include="IntegrationTest.cs" />
     <Compile Include="LayoutManagerTest.cs" />
     <Compile Include="Mocks\FailToken.cs" />
+    <Compile Include="Mocks\LayoutManagerExtend.cs" />
     <Compile Include="Mocks\MockApiConnection.cs" />
     <Compile Include="Mocks\MockBeaconScanner.cs" />
     <Compile Include="Mocks\MockLayoutManager.cs" />

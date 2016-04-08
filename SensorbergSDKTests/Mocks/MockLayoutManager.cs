@@ -32,7 +32,7 @@ namespace SensorbergSDKTests.Mocks
         }
 
         public bool IsLayoutValid { get; }
-        public Layout Layout { get; }
+        public Layout Layout { get; set; }
         public bool FindOneAction { get; set; }
 
         public IAsyncOperation<bool> VerifyLayoutAsync(bool b = false)
@@ -41,6 +41,11 @@ namespace SensorbergSDKTests.Mocks
         }
 
         public event EventHandler<bool> LayoutValidityChanged;
+        public ResolvedAction GetAction(string actionId)
+        {
+            throw new NotImplementedException();
+        }
+
         public event Action<Request,FailToken> ShouldFail;
     }
 }

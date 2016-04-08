@@ -11,7 +11,7 @@ namespace SensorbergSDK
     /// </summary>
 	public sealed class Resolver
     {
-        private readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<Resolver>();
+        private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<Resolver>();
         public event EventHandler<ResolvedActionsEventArgs> ActionsResolved;
         public event EventHandler<string> FailedToResolveActions;
 

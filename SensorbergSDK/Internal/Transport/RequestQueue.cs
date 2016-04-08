@@ -13,7 +13,7 @@ namespace SensorbergSDK.Internal
     /// </summary>
     public sealed class RequestQueue : IDisposable
     {
-        private readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<RequestQueue>();
+        private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<RequestQueue>();
         public event EventHandler<int> QueueCountChanged;
         private Task _workerTask;
 

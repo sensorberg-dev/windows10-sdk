@@ -12,12 +12,11 @@ namespace SensorbergSDK.Internal
 {
     public class SDKEngine
     {
-        private readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<SDKEngine>();
+        private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<SDKEngine>();
         private const int DelayedActionExecutionTimeframeInSeconds = 60;
         private const int UpdateVisibilityTimerIntervalInMilliseconds = 60000;
-        private const int CheckPendingBeaconActionsFromBackgroundIntervalInMilliseconds = 1000;
         private const int DatabaseExpirationInHours = 1;
-        private const int WORKER_TIMER_PERIDODE = 1000;
+        private const int WORKER_TIMER_PERIDODE = 1000*10;
 
         /// <summary>
         /// Fired when a beacon action has been successfully resolved and is ready to be exeuted.
@@ -100,7 +99,6 @@ namespace SensorbergSDK.Internal
         {
             if (!IsInitialized)
             {
-
                 await ServiceManager.StorageService.InitStorage();
 
                 ServiceManager.LayoutManager.LayoutValidityChanged += LayoutValidityChanged;
@@ -128,11 +126,7 @@ namespace SensorbergSDK.Internal
                             UpdateVisibilityTimerIntervalInMilliseconds,
                             UpdateVisibilityTimerIntervalInMilliseconds);
 
-                    PeriodicWorkerTimer = new Timer(OnWorkerTimerActivated, null, WORKER_TIMER_PERIDODE, WORKER_TIMER_PERIDODE);
-//                    _fetchActionsResolvedByBackgroundTimer =
-//                        new Timer(OnCheckActionsResolvedByBackground, null,
-//                            CheckPendingBeaconActionsFromBackgroundIntervalInMilliseconds,
-//                            CheckPendingBeaconActionsFromBackgroundIntervalInMilliseconds);
+//                    PeriodicWorkerTimer = new Timer(OnWorkerTimerActivated, null, WORKER_TIMER_PERIDODE, WORKER_TIMER_PERIDODE);
 
                     var layoutTimeSpam = TimeSpan.FromMilliseconds(AppSettings.LayoutUpdateInterval);
                     _getLayoutTimer = new Timer(OnLayoutUpdatedAsync, null, layoutTimeSpam, layoutTimeSpam);
@@ -291,10 +285,7 @@ namespace SensorbergSDK.Internal
         /// <param name="nextDueTime">Time when the timer should timeout.</param>
         private void ResetProcessDelayedActionsTimer(DateTimeOffset nextDueTime)
         {
-            if (_processDelayedActionsTimer != null)
-            {
-                _processDelayedActionsTimer.Dispose();
-            }
+            _processDelayedActionsTimer?.Dispose();
 
             int millisecondsToNextProcessingOfDelayedActions = (int) nextDueTime.Subtract(DateTimeOffset.Now).TotalMilliseconds;
 
@@ -378,9 +369,14 @@ namespace SensorbergSDK.Internal
 
         public async void OnWorkerTimerActivated(object state)
         {
-//            await ServiceManager.StorageService.get
+            List<BeaconAction> beaconActions = await ServiceManager.StorageService.GetActionsForForeground();
+            foreach (var beaconAction in beaconActions)
+            {
+                BeaconActionResolved?.Invoke(this, beaconAction);
+            }
         }
-       /* /// <summary>
+
+        /* /// <summary>
         /// Checks, if there are pending beacon actions resolved by the background task.
         /// This callback is called only when the application is on foreground.
         /// </summary>

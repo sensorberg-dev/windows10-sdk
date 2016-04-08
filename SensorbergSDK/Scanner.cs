@@ -24,7 +24,7 @@ namespace SensorbergSDK
     /// </summary>
 	public sealed class Scanner : IBeaconScanner
     {
-        private readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<Scanner>();
+        private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<Scanner>();
         /// <summary>
         /// Triggered when the scanner is either started, stopped or aborted.
         /// Aborted status may indicate that the bluetooth has not been turned on on the device.

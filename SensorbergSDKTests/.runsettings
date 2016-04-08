@@ -3,7 +3,6 @@
   <!-- Configurations that affect the Test Framework -->
   <RunConfiguration>
     <MaxCpuCount>1</MaxCpuCount>
-    <Timeouts testTimeout="30000" />
     <!-- Path relative to solution directory -->
     <ResultsDirectory>.\TestResults</ResultsDirectory>
 

@@ -8,6 +8,7 @@ using Windows.ApplicationModel.Background;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Background;
 using Windows.UI.Notifications;
+using MetroLog;
 using SensorbergSDK.Data;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
@@ -21,6 +22,7 @@ namespace SensorbergSDKBackground
     /// </summary>
     public class BackgroundEngine
     {
+        private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<BackgroundEngine>();
         private const int ExitEventDelayInSeconds = 13;
         private const int KillTimerDelayInMilliseconds = 200;
 
@@ -33,7 +35,6 @@ namespace SensorbergSDKBackground
         private IList<BeaconEventArgs> _beaconArgs;
         private Timer _killTimer;
         private int _unsolvedCounter;
-        private bool _newActionsFromBackground;
         private bool _readyToFinish = false;
         private int _finishingRounds = 5;
         private AppSettings AppSettings { get; set; }
@@ -88,6 +89,7 @@ namespace SensorbergSDKBackground
         /// </summary>
         public async Task ResolveBeaconActionsAsync()
         {
+            logger.Trace("ResolveBeaconActionsAsync");
             var triggerDetails = _backgroundTaskInstance.TriggerDetails as BluetoothLEAdvertisementWatcherTriggerDetails;
 
             if (triggerDetails != null)
@@ -128,7 +130,6 @@ namespace SensorbergSDKBackground
         /// <summary>
         /// Finishes background processing and releases all resources
         /// </summary>
-        /// <param name="triggerDetails"></param>
         private void Finish()
         {
             if (_killTimer != null)
@@ -139,13 +140,6 @@ namespace SensorbergSDKBackground
 
             Finished?.Invoke(this, 0);
 
-            if (_newActionsFromBackground)
-            {
-                // Signal the main app that new actions have been resolved on background
-                SDKData.Instance.NewActionsFromBackground = true;
-            }
-
-            SdkEngine.Resolver.RequestQueueCountChanged -= OnRequestQueueCountChanged;
             SdkEngine.BeaconActionResolved -= OnBeaconActionResolvedAsync;
 
             SdkEngine.Deinitialize();
@@ -174,6 +168,7 @@ namespace SensorbergSDKBackground
         /// </summary>
         private async Task AddBeaconsToBeaconArgsAsync(BluetoothSignalStrengthFilter filter)
         {
+            logger.Trace("AddBeaconsToBeaconArgsAsync");
             foreach (var beacon in _beacons)
             {
                 BackgroundEvent history = await ServiceManager.StorageService.GetLastEventStateForBeacon(beacon.Pid);
@@ -223,7 +218,7 @@ namespace SensorbergSDKBackground
         /// </summary>
         private void OnRequestQueueCountChanged(object sender, int e)
         {
-            System.Diagnostics.Debug.WriteLine("BackgroundEngine.OnRequestQueueCountChanged(): " + e);
+            logger.Trace("BackgroundEngine.OnRequestQueueCountChanged(): " + e);
 
             if (e > 0)
             {
@@ -244,19 +239,9 @@ namespace SensorbergSDKBackground
         /// All resolved actions are stored into local database. And the UI app will show actions to the user.
         /// When the UI app is not running, toast notification is shown for the user.
         /// </summary>
-        private async void OnBeaconActionResolvedAsync(object sender, BeaconAction beaconAction)
+        private void OnBeaconActionResolvedAsync(object sender, BeaconAction beaconAction)
         {
-            System.Diagnostics.Debug.WriteLine("BackgroundEngine.OnBeaconActionResolvedAsync()");
-            //TODO delegate to task
-            await ServiceManager.StorageService.SaveActionForForeground(beaconAction);
-            _newActionsFromBackground = true;
-
-//            if (SDKData.Instance.ShowNotificationsOnBackground())
-//            {
-//                // Toast notifications are shown only if the app is not visible
-//                ToastNotification toastNotification = beaconAction.ToToastNotification();
-//                NotificationUtils.ShowToastNotification(toastNotification);
-//            }
+            logger.Trace("BackgroundEngine.OnBeaconActionResolvedAsync()");
         }
 
         private void OnKill(object state)

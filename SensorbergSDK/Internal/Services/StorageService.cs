@@ -316,9 +316,17 @@ namespace SensorbergSDK.Internal.Services
             await Storage.SaveBeaconEventState(pid, enter);
         }
 
-        public async Task SaveActionForForeground(BeaconAction beaconAction)
+        public async Task<List<BeaconAction>> GetActionsForForeground(bool doNotDelete = false)
         {
-            await Storage.SaveActionForForeground(beaconAction);
+            List<BeaconAction> beaconActions = new List<BeaconAction>();
+            List<HistoryAction> historyActions = await Storage.GetActionsForForeground(doNotDelete);
+            foreach (HistoryAction historyAction in historyActions)
+            {
+                ResolvedAction action= ServiceManager.LayoutManager.GetAction(historyAction.eid);
+                beaconActions.Add(action.BeaconAction);
+            }
+
+            return beaconActions;
         }
 
         #endregion

@@ -702,5 +702,65 @@ namespace SensorbergSDKTests
             Assert.AreEqual("1", action.eid, "not same eid");
             Assert.AreEqual("2016-04-16T12:00:00.000+00:00", action.dt, "not same date");
         }
+
+       /* [TestMethod]
+        public async Task BackgroundActionsTest()
+        {
+            await storage.InitStorage();
+            BeaconAction beaconAction = new BeaconAction();
+            beaconAction.Body = "body2";
+            beaconAction.Id = 2;
+            beaconAction.Payload = JsonObject.Parse("{\"pay\":\"load2\"}");
+            beaconAction.Subject = "Subject2";
+            beaconAction.Type = BeaconActionType.UrlMessage;
+            beaconAction.Url = "http://sensorberg.com";
+            beaconAction.Uuid = "uuid2";
+
+            await storage.SaveHistoryAction(beaconAction);
+            beaconAction = new BeaconAction();
+            beaconAction.Body = "body2";
+            beaconAction.Id = 3;
+            beaconAction.Payload = JsonObject.Parse("{\"pay\":\"load2\"}");
+            beaconAction.Subject = "Subject2";
+            beaconAction.Type = BeaconActionType.UrlMessage;
+            beaconAction.Url = "http://sensorberg.com";
+            beaconAction.Uuid = "uuid2";
+            await storage.SaveActionForForeground(beaconAction);
+
+            beaconAction = new BeaconAction();
+            beaconAction.Body = "body2";
+            beaconAction.Id = 44;
+            beaconAction.Payload = JsonObject.Parse("{\"pay\":\"load2\"}");
+            beaconAction.Subject = "Subject2";
+            beaconAction.Type = BeaconActionType.UrlMessage;
+            beaconAction.Url = "http://sensorberg.com";
+            beaconAction.Uuid = "uuid4";
+            await storage.SaveActionForForeground(beaconAction);
+
+            List<BeaconAction> actions = await storage.GetActionsForForeground(true);
+
+            Assert.AreEqual(3, actions.Count, "Not 3 actions found");
+            Assert.AreEqual(beaconAction, actions.First(a => a.Id == 44));
+
+            actions = await storage.GetActionsForForeground();
+            Assert.AreEqual(3, actions.Count, "Not 3 actions found");
+
+            actions = await storage.GetActionsForForeground();
+            Assert.AreEqual(0, actions.Count, "Elements found, deletion not worked");
+        }*/
+
+        [TestMethod]
+        public async Task ReadEmptyFolderFilesTest()
+        {
+            await storage.InitStorage();
+            await storage.GetActionsForForeground();
+            await storage.GetAction("1");
+            await storage.GetActions("asd");
+            await storage.GetDelayedActions(123);
+            await storage.GetLastEventStateForBeacon("123");
+            await storage.GetUndeliveredActions();
+            await storage.GetUndeliveredEvents();
+            await storage.CleanDatabase();
+        }
     }
 }
