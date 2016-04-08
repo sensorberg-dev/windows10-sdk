@@ -157,9 +157,16 @@ namespace SensorbergSDKTests
         {
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.LayoutManager = new LayoutManagerExtend();
-            ((LayoutManagerExtend)ServiceManager.LayoutManager).SetLayout(Layout.FromJson(await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/raw/mock/layout_request_header.txt", UriKind.RelativeOrAbsolute))),
-                        JsonObject.Parse(await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/raw/mock/mock_layout.json", UriKind.RelativeOrAbsolute)))),
-                        DateTimeOffset.Now));
+            ((LayoutManagerExtend) ServiceManager.LayoutManager).SetLayout(
+                Layout.FromJson(
+                    await
+                        FileIO.ReadTextAsync(
+                            await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/raw/mock/layout_request_header.txt", UriKind.RelativeOrAbsolute))),
+                    JsonObject.Parse(
+                        await
+                            FileIO.ReadTextAsync(
+                                await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/raw/mock/mock_layout.json", UriKind.RelativeOrAbsolute)))),
+                    DateTimeOffset.Now));
             ServiceManager.ReadOnlyForTests = true;
 
             FileStorage storage = new FileStorage {Background = true};
@@ -180,6 +187,88 @@ namespace SensorbergSDKTests
 
             IStorageService storageService = ServiceManager.StorageService;
             List<BeaconAction> beaconActions = await storageService.GetActionsForForeground();
+
+            Assert.AreEqual(4, beaconActions.Count, "Not 4 actions found");
+
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("9ded63644e424d758b0218f7c70f2473", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"),
+                    BeaconEventType.Enter));
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3f30be2605524f82a9bf0ccb4a81618f", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"),
+                    BeaconEventType.Exit));
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("312a8594e07542bd814ecdd17f76538e", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
+                    BeaconEventType.EnterExit));
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("959ea393e3424ab7ad53584a8b789197", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
+                    BeaconEventType.EnterExit));
+
+            beaconActions = await storageService.GetActionsForForeground();
+
+            Assert.AreEqual(4, beaconActions.Count, "Not 4 actions found");
+
+            StorageService service = (StorageService) ServiceManager.StorageService;
+            IStorage foregroundStorage = service.Storage;
+            await
+                foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("4", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"),
+                    BeaconEventType.Enter));
+            await
+                foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"),
+                    BeaconEventType.Exit));
+            await
+                foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
+                    BeaconEventType.EnterExit));
+            await
+                foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
+                    BeaconEventType.EnterExit));
+
+            IList<HistoryAction> historyActions = await foregroundStorage.GetUndeliveredActions();
+
+            Assert.AreEqual(12, historyActions.Count, "Not 12 history actions found");
+
+
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("9ded63644e424d758b0218f7c70f2473", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"),
+                    BeaconEventType.Enter));
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3f30be2605524f82a9bf0ccb4a81618f", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"),
+                    BeaconEventType.Exit));
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("312a8594e07542bd814ecdd17f76538e", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
+                    BeaconEventType.EnterExit));
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("959ea393e3424ab7ad53584a8b789197", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
+                    BeaconEventType.EnterExit));
+
+            await foregroundStorage.SetActionsAsDelivered();
+            historyActions = await foregroundStorage.GetUndeliveredActions();
+            Assert.AreEqual(4, historyActions.Count, "Not 4 history actions found");
+
+            beaconActions = await storageService.GetActionsForForeground();
+
+            Assert.AreEqual(4, beaconActions.Count, "Not 4 actions found");
+
+
+
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("9ded63644e424d758b0218f7c70f2473", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"),
+                    BeaconEventType.Enter));
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3f30be2605524f82a9bf0ccb4a81618f", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"),
+                    BeaconEventType.Exit));
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("312a8594e07542bd814ecdd17f76538e", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
+                    BeaconEventType.EnterExit));
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("959ea393e3424ab7ad53584a8b789197", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
+                    BeaconEventType.EnterExit));
+
+            await foregroundStorage.GetUndeliveredActions();
+            await foregroundStorage.SetActionsAsDelivered();
+            historyActions = await foregroundStorage.GetUndeliveredActions();
+            Assert.AreEqual(0, historyActions.Count, "Not 0 history actions found");
+
+            beaconActions = await storageService.GetActionsForForeground();
 
             Assert.AreEqual(4, beaconActions.Count, "Not 4 actions found");
         }

@@ -126,7 +126,7 @@ namespace SensorbergSDK.Internal
                             UpdateVisibilityTimerIntervalInMilliseconds,
                             UpdateVisibilityTimerIntervalInMilliseconds);
 
-//                    PeriodicWorkerTimer = new Timer(OnWorkerTimerActivated, null, WORKER_TIMER_PERIDODE, WORKER_TIMER_PERIDODE);
+                    PeriodicWorkerTimer = new Timer(OnWorkerTimerActivated, null, WORKER_TIMER_PERIDODE, WORKER_TIMER_PERIDODE);
 
                     var layoutTimeSpam = TimeSpan.FromMilliseconds(AppSettings.LayoutUpdateInterval);
                     _getLayoutTimer = new Timer(OnLayoutUpdatedAsync, null, layoutTimeSpam, layoutTimeSpam);

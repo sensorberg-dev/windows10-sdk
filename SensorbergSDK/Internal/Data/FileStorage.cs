@@ -275,7 +275,79 @@ namespace SensorbergSDK.Internal.Data
 
         public async Task<List<HistoryAction>> GetActionsForForeground(bool doNotDelete = false)
         {
-            return (await GetUndeliveredActions(false)).Where(a => a.Background).ToList();
+            List<HistoryAction> actions = new List<HistoryAction>();
+
+            StorageFolder folder = await GetFolder(BACKGROUND_ACTIONS_FOLDER, true);
+            StorageFile deliveredActionsFile = await folder.CreateFileAsync(ACTIONS_FILE_NAME, CreationCollisionOption.OpenIfExists);
+
+            List<HistoryAction> fileActions = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(deliveredActionsFile));
+            if (fileActions != null)
+            {
+                foreach (HistoryAction historyAction in fileActions)
+                {
+                    if (historyAction.Background)
+                    {
+                        actions.Add(historyAction);
+                    }
+                }
+                if (!doNotDelete)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    foreach (HistoryAction historyAction in fileActions)
+                    {
+                        historyAction.Background = false;
+                        sb.Append(FileStorageHelper.ActionToString(historyAction));
+                        sb.Append('\n');
+                    }
+                    await RetryWriting(deliveredActionsFile, sb.ToString());
+                }
+            }
+            IReadOnlyList<StorageFolder> folders = await folder.GetFoldersAsync();
+            foreach (StorageFolder storageFolder in folders)
+            {
+                try
+                {
+                    IReadOnlyList<StorageFile> files = await storageFolder.GetFilesAsync();
+                    StorageFile first = null;
+                    foreach (var f in files)
+                    {
+                        if (f.Name == ACTIONS_FILE_NAME)
+                        {
+                            first = f;
+                            break;
+                        }
+                    }
+                    if (first != null)
+                    {
+                        fileActions = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(first));
+                        if (fileActions != null)
+                        {
+                            foreach (HistoryAction historyAction in fileActions)
+                            {
+                                if(historyAction.Background)
+                                {
+                                    actions.Add(historyAction);
+                                }
+                            }
+                            if (!doNotDelete)
+                            {
+                                StringBuilder sb = new StringBuilder();
+                                foreach (HistoryAction historyAction in fileActions)
+                                {
+                                    historyAction.Background = false;
+                                    sb.Append(FileStorageHelper.ActionToString(historyAction));
+                                    sb.Append('\n');
+                                }
+                                await RetryWriting(first, sb.ToString());
+                            }
+                        }
+                    }
+                }
+                catch (FileNotFoundException)
+                {
+                }
+            }
+            return actions;
         }
 
         private async Task CreateEventMarker(StorageFolder folder)
