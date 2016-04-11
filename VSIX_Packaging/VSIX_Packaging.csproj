@@ -112,10 +112,10 @@
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup>
     <PreBuildEvent>echo PREBUILDSTEP for $(ProjectName)
-echo Copying files from $(SolutionDir)SensorbergSDKBackground\bin\ release folders 
-xcopy "$(SolutionDir)SensorbergSDKBackground\bin\ARM\Release\*.*" "$(ProjectDir)References\CommonConfiguration\ARM\" /i /d /y
-xcopy "$(SolutionDir)SensorbergSDKBackground\bin\x64\Release\*.*" "$(ProjectDir)References\CommonConfiguration\x64\" /i /d /y
-xcopy "$(SolutionDir)SensorbergSDKBackground\bin\x86\Release\*.*" "$(ProjectDir)References\CommonConfiguration\x86\" /i /d /y</PreBuildEvent>
+echo Copying files from $(SolutionDir)SensorbergSDK\bin\ release folders 
+xcopy "$(SolutionDir)SensorbergSDK\bin\ARM\Release\*.*" "$(ProjectDir)References\CommonConfiguration\ARM\" /i /d /y
+xcopy "$(SolutionDir)SensorbergSDK\bin\x64\Release\*.*" "$(ProjectDir)References\CommonConfiguration\x64\" /i /d /y
+xcopy "$(SolutionDir)SensorbergSDK\bin\x86\Release\*.*" "$(ProjectDir)References\CommonConfiguration\x86\" /i /d /y</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
