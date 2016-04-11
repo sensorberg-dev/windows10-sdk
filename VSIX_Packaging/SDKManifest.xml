@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <FileList
-  Identity = "SensorbergSDK, Version=0.6.5"
+  Identity = "SensorbergSDK, Version=0.5"
   DisplayName = "Sensorberg SDK for Windows 10"
   MinVSVersion = "14.0"
   SupportedArchitectures = "x86;x64;ARM"

@@ -290,7 +290,7 @@ namespace SensorbergSDK.Internal.Data
                         actions.Add(historyAction);
                     }
                 }
-                if (!doNotDelete)
+                if (!doNotDelete && fileActions.Count!=0)
                 {
                     StringBuilder sb = new StringBuilder();
                     foreach (HistoryAction historyAction in fileActions)
@@ -320,7 +320,7 @@ namespace SensorbergSDK.Internal.Data
                     if (first != null)
                     {
                         fileActions = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(first));
-                        if (fileActions != null)
+                        if (fileActions != null && fileActions.Count != 0)
                         {
                             foreach (HistoryAction historyAction in fileActions)
                             {
