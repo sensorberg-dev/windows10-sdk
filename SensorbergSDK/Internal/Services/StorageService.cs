@@ -9,11 +9,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.Storage;
 using SensorbergSDK.Data;
+using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Utils;
 using SensorbergSDK.Services;
 
@@ -24,15 +26,17 @@ namespace SensorbergSDK.Internal.Services
         private const string KeyLayoutHeaders = "layout_headers";
         private const string KeyLayoutContent = "layout_content.cache"; // Cache file
         private const string KeyLayoutRetrievedTime = "layout_retrieved_time";
+        private readonly Dictionary<string, IList<HistoryAction>> historyActionsCache;
 
-        public int RetryCount { get; set; }
+        public int RetryCount { get; set; } = 3;
 
-        protected IStorage Storage { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
+        public IStorage Storage { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
-        public StorageService()
+        public StorageService(bool createdOnForeground = true)
         {
             //Ensures that database tables are created
-            Storage = new SqlStorage();
+            Storage = new FileStorage() {Background = !createdOnForeground};
+            historyActionsCache = new Dictionary<string, IList<HistoryAction>>();
         }
 
         public async Task InitStorage()
@@ -65,7 +69,7 @@ namespace SensorbergSDK.Internal.Services
 
         private async Task WaitBackoff(int currentRetries)
         {
-            await Task.Delay((int) Math.Pow(100*currentRetries + 1, currentRetries + 1));
+            await Task.Delay((int) Math.Pow(2, currentRetries + 1)*100);
         }
 
         public async Task<LayoutResult> RetrieveLayout()
@@ -248,25 +252,38 @@ namespace SensorbergSDK.Internal.Services
             return layout;
         }
 
-#region pure storage methods (sqlstorage class delegates)
-        public async Task SaveHistoryAction(string uuid, string beaconPid, DateTime now, int beaconEventType)
+#region storage methods
+        public async Task SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType)
         {
-            await Storage.SaveHistoryAction(uuid, beaconPid, now, beaconEventType);
+            HistoryAction action = FileStorageHelper.ToHistoryAction(uuid, beaconPid, now, beaconEventType);
+            if(!historyActionsCache.ContainsKey(uuid))
+            {
+                historyActionsCache[uuid] = new List<HistoryAction>();
+            }
+            historyActionsCache[uuid].Add(action);
+            await Storage.SaveHistoryAction(action);
         }
 
-        public async Task SaveHistoryEvent(string pid, DateTimeOffset timestamp, int eventType)
+        public async Task SaveHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType)
         {
-            await Storage.SaveHistoryEvents(pid, timestamp, eventType);
+            await Storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent(pid,timestamp,eventType));
         }
 
-        public async Task<IList<DBHistoryAction>> GetActions(string uuid)
+        public async Task<IList<HistoryAction>> GetActions(string uuid, bool forceUpdate = false)
         {
-           return await Storage.GetActions(uuid);
+            if (!forceUpdate)
+            {
+                if (historyActionsCache.ContainsKey(uuid))
+                {
+                    return historyActionsCache[uuid];
+                }
+            }
+            return historyActionsCache[uuid] = await Storage.GetActions(uuid);
         }
 
-        public async Task<DBHistoryAction> GetAction(string uuid)
+        public async Task<HistoryAction> GetAction(string uuid, bool forceUpdate = false)
         {
-           return await Storage.GetAction(uuid);
+            return (await GetActions(uuid,forceUpdate)).FirstOrDefault();
         }
 
         public async Task CleanDatabase()
@@ -274,17 +291,12 @@ namespace SensorbergSDK.Internal.Services
             await Storage.CleanDatabase();
         }
 
-        public async Task<IList<BeaconAction>> GetBeaconActionsFromBackground()
-        {
-           return await Storage.GetBeaconActionsFromBackground();
-        }
-
         public async Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds = 1000)
         {
            return await Storage.GetDelayedActions(maxDelayFromNowInSeconds);
         }
 
-        public async Task SetDelayedActionAsExecuted(int id)
+        public async Task SetDelayedActionAsExecuted(string id)
         {
             await Storage.SetDelayedActionAsExecuted(id);
         }
@@ -294,26 +306,30 @@ namespace SensorbergSDK.Internal.Services
             await Storage.SaveDelayedAction(action, dueTime, beaconPid, eventTypeDetectedByDevice);
         }
 
-        public async Task<IList<DBBackgroundEventsHistory>> GetBeaconBackgroundEventsHistory(string pid)
+        public async Task<BackgroundEvent> GetLastEventStateForBeacon(string pid)
         {
-            return await Storage.GetBeaconBackgroundEventsHistory(pid);
+            return await Storage.GetLastEventStateForBeacon(pid);
         }
 
-        public async Task SaveBeaconBackgroundEvent(string pid, BeaconEventType enter)
+        public async Task SaveBeaconEventState(string pid, BeaconEventType enter)
         {
-            await Storage.SaveBeaconBackgroundEvent(pid, enter);
+            await Storage.SaveBeaconEventState(pid, enter);
         }
 
-        public async Task DeleteBackgroundEvent(string pid)
+        public async Task<List<BeaconAction>> GetActionsForForeground(bool doNotDelete = false)
         {
-            await Storage.DeleteBackgroundEvent(pid);
+            List<BeaconAction> beaconActions = new List<BeaconAction>();
+            List<HistoryAction> historyActions = await Storage.GetActionsForForeground(doNotDelete);
+            foreach (HistoryAction historyAction in historyActions)
+            {
+                ResolvedAction action= ServiceManager.LayoutManager.GetAction(historyAction.eid);
+                beaconActions.Add(action.BeaconAction);
+            }
+
+            return beaconActions;
         }
 
-        public async Task SaveBeaconActionFromBackground(BeaconAction beaconAction)
-        {
-            await Storage.SaveBeaconActionFromBackground(beaconAction);
-        }
-#endregion
+        #endregion
 
         /// <summary>
         /// Invalidates both the current and cached layout.

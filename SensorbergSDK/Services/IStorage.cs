@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDK.Services
 {
@@ -23,10 +24,10 @@ namespace SensorbergSDK.Services
         Task<IList<HistoryAction>> GetUndeliveredActions();
         Task SetEventsAsDelivered();
         Task SetActionsAsDelivered();
-        Task SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, int beaconEventType);
-        Task SaveHistoryEvents(string pid, DateTimeOffset timestamp, int eventType);
-        Task<IList<DBHistoryAction>> GetActions(string uuid);
-        Task<DBHistoryAction> GetAction(string uuid);
+        Task SaveHistoryAction(HistoryAction action);
+        Task SaveHistoryEvents(HistoryEvent he);
+        Task<IList<HistoryAction>> GetActions(string uuid);
+        Task<HistoryAction> GetAction(string uuid);
 
         /// <summary>
         /// Cleans old entries from the database
@@ -35,24 +36,16 @@ namespace SensorbergSDK.Services
         Task CleanDatabase();
 
         /// <summary>
-        /// Returns the beacon actions, which have been resolved in the background, but not handled
-        /// yet by the user. The returned actions are deleted from the database.
-        /// </summary>
-        /// <returns>The pending beacon actions resolved by the background task.</returns>
-        Task<IList<BeaconAction>> GetBeaconActionsFromBackground();
-
-        /// <summary>
         /// Returns delayed actions which should be executed now or maxDelayFromNowInSeconds
         /// seconds in the future.
         /// </summary>
         /// <param name="maxDelayFromNowInSeconds"></param>
         /// <returns></returns>
         Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds);
-        Task SetDelayedActionAsExecuted(int id);
+        Task SetDelayedActionAsExecuted(string id);
         Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice);
-        Task<IList<DBBackgroundEventsHistory>> GetBeaconBackgroundEventsHistory(string pid);
-        Task SaveBeaconBackgroundEvent(string pid, BeaconEventType enter);
-        Task DeleteBackgroundEvent(string pid);
-        Task SaveBeaconActionFromBackground(BeaconAction beaconAction);
+        Task SaveBeaconEventState(string pid, BeaconEventType enter);
+        Task<BackgroundEvent> GetLastEventStateForBeacon(string pid);
+        Task<List<HistoryAction>> GetActionsForForeground(bool doNotDelete = false);
     }
 }

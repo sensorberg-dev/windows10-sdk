@@ -1,5 +1,4 @@
-﻿using SQLite;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Windows.Data.Json;
@@ -7,9 +6,9 @@ using Newtonsoft.Json;
 
 namespace SensorbergSDK.Internal
 {
-    public struct DelayedActionData
+    public class DelayedActionData
     {
-        public int Id;
+        public string Id;
         public ResolvedAction resolvedAction;
         public DateTimeOffset dueTime;
         public string beaconPid;
@@ -23,7 +22,7 @@ namespace SensorbergSDK.Internal
     [DataContract]
     public class History
     {
-        internal static readonly DateTimeFormat Formater = new DateTimeFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        public const string TIMEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.fffzzz";
         [DataMember]
         // ReSharper disable once InconsistentNaming
         public string deviceTimestamp { get; set; }
@@ -38,10 +37,15 @@ namespace SensorbergSDK.Internal
     [DataContract]
     public class HistoryEvent
     {
+
+        public HistoryEvent()
+        {
+        }
+
         public HistoryEvent(DBHistoryEvent dbEvent)
         {
             pid = dbEvent.pid;
-            dt = dbEvent.dt.ToString("yyyy-MM-dd'T'HH:mm:ss.fffzzz");
+            dt = dbEvent.dt.ToString(History.TIMEFORMAT);
 //            dt = dbEvent.dt.ToString(History.Formater.FormatProvider);
             trigger = dbEvent.trigger;
         }
@@ -54,16 +58,21 @@ namespace SensorbergSDK.Internal
         [DataMember]
         // ReSharper disable once InconsistentNaming
         public int trigger { get; set; }
+
+        public bool Delivered { get; set; }
     }
 
     [DataContract]
     public class HistoryAction
     {
+        public HistoryAction()
+        {
+        }
         public HistoryAction(DBHistoryAction dbAction)
         {
             eid = dbAction.eid;
             pid = dbAction.pid;
-            dt = dbAction.dt.ToString("yyyy-MM-dd'T'HH:mm:ss.fffzzz");
+            dt = dbAction.dt.ToString(History.TIMEFORMAT);
             //            dt = dbAction.dt.ToString(History.Formater.FormatProvider);
             trigger = dbAction.trigger;
         }
@@ -75,6 +84,8 @@ namespace SensorbergSDK.Internal
         public string dt { get; set; } //eventDate
         [DataMember]
         public int trigger { get; set; }
+        public bool Delivered { get; set; }
+        public bool Background { get; set; }
     }
 
     /// <summary>
@@ -106,7 +117,6 @@ namespace SensorbergSDK.Internal
     /// </summary>
     public class DBDelayedAction
     {
-        [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
         public DateTimeOffset DueTime { get; set; } // Time when this action should be executed
         public string ResolvedAction { get; set; }
@@ -121,7 +131,6 @@ namespace SensorbergSDK.Internal
     /// </summary>
     public class DBBackgroundEventsHistory
     {
-        [PrimaryKey]
         public string BeaconPid { get; set; }
 
         public DateTimeOffset EventTime { get; set; } // Time when this action should be executed
@@ -133,7 +142,6 @@ namespace SensorbergSDK.Internal
     //These actions are solved on background. Foreground app should deliver them to the listener app
     public class DBBeaconActionFromBackground
     {
-        [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
         public string BeaconAction { get; set; }
         public string Payload { get; set; }

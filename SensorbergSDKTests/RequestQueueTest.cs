@@ -145,23 +145,15 @@ namespace SensorbergSDKTests
             for (int i = 0; i < 10; i++)
             {
                 Request req = new Request(new BeaconEventArgs(), i);
-                if (i == 9)
+                req.Result += (sender, state1) =>
                 {
-                    req.Result += (sender, state1) =>
+                    Debug.WriteLine("MultipleRequestBlocksQueueTest - " + ((Request)sender).RequestId+" - " + state1);
+                    requestsList.Add(state1);
+                    if (requestsList.Count == 10)
                     {
-                        Debug.WriteLine("MultipleRequestBlocksQueueTest - " + ((Request)sender).RequestId+" - " + state1);
-                        requestsList.Add(state1);
                         requestReady.SetResult(state1);
-                    };
-                }
-                else
-                {
-                    req.Result += (sender, state1) =>
-                    {
-                        Debug.WriteLine("MultipleRequestBlocksQueueTest - " + ((Request)sender).RequestId+" - " + state1);
-                        requestsList.Add(state1);
-                    };
-                }
+                    }
+                };
                 queue.Add(req);
             }
             if (await Task.WhenAny(requestReady.Task, Task.Delay(500000)) == requestReady.Task)
@@ -180,23 +172,15 @@ namespace SensorbergSDKTests
             for (int i = 0; i < 10; i++)
             {
                 Request req = new Request(new BeaconEventArgs(), i);
-                if (i == 9)
+                req.Result += (sender, state1) =>
                 {
-                    req.Result += (sender, state1) =>
+                    Debug.WriteLine("MultipleRequestBlocksQueueTest#2 - " + ((Request)sender).RequestId+" - " + state1);
+                    requestsList.Add(state1);
+                    if (requestsList.Count == 10)
                     {
-                        Debug.WriteLine("MultipleRequestBlocksQueueTest#2 - " + ((Request)sender).RequestId+" - " + state1);
-                        requestsList.Add(state1);
                         requestReady.SetResult(state1);
-                    };
-                }
-                else
-                {
-                    req.Result += (sender, state1) =>
-                    {
-                        Debug.WriteLine("MultipleRequestBlocksQueueTest#2 - " + ((Request)sender).RequestId+" - " + state1);
-                        requestsList.Add(state1);
-                    };
-                }
+                    }
+                };
                 queue.Add(req);
             }
             if (await Task.WhenAny(requestReady.Task, Task.Delay(500000)) == requestReady.Task)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -19,20 +20,18 @@ namespace SensorbergSDK.Internal
     /// Manages the layouts and encapsulates both retrieving fresh layouts from the web and
     /// caching them.
     /// </summary>
-    public sealed class LayoutManager : ILayoutManager
+    public class LayoutManager : ILayoutManager
     {
-        private const string KeyLayoutHeaders = "layout_headers";
+        public const string KeyLayoutHeaders = "layout_headers";
         private const string KeyLayoutContent = "layout_content.cache"; // Cache file
-        private const string KeyLayoutRetrievedTime = "layout_retrieved_time";
+        public const string KeyLayoutRetrievedTime = "layout_retrieved_time";
 
         /// <summary>
         /// Fired, when the layout becomes valid/invalid.
         /// </summary>
         public event EventHandler<bool> LayoutValidityChanged;
 
-        public Layout Layout { get; private set; }
-
-        private ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
+        public Layout Layout { get; protected set; }
 
         /// <summary>
         /// Checks the layout validity.
@@ -106,6 +105,11 @@ namespace SensorbergSDK.Internal
         {
             Layout = null;
             await ServiceManager.StorageService.InvalidateLayout();
+        }
+
+        public ResolvedAction GetAction(string actionId)
+        {
+            return Layout.ResolvedActions.FirstOrDefault(r => r.BeaconAction.Uuid == actionId);
         }
 
         internal async Task<RequestResultState> InternalExecuteRequestAsync(Request request)

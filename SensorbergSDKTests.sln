@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorbergSDK", "SensorbergSDK\SensorbergSDK.csproj", "{BFFEC28E-CDD9-45E7-9D77-171836818596}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorbergSDKBackground", "SensorbergSDKBackground\SensorbergSDKBackground.csproj", "{EC93C6DB-5B9C-434D-93BB-8A940AD7A3B1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorbergSDKTests", "SensorbergSDKTests\SensorbergSDKTests.csproj", "{3A0BAE3C-9E3F-4ED8-A5F3-726258503ACF}"
 EndProject
@@ -31,18 +29,6 @@ Global
 		{BFFEC28E-CDD9-45E7-9D77-171836818596}.Release|x64.Build.0 = Release|x64
 		{BFFEC28E-CDD9-45E7-9D77-171836818596}.Release|x86.ActiveCfg = Release|x86
 		{BFFEC28E-CDD9-45E7-9D77-171836818596}.Release|x86.Build.0 = Release|x86
-		{EC93C6DB-5B9C-434D-93BB-8A940AD7A3B1}.Debug|ARM.ActiveCfg = Debug|ARM
-		{EC93C6DB-5B9C-434D-93BB-8A940AD7A3B1}.Debug|ARM.Build.0 = Debug|ARM
-		{EC93C6DB-5B9C-434D-93BB-8A940AD7A3B1}.Debug|x64.ActiveCfg = Debug|x64
-		{EC93C6DB-5B9C-434D-93BB-8A940AD7A3B1}.Debug|x64.Build.0 = Debug|x64
-		{EC93C6DB-5B9C-434D-93BB-8A940AD7A3B1}.Debug|x86.ActiveCfg = Debug|x86
-		{EC93C6DB-5B9C-434D-93BB-8A940AD7A3B1}.Debug|x86.Build.0 = Debug|x86
-		{EC93C6DB-5B9C-434D-93BB-8A940AD7A3B1}.Release|ARM.ActiveCfg = Release|ARM
-		{EC93C6DB-5B9C-434D-93BB-8A940AD7A3B1}.Release|ARM.Build.0 = Release|ARM
-		{EC93C6DB-5B9C-434D-93BB-8A940AD7A3B1}.Release|x64.ActiveCfg = Release|x64
-		{EC93C6DB-5B9C-434D-93BB-8A940AD7A3B1}.Release|x64.Build.0 = Release|x64
-		{EC93C6DB-5B9C-434D-93BB-8A940AD7A3B1}.Release|x86.ActiveCfg = Release|x86
-		{EC93C6DB-5B9C-434D-93BB-8A940AD7A3B1}.Release|x86.Build.0 = Release|x86
 		{3A0BAE3C-9E3F-4ED8-A5F3-726258503ACF}.Debug|ARM.ActiveCfg = Debug|ARM
 		{3A0BAE3C-9E3F-4ED8-A5F3-726258503ACF}.Debug|ARM.Build.0 = Debug|ARM
 		{3A0BAE3C-9E3F-4ED8-A5F3-726258503ACF}.Debug|ARM.Deploy.0 = Debug|ARM

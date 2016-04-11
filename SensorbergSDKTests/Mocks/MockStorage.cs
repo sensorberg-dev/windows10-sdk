@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Services;
 
 namespace SensorbergSDKTests.Mocks
@@ -40,22 +41,22 @@ namespace SensorbergSDKTests.Mocks
             UndeliveredActions?.Clear();
         }
 
-        public Task SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, int beaconEventType)
+        public Task SaveHistoryAction(HistoryAction action)
         {
             throw new NotImplementedException();
         }
 
-        public Task SaveHistoryEvents(string pid, DateTimeOffset timestamp, int eventType)
+        public Task SaveHistoryEvents(HistoryEvent he)
         {
             throw new NotImplementedException();
         }
 
-        public Task<IList<DBHistoryAction>> GetActions(string uuid)
+        public Task<IList<HistoryAction>> GetActions(string uuid)
         {
             throw new NotImplementedException();
         }
 
-        public Task<DBHistoryAction> GetAction(string uuid)
+        public Task<HistoryAction> GetAction(string uuid)
         {
             throw new NotImplementedException();
         }
@@ -65,17 +66,12 @@ namespace SensorbergSDKTests.Mocks
             throw new NotImplementedException();
         }
 
-        public Task<IList<BeaconAction>> GetBeaconActionsFromBackground()
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds)
         {
             throw new NotImplementedException();
         }
 
-        public Task SetDelayedActionAsExecuted(int id)
+        public Task SetDelayedActionAsExecuted(string id)
         {
             throw new NotImplementedException();
         }
@@ -85,22 +81,27 @@ namespace SensorbergSDKTests.Mocks
             throw new NotImplementedException();
         }
 
-        public Task<IList<DBBackgroundEventsHistory>> GetBeaconBackgroundEventsHistory(string pid)
+        public Task SaveHistoryAction(BeaconAction beaconAction)
         {
             throw new NotImplementedException();
         }
 
-        public Task SaveBeaconBackgroundEvent(string pid, BeaconEventType enter)
+        public Task SaveBeaconEventState(string pid, BeaconEventType enter)
         {
             throw new NotImplementedException();
         }
 
-        public Task DeleteBackgroundEvent(string pid)
+        public Task<BackgroundEvent> GetLastEventStateForBeacon(string pid)
         {
             throw new NotImplementedException();
         }
 
-        public Task SaveBeaconActionFromBackground(BeaconAction beaconAction)
+        public Task SaveActionForForeground(BeaconAction beaconAction)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<HistoryAction>> GetActionsForForeground(bool doNotDelete = false)
         {
             throw new NotImplementedException();
         }

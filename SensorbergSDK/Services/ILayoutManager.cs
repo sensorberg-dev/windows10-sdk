@@ -19,5 +19,6 @@ namespace SensorbergSDK.Services
         Layout Layout { get; }
         IAsyncOperation<bool> VerifyLayoutAsync(bool b = false);
         event EventHandler<bool> LayoutValidityChanged;
+        ResolvedAction GetAction(string actionId);
     }
 }

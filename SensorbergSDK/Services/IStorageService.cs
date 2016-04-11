@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using SensorbergSDK.Data;
 using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDK.Services
 {
@@ -59,20 +60,31 @@ namespace SensorbergSDK.Services
         /// </summary>
         /// <param name="eventArgs"></param>
         /// <param name="beaconAction"></param>
-        Task SaveHistoryAction(string uuid, string beaconPid, DateTime now, int beaconEventType);
+        Task SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType);
 
         /// <summary>
         /// Stores a beacon event to the database.
         /// </summary>
-        /// <param name="eventArgs"></param>
-        Task SaveHistoryEvent(string pid, DateTimeOffset timestamp, int eventType);
+        Task SaveHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType);
 
-        Task<IList<DBHistoryAction>> GetActions(string uuid);
-        Task<DBHistoryAction> GetAction(string uuid);
+        /// <summary>
+        /// Get all triggered actions by the given action uuid.
+        /// </summary>
+        /// <param name="uuid">uuid from the action to search.</param>
+        /// <param name="forceUpdate">Force to ignore any cache.</param>
+        /// <returns>List of found actions</returns>
+        Task<IList<HistoryAction>> GetActions(string uuid, bool forceUpdate = false);
+
+        /// <summary>
+        /// Get the first triggered action by the given action uuid.
+        /// </summary>
+        /// <param name="uuid">uuid from the action to search.</param>
+        /// <param name="forceUpdate">Force to ignore any cache.</param>
+        /// <returns>The first found action or null</returns>
+        Task<HistoryAction> GetAction(string uuid, bool forceUpdate = false);
         Task CleanDatabase();
-        Task<IList<BeaconAction>> GetBeaconActionsFromBackground();
         Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds = 1000);
-        Task SetDelayedActionAsExecuted(int id);
+        Task SetDelayedActionAsExecuted(string id);
 
         /// <summary>
         /// Initializes the StorageService, e.g. creates database.
@@ -81,9 +93,8 @@ namespace SensorbergSDK.Services
         Task InitStorage();
 
         Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice);
-        Task<IList<DBBackgroundEventsHistory>> GetBeaconBackgroundEventsHistory(string pid);
-        Task SaveBeaconBackgroundEvent(string pid, BeaconEventType enter);
-        Task DeleteBackgroundEvent(string pid);
-        Task SaveBeaconActionFromBackground(BeaconAction beaconAction);
+        Task<BackgroundEvent> GetLastEventStateForBeacon(string pid);
+        Task SaveBeaconEventState(string pid, BeaconEventType enter);
+        Task<List<BeaconAction>> GetActionsForForeground(bool doNotDelete = false);
     }
 }

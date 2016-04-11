@@ -1,5 +1,6 @@
 ﻿using SensorbergSDK.Internal;
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ namespace SensorbergSDK
     [DataContract]
     public sealed class BeaconAction
     {
+        private string payloadString;
         private const char FieldSeparator = ';'; // For FromString() and ToString()
 
         public BeaconAction()
@@ -32,56 +34,38 @@ namespace SensorbergSDK
         }
 
         [DataMember]
-        public int Id
-        {
-            get;
-            set;
-        }
+        public int Id { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
         [DataMember]
-        public BeaconActionType Type
-        {
-            get;
-            set;
-        }
+        public BeaconActionType Type { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
         [DataMember]
-        public string Uuid
-        {
-            get;
-            set;
-        }
+        public string Uuid { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
         [DataMember]
-        public string Subject
-        {
-            get;
-            set;
-        }
+        public string Subject { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
         [DataMember]
-        public string Body
-        {
-            get;
-            set;
-        }
+        public string Body { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
         [DataMember]
-        public string Url
+        public string Url { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
+
+        /// <summary>
+        /// String representation of the payload.
+        /// </summary>
+        [DataMember]
+        public string PayloadString
         {
-            get;
-            set;
+            get { return string.IsNullOrEmpty(payloadString) ? Payload?.ToString() : payloadString; }
+            set { payloadString = value; }
         }
 
         /// <summary>
         /// Payload message set for Action on the service. 
         /// Value is null, if payload is not set.
         /// </summary>
-        public JsonObject Payload
-        {
-            get;
-            set;
-        }
+        public JsonObject Payload { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
         /// <summary>
         /// Sets the beacon action type based on the given value.
@@ -149,13 +133,14 @@ namespace SensorbergSDK
         {
             bool valid = false;
 
-            switch (Type) {
+            switch (Type)
+            {
                 case BeaconActionType.UrlMessage:
                     if (Subject.Length > 0 && Url.Length > 0 && Body.Length > 0)
                     {
                         valid = true;
                     }
-                        
+
                     break;
                 case BeaconActionType.VisitWebsite:
                 case BeaconActionType.InApp:
@@ -305,15 +290,15 @@ namespace SensorbergSDK
             return stringBuilder.ToString();
         }
 
-        /// <summary>
-        /// Creates a toast notification instance with populates it with data associated to this
-        /// beacon action.
-        /// </summary>
-        /// <returns>A newly created toast notification.</returns>
-        public ToastNotification ToToastNotification()
-        {
-            return NotificationUtils.CreateToastNotification(this);
-        }
+//        /// <summary>
+//        /// Creates a toast notification instance with populates it with data associated to this
+//        /// beacon action.
+//        /// </summary>
+//        /// <returns>A newly created toast notification.</returns>
+//        public ToastNotification ToToastNotification()
+//        {
+//            return NotificationUtils.CreateToastNotification(this);
+//        }
 
         /// <summary>
         /// Creates a message dialog based on the data of this beacon action.
@@ -337,6 +322,44 @@ namespace SensorbergSDK
 
             MessageDialog messageDialog = new MessageDialog(message, Subject);
             return messageDialog;
+        }
+
+        private bool Equals(BeaconAction other)
+        {
+            return Id == other.Id && Type == other.Type && string.Equals(Uuid, other.Uuid) && string.Equals(Subject, other.Subject) && string.Equals(Body, other.Body) &&
+                   string.Equals(Url, other.Url) && Equals(Payload?.ToString(), other.Payload?.ToString());
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            return obj is BeaconAction && Equals((BeaconAction) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Id;
+                hashCode = (hashCode*397) ^ (int) Type;
+                hashCode = (hashCode*397) ^ (Uuid != null ? Uuid.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Subject != null ? Subject.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Body != null ? Body.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Url != null ? Url.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Payload != null ? Payload.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(BeaconAction left, BeaconAction right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(BeaconAction left, BeaconAction right)
+        {
+            return !Equals(left, right);
         }
     }
 }

@@ -9,6 +9,7 @@ using System.Text;
 using System.Net;
 using System.Runtime.Serialization;
 using System.Threading;
+using MetroLog;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Internal.Utils;
 using SensorbergSDK.Services;
@@ -20,6 +21,7 @@ namespace SensorbergSDK.Internal
     /// </summary>
     public sealed class EventHistory
     {
+        private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<EventHistory>();
         private AutoResetEvent _asyncWaiter;
 
         public EventHistory()
@@ -35,6 +37,7 @@ namespace SensorbergSDK.Internal
         /// <returns>True ,if action type is SendOnlyOnce, and it has been shown already. Otherwise false.</returns>
         public async Task<bool> CheckSendOnlyOnceAsync(ResolvedAction resolvedAction)
         {
+            logger.Trace("CheckSendOnlyOnceAsync {0}", resolvedAction.BeaconAction.Id);
             bool sendonlyOnce = false;
 
             if (resolvedAction.SendOnlyOnce)
@@ -42,7 +45,7 @@ namespace SensorbergSDK.Internal
                 try
                 {
                     _asyncWaiter.WaitOne();
-                    DBHistoryAction dbHistoryAction = await ServiceManager.StorageService.GetAction(resolvedAction.BeaconAction.Uuid);
+                    HistoryAction dbHistoryAction = await ServiceManager.StorageService.GetAction(resolvedAction.BeaconAction.Uuid);
 
                     if (dbHistoryAction != null)
                     {
@@ -67,6 +70,7 @@ namespace SensorbergSDK.Internal
         /// <returns>True only if action should be supressed.</returns>
         public async Task<bool> ShouldSupressAsync(ResolvedAction resolvedAction)
         {
+            logger.Trace("ShouldSupressAsync {0}", resolvedAction.BeaconAction.Id);
             bool suppress = false;
 
             if (resolvedAction.SupressionTime > 0)
@@ -74,13 +78,13 @@ namespace SensorbergSDK.Internal
                 try
                 {
                     _asyncWaiter.WaitOne();
-                    IList<DBHistoryAction> dbHistoryActions = await ServiceManager.StorageService.GetActions(resolvedAction.BeaconAction.Uuid);
+                    IList<HistoryAction> dbHistoryActions = await ServiceManager.StorageService.GetActions(resolvedAction.BeaconAction.Uuid);
 
                     if (dbHistoryActions != null)
                     {
                         foreach (var dbHistoryAction in dbHistoryActions)
                         {
-                            var action_timestamp = dbHistoryAction.dt.AddSeconds(resolvedAction.SupressionTime);
+                            var action_timestamp = DateTimeOffset.Parse(dbHistoryAction.dt).AddSeconds(resolvedAction.SupressionTime);
 
                             if (action_timestamp > DateTimeOffset.Now)
                             {
@@ -103,9 +107,9 @@ namespace SensorbergSDK.Internal
         /// Stores a beacon event to the database.
         /// </summary>
         /// <param name="eventArgs"></param>
-        public IAsyncAction SaveBeaconEventAsync(BeaconEventArgs eventArgs)
+        public async Task SaveBeaconEventAsync(BeaconEventArgs eventArgs)
         {
-            return ServiceManager.StorageService.SaveHistoryEvent(eventArgs.Beacon.Pid, eventArgs.Timestamp, (int)eventArgs.EventType).AsAsyncAction();
+            await ServiceManager.StorageService.SaveHistoryEvent(eventArgs.Beacon.Pid, eventArgs.Timestamp, eventArgs.EventType);
         }
 
         /// <summary>
@@ -113,10 +117,9 @@ namespace SensorbergSDK.Internal
         /// </summary>
         /// <param name="eventArgs"></param>
         /// <param name="beaconAction"></param>
-        public IAsyncAction SaveExecutedResolvedActionAsync(ResolvedActionsEventArgs eventArgs, BeaconAction beaconAction)
+        public async Task SaveExecutedResolvedActionAsync(ResolvedActionsEventArgs eventArgs, BeaconAction beaconAction)
         {
-            return ServiceManager.StorageService.SaveHistoryAction(
-                beaconAction.Uuid, eventArgs.BeaconPid, DateTime.Now, (int)eventArgs.BeaconEventType).AsAsyncAction();
+            await ServiceManager.StorageService.SaveHistoryAction(beaconAction.Uuid, eventArgs.BeaconPid, DateTime.Now, eventArgs.BeaconEventType);
         }
 
         /// <summary>
@@ -124,12 +127,11 @@ namespace SensorbergSDK.Internal
         /// </summary>
         /// <param name="beaconAction"></param>
         /// <param name="beaconPid"></param>
-        /// <param name="beaconActionType"></param>
+        /// <param name="beaconEventType"></param>
         /// <returns></returns>
-        public IAsyncAction SaveExecutedResolvedActionAsync(BeaconAction beaconAction, string beaconPid, BeaconEventType beaconEventType)
+        public async Task SaveExecutedResolvedActionAsync(BeaconAction beaconAction, string beaconPid, BeaconEventType beaconEventType)
         {
-            return ServiceManager.StorageService.SaveHistoryAction(
-                beaconAction.Uuid, beaconPid, DateTime.Now, (int)beaconEventType).AsAsyncAction();
+            await ServiceManager.StorageService.SaveHistoryAction(beaconAction.Uuid, beaconPid, DateTime.Now, beaconEventType);
         }
 
         /// <summary>

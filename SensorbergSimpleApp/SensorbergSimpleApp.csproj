@@ -159,10 +159,6 @@
     </Reference>
   </ItemGroup>-->
   <ItemGroup>
-    <ProjectReference Include="..\SensorbergSDKBackground\SensorbergSDKBackground.csproj">
-      <Project>{ec93c6db-5b9c-434d-93bb-8a940ad7a3b1}</Project>
-      <Name>SensorbergSDKBackground</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SensorbergSDK\SensorbergSDK.csproj">
       <Project>{bffec28e-cdd9-45e7-9d77-171836818596}</Project>
       <Name>SensorbergSDK</Name>

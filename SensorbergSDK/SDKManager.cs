@@ -311,7 +311,9 @@ namespace SensorbergSDK
         /// background task filters available and updates them if so.
         /// </summary>
         /// <param name="apiKey">The API key for the Sensorberg service.</param>
-        public async Task InitializeAsync(string apiKey)
+        /// <param name="timerClassName">Full class name of the timer background process, if needed</param>
+        /// <param name="advertisementClassName">Full class name of the advertisement background process, if needed</param>
+        public async Task InitializeAsync(string apiKey, string timerClassName = null, string advertisementClassName = null)
         {
             SDKData sdkData = SDKData.Instance;
 
@@ -324,7 +326,7 @@ namespace SensorbergSDK
 
             if (sdkData.BackgroundTaskEnabled)
             {
-                await UpdateBackgroundTaskIfNeededAsync();
+                await UpdateBackgroundTaskIfNeededAsync(timerClassName, advertisementClassName);
             }
 
             StartScanner();
@@ -372,13 +374,13 @@ namespace SensorbergSDK
         /// re-registers the task.
         /// </summary>
         /// <returns>The registration result.</returns>
-        public async Task<BackgroundTaskRegistrationResult> RegisterBackgroundTaskAsync()
+        public async Task<BackgroundTaskRegistrationResult> RegisterBackgroundTaskAsync(string timerClassName, string advertisementClassName)
         {
             SDKData.Instance.BackgroundTaskEnabled = true;
-            return await _backgroundTaskManager.RegisterBackgroundTaskAsync(ManufacturerId, BeaconCode);
+            return await _backgroundTaskManager.RegisterBackgroundTaskAsync(timerClassName, advertisementClassName, ManufacturerId, BeaconCode);
         }
 
-        public async Task<BackgroundTaskRegistrationResult> UpdateBackgroundTaskIfNeededAsync()
+        public async Task<BackgroundTaskRegistrationResult> UpdateBackgroundTaskIfNeededAsync(string timerClassName, string advertisementClassName)
         {
             BackgroundTaskRegistrationResult result = new BackgroundTaskRegistrationResult()
             {
@@ -388,7 +390,7 @@ namespace SensorbergSDK
 
             if (BackgroundTaskManager.CheckIfBackgroundFilterUpdateIsRequired())
             {
-                result = await _backgroundTaskManager.UpdateBackgroundTaskAsync(ManufacturerId, BeaconCode);
+                result = await _backgroundTaskManager.UpdateBackgroundTaskAsync(timerClassName, advertisementClassName, ManufacturerId, BeaconCode);
             }
 
             SDKData.Instance.BackgroundTaskEnabled = true;
@@ -435,14 +437,6 @@ namespace SensorbergSDK
                 Scanner.BeaconEvent -= OnBeaconEventAsync;
                 Scanner.StopWatcher();
             }
-        }
-
-        /// <summary>
-        /// Clears the pending beacon actions, which have been resolved by the background task.
-        /// </summary>
-        public void ClearPendingActions()
-        {
-            SdkEngine.DismissPendingBeaconActionsResolvedOnBackgroundAsync();
         }
 
         /// <summary>

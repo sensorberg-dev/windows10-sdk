@@ -4,12 +4,16 @@
 // 
 // All rights reserved.
 
+using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
+using System.IO;
 using System.Threading.Tasks;
+using Windows.Data.Json;
+using Windows.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
 using SensorbergSDKTests.Mocks;
@@ -20,7 +24,7 @@ namespace SensorbergSDKTests
     public class StorageServiceTest
     {
         [TestInitialize]
-        public void Setup()
+        public async Task Setup()
         {
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
@@ -29,6 +33,18 @@ namespace SensorbergSDKTests
             ServiceManager.StorageService = new StorageServiceExtend();
             ServiceManager.SettingsManager = new SettingsManager();
             ServiceManager.ReadOnlyForTests = true;
+
+
+            try
+            {
+                StorageFolder folder = await ApplicationData.Current.LocalFolder.GetFolderAsync("sensorberg-storage");
+                await folder.DeleteAsync();
+            }
+            catch (FileNotFoundException)
+            {
+
+            }
+            await ServiceManager.StorageService.InitStorage();
         }
 
         [TestMethod]
@@ -37,14 +53,14 @@ namespace SensorbergSDKTests
             MockApiConnection connection = (MockApiConnection) ServiceManager.ApiConnction;
 
             IStorageService service = ServiceManager.StorageService;
-            Assert.AreEqual(ApiKeyValidationResult.Valid,  await service.ValidateApiKey("true"), "Not successfull");
+            Assert.AreEqual(ApiKeyValidationResult.Valid, await service.ValidateApiKey("true"), "Not successfull");
             connection.APIInvalid = true;
             Assert.AreEqual(ApiKeyValidationResult.Invalid, await service.ValidateApiKey("false"), "Not invalid");
             connection.APIInvalid = false;
 
 
             connection.FailNetwork = true;
-            Assert.AreEqual(ApiKeyValidationResult.NetworkError,  await service.ValidateApiKey("true"), "No network issue");
+            Assert.AreEqual(ApiKeyValidationResult.NetworkError, await service.ValidateApiKey("true"), "No network issue");
             connection.FailNetwork = false;
 
             connection.UnknownError = true;
@@ -58,6 +74,8 @@ namespace SensorbergSDKTests
             MockApiConnection connection = (MockApiConnection) ServiceManager.ApiConnction;
             IStorageService service = ServiceManager.StorageService;
 
+            ApplicationData.Current.LocalSettings.Values.Remove(LayoutManager.KeyLayoutHeaders);
+            ApplicationData.Current.LocalSettings.Values.Remove(LayoutManager.KeyLayoutRetrievedTime);
 
             connection.FailNetwork = true;
             LayoutResult layout = await service.RetrieveLayout();
@@ -83,22 +101,176 @@ namespace SensorbergSDKTests
             StorageServiceExtend sse = (StorageServiceExtend) ServiceManager.StorageService;
             MockStorage mockStorage = new MockStorage();
             sse.SetStorage(mockStorage);
-            mockStorage.UndeliveredActions = new List<HistoryAction>() {new HistoryAction(new DBHistoryAction())};
-            mockStorage.UndeliveredEvents = new List<HistoryEvent>() {new HistoryEvent(new DBHistoryEvent())};
+            mockStorage.UndeliveredActions = new List<HistoryAction> {new HistoryAction(new DBHistoryAction())};
+            mockStorage.UndeliveredEvents = new List<HistoryEvent> {new HistoryEvent(new DBHistoryEvent())};
 
-            MockApiConnection connection = (MockApiConnection)ServiceManager.ApiConnction;
+            MockApiConnection connection = (MockApiConnection) ServiceManager.ApiConnction;
             IStorageService service = ServiceManager.StorageService;
 
 
             connection.FailNetwork = true;
             Assert.IsFalse(await service.FlushHistory(), "Flushing History not failed");
             connection.FailNetwork = false;
-            Assert.IsTrue(mockStorage.UndeliveredEvents.Count!= 0, "Event were resetet");
+            Assert.IsTrue(mockStorage.UndeliveredEvents.Count != 0, "Event were resetet");
             Assert.IsTrue(mockStorage.UndeliveredActions.Count != 0, "Actions were resetet");
 
             Assert.IsTrue(await service.FlushHistory(), "Flushing History not succeed");
             Assert.IsTrue(mockStorage.UndeliveredEvents.Count == 0, "Event were not marked as send");
             Assert.IsTrue(mockStorage.UndeliveredActions.Count == 0, "Actions were not marked as send");
+        }
+
+        [TestMethod]
+        public async Task TestHistorActionCacheTest()
+        {
+            IStorageService service = ServiceManager.StorageService;
+            await service.SaveHistoryAction("1", "11", DateTime.Now, BeaconEventType.Enter);
+            await service.SaveHistoryAction("2", "11", DateTime.Now, BeaconEventType.Enter);
+            await service.SaveHistoryAction("3", "11", DateTime.Now, BeaconEventType.Enter);
+            await service.SaveHistoryAction("1", "11", DateTime.Now, BeaconEventType.Enter);
+            await service.SaveHistoryAction("5", "11", DateTime.Now, BeaconEventType.Enter);
+
+            IList<HistoryAction> dbHistoryActions = await service.GetActions("1");
+
+            Assert.AreEqual(2, dbHistoryActions.Count, "Not 2 actions found");
+
+            StorageService serviceInstance = (StorageService) service;
+            IStorage storage = serviceInstance.Storage;
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "11", DateTime.Now, BeaconEventType.Enter));
+
+            dbHistoryActions = await service.GetActions("1");
+
+            Assert.AreEqual(2, dbHistoryActions.Count, "Not 2 actions found, cache not worked");
+
+            dbHistoryActions = await service.GetActions("1");
+
+            Assert.AreEqual(2, dbHistoryActions.Count, "Not 2 actions found");
+
+
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("6", "11", DateTime.Now, BeaconEventType.Enter));
+            dbHistoryActions = await service.GetActions("6");
+
+            Assert.AreEqual(1, dbHistoryActions.Count, "Not 1 actions found");
+        }
+
+        [TestMethod]
+        public async Task TestBackgroundActionsTest()
+        {
+            ServiceManager.ReadOnlyForTests = false;
+            ServiceManager.LayoutManager = new LayoutManagerExtend();
+            ((LayoutManagerExtend) ServiceManager.LayoutManager).SetLayout(
+                Layout.FromJson(
+                    await
+                        FileIO.ReadTextAsync(
+                            await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/raw/mock/layout_request_header.txt", UriKind.RelativeOrAbsolute))),
+                    JsonObject.Parse(
+                        await
+                            FileIO.ReadTextAsync(
+                                await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/raw/mock/mock_layout.json", UriKind.RelativeOrAbsolute)))),
+                    DateTimeOffset.Now));
+            ServiceManager.ReadOnlyForTests = true;
+
+            FileStorage storage = new FileStorage {Background = true};
+
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("9ded63644e424d758b0218f7c70f2473", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"),
+                    BeaconEventType.Enter));
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3f30be2605524f82a9bf0ccb4a81618f", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"),
+                    BeaconEventType.Exit));
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("312a8594e07542bd814ecdd17f76538e", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
+                    BeaconEventType.EnterExit));
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("959ea393e3424ab7ad53584a8b789197", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
+                    BeaconEventType.EnterExit));
+
+
+            IStorageService storageService = ServiceManager.StorageService;
+            List<BeaconAction> beaconActions = await storageService.GetActionsForForeground();
+
+            Assert.AreEqual(4, beaconActions.Count, "Not 4 actions found");
+
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("9ded63644e424d758b0218f7c70f2473", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"),
+                    BeaconEventType.Enter));
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3f30be2605524f82a9bf0ccb4a81618f", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"),
+                    BeaconEventType.Exit));
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("312a8594e07542bd814ecdd17f76538e", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
+                    BeaconEventType.EnterExit));
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("959ea393e3424ab7ad53584a8b789197", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
+                    BeaconEventType.EnterExit));
+
+            beaconActions = await storageService.GetActionsForForeground();
+
+            Assert.AreEqual(4, beaconActions.Count, "Not 4 actions found");
+
+            StorageService service = (StorageService) ServiceManager.StorageService;
+            IStorage foregroundStorage = service.Storage;
+            await
+                foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("4", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"),
+                    BeaconEventType.Enter));
+            await
+                foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"),
+                    BeaconEventType.Exit));
+            await
+                foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
+                    BeaconEventType.EnterExit));
+            await
+                foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
+                    BeaconEventType.EnterExit));
+
+            IList<HistoryAction> historyActions = await foregroundStorage.GetUndeliveredActions();
+
+            Assert.AreEqual(12, historyActions.Count, "Not 12 history actions found");
+
+
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("9ded63644e424d758b0218f7c70f2473", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"),
+                    BeaconEventType.Enter));
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3f30be2605524f82a9bf0ccb4a81618f", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"),
+                    BeaconEventType.Exit));
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("312a8594e07542bd814ecdd17f76538e", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
+                    BeaconEventType.EnterExit));
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("959ea393e3424ab7ad53584a8b789197", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
+                    BeaconEventType.EnterExit));
+
+            await foregroundStorage.SetActionsAsDelivered();
+            historyActions = await foregroundStorage.GetUndeliveredActions();
+            Assert.AreEqual(4, historyActions.Count, "Not 4 history actions found");
+
+            beaconActions = await storageService.GetActionsForForeground();
+
+            Assert.AreEqual(4, beaconActions.Count, "Not 4 actions found");
+
+
+
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("9ded63644e424d758b0218f7c70f2473", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"),
+                    BeaconEventType.Enter));
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3f30be2605524f82a9bf0ccb4a81618f", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"),
+                    BeaconEventType.Exit));
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("312a8594e07542bd814ecdd17f76538e", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
+                    BeaconEventType.EnterExit));
+            await
+                storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("959ea393e3424ab7ad53584a8b789197", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
+                    BeaconEventType.EnterExit));
+
+            await foregroundStorage.GetUndeliveredActions();
+            await foregroundStorage.SetActionsAsDelivered();
+            historyActions = await foregroundStorage.GetUndeliveredActions();
+            Assert.AreEqual(0, historyActions.Count, "Not 0 history actions found");
+
+            beaconActions = await storageService.GetActionsForForeground();
+
+            Assert.AreEqual(4, beaconActions.Count, "Not 4 actions found");
         }
     }
 }

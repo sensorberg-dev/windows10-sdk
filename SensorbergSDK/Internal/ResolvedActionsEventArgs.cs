@@ -1,5 +1,6 @@
 ﻿using SensorbergSDK.Internal;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace SensorbergSDK
 {
@@ -7,7 +8,9 @@ namespace SensorbergSDK
     {
         public int RequestID
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
@@ -16,7 +19,9 @@ namespace SensorbergSDK
         /// </summary>
         public BeaconEventType BeaconEventType
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
@@ -26,13 +31,17 @@ namespace SensorbergSDK
         /// </summary>
         public string BeaconPid
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         public IList<ResolvedAction> ResolvedActions
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
     }

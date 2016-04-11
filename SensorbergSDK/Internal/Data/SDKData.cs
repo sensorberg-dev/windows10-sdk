@@ -47,7 +47,12 @@ namespace SensorbergSDK.Internal
             {
                 object id;
                 ApplicationData.Current.LocalSettings.Values.TryGetValue(USERID, out id);
-                return id as string;
+                string s = id as string;
+                if (s == null)
+                {
+                    s = string.Empty;
+                }
+                return s;
             }
             [DebuggerStepThrough] set
             {
@@ -55,6 +60,10 @@ namespace SensorbergSDK.Internal
                 if (!string.IsNullOrEmpty(id))
                 {
                     id = Uri.EscapeDataString(id);
+                }
+                else
+                {
+                    id = string.Empty;
                 }
                 ApplicationData.Current.LocalSettings.Values[USERID] = id;
             }
