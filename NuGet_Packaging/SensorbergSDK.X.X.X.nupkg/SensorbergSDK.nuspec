@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>SensorbergSDK</id>
+        <version>0.6.0</version>
+        <authors>Sensorberg</authors>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>My package description.</description>
+        <dependencies>
+            <dependency id="Newtonsoft.Json" version="8.0.3" />
+            <dependency id="MetroLog" version="1.0.1" />
+        </dependencies>
+    </metadata>
+</package>

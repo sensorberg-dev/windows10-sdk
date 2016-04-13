@@ -1,0 +1,4 @@
+
+We need to add the license, readme etc, stuff into the nuget package
+
+We need to implement scripts for copying the files into the folders & zipping the nuget package
