@@ -6,9 +6,5 @@ To test local nuger packages see this: https://blogs.endjin.com/2014/07/how-to-t
 Do remember that with latest tools & stuff, all nuget packages are getting cached, thus when testing increase the version number or 
 do remember to clean out the files under C:\Users\<USERNAME>\.nuget\packages 
 
-Issues with current package
-I'm unable to build any reference libraries with neutral targets (i.e. AllCPU), thus the nuget package does only work with the x86.
-
-In general the reference is only used for class viewing and that the using statements find stuff right, the actual implementation
-is selected runtime from the files inclluded under the runtimes folder.
+Do remember to build batch build all 4 targets (AllCpu, ARM, X86 X64), the AllCpu is used as reference library, and other are used runtime execution.
 
