@@ -29,10 +29,12 @@ namespace SensorbergSDK
             add
             {
                 SdkEngine.BeaconActionResolved += value;
+                _backgroundTaskManager.BackgroundBeaconActionResolved += value;
             }
             remove
             {
                 SdkEngine.BeaconActionResolved -= value;
+                _backgroundTaskManager.BackgroundBeaconActionResolved -= value;
             }
         }
 
