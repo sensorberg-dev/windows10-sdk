@@ -29,25 +29,11 @@ namespace SensorbergSDK
             add
             {
                 SdkEngine.BeaconActionResolved += value;
-            }
-            remove
-            {
-                SdkEngine.BeaconActionResolved -= value;
-            }
-        }
-
-        /// <summary>
-        /// This handler is fired only for beacons detected using background tasks
-        /// Fired when a beacon action has been successfully resolved and is ready to be exeuted.
-        /// </summary>
-        public event EventHandler<BeaconAction> BackgroundBeaconActionResolved
-        {
-            add
-            {
                 _backgroundTaskManager.BackgroundBeaconActionResolved += value;
             }
             remove
             {
+                SdkEngine.BeaconActionResolved -= value;
                 _backgroundTaskManager.BackgroundBeaconActionResolved -= value;
             }
         }
