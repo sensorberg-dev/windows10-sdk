@@ -37,6 +37,22 @@ namespace SensorbergSDK
         }
 
         /// <summary>
+        /// This handler is fired only for beacons detected using background tasks
+        /// Fired when a beacon action has been successfully resolved and is ready to be exeuted.
+        /// </summary>
+        public event EventHandler<BeaconAction> BackgroundBeaconActionResolved
+        {
+            add
+            {
+                _backgroundTaskManager.BackgroundBeaconActionResolved += value;
+            }
+            remove
+            {
+                _backgroundTaskManager.BackgroundBeaconActionResolved -= value;
+            }
+        }
+
+        /// <summary>
         /// This event is fired, when a beacon actions could not be resolved.
         /// In most cases this event can be ignored.
         /// </summary>

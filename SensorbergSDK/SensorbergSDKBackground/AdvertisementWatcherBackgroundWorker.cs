@@ -42,6 +42,9 @@ namespace SensorbergSDKBackground
             System.Diagnostics.Debug.WriteLine("AdvertisementWatcherBackgroundTask.Run()");
             await BackgroundEngine.InitializeAsync(taskInstance);
             await BackgroundEngine.ResolveBeaconActionsAsync();
+
+            //setting any value to Progress will fire Progress event with UI app
+            taskInstance.Progress = 1;
         }
 
         private void OnFinished(object sender, int e)
