@@ -332,7 +332,7 @@ namespace SensorbergSDK
                 await UpdateBackgroundTaskIfNeededAsync(timerClassName, advertisementClassName);
             }
 
-          //  StartScanner();
+            StartScanner();
         }
 
         private void OnSettingsUpdated(object sender, SettingsEventArgs settingsEventArgs)
