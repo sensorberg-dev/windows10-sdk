@@ -295,6 +295,7 @@ namespace SensorbergSDK
         {
             SdkEngine = new SDKEngine(true);
             _backgroundTaskManager = new BackgroundTaskManager();
+            _backgroundTaskManager.RegisterOnProgressEventHandler();
         }
 
         /// <summary>

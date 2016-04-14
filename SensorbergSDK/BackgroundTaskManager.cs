@@ -45,6 +45,39 @@ namespace SensorbergSDK
         }
 
         /// <summary>
+        /// Will remove OnProgress event handlers from advertisement background task
+        /// OnProgress events are used to indicate UI tasks on beacon actions resolved in background
+        /// </summary>
+        public void UnRegisterOnProgressEventHandler()
+        {
+            System.Diagnostics.Debug.WriteLine("UnRegisterOnProgressEventHandler");
+
+            foreach (var taskValue in BackgroundTaskRegistration.AllTasks.Values)
+            {
+                if (taskValue.Name.Equals(ADVERTISEMENT_CLASS))
+                {
+                    taskValue.Progress -= OnAdvertisementWatcherBackgroundTaskProgress;
+                }
+            }
+        }
+        /// <summary>
+        /// Will remove OnProgress event handlers from advertisement background task
+        /// OnProgress events are used to indicate UI tasks on beacon actions resolved in background
+        /// </summary>
+        public void RegisterOnProgressEventHandler()
+        {
+            System.Diagnostics.Debug.WriteLine("RegisterOnProgressEventHandler");
+
+            foreach (var taskValue in BackgroundTaskRegistration.AllTasks.Values)
+            {
+                if (taskValue.Name.Equals(ADVERTISEMENT_CLASS))
+                {
+                    taskValue.Progress += OnAdvertisementWatcherBackgroundTaskProgress;
+                }
+            }
+        }
+
+        /// <summary>
         /// Checks if the background filters are up-to-date or not. To update the filters,
         /// unregister and register background task again
         /// (call BackgroundTaskManager.UpdateBackgroundTaskAsync()).
