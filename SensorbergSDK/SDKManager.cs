@@ -283,7 +283,7 @@ namespace SensorbergSDK
         public static void Dispose()
         {
             ServiceManager.BeaconScanner.StopWatcher();
-          //  _instance?._backgroundTaskManager.UnregisterBackgroundTask();
+            _instance?._backgroundTaskManager.UnregisterBackgroundTask();
             _instance?.SdkEngine.Deinitialize();
             _instance = null;
         }
@@ -332,7 +332,7 @@ namespace SensorbergSDK
                 await UpdateBackgroundTaskIfNeededAsync(timerClassName, advertisementClassName);
             }
 
-            StartScanner();
+          //  StartScanner();
         }
 
         private void OnSettingsUpdated(object sender, SettingsEventArgs settingsEventArgs)
