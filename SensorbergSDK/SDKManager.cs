@@ -316,7 +316,7 @@ namespace SensorbergSDK
         /// <param name="apiKey">The API key for the Sensorberg service.</param>
         /// <param name="timerClassName">Full class name of the timer background process, if needed</param>
         /// <param name="advertisementClassName">Full class name of the advertisement background process, if needed</param>
-        public async Task InitializeAsync(string apiKey, string timerClassName = null, string advertisementClassName = null)
+        public async Task InitializeAsync(string apiKey, string timerClassName = null, string advertisementClassName = null, bool startScanning = true)
         {
             SDKData sdkData = SDKData.Instance;
 
@@ -332,9 +332,10 @@ namespace SensorbergSDK
                 await UpdateBackgroundTaskIfNeededAsync(timerClassName, advertisementClassName);
             }
 
-            //We need to comment this out, in order to enable pure Background API usage when needed
-            //foreground API users will need to call StartScanner after calling this function
-            //StartScanner();
+            if (startScanning)
+            {
+                StartScanner();
+            }
         }
 
         private void OnSettingsUpdated(object sender, SettingsEventArgs settingsEventArgs)
