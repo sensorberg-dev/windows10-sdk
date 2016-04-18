@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using Windows.Data.Json;
-using Windows.Foundation;
 using Newtonsoft.Json;
 
 namespace SensorbergSDK.Internal.Data

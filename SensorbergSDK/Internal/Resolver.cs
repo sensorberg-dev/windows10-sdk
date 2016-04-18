@@ -1,7 +1,6 @@
 ﻿using SensorbergSDK.Internal;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using MetroLog;
 
 namespace SensorbergSDK
@@ -21,7 +20,7 @@ namespace SensorbergSDK
             remove { _requestQueue.QueueCountChanged -= value; }
         }
 
-        private RequestQueue _requestQueue;
+        private readonly RequestQueue _requestQueue;
         private Dictionary<string, string> _filter = new Dictionary<string, string>();
 
         public Resolver()
@@ -31,7 +30,7 @@ namespace SensorbergSDK
 
         public void ClearRequests()
         {
-            _requestQueue.Dispose();
+            _requestQueue.Clear();
         }
 
         /// <summary>

@@ -7,12 +7,11 @@ using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.Storage;
 using SensorbergSDK.Data;
-using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Services;
 
 namespace SensorbergSDK.Internal.Services
 {
-    public sealed class SettingsManager: ISettingsManager
+    public sealed class SettingsManager: ISettingsManager, IDisposable
     {
         private const string STORAGE_KEY = "app_settings";
         private readonly ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
@@ -127,6 +126,11 @@ namespace SensorbergSDK.Internal.Services
 
             var parsed = JsonValue.Parse(storageString);
             return AppSettings.FromJson(parsed.GetObject());
+        }
+
+        public void Dispose()
+        {
+            _updateSettingsTimer?.Dispose();
         }
     }
 }

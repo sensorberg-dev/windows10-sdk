@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using MetroLog;
@@ -11,13 +10,13 @@ namespace SensorbergSDK.Internal
     /// <summary>
     /// Simple queue for requests. When a request is added, it is handled automatically in due time.
     /// </summary>
-    public sealed class RequestQueue : IDisposable
+    public sealed class RequestQueue
     {
         private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<RequestQueue>();
         public event EventHandler<int> QueueCountChanged;
         private Task _workerTask;
 
-        private Queue<Request> _requestQueue;
+        private readonly Queue<Request> _requestQueue;
         private CancellationTokenSource _cancelToken;
 
         public RequestQueue()
@@ -36,7 +35,7 @@ namespace SensorbergSDK.Internal
         /// <summary>
         /// Clears the queue while failing all pending requests.
         /// </summary>
-        public void Dispose()
+        public void Clear()
         {
             Cancel();
 

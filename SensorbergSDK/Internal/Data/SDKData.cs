@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Text;
 using Windows.Storage;
 
 namespace SensorbergSDK.Internal
@@ -24,7 +23,7 @@ namespace SensorbergSDK.Internal
         private const int AppVisibilityFallbackDelayInSeconds = 60;
         private const string USERID = "userid";
 
-        private ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
+        private readonly ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
 
         private static SDKData _instance;
         public static SDKData Instance
@@ -57,14 +56,7 @@ namespace SensorbergSDK.Internal
             [DebuggerStepThrough] set
             {
                 string id = value;
-                if (!string.IsNullOrEmpty(id))
-                {
-                    id = Uri.EscapeDataString(id);
-                }
-                else
-                {
-                    id = string.Empty;
-                }
+                id = !string.IsNullOrEmpty(id) ? Uri.EscapeDataString(id) : string.Empty;
                 ApplicationData.Current.LocalSettings.Values[USERID] = id;
             }
         }
@@ -152,29 +144,6 @@ namespace SensorbergSDK.Internal
             }
         }
 
-        public bool NewActionsFromBackground
-        {
-            [DebuggerStepThrough]
-            get
-            {
-                if (!_localSettings.Values.ContainsKey(KeyNewActionsFromBackground))
-                {
-                    _localSettings.Values[KeyNewActionsFromBackground] = false;
-                }
-
-                return (bool)_localSettings.Values[KeyNewActionsFromBackground];
-            }
-            [DebuggerStepThrough]
-            set
-            {
-                if (!_localSettings.Values.ContainsKey(KeyNewActionsFromBackground)
-                    || !_localSettings.Values[KeyNewActionsFromBackground].Equals(value))
-                {
-                    _localSettings.Values[KeyNewActionsFromBackground] = value;
-                }
-            }
-        }
-
         public bool BackgroundTaskEnabled
         {
             [DebuggerStepThrough]
@@ -239,36 +208,6 @@ namespace SensorbergSDK.Internal
                 _localSettings.Values[KeyAppIsVisible] = value;
                 _localSettings.Values[KeyVisibilityLastUpdated] = DateTimeOffset.Now;
             }
-        }
-
-        /// <summary>
-        /// Checks, if we should show beacon notifications in the background or not.
-        /// </summary>
-        /// <returns>True, if we should handle the beacons in the background.</returns>
-        public bool ShowNotificationsOnBackground()
-        {
-            bool showNotificationsOnBackground = false;
-
-            if (_localSettings.Values.ContainsKey(KeyAppIsVisible)
-                && _localSettings.Values.ContainsKey(KeyVisibilityLastUpdated))
-            {
-                // We show beacon notifications on background, when KeyVisibilityUpdateTime value
-                // is older than 1 minute or KeyVisibility value is false
-                var lastUpdated = (DateTimeOffset)_localSettings.Values[KeyVisibilityLastUpdated];
-                var appIsVisible = (bool)_localSettings.Values[KeyAppIsVisible];
-
-                if (!appIsVisible
-                    || lastUpdated.AddSeconds(AppVisibilityFallbackDelayInSeconds) < DateTimeOffset.Now)
-                {
-                    showNotificationsOnBackground = true;
-                }
-            }
-            else
-            {
-                showNotificationsOnBackground = true;
-            }
-
-            return showNotificationsOnBackground;
         }
 
         /// <summary>

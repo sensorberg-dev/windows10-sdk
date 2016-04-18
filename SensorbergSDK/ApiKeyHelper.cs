@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ServiceModel;
 using Windows.Web.Http.Headers;
 using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
-using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
 
 namespace SensorbergSDK

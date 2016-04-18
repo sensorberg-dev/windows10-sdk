@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Windows.Devices.Bluetooth.Advertisement;
 
 namespace SensorbergSDK

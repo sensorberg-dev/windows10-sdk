@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using SensorbergSDK.Internal;
-using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
 
 namespace SensorbergSDKTests.Mocks

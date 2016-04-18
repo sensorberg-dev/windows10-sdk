@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Windows.Data.Json;
-using Newtonsoft.Json;
 
 namespace SensorbergSDK.Internal
 {

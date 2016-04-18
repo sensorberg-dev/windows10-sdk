@@ -8,8 +8,8 @@ namespace SensorbergSDK.Internal
     /// </summary>
     public class BeaconContainer
     {
-        private List<Beacon> _beacons;
-        private object _beaconListLock;
+        private readonly List<Beacon> _beacons;
+        private readonly object _beaconListLock;
 
         /// <summary>
         /// The number of beacons in the container.
