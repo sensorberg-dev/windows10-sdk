@@ -332,7 +332,9 @@ namespace SensorbergSDK
                 await UpdateBackgroundTaskIfNeededAsync(timerClassName, advertisementClassName);
             }
 
-            StartScanner();
+            //We need to comment this out, in order to enable pure Background API usage when needed
+            //foreground API users will need to call StartScanner after calling this function
+            //StartScanner();
         }
 
         private void OnSettingsUpdated(object sender, SettingsEventArgs settingsEventArgs)
@@ -350,8 +352,11 @@ namespace SensorbergSDK
                 return;
             }
 
-            StopScanner();
-            StartScanner();
+            if (_scannerShouldBeRunning)
+            {
+                StopScanner();
+                StartScanner();
+            }
         }
 
         /// <summary>
