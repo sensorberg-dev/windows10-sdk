@@ -4,13 +4,11 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using MetroLog;
-using SensorbergSDK.Data;
-using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
 
 namespace SensorbergSDK.Internal
 {
-    public class SDKEngine
+    public class SDKEngine : IDisposable
     {
         private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<SDKEngine>();
         private const int DelayedActionExecutionTimeframeInSeconds = 60;
@@ -33,14 +31,14 @@ namespace SensorbergSDK.Internal
         /// </summary>
         public event EventHandler<bool> LayoutValidityChanged;
 
-        private EventHistory _eventHistory;
+        private readonly EventHistory _eventHistory;
         private Timer _processDelayedActionsTimer;
         private Timer _flushHistoryTimer;
         private Timer _updateVisibilityTimer;
         private Timer _getLayoutTimer;
 //        private Timer _fetchActionsResolvedByBackgroundTimer;
         private DateTimeOffset _nextTimeToProcessDelayedActions;
-        private bool _appIsOnForeground;
+        private readonly bool _appIsOnForeground;
         public AppSettings AppSettings { get; set; }
 
         public AppSettings DefaultAppSettings
@@ -95,6 +93,7 @@ namespace SensorbergSDK.Internal
         /// </summary>
         public async Task InitializeAsync()
         {
+            logger.Debug("InitializeAsync");
             if (!IsInitialized)
             {
                 await ServiceManager.StorageService.InitStorage();
@@ -111,6 +110,7 @@ namespace SensorbergSDK.Internal
 
                 if (_appIsOnForeground)
                 {
+                    logger.Debug("InitializeAsync#Foreground");
                     AppSettings = await ServiceManager.SettingsManager.GetSettings();
                     ServiceManager.SettingsManager.SettingsUpdated += OnSettingsUpdated;
 
@@ -130,7 +130,7 @@ namespace SensorbergSDK.Internal
                     // Check for possible delayed actions
                     await ProcessDelayedActionsAsync();
                     await CleanDatabaseAsync();
-                    await _eventHistory.FlushHistoryAsync();
+//                    await _eventHistory.FlushHistoryAsync();
                 }
 
                 IsInitialized = true;
@@ -314,7 +314,7 @@ namespace SensorbergSDK.Internal
             }
             logger.Debug("SDKEngine: OnBeaconActionResolvedAsync " + e.RequestID + " BeaconEventType:" + e.BeaconEventType);
             //TODO verify event needed?
-            if (e.ResolvedActions.Count > 0 && BeaconActionResolved != null)
+            if (e.ResolvedActions.Count > 0)
             {
                 foreach (ResolvedAction action in e.ResolvedActions)
                 {
@@ -410,6 +410,14 @@ namespace SensorbergSDK.Internal
         public async Task FlushHistory()
         {
             await _eventHistory.FlushHistoryAsync();
+        }
+
+        public void Dispose()
+        {
+            _flushHistoryTimer?.Dispose();
+            _getLayoutTimer?.Dispose();
+            _processDelayedActionsTimer?.Dispose();
+            _updateVisibilityTimer?.Dispose();
         }
     }
 }

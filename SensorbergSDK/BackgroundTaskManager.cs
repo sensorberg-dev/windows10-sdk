@@ -7,21 +7,22 @@
 using System;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
-using SensorbergSDK.Data;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
 using System.Collections.Generic;
+using MetroLog;
 
 namespace SensorbergSDK
 {
     public struct BackgroundTaskRegistrationResult
     {
-        public bool success;
-        public Exception exception;
+        public bool Success { get; set; }
+        public Exception Exception { get; set; }
     }
     public class BackgroundTaskManager
     {
+        private static ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<BackgroundTaskManager>();
         private const int TIME_TRIGGER_INTERVAL_IN_MINUTES = 15;
         private const int SIGNAL_STRENGTH_FILTER_OUT_OF_RANGE_THRESHOLD_IN_D_BM = -127;
 
@@ -39,7 +40,7 @@ namespace SensorbergSDK
                 if (taskValue.Name.Equals(ADVERTISEMENT_CLASS) || taskValue.Name.Equals(TIMER_CLASS))
                 {
                     taskValue.Unregister(true);
-                    System.Diagnostics.Debug.WriteLine("BackgroundTaskManager.UnregisterBackgroundTask(): Unregistered task: " + taskValue.Name);
+                    logger.Debug("BackgroundTaskManager.UnregisterBackgroundTask(): Unregistered task: " + taskValue.Name);
                 }
             }
         }
@@ -50,7 +51,7 @@ namespace SensorbergSDK
         /// </summary>
         public void UnRegisterOnProgressEventHandler()
         {
-            System.Diagnostics.Debug.WriteLine("UnRegisterOnProgressEventHandler");
+            logger.Debug("UnRegisterOnProgressEventHandler");
 
             foreach (var taskValue in BackgroundTaskRegistration.AllTasks.Values)
             {
@@ -66,7 +67,7 @@ namespace SensorbergSDK
         /// </summary>
         public void RegisterOnProgressEventHandler()
         {
-            System.Diagnostics.Debug.WriteLine("RegisterOnProgressEventHandler");
+            logger.Debug("RegisterOnProgressEventHandler");
 
             foreach (var taskValue in BackgroundTaskRegistration.AllTasks.Values)
             {
@@ -114,11 +115,11 @@ namespace SensorbergSDK
         {
             BackgroundTaskRegistrationResult result = new BackgroundTaskRegistrationResult()
             {
-                success = IsBackgroundTaskRegistered,
-                exception = null
+                Success = IsBackgroundTaskRegistered,
+                Exception = null
             };
 
-            if (!result.success)
+            if (!result.Success)
             {
                 // Prompt user to accept the request
                 BackgroundAccessStatus backgroundAccessStatus = await BackgroundExecutionManager.RequestAccessAsync();
@@ -127,20 +128,20 @@ namespace SensorbergSDK
                 {
                     result = RegisterTimedBackgroundTask(timerClassName);
 
-                    if (result.success)
+                    if (result.Success)
                     {
                         result = await RegisterAdvertisementWatcherBackgroundTaskAsync(advertisementClassName, manufacturerId, beaconCode);
                     }
                 }
 
-                if (result.success)
+                if (result.Success)
                 {
-                    System.Diagnostics.Debug.WriteLine("BackgroundTaskManager.RegisterBackgroundTask(): Registration successful");
+                    logger.Debug("BackgroundTaskManager.RegisterBackgroundTask(): Registration successful");
                 }
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("BackgroundTaskManager.RegisterBackgroundTask(): Already registered");
+                logger.Debug("BackgroundTaskManager.RegisterBackgroundTask(): Already registered");
             }
 
             return result;
@@ -157,15 +158,15 @@ namespace SensorbergSDK
         {
             BackgroundTaskRegistrationResult result = new BackgroundTaskRegistrationResult()
             {
-                success = false,
-                exception = null
+                Success = false,
+                Exception = null
             };
 
             if (BackgroundTaskRegistered(ADVERTISEMENT_CLASS))
             {
                 // Already registered
-                System.Diagnostics.Debug.WriteLine("BackgroundTaskManager.RegisterAdvertisementWatcherBackgroundTask(): Already registered");
-                result.success = true;
+                logger.Debug("BackgroundTaskManager.RegisterAdvertisementWatcherBackgroundTask(): Already registered");
+                result.Success = true;
             }
             else
             {
@@ -173,8 +174,6 @@ namespace SensorbergSDK
 
                 backgroundTaskBuilder.Name = ADVERTISEMENT_CLASS;
                 backgroundTaskBuilder.TaskEntryPoint = advertisementClassName;
-
-                IBackgroundTrigger trigger;
 
                 BluetoothLEAdvertisementWatcherTrigger advertisementWatcherTrigger = new BluetoothLEAdvertisementWatcherTrigger();
 
@@ -224,7 +223,7 @@ namespace SensorbergSDK
                 advertisementWatcherTrigger.SignalStrengthFilter.OutOfRangeThresholdInDBm = SIGNAL_STRENGTH_FILTER_OUT_OF_RANGE_THRESHOLD_IN_D_BM;
                 advertisementWatcherTrigger.SignalStrengthFilter.OutOfRangeTimeout = TimeSpan.FromMilliseconds(AppSettings.BeaconExitTimeout);
 
-                trigger = advertisementWatcherTrigger;
+                IBackgroundTrigger trigger = advertisementWatcherTrigger;
 
                 backgroundTaskBuilder.SetTrigger(trigger);
 
@@ -233,15 +232,15 @@ namespace SensorbergSDK
                     BackgroundTaskRegistration backgroundTaskRegistration = backgroundTaskBuilder.Register();
                     backgroundTaskRegistration.Completed += OnAdvertisementWatcherBackgroundTaskCompleted;
                     backgroundTaskRegistration.Progress += OnAdvertisementWatcherBackgroundTaskProgress;
-                    result.success = true;
+                    result.Success = true;
                 }
                 catch (Exception ex)
                 {
-                    result.exception = ex;
-                    System.Diagnostics.Debug.WriteLine("BackgroundTaskManager.RegisterAdvertisementWatcherBackgroundTask(): Failed to register: " + ex);
+                    result.Exception = ex;
+                    logger.Error("BackgroundTaskManager.RegisterAdvertisementWatcherBackgroundTask(): Failed to register: ", ex);
                 }
 
-                if (result.success)
+                if (result.Success)
                 {
                     SDKData sdkData = SDKData.Instance;
 
@@ -284,14 +283,14 @@ namespace SensorbergSDK
         {
             BackgroundTaskRegistrationResult result = new BackgroundTaskRegistrationResult()
             {
-                success = false,
-                exception = null
+                Success = false,
+                Exception = null
             };
 
             if (BackgroundTaskRegistered(TIMER_CLASS))
             {
                 // Already registered
-                result.success = true;
+                result.Success = true;
             }
             else
             {
@@ -305,12 +304,12 @@ namespace SensorbergSDK
                 {
                     BackgroundTaskRegistration backgroundTaskRegistration = backgroundTaskBuilder.Register();
                     backgroundTaskRegistration.Completed += OnTimedBackgroundTaskCompleted;
-                    result.success = true;
+                    result.Success = true;
                 }
                 catch (Exception ex)
                 {
-                    result.exception = ex;
-                    System.Diagnostics.Debug.WriteLine("BackgroundTaskManager.RegisterTimedBackgroundTask(): Failed to register: " + ex);
+                    result.Exception = ex;
+                    logger.Error("BackgroundTaskManager.RegisterTimedBackgroundTask(): Failed to register: " , ex);
                 }
             }
 
@@ -325,25 +324,23 @@ namespace SensorbergSDK
         /// <returns>True, if registered. False otherwise.</returns>
         private bool BackgroundTaskRegistered(string taskName)
         {
-            bool registered = false;
 
             foreach (var taskValue in BackgroundTaskRegistration.AllTasks.Values)
             {
                 if (taskValue.Name.Equals(taskName))
                 {
-                    registered = true;
-                    break;
+                    return true;
                 }
             }
 
-            return registered;
+            return false;
         }
         /// <summary>
         /// Note: This handler is called only if the task completed while the application was in the foreground. 
         /// </summary>
         private void OnTimedBackgroundTaskCompleted(IBackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
         {
-            System.Diagnostics.Debug.WriteLine("BackgroundTaskManager.OnTimedBackgroundTaskCompleted()");
+            logger.Debug("BackgroundTaskManager.OnTimedBackgroundTaskCompleted()");
         }
 
         /// <summary>
@@ -351,12 +348,12 @@ namespace SensorbergSDK
         /// </summary>
         private void OnAdvertisementWatcherBackgroundTaskCompleted(IBackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
         {
-            System.Diagnostics.Debug.WriteLine("BackgroundTaskManager.OnAdvertisementWatcherBackgroundTaskCompleted()");
+            logger.Debug("BackgroundTaskManager.OnAdvertisementWatcherBackgroundTaskCompleted()");
         }
 
         private async void OnAdvertisementWatcherBackgroundTaskProgress(BackgroundTaskRegistration sender, BackgroundTaskProgressEventArgs args)
         {
-            System.Diagnostics.Debug.WriteLine("BackgroundTaskManager.OnAdvertisementWatcherBackgroundTaskProgress()");
+            logger.Debug("BackgroundTaskManager.OnAdvertisementWatcherBackgroundTaskProgress()");
 
             List<BeaconAction> beaconActions = await ServiceManager.StorageService.GetActionsForForeground();
             foreach (var beaconAction in beaconActions)

@@ -9,7 +9,6 @@ using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Background;
 using Windows.UI.Notifications;
 using MetroLog;
-using SensorbergSDK.Data;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
 
@@ -20,7 +19,7 @@ namespace SensorbergSDKBackground
     /// and resolves delayed actions. This is not part of the public API. Making modifications into
     /// background tasks is not required in order to use the SDK.
     /// </summary>
-    public class BackgroundEngine
+    public class BackgroundEngine : IDisposable
     {
         private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<BackgroundEngine>();
         private const int ExitEventDelayInSeconds = 13;
@@ -31,8 +30,8 @@ namespace SensorbergSDKBackground
         private SDKEngine SdkEngine { get; }
         private BackgroundTaskDeferral _deferral;
         private IBackgroundTaskInstance _backgroundTaskInstance;
-        private IList<Beacon> _beacons;
-        private IList<BeaconEventArgs> _beaconArgs;
+        private readonly IList<Beacon> _beacons;
+        private readonly IList<BeaconEventArgs> _beaconArgs;
         private Timer _killTimer;
         private int _unsolvedCounter;
         private bool _readyToFinish = false;
@@ -260,6 +259,11 @@ namespace SensorbergSDKBackground
                 // has been finished.
                 _readyToFinish = true;
             }
+        }
+
+        public void Dispose()
+        {
+            _killTimer?.Dispose();
         }
     }
 }

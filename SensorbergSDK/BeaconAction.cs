@@ -5,7 +5,6 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Data.Json;
-using Windows.UI.Notifications;
 using Windows.UI.Popups;
 using Windows.UI.Xaml.Navigation;
 

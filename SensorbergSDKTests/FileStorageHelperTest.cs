@@ -62,9 +62,9 @@ namespace SensorbergSDKTests
         public void TestActionToString()
         {
             string s = FileStorageHelper.ActionToString("1", "1", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.Enter);
-            Assert.AreEqual("1,1,1429192800000,1,False\n", s);
+            Assert.AreEqual("1,1,1429192800000,1,False,False\n", s);
             s = FileStorageHelper.ActionToString(new HistoryAction() { eid = "1", pid = "1", dt = DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000").ToString(History.TIMEFORMAT), trigger =  (int)BeaconEventType.Enter, Delivered = false});
-            Assert.AreEqual("1,1,1429192800000,1,False\n", s);
+            Assert.AreEqual("1,1,1429192800000,1,False,False\n", s);
         }
 
         [DataTestMethod]

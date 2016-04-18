@@ -2,16 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Windows.Data.Json;
 using Windows.Foundation;
-using Windows.Storage;
-using Windows.Web.Http;
-using Windows.Web.Http.Filters;
 using SensorbergSDK.Internal.Services;
-using SensorbergSDK.Internal.Utils;
 using SensorbergSDK.Services;
 
 namespace SensorbergSDK.Internal

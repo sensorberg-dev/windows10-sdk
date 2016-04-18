@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ServiceModel;
 using Windows.Web.Http.Headers;
 using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
-using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
 
 namespace SensorbergSDK
@@ -85,7 +83,7 @@ namespace SensorbergSDK
             HttpFormUrlEncodedContent formContent = new HttpFormUrlEncodedContent(keyValues);
 
             Uri uri = new Uri(LoginUrl);
-            HttpResponseMessage response = null;
+            HttpResponseMessage response;
 
             try
             {
@@ -99,7 +97,7 @@ namespace SensorbergSDK
 
             if (response.StatusCode == HttpStatusCode.Ok)
             {
-                string responseAsString = string.Empty;
+                string responseAsString;
 
                 try
                 {
@@ -111,13 +109,12 @@ namespace SensorbergSDK
                     return NetworkResult.NetworkError;
                 }
 
-                JsonValue responseAsJsonValue = null;
+                JsonValue responseAsJsonValue;
                 string authToken = string.Empty;
 
                 try
                 {
                     responseAsJsonValue = JsonValue.Parse(responseAsString);
-                    authToken = string.Empty;
 
                     if (responseAsJsonValue.ValueType == JsonValueType.Object)
                     {
@@ -156,7 +153,7 @@ namespace SensorbergSDK
                         var applicationsArray = responseAsJsonValue.GetArray();
 
                         // We take the first Windows application from the list
-                        foreach (JsonValue applicationValue in applicationsArray)
+                        foreach (IJsonValue applicationValue in applicationsArray)
                         {
                             if (applicationValue.ValueType == JsonValueType.Object)
                             {

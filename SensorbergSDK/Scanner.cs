@@ -1,13 +1,10 @@
 ﻿using SensorbergSDK.Internal;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
-using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
 using MetroLog;
-using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
 
 namespace SensorbergSDK
@@ -22,7 +19,7 @@ namespace SensorbergSDK
     /// <summary>
     /// Bluetooth LE advertisement scanner helper class with beacon list management.
     /// </summary>
-	public sealed class Scanner : IBeaconScanner
+	public sealed class Scanner : IBeaconScanner, IDisposable
     {
         private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<Scanner>();
         /// <summary>
@@ -275,6 +272,12 @@ namespace SensorbergSDK
             {
                 StatusChanged(this, _status);
             }
+        }
+
+        public void Dispose()
+        {
+            _beaconListRefreshTimer?.Dispose();
+            _notifyStartedDelayTimer?.Dispose();
         }
     }
 }

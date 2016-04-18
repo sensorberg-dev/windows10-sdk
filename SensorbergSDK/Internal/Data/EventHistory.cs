@@ -1,28 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using System.Runtime.Serialization.Json;
-using System.IO;
-using System.Text;
-using System.Net;
-using System.Runtime.Serialization;
 using System.Threading;
 using MetroLog;
 using SensorbergSDK.Internal.Services;
-using SensorbergSDK.Internal.Utils;
-using SensorbergSDK.Services;
 
 namespace SensorbergSDK.Internal
 {
     /// <summary>
     /// Event storage. It stores all past beacon events and actions associated with the events.
     /// </summary>
-    public sealed class EventHistory
+    public sealed class EventHistory : IDisposable
     {
         private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<EventHistory>();
-        private AutoResetEvent _asyncWaiter;
+        private readonly AutoResetEvent _asyncWaiter;
 
         public EventHistory()
         {
@@ -142,6 +133,10 @@ namespace SensorbergSDK.Internal
             await ServiceManager.StorageService.FlushHistory();
         }
 
+        public void Dispose()
+        {
+            _asyncWaiter?.Dispose();
+        }
     }
 }
 

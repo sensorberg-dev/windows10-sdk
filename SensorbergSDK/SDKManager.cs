@@ -3,10 +3,8 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Foundation;
 using Windows.UI.Core;
-using SensorbergSDK.Data;
-using SensorbergSDK.Internal.Data;
+using MetroLog;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
 
@@ -17,9 +15,16 @@ namespace SensorbergSDK
     /// </summary>
     public sealed class SDKManager
     {
+        private static ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<SDKManager>();
         public static readonly string DemoApiKey = Constants.DemoApiKey;
-        private int StartScannerIntervalInMilliseconds = 2000;
+        private readonly int StartScannerIntervalInMilliseconds = 2000;
         private AppSettings _appSettings;
+        private static SDKManager _instance;
+
+        private readonly BackgroundTaskManager _backgroundTaskManager;
+        private Timer _startScannerTimer;
+        private bool _scannerShouldBeRunning;
+
 
         /// <summary>
         /// Fired when a beacon action has been successfully resolved and is ready to be exeuted.
@@ -96,12 +101,6 @@ namespace SensorbergSDK
                 _backgroundTaskManager.BackgroundFiltersUpdated -= value;
             }
         }
-
-        private static SDKManager _instance;
-
-        private BackgroundTaskManager _backgroundTaskManager;
-        private Timer _startScannerTimer;
-        private bool _scannerShouldBeRunning;
 
         /// <summary>
         /// Instance of the SDKEngine.
@@ -261,6 +260,7 @@ namespace SensorbergSDK
         /// <returns>The singleton instance of this class.</returns>
 		public static SDKManager Instance(UInt16 manufacturerId, UInt16 beaconCode)
         {
+            logger.Debug("Instance");
             Instance();
 
             _instance.ManufacturerId = manufacturerId;
@@ -301,7 +301,7 @@ namespace SensorbergSDK
         /// <summary>
         /// Utility method for launching bluetooth settings on device.
         /// </summary>
-        public async void LaunchBluetoothSettingsAsync()
+        public async Task LaunchBluetoothSettingsAsync()
         {
             await Windows.System.Launcher.LaunchUriAsync(new Uri("ms-settings-bluetooth:"));
         }
@@ -318,6 +318,7 @@ namespace SensorbergSDK
         /// <param name="advertisementClassName">Full class name of the advertisement background process, if needed</param>
         public async Task InitializeAsync(string apiKey, string timerClassName = null, string advertisementClassName = null, bool startScanning = true)
         {
+            logger.Debug("InitializeAsync");
             SDKData sdkData = SDKData.Instance;
 
             if (!IsInitialized)
@@ -329,6 +330,7 @@ namespace SensorbergSDK
 
             if (sdkData.BackgroundTaskEnabled)
             {
+            logger.Debug("InitializeAsync#InitializeBackgground");
                 await UpdateBackgroundTaskIfNeededAsync(timerClassName, advertisementClassName);
             }
 
@@ -393,8 +395,8 @@ namespace SensorbergSDK
         {
             BackgroundTaskRegistrationResult result = new BackgroundTaskRegistrationResult()
             {
-                success = true,
-                exception = null
+                Success = true,
+                Exception = null
             };
 
             if (BackgroundTaskManager.CheckIfBackgroundFilterUpdateIsRequired())

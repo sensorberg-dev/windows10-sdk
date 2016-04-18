@@ -7,14 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.Storage;
-using SensorbergSDK.Data;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Utils;
 using SensorbergSDK.Services;
@@ -27,6 +25,7 @@ namespace SensorbergSDK.Internal.Services
         private const string KeyLayoutContent = "layout_content.cache"; // Cache file
         private const string KeyLayoutRetrievedTime = "layout_retrieved_time";
         private readonly Dictionary<string, IList<HistoryAction>> historyActionsCache;
+        private const int MAX_RETRIES= 5;
 
         public int RetryCount { get; set; } = 3;
 
@@ -255,18 +254,50 @@ namespace SensorbergSDK.Internal.Services
 #region storage methods
         public async Task SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType)
         {
-            HistoryAction action = FileStorageHelper.ToHistoryAction(uuid, beaconPid, now, beaconEventType);
-            if(!historyActionsCache.ContainsKey(uuid))
+            await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, MAX_RETRIES);
+        }
+
+        private async Task SaveHistoryActionRetry(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType, int retry)
+        {
+            if (retry < 0)
             {
-                historyActionsCache[uuid] = new List<HistoryAction>();
+                return;
             }
-            historyActionsCache[uuid].Add(action);
-            await Storage.SaveHistoryAction(action);
+            try
+            {
+                HistoryAction action = FileStorageHelper.ToHistoryAction(uuid, beaconPid, now, beaconEventType);
+                if (!historyActionsCache.ContainsKey(uuid))
+                {
+                    historyActionsCache[uuid] = new List<HistoryAction>();
+                }
+                historyActionsCache[uuid].Add(action);
+                await Storage.SaveHistoryAction(action);
+            }
+            catch (FileNotFoundException)
+            {
+                await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, --retry);
+            }
         }
 
         public async Task SaveHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType)
         {
-            await Storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent(pid,timestamp,eventType));
+            await SaveHistoryEventRetry(pid, timestamp, eventType,MAX_RETRIES);
+        }
+
+        private async Task SaveHistoryEventRetry(string pid, DateTimeOffset timestamp, BeaconEventType eventType, int retry)
+        {
+            if (retry < 0)
+            {
+                return;
+            }
+            try
+            {
+                await Storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent(pid, timestamp, eventType));
+            }
+            catch (FileNotFoundException)
+            {
+                await SaveHistoryEventRetry(pid, timestamp, eventType, --retry);
+            }
         }
 
         public async Task<IList<HistoryAction>> GetActions(string uuid, bool forceUpdate = false)
@@ -303,7 +334,23 @@ namespace SensorbergSDK.Internal.Services
 
         public async Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice)
         {
+            await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice,MAX_RETRIES);
+        }
+
+        private async Task SaveDelayedActionsRetry(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice, int retry)
+        {
+            if (retry < 0)
+            {
+                return;
+            }
+            try
+            {
             await Storage.SaveDelayedAction(action, dueTime, beaconPid, eventTypeDetectedByDevice);
+            }
+            catch (FileNotFoundException)
+            {
+                await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice, --retry);
+            }
         }
 
         public async Task<BackgroundEvent> GetLastEventStateForBeacon(string pid)
@@ -313,7 +360,23 @@ namespace SensorbergSDK.Internal.Services
 
         public async Task SaveBeaconEventState(string pid, BeaconEventType enter)
         {
-            await Storage.SaveBeaconEventState(pid, enter);
+            await SaveBeaconEventStateRetry(pid, enter,MAX_RETRIES);
+        }
+
+        private async Task SaveBeaconEventStateRetry(string pid, BeaconEventType enter, int retry)
+        {
+            if (retry < 0)
+            {
+                return;
+            }
+            try
+            {
+                await Storage.SaveBeaconEventState(pid, enter);
+            }
+            catch (FileNotFoundException)
+            {
+                await SaveBeaconEventStateRetry(pid, enter, --retry);
+            }
         }
 
         public async Task<List<BeaconAction>> GetActionsForForeground(bool doNotDelete = false)
@@ -369,25 +432,25 @@ namespace SensorbergSDK.Internal.Services
                 catch (TimeoutException e)
                 {
                     networkError = true;
-                    Debug.WriteLine("timeout error while validation api key: " + e.Message);
+                    Debug.WriteLine("timeout error while executing call: " + e.Message);
                     await WaitBackoff(retries);
                 }
                 catch (IOException e)
                 {
                     networkError = true;
-                    Debug.WriteLine("Error while validation api key: " + e.Message);
+                    Debug.WriteLine("Error while executing call: " + e.Message);
                     await WaitBackoff(retries);
                 }
                 catch (HttpRequestException e)
                 {
                     networkError = true;
-                    Debug.WriteLine("Error while validation api key: " + e.Message);
+                    Debug.WriteLine("Error while executing call: " + e.Message);
                     await WaitBackoff(retries);
                 }
                 catch (Exception e)
                 {
                     networkError = false;
-                    Debug.WriteLine("Error while validation api key: " + e.Message);
+                    Debug.WriteLine("Error while executing call: " + e.Message);
                     await WaitBackoff(retries);
                 }
                 finally
