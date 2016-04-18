@@ -11,6 +11,7 @@ using SensorbergSDK.Data;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
+using System.Collections.Generic;
 
 namespace SensorbergSDK
 {
@@ -27,6 +28,7 @@ namespace SensorbergSDK
         private const string TIMER_CLASS = "SENSORBERG_TIMER_CLASS";
         private const string ADVERTISEMENT_CLASS = "SENSORBERG_ADVERTISEMENT_CLASS";
         public event EventHandler BackgroundFiltersUpdated;
+        public event EventHandler<BeaconAction> BackgroundBeaconActionResolved;
         public bool IsBackgroundTaskRegistered { get { return BackgroundTaskRegistered(TIMER_CLASS) && BackgroundTaskRegistered(ADVERTISEMENT_CLASS); } }
         public AppSettings AppSettings { get; set; }
 
@@ -38,6 +40,39 @@ namespace SensorbergSDK
                 {
                     taskValue.Unregister(true);
                     System.Diagnostics.Debug.WriteLine("BackgroundTaskManager.UnregisterBackgroundTask(): Unregistered task: " + taskValue.Name);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Will remove OnProgress event handlers from advertisement background task
+        /// OnProgress events are used to indicate UI tasks on beacon actions resolved in background
+        /// </summary>
+        public void UnRegisterOnProgressEventHandler()
+        {
+            System.Diagnostics.Debug.WriteLine("UnRegisterOnProgressEventHandler");
+
+            foreach (var taskValue in BackgroundTaskRegistration.AllTasks.Values)
+            {
+                if (taskValue.Name.Equals(ADVERTISEMENT_CLASS))
+                {
+                    taskValue.Progress -= OnAdvertisementWatcherBackgroundTaskProgress;
+                }
+            }
+        }
+        /// <summary>
+        /// Will remove OnProgress event handlers from advertisement background task
+        /// OnProgress events are used to indicate UI tasks on beacon actions resolved in background
+        /// </summary>
+        public void RegisterOnProgressEventHandler()
+        {
+            System.Diagnostics.Debug.WriteLine("RegisterOnProgressEventHandler");
+
+            foreach (var taskValue in BackgroundTaskRegistration.AllTasks.Values)
+            {
+                if (taskValue.Name.Equals(ADVERTISEMENT_CLASS))
+                {
+                    taskValue.Progress += OnAdvertisementWatcherBackgroundTaskProgress;
                 }
             }
         }
@@ -197,6 +232,7 @@ namespace SensorbergSDK
                 {
                     BackgroundTaskRegistration backgroundTaskRegistration = backgroundTaskBuilder.Register();
                     backgroundTaskRegistration.Completed += OnAdvertisementWatcherBackgroundTaskCompleted;
+                    backgroundTaskRegistration.Progress += OnAdvertisementWatcherBackgroundTaskProgress;
                     result.success = true;
                 }
                 catch (Exception ex)
@@ -316,6 +352,17 @@ namespace SensorbergSDK
         private void OnAdvertisementWatcherBackgroundTaskCompleted(IBackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
         {
             System.Diagnostics.Debug.WriteLine("BackgroundTaskManager.OnAdvertisementWatcherBackgroundTaskCompleted()");
+        }
+
+        private async void OnAdvertisementWatcherBackgroundTaskProgress(BackgroundTaskRegistration sender, BackgroundTaskProgressEventArgs args)
+        {
+            System.Diagnostics.Debug.WriteLine("BackgroundTaskManager.OnAdvertisementWatcherBackgroundTaskProgress()");
+
+            List<BeaconAction> beaconActions = await ServiceManager.StorageService.GetActionsForForeground();
+            foreach (var beaconAction in beaconActions)
+            {
+                BackgroundBeaconActionResolved?.Invoke(this, beaconAction);
+            }
         }
     }
 }

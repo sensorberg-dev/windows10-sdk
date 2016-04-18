@@ -15,7 +15,6 @@ namespace SensorbergSDK.Internal
         private const int DelayedActionExecutionTimeframeInSeconds = 60;
         private const int UpdateVisibilityTimerIntervalInMilliseconds = 60000;
         private const int DatabaseExpirationInHours = 1;
-        private const int WORKER_TIMER_PERIDODE = 1000*10;
 
         /// <summary>
         /// Fired when a beacon action has been successfully resolved and is ready to be exeuted.
@@ -38,7 +37,6 @@ namespace SensorbergSDK.Internal
         private Timer _flushHistoryTimer;
         private Timer _updateVisibilityTimer;
         private Timer _getLayoutTimer;
-        private Timer PeriodicWorkerTimer { get; set; }
 //        private Timer _fetchActionsResolvedByBackgroundTimer;
         private DateTimeOffset _nextTimeToProcessDelayedActions;
         private readonly bool _appIsOnForeground;
@@ -127,8 +125,6 @@ namespace SensorbergSDK.Internal
                             UpdateVisibilityTimerIntervalInMilliseconds,
                             UpdateVisibilityTimerIntervalInMilliseconds);
 
-                    PeriodicWorkerTimer = new Timer(OnWorkerTimerActivated, null, WORKER_TIMER_PERIDODE, WORKER_TIMER_PERIDODE);
-
                     var layoutTimeSpam = TimeSpan.FromMilliseconds(AppSettings.LayoutUpdateInterval);
                     _getLayoutTimer = new Timer(OnLayoutUpdatedAsync, null, layoutTimeSpam, layoutTimeSpam);
 
@@ -178,8 +174,6 @@ namespace SensorbergSDK.Internal
                     _processDelayedActionsTimer = null;
                 }
 
-                PeriodicWorkerTimer?.Dispose();
-                PeriodicWorkerTimer = null;
 //                if (_fetchActionsResolvedByBackgroundTimer != null)
 //                {
 //                    _fetchActionsResolvedByBackgroundTimer.Dispose();
@@ -368,14 +362,6 @@ namespace SensorbergSDK.Internal
 
         #region Timer callbacks
 
-        public async void OnWorkerTimerActivated(object state)
-        {
-            List<BeaconAction> beaconActions = await ServiceManager.StorageService.GetActionsForForeground();
-            foreach (var beaconAction in beaconActions)
-            {
-                BeaconActionResolved?.Invoke(this, beaconAction);
-            }
-        }
 
         /* /// <summary>
         /// Checks, if there are pending beacon actions resolved by the background task.
