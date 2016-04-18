@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.Storage;
-using SensorbergSDK.Data;
 using SensorbergSDK.Services;
 
 namespace SensorbergSDK.Internal.Services

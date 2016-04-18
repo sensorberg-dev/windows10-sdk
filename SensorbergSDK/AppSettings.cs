@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.Serialization;
 using Windows.Data.Json;
 using SensorbergSDK.Internal;
 
-namespace SensorbergSDK.Data
+namespace SensorbergSDK
 {
     [DataContract]
     public sealed class AppSettings
@@ -117,7 +118,7 @@ namespace SensorbergSDK.Data
         {
             return enterDistanceThreshold.ValueType == JsonValueType.String
                 ? enterDistanceThreshold.GetString()
-                : enterDistanceThreshold.GetNumber().ToString();
+                : enterDistanceThreshold.GetNumber().ToString(CultureInfo.InvariantCulture);
         }
 
         public override string ToString()

@@ -9,7 +9,6 @@ using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Background;
 using Windows.UI.Notifications;
 using MetroLog;
-using SensorbergSDK.Data;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
 

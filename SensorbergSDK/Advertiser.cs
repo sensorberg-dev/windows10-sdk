@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Windows.Devices.Bluetooth.Advertisement;
+using MetroLog;
 
 namespace SensorbergSDK
 {
@@ -7,7 +8,8 @@ namespace SensorbergSDK
     /// Manages publishing BLE advertisements.
     /// </summary>
 	public sealed class Advertiser
-	{
+    {
+        private static ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<Advertiser>();
         private const int DefaultMeasuredPower = -59;
         private BluetoothLEAdvertisementPublisher _advertisementPublisher;
         private Beacon _beacon;
@@ -60,9 +62,6 @@ namespace SensorbergSDK
             private set;
         }
 
-        public Advertiser()
-        {
-        }
 
         /// <summary>
         /// Starts advertizing based on the set values (beacon ID 1, ID 2 and ID 3).
@@ -84,7 +83,7 @@ namespace SensorbergSDK
                 _advertisementPublisher = new BluetoothLEAdvertisementPublisher();
                
                 BluetoothLEAdvertisementDataSection dataSection = BeaconFactory.BeaconToSecondDataSection(_beacon);
-                System.Diagnostics.Debug.WriteLine("Advertiser.Start(): " + BeaconFactory.DataSectionToRawString(dataSection));
+                logger.Debug("Advertiser.Start(): " + BeaconFactory.DataSectionToRawString(dataSection));
                 _advertisementPublisher.Advertisement.DataSections.Add(dataSection);
                 _advertisementPublisher.Start();
 
@@ -100,6 +99,7 @@ namespace SensorbergSDK
                 _advertisementPublisher = null;
                 IsStarted = false;
             }
+            logger.Debug("Advertiser.Stoped");
         }
 	}
 }

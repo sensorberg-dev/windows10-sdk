@@ -1,5 +1,4 @@
 ﻿using System;
-using SensorbergSDK.Data;
 
 namespace SensorbergSDK.Internal
 {

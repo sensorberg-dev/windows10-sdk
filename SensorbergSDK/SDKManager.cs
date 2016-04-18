@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Core;
 using MetroLog;
-using SensorbergSDK.Data;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
 
@@ -390,8 +389,8 @@ namespace SensorbergSDK
         {
             BackgroundTaskRegistrationResult result = new BackgroundTaskRegistrationResult()
             {
-                success = true,
-                exception = null
+                Success = true,
+                Exception = null
             };
 
             if (BackgroundTaskManager.CheckIfBackgroundFilterUpdateIsRequired())
