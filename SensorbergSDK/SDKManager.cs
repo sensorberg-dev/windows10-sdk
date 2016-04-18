@@ -316,7 +316,7 @@ namespace SensorbergSDK
         /// <param name="apiKey">The API key for the Sensorberg service.</param>
         /// <param name="timerClassName">Full class name of the timer background process, if needed</param>
         /// <param name="advertisementClassName">Full class name of the advertisement background process, if needed</param>
-        public async Task InitializeAsync(string apiKey, string timerClassName = null, string advertisementClassName = null)
+        public async Task InitializeAsync(string apiKey, string timerClassName = null, string advertisementClassName = null, bool startScanning = true)
         {
             SDKData sdkData = SDKData.Instance;
 
@@ -332,7 +332,10 @@ namespace SensorbergSDK
                 await UpdateBackgroundTaskIfNeededAsync(timerClassName, advertisementClassName);
             }
 
-            StartScanner();
+            if (startScanning)
+            {
+                StartScanner();
+            }
         }
 
         private void OnSettingsUpdated(object sender, SettingsEventArgs settingsEventArgs)
@@ -350,8 +353,11 @@ namespace SensorbergSDK
                 return;
             }
 
-            StopScanner();
-            StartScanner();
+            if (_scannerShouldBeRunning)
+            {
+                StopScanner();
+                StartScanner();
+            }
         }
 
         /// <summary>
