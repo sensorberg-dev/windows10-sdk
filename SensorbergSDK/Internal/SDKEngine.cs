@@ -419,7 +419,6 @@ namespace SensorbergSDK.Internal
             _getLayoutTimer?.Dispose();
             _processDelayedActionsTimer?.Dispose();
             _updateVisibilityTimer?.Dispose();
-            PeriodicWorkerTimer?.Dispose();
         }
     }
 }
