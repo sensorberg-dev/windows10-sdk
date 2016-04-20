@@ -330,7 +330,7 @@ namespace SensorbergSDK
 
             if (sdkData.BackgroundTaskEnabled)
             {
-            logger.Debug("InitializeAsync#InitializeBackgground");
+                logger.Debug("InitializeAsync#InitializeBackgground");
                 await UpdateBackgroundTaskIfNeededAsync(timerClassName, advertisementClassName);
             }
 
@@ -338,7 +338,7 @@ namespace SensorbergSDK
             {
                 StartScanner();
             }
-        }
+        } 
 
         private void OnSettingsUpdated(object sender, SettingsEventArgs settingsEventArgs)
         {

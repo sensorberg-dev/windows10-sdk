@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using MetroLog;
+using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
 
 namespace SensorbergSDK.Internal
@@ -55,7 +56,7 @@ namespace SensorbergSDK.Internal
         /// <summary>
         /// The Resolver instance.
         /// </summary>
-        public Resolver Resolver { [DebuggerStepThrough] get; [DebuggerStepThrough] private set; }
+        public IResolver Resolver { [DebuggerStepThrough] get; [DebuggerStepThrough] private set; }
 
         /// <summary>
         /// Current count of unresolved actions
@@ -159,7 +160,7 @@ namespace SensorbergSDK.Internal
 
                 Resolver.ActionsResolved -= OnBeaconActionResolvedAsync;
                 Resolver.FailedToResolveActions -= OnResolverFailedToResolveActions;
-                Resolver.ClearRequests();
+                Resolver.Dispose();
 
                 if (_flushHistoryTimer != null)
                 {
@@ -206,7 +207,7 @@ namespace SensorbergSDK.Internal
             if (IsInitialized && eventArgs.EventType != BeaconEventType.None)
             {
                 UnresolvedActionCount++;
-                Resolver.CreateRequest(eventArgs);
+                await Resolver.CreateRequest(eventArgs);
                 await _eventHistory.SaveBeaconEventAsync(eventArgs);
             }
         }
@@ -222,7 +223,7 @@ namespace SensorbergSDK.Internal
 
             foreach (DelayedActionData delayedActionData in delayedActionDataList)
             {
-                if (delayedActionData.dueTime < DateTimeOffset.Now.AddSeconds((double) DelayedActionExecutionTimeframeInSeconds))
+                if (delayedActionData.dueTime < DateTimeOffset.Now.AddSeconds(DelayedActionExecutionTimeframeInSeconds))
                 {
                     // Time to execute
                     await ExecuteActionAsync(delayedActionData.resolvedAction, delayedActionData.beaconPid, delayedActionData.eventTypeDetectedByDevice);

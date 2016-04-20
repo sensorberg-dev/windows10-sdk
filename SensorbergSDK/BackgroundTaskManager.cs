@@ -232,6 +232,7 @@ namespace SensorbergSDK
                     BackgroundTaskRegistration backgroundTaskRegistration = backgroundTaskBuilder.Register();
                     backgroundTaskRegistration.Completed += OnAdvertisementWatcherBackgroundTaskCompleted;
                     backgroundTaskRegistration.Progress += OnAdvertisementWatcherBackgroundTaskProgress;
+
                     result.Success = true;
                 }
                 catch (Exception ex)
@@ -270,6 +271,9 @@ namespace SensorbergSDK
                     }
                 }
             }
+
+            //Load last events from background
+            await LoadBackgroundActions();
 
             return result;
         }
@@ -352,6 +356,11 @@ namespace SensorbergSDK
         }
 
         private async void OnAdvertisementWatcherBackgroundTaskProgress(BackgroundTaskRegistration sender, BackgroundTaskProgressEventArgs args)
+        {
+            await LoadBackgroundActions();
+        }
+
+        private async Task LoadBackgroundActions()
         {
             logger.Debug("BackgroundTaskManager.OnAdvertisementWatcherBackgroundTaskProgress()");
 

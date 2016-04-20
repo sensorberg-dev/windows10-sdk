@@ -61,7 +61,7 @@ namespace SensorbergSDKBackground
             SdkEngine = new SDKEngine(false);
             _beacons = new List<Beacon>();
             _beaconArgs = new List<BeaconEventArgs>();
-            SdkEngine.Resolver.RequestQueueCountChanged += OnRequestQueueCountChanged;
+//            SdkEngine.Resolver.RequestQueueCountChanged += OnRequestQueueCountChanged;
             SdkEngine.BeaconActionResolved += OnBeaconActionResolvedAsync;
         }
 
@@ -109,20 +109,23 @@ namespace SensorbergSDKBackground
                     {
                         await SdkEngine.ResolveBeaconAction(beaconArg);
                     }
+                    await SdkEngine.ProcessDelayedActionsAsync();
                 }
                 else
                 {
+                    await SdkEngine.ProcessDelayedActionsAsync();
                     Finish();
-                } 
+                }
             }
         }
-        
+
         /// <summary>
         /// Processes the delayed actions and executes them as necessary.
         /// </summary>
         public async Task ProcessDelayedActionsAsync()
         {
             await SdkEngine.ProcessDelayedActionsAsync();
+            await SdkEngine.FlushHistory();
             Finish();
         }
 
@@ -131,18 +134,23 @@ namespace SensorbergSDKBackground
         /// </summary>
         private void Finish()
         {
-            if (_killTimer != null)
+            try
             {
-                _killTimer.Dispose();
-                _killTimer = null;
+                if (_killTimer != null)
+                {
+                    _killTimer.Dispose();
+                    _killTimer = null;
+                }
+
+                Finished?.Invoke(this, 0);
+
+                SdkEngine.BeaconActionResolved -= OnBeaconActionResolvedAsync;
             }
-
-            Finished?.Invoke(this, 0);
-
-            SdkEngine.BeaconActionResolved -= OnBeaconActionResolvedAsync;
-
-            SdkEngine.Deinitialize();
-            _deferral.Complete();
+            finally
+            {
+                SdkEngine.Deinitialize();
+                _deferral.Complete();
+            }
         }
 
         /// <summary>

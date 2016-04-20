@@ -2,6 +2,7 @@
 using SensorbergSDK;
 using SensorbergSDK.Internal;
 using System.Threading;
+using System.Threading.Tasks;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDKTests.Mocks;
 
@@ -29,7 +30,7 @@ namespace SensorBergTests
         }
 
         [TestMethod]
-        public void resolver_test()
+        public async Task resolver_test()
         {
             SDKData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
             beacon.Id1 = "7367672374000000ffff0000ffff0006";
@@ -39,7 +40,7 @@ namespace SensorBergTests
             args.Beacon = beacon;
             args.EventType = BeaconEventType.Enter;
             res.ActionsResolved += Res_ActionResolved;
-            res.CreateRequest(args);
+            await res.CreateRequest(args);
             _manualEvent.WaitOne();
 
             Assert.IsNotNull(_e);
