@@ -3,6 +3,7 @@ using SensorbergSDK;
 using SensorbergSDK.Internal;
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDKTests.Mocks;
 
@@ -31,7 +32,7 @@ namespace SensorBergTests
         }
 
         [TestMethod]
-        public void Integration_connection()
+        public async Task Integration_connection()
         {
             SDKData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
             beacon.Id1 = "7367672374000000ffff0000ffff0006";
@@ -41,7 +42,7 @@ namespace SensorBergTests
             args.Beacon = beacon;
             args.EventType = BeaconEventType.Enter;
             res.ActionsResolved += Res_ActionResolved;
-            res.CreateRequest(args);
+            await res.CreateRequest(args);
             _manualEvent.WaitOne();
 
             Assert.IsNotNull(_e);
@@ -49,7 +50,7 @@ namespace SensorBergTests
         }
 
         [TestMethod]
-        public void Integration_timeframes1()
+        public async Task Integration_timeframes1()
         {
             SDKData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
             beacon.Id1 = "7367672374000000ffff0000ffff0007";
@@ -59,7 +60,7 @@ namespace SensorBergTests
             args.Beacon = beacon;
             args.EventType = BeaconEventType.Enter;
             res.ActionsResolved += Res_ActionResolved;
-            res.CreateRequest(args);
+            await  res.CreateRequest(args);
             _manualEvent.WaitOne();
 
             Assert.IsNotNull(_e);
@@ -74,7 +75,7 @@ namespace SensorBergTests
         }
 
         [TestMethod]
-        public void Integration_timeframes2()
+        public async Task Integration_timeframes2()
         {
             SDKData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
             beacon.Id1 = "7367672374000000ffff0000ffff0003";
@@ -84,7 +85,7 @@ namespace SensorBergTests
             args.Beacon = beacon;
             args.EventType = BeaconEventType.Enter;
             res.ActionsResolved += Res_ActionResolved;
-            res.CreateRequest(args);
+            await  res.CreateRequest(args);
             _manualEvent.WaitOne();
 
             Assert.IsNotNull(_e);
@@ -99,7 +100,7 @@ namespace SensorBergTests
         }
 
         [TestMethod]
-        public void Integration_payload()
+        public async Task Integration_payload()
         {
             SDKData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
             beacon.Id1 = "7367672374000000ffff0000ffff0006";
@@ -110,7 +111,7 @@ namespace SensorBergTests
             args.Beacon = beacon;
             args.EventType = BeaconEventType.Enter;
             res.ActionsResolved += Res_ActionResolved;
-            res.CreateRequest(args);
+            await res.CreateRequest(args);
             _manualEvent.WaitOne();
 
             Assert.IsNotNull(_e);

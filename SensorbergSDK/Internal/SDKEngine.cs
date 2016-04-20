@@ -83,7 +83,7 @@ namespace SensorbergSDK.Internal
             ServiceManager.SettingsManager = new SettingsManager();
 
             _appIsOnForeground = createdOnForeground;
-            Resolver = new Resolver();
+            Resolver = createdOnForeground ? (IResolver) new Resolver() : new SyncResolver();
             _eventHistory = new EventHistory();
             _nextTimeToProcessDelayedActions = DateTimeOffset.MaxValue;
             UnresolvedActionCount = 0;
@@ -207,8 +207,8 @@ namespace SensorbergSDK.Internal
             if (IsInitialized && eventArgs.EventType != BeaconEventType.None)
             {
                 UnresolvedActionCount++;
-                await Resolver.CreateRequest(eventArgs);
                 await _eventHistory.SaveBeaconEventAsync(eventArgs);
+                await Resolver.CreateRequest(eventArgs);
             }
         }
 

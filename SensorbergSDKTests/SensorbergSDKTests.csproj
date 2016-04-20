@@ -125,6 +125,7 @@
     <Compile Include="ResolverTest.cs" />
     <Compile Include="Response.cs" />
     <Compile Include="Mocks\StorageServiceExtend.cs" />
+    <Compile Include="SDKEngineTest.cs" />
     <Compile Include="StorageClassTest.cs" />
     <Compile Include="StorageServiceTest.cs" />
     <Compile Include="UnitTestApp.xaml.cs">
