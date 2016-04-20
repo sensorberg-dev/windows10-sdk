@@ -284,7 +284,7 @@ namespace SensorbergSDK
         {
             ServiceManager.BeaconScanner.StopWatcher();
             _instance?._backgroundTaskManager.UnregisterBackgroundTask();
-            _instance?.SdkEngine.Deinitialize();
+            _instance?.SdkEngine.Dispose();
             _instance = null;
         }
 
@@ -375,7 +375,7 @@ namespace SensorbergSDK
                     StopScanner();
                 }
 
-                SdkEngine.Deinitialize();
+                SdkEngine.Dispose();
             }
             Dispose();
         }

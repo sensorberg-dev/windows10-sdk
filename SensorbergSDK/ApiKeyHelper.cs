@@ -70,7 +70,7 @@ namespace SensorbergSDK
         /// <returns>The fetching operation result. If successful, the API key is placed in the ApiKey property of this class.</returns>
         public async Task<NetworkResult> FetchApiKeyAsync(string email, string password)
         {
-            NetworkResult result = NetworkResult.UnknownError;
+            NetworkResult result;
 
             HttpBaseProtocolFilter httpBaseProtocolFilter = new HttpBaseProtocolFilter();
             httpBaseProtocolFilter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
@@ -158,7 +158,6 @@ namespace SensorbergSDK
                             if (applicationValue.ValueType == JsonValueType.Object)
                             {
                                 JsonObject applicationObject = applicationValue.GetObject();
-                                string apiKey = string.Empty;
 
                                 var apiKeyValue = applicationObject[KeyApiKey];
                                 if (apiKeyValue.ValueType == JsonValueType.Null)
@@ -166,7 +165,7 @@ namespace SensorbergSDK
                                     continue;
                                 }
 
-                                apiKey = applicationObject.GetNamedString(KeyApiKey);
+                                var apiKey = applicationObject.GetNamedString(KeyApiKey);
 
                                 string applicationName = applicationObject.GetNamedString(KeyName);
                                 string platform = applicationObject.GetNamedString(KeyPlatform);

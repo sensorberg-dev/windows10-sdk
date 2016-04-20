@@ -114,7 +114,7 @@ namespace SensorbergSDKBackground
                 else
                 {
                     await SdkEngine.ProcessDelayedActionsAsync();
-                    Finish();
+                    Dispose();
                 }
             }
         }
@@ -126,31 +126,7 @@ namespace SensorbergSDKBackground
         {
             await SdkEngine.ProcessDelayedActionsAsync();
             await SdkEngine.FlushHistory();
-            Finish();
-        }
-
-        /// <summary>
-        /// Finishes background processing and releases all resources
-        /// </summary>
-        private void Finish()
-        {
-            try
-            {
-                if (_killTimer != null)
-                {
-                    _killTimer.Dispose();
-                    _killTimer = null;
-                }
-
-                Finished?.Invoke(this, 0);
-
-                SdkEngine.BeaconActionResolved -= OnBeaconActionResolvedAsync;
-            }
-            finally
-            {
-                SdkEngine.Deinitialize();
-                _deferral.Complete();
-            }
+            Dispose();
         }
 
         /// <summary>
@@ -255,7 +231,7 @@ namespace SensorbergSDKBackground
         {
             if (_readyToFinish)
             {
-                Finish();
+                Dispose();
                 return;
             }
             
@@ -268,10 +244,27 @@ namespace SensorbergSDKBackground
                 _readyToFinish = true;
             }
         }
+        
+        /// <summary>
+        /// Finishes background processing and releases all resources
+        /// </summary>
 
         public void Dispose()
         {
-            _killTimer?.Dispose();
+            try
+            {
+                _killTimer?.Dispose();
+                _killTimer = null;
+
+                Finished?.Invoke(this, 0);
+
+                SdkEngine.BeaconActionResolved -= OnBeaconActionResolvedAsync;
+            }
+            finally
+            {
+                SdkEngine.Dispose();
+                _deferral.Complete();
+            }
         }
     }
 }

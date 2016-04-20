@@ -150,41 +150,6 @@ namespace SensorbergSDK.Internal
         }
 
         /// <summary>
-        /// De-initializes the SDK.
-        /// </summary>
-        public void Deinitialize()
-        {
-            if (IsInitialized)
-            {
-                ServiceManager.LayoutManager.LayoutValidityChanged -= LayoutValidityChanged;
-
-                Resolver.ActionsResolved -= OnBeaconActionResolvedAsync;
-                Resolver.FailedToResolveActions -= OnResolverFailedToResolveActions;
-                Resolver.Dispose();
-
-                if (_flushHistoryTimer != null)
-                {
-                    _flushHistoryTimer.Dispose();
-                    _flushHistoryTimer = null;
-                }
-
-                if (_processDelayedActionsTimer != null)
-                {
-                    _processDelayedActionsTimer.Dispose();
-                    _processDelayedActionsTimer = null;
-                }
-
-//                if (_fetchActionsResolvedByBackgroundTimer != null)
-//                {
-//                    _fetchActionsResolvedByBackgroundTimer.Dispose();
-//                    _fetchActionsResolvedByBackgroundTimer = null;
-//                }
-
-                IsInitialized = false;
-            }
-        }
-
-        /// <summary>
         /// Updates the layout cache.
         /// </summary>
         public async Task UpdateCacheAsync(bool forceUpdate)
@@ -419,6 +384,17 @@ namespace SensorbergSDK.Internal
             _getLayoutTimer?.Dispose();
             _processDelayedActionsTimer?.Dispose();
             _updateVisibilityTimer?.Dispose();
+
+            if (IsInitialized)
+            {
+                ServiceManager.LayoutManager.LayoutValidityChanged -= LayoutValidityChanged;
+
+                Resolver.ActionsResolved -= OnBeaconActionResolvedAsync;
+                Resolver.FailedToResolveActions -= OnResolverFailedToResolveActions;
+                Resolver.Dispose();
+
+                IsInitialized = false;
+            }
         }
     }
 }

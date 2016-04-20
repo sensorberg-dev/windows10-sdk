@@ -109,6 +109,7 @@
     <SDKReference Include="TestPlatform.Universal, Version=$(UnitTestPlatformVersion)" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BackgroundEngineTest.cs" />
     <Compile Include="FileStorageHelperTest.cs" />
     <Compile Include="FullSDKTest.cs" />
     <Compile Include="IntegrationTest.cs" />
@@ -116,6 +117,7 @@
     <Compile Include="Mocks\FailToken.cs" />
     <Compile Include="Mocks\LayoutManagerExtend.cs" />
     <Compile Include="Mocks\MockApiConnection.cs" />
+    <Compile Include="Mocks\MockBackgroundTaskInstance.cs" />
     <Compile Include="Mocks\MockBeaconScanner.cs" />
     <Compile Include="Mocks\MockLayoutManager.cs" />
     <Compile Include="Mocks\MockStorage.cs" />
