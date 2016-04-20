@@ -161,7 +161,10 @@ namespace SensorbergSDK.Internal.Data
             ha.trigger = int.Parse(ss[3]);
             try
             {
-                ha.Delivered = bool.Parse(ss[4]);
+                if (ss.Length > 5)
+                {
+                    ha.Delivered = bool.Parse(ss[4]);
+                }
             }
             catch (FormatException)
             {
@@ -169,7 +172,7 @@ namespace SensorbergSDK.Internal.Data
             }
             try
             {
-                ha.Background = bool.Parse(ss[5]);
+                ha.Background = bool.Parse(ss[ss.Length - 1]);
             }
             catch (FormatException)
             {
