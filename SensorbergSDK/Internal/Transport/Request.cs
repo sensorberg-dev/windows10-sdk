@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Windows.Foundation.Metadata;
 
 namespace SensorbergSDK.Internal
 {
@@ -51,6 +52,7 @@ namespace SensorbergSDK.Internal
             private set;
         }
 
+        [Deprecated("remove me",DeprecationType.Deprecate, 1)]
         public bool IsBeingProcessed
         {
             get;

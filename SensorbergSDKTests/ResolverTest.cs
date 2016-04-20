@@ -34,7 +34,7 @@ namespace SensorbergSDKTests
         [Timeout(1000)]
         public async Task ResolveSingleAction()
         {
-            IResolver resolver = new Resolver();
+            IResolver resolver = new SyncResolver();
             TaskCompletionSource<IList<ResolvedAction>> action = new TaskCompletionSource<IList<ResolvedAction>>();
             resolver.ActionsResolved += (sender, args) =>
             {
@@ -51,7 +51,7 @@ namespace SensorbergSDKTests
         [Timeout(1000)]
         public async Task ResolveMultipleAction()
         {
-            IResolver resolver = new Resolver();
+            IResolver resolver = new SyncResolver();
             TaskCompletionSource<IList<ResolvedAction>> action = new TaskCompletionSource<IList<ResolvedAction>>();
             resolver.ActionsResolved += (sender, args) =>
             {
@@ -68,7 +68,7 @@ namespace SensorbergSDKTests
         [Timeout(1000)]
         public async Task ResolveSingleActionNoResult()
         {
-            IResolver resolver = new Resolver();
+            IResolver resolver = new SyncResolver();
             TaskCompletionSource<IList<ResolvedAction>> action = new TaskCompletionSource<IList<ResolvedAction>>();
             resolver.ActionsResolved += (sender, args) =>
             {
