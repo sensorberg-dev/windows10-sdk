@@ -25,7 +25,7 @@ namespace SensorbergSDKBackground
         private const int ExitEventDelayInSeconds = 13;
         private const int KillTimerDelayInMilliseconds = 200;
 
-        public event EventHandler<int> Finished;
+        public event EventHandler<BackgroundWorkerType> Finished;
 
         private SDKEngine SdkEngine { get; }
         private IList<Beacon> Beacons { get; set; }
@@ -100,13 +100,8 @@ namespace SensorbergSDKBackground
                 {
                     await SdkEngine.ResolveBeaconAction(beaconArg);
                 }
-                await SdkEngine.ProcessDelayedActionsAsync();
             }
-            else
-            {
-                await SdkEngine.ProcessDelayedActionsAsync();
-            }
-            Finished?.Invoke(this, 0);
+            Finished?.Invoke(this, BackgroundWorkerType.ADVERTISEMENT_WORKER);
         }
 
         /// <summary>
@@ -116,7 +111,7 @@ namespace SensorbergSDKBackground
         {
             await SdkEngine.ProcessDelayedActionsAsync();
             await SdkEngine.FlushHistory();
-            Finished?.Invoke(this, 0);
+            Finished?.Invoke(this, BackgroundWorkerType.TIMED_WORKER);
         }
 
 

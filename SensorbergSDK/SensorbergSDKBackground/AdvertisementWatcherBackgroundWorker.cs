@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Windows.ApplicationModel.Background;
 using Windows.Devices.Bluetooth.Background;
 using SensorbergSDK;
+using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDKBackground
 {
@@ -77,12 +78,19 @@ namespace SensorbergSDKBackground
             return beacons;
         }
 
-        private void OnFinished(object sender, int e)
+        private void OnFinished(object sender, BackgroundWorkerType type)
         {
-            System.Diagnostics.Debug.WriteLine("AdvertisementWatcherBackgroundTask.OnFinished()");
-            Deferral?.Complete();
-            BackgroundEngine.Finished -= OnFinished;
-            BackgroundEngine?.Dispose();
+            if (type == BackgroundWorkerType.ADVERTISEMENT_WORKER)
+            {
+                BackgroundEngine.ProcessDelayedActionsAsync().ConfigureAwait(false);
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("AdvertisementWatcherBackgroundTask.OnFinished()");
+                Deferral?.Complete();
+                BackgroundEngine.Finished -= OnFinished;
+                BackgroundEngine?.Dispose();
+            }
         }
     }
 }

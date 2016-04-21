@@ -1,4 +1,5 @@
 ﻿using Windows.ApplicationModel.Background;
+using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDKBackground
 {
@@ -26,7 +27,7 @@ namespace SensorbergSDKBackground
             await BackgroundEngine.ProcessDelayedActionsAsync();
         }
 
-        private void OnFinished(object sender, int e)
+        private void OnFinished(object sender, BackgroundWorkerType e)
         {
             System.Diagnostics.Debug.WriteLine("TimedBackgroundWorker.OnFinished()");
             Deferral?.Complete();
