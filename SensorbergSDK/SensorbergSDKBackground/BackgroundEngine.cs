@@ -28,9 +28,7 @@ namespace SensorbergSDKBackground
         public event EventHandler<int> Finished;
 
         private SDKEngine SdkEngine { get; }
-        private BackgroundTaskDeferral _deferral;
-        private IBackgroundTaskInstance _backgroundTaskInstance;
-        private readonly IList<Beacon> _beacons;
+        private IList<Beacon> Beacons { get; set; }
         private readonly IList<BeaconEventArgs> _beaconArgs;
         private Timer _killTimer;
         private int _unsolvedCounter;
@@ -59,7 +57,6 @@ namespace SensorbergSDKBackground
         public BackgroundEngine()
         {
             SdkEngine = new SDKEngine(false);
-            _beacons = new List<Beacon>();
             _beaconArgs = new List<BeaconEventArgs>();
 //            SdkEngine.Resolver.RequestQueueCountChanged += OnRequestQueueCountChanged;
             SdkEngine.BeaconActionResolved += OnBeaconActionResolvedAsync;
@@ -68,10 +65,8 @@ namespace SensorbergSDKBackground
         /// <summary>
         /// Initializes BackgroundEngine
         /// </summary>
-        public async Task InitializeAsync(IBackgroundTaskInstance taskInstance)
+        public async Task InitializeAsync()
         {
-            _deferral = taskInstance.GetDeferral();
-            _backgroundTaskInstance = taskInstance;
             await SdkEngine.InitializeAsync();
             AppSettings = await ServiceManager.SettingsManager.GetSettings();
 
@@ -86,37 +81,32 @@ namespace SensorbergSDKBackground
         /// <summary>
         /// Resolves beacons, which triggered the background task.
         /// </summary>
-        public async Task ResolveBeaconActionsAsync()
+        public async Task ResolveBeaconActionsAsync(List<Beacon> beacons, int outOfRangeDb)
         {
             logger.Trace("ResolveBeaconActionsAsync");
-            var triggerDetails = _backgroundTaskInstance.TriggerDetails as BluetoothLEAdvertisementWatcherTriggerDetails;
 
-            if (triggerDetails != null)
+            Beacons = beacons;
+            if (Beacons.Count > 0)
             {
-                TriggerDetailsToBeacons(triggerDetails);
-
-                if (_beacons.Count > 0)
-                {
-                    await AddBeaconsToBeaconArgsAsync(triggerDetails.SignalStrengthFilter);
-                }
-
-                if (_beaconArgs.Count > 0)
-                {
-                    // Resolve new events
-                    _unsolvedCounter = _beaconArgs.Count;
-
-                    foreach (var beaconArg in _beaconArgs)
-                    {
-                        await SdkEngine.ResolveBeaconAction(beaconArg);
-                    }
-                    await SdkEngine.ProcessDelayedActionsAsync();
-                }
-                else
-                {
-                    await SdkEngine.ProcessDelayedActionsAsync();
-                    Dispose();
-                }
+                await AddBeaconsToBeaconArgsAsync(outOfRangeDb);
             }
+
+            if (_beaconArgs.Count > 0)
+            {
+                // Resolve new events
+                _unsolvedCounter = _beaconArgs.Count;
+
+                foreach (var beaconArg in _beaconArgs)
+                {
+                    await SdkEngine.ResolveBeaconAction(beaconArg);
+                }
+                await SdkEngine.ProcessDelayedActionsAsync();
+            }
+            else
+            {
+                await SdkEngine.ProcessDelayedActionsAsync();
+            }
+            Finished?.Invoke(this, 0);
         }
 
         /// <summary>
@@ -126,38 +116,23 @@ namespace SensorbergSDKBackground
         {
             await SdkEngine.ProcessDelayedActionsAsync();
             await SdkEngine.FlushHistory();
-            Dispose();
+            Finished?.Invoke(this, 0);
         }
 
-        /// <summary>
-        /// Constructs Beacon instances from the trigger data and adds recognized beacons to the _beacons list
-        /// </summary>
-        /// <param name="triggerDetails"></param>
-        private void TriggerDetailsToBeacons(BluetoothLEAdvertisementWatcherTriggerDetails triggerDetails)
-        {
-            if (triggerDetails != null)
-            {
-                foreach (var bleAdvertisementReceivedEventArgs in triggerDetails.Advertisements)
-                {
-                    Beacon beacon = BeaconFactory.BeaconFromBluetoothLEAdvertisementReceivedEventArgs(bleAdvertisementReceivedEventArgs);
-                    _beacons.Add(beacon);
-                }
-            }
-        }
 
         /// <summary>
         /// Generates BeaconArgs from beacon events.
         /// For instance if a beacon is seen for the first time, BeaconArgs with enter type is generated
         /// </summary>
-        private async Task AddBeaconsToBeaconArgsAsync(BluetoothSignalStrengthFilter filter)
+        private async Task AddBeaconsToBeaconArgsAsync(int outOfRangeDb)
         {
             logger.Trace("AddBeaconsToBeaconArgsAsync");
-            foreach (var beacon in _beacons)
+            foreach (var beacon in Beacons)
             {
                 BackgroundEvent history = await ServiceManager.StorageService.GetLastEventStateForBeacon(beacon.Pid);
 
                 if (history == null || history.LastEvent == BeaconEventType.Exit ||
-                    (!IsOutOfRange(filter, beacon) && history.EventTime.AddMilliseconds(AppSettings.BeaconExitTimeout) < DateTimeOffset.Now))
+                    (!IsOutOfRange(outOfRangeDb, beacon) && history.EventTime.AddMilliseconds(AppSettings.BeaconExitTimeout) < DateTimeOffset.Now))
                 {
                     // No history for this beacon. Let's save it and add it to event args array for solving.
                     AddBeaconArgs(beacon, BeaconEventType.Enter);
@@ -169,7 +144,7 @@ namespace SensorbergSDKBackground
                 }
                 else if (history.LastEvent == BeaconEventType.Enter)
                 {
-                    if (IsOutOfRange(filter, beacon))
+                    if (IsOutOfRange(outOfRangeDb, beacon))
                     {
                         // Exit event
                         AddBeaconArgs(beacon, BeaconEventType.Exit);
@@ -183,9 +158,9 @@ namespace SensorbergSDKBackground
             }
         }
 
-        private static bool IsOutOfRange(BluetoothSignalStrengthFilter filter, Beacon beacon)
+        private static bool IsOutOfRange(int outOfRangeDb, Beacon beacon)
         {
-            return beacon.RawSignalStrengthInDBm == filter.OutOfRangeThresholdInDBm;
+            return beacon.RawSignalStrengthInDBm == outOfRangeDb;
         }
 
         private void AddBeaconArgs(Beacon beacon, BeaconEventType eventType)
@@ -256,14 +231,11 @@ namespace SensorbergSDKBackground
                 _killTimer?.Dispose();
                 _killTimer = null;
 
-                Finished?.Invoke(this, 0);
-
                 SdkEngine.BeaconActionResolved -= OnBeaconActionResolvedAsync;
             }
             finally
             {
                 SdkEngine.Dispose();
-                _deferral.Complete();
             }
         }
     }

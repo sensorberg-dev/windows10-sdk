@@ -102,7 +102,6 @@
     <Content Include="Assets\raw\response_supressionTime.json" />
     <Content Include="Assets\raw\mock\layout_request.json" />
     <Content Include="Assets\raw\mock\layout_request_header.txt" />
-    <None Include=".runsettings" />
     <Content Include="Assets\raw\mock\mock_layout.json" />
     <None Include="project.json" />
     <SDKReference Include="MSTestFramework.Universal, Version=$(UnitTestPlatformVersion)" />

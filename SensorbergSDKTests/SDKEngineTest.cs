@@ -54,7 +54,7 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
-        [Timeout(1000)]
+        [Timeout(2000)]
         public async Task ResolveMultipleAction()
         {
             LayoutManager layoutManager = (LayoutManager)ServiceManager.LayoutManager;
