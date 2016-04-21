@@ -10,7 +10,7 @@ namespace SensorbergSDK.Internal
     /// <summary>
     /// Simple queue for requests. When a request is added, it is handled automatically in due time.
     /// </summary>
-    public sealed class RequestQueue
+    public sealed class RequestQueue:IDisposable
     {
         private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<RequestQueue>();
         public event EventHandler<int> QueueCountChanged;
@@ -162,5 +162,9 @@ namespace SensorbergSDK.Internal
             }
         }
 
+        public void Dispose()
+        {
+            _cancelToken?.Dispose();
+        }
     }
 }
