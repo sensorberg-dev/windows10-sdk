@@ -74,7 +74,7 @@ namespace SensorbergSDKTests
 
             IList<ResolvedAction> result = await action.Task;
 
-            Assert.AreEqual(3, result.Count, "Not 3 action found");
+            Assert.AreEqual(4, result.Count, "Not 4 action found");
         }
 
         [TestMethod]

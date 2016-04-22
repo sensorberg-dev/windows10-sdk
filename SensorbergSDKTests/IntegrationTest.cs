@@ -88,7 +88,7 @@ namespace SensorbergSDKTests
             _manualEvent.WaitOne();
 
             Assert.IsNotNull(_e);
-            Assert.IsTrue(_e.ResolvedActions.Count == 3);
+            Assert.IsTrue(_e.ResolvedActions.Count == 4);
 
             var trueOffset = new DateTimeOffset(2017, 5, 1, 8, 6, 32, new TimeSpan(1, 0, 0));
             var falseOffset = new DateTimeOffset(2013, 5, 1, 8, 6, 32, new TimeSpan(1, 0, 0));
