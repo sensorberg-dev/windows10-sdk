@@ -29,7 +29,7 @@ namespace SensorbergSDKTests
             ServiceManager.ApiConnction = new MockApiConnection();
             ServiceManager.LayoutManager = new LayoutManager();
             ServiceManager.SettingsManager = new SettingsManager();
-            ServiceManager.StorageService = new StorageService() { Storage = new MockStorage() };
+            ServiceManager.StorageService = new StorageService() {Storage = new MockStorage()};
             ServiceManager.ReadOnlyForTests = true;
         }
 
@@ -43,7 +43,12 @@ namespace SensorbergSDKTests
             {
                 action.SetResult(args.ResolvedActions);
             };
-            await resolver.CreateRequest(new BeaconEventArgs() {Beacon = new Beacon() {Id1= "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 }, EventType = BeaconEventType.Enter});
+            await
+                resolver.CreateRequest(new BeaconEventArgs()
+                {
+                    Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929},
+                    EventType = BeaconEventType.Enter
+                });
 
             IList<ResolvedAction> result = await action.Task;
 
@@ -60,7 +65,12 @@ namespace SensorbergSDKTests
             {
                 action.SetResult(args.ResolvedActions);
             };
-            await resolver.CreateRequest(new BeaconEventArgs() { Beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0003", Id2 = 48869, Id3 = 21321 }, EventType = BeaconEventType.Enter });
+            await
+                resolver.CreateRequest(new BeaconEventArgs()
+                {
+                    Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff0003", Id2 = 48869, Id3 = 21321},
+                    EventType = BeaconEventType.Enter
+                });
 
             IList<ResolvedAction> result = await action.Task;
 
@@ -77,7 +87,12 @@ namespace SensorbergSDKTests
             {
                 action.SetResult(args.ResolvedActions);
             };
-            await resolver.CreateRequest(new BeaconEventArgs() { Beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff1234", Id2 = 39178, Id3 = 30929 }, EventType = BeaconEventType.Enter });
+            await
+                resolver.CreateRequest(new BeaconEventArgs()
+                {
+                    Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff1234", Id2 = 39178, Id3 = 30929},
+                    EventType = BeaconEventType.Enter
+                });
 
             IList<ResolvedAction> result = await action.Task;
 

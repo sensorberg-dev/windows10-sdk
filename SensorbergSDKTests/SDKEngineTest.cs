@@ -48,7 +48,12 @@ namespace SensorbergSDKTests
             {
                 action.SetResult(args);
             };
-            await engine.ResolveBeaconAction(new BeaconEventArgs() { Beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 }, EventType = BeaconEventType.Enter });
+            await
+                engine.ResolveBeaconAction(new BeaconEventArgs()
+                {
+                    Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929},
+                    EventType = BeaconEventType.Enter
+                });
 
             BeaconAction result = await action.Task;
 
@@ -59,7 +64,7 @@ namespace SensorbergSDKTests
         [Timeout(2000)]
         public async Task ResolveMultipleAction()
         {
-            LayoutManager layoutManager = (LayoutManager)ServiceManager.LayoutManager;
+            LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
             await layoutManager.VerifyLayoutAsync(true);
             SDKEngine engine = new SDKEngine(false);
             await engine.InitializeAsync();
@@ -69,12 +74,17 @@ namespace SensorbergSDKTests
             engine.BeaconActionResolved += (sender, args) =>
             {
                 list.Add(args);
-                if(list.Count>=3)
+                if (list.Count >= 3)
                 {
-                    action.SetResult(list);
+                    action.TrySetResult(list);
                 }
             };
-            await engine.ResolveBeaconAction(new BeaconEventArgs() { Beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0003", Id2 = 48869, Id3 = 21321 }, EventType = BeaconEventType.Enter });
+            await
+                engine.ResolveBeaconAction(new BeaconEventArgs()
+                {
+                    Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff0003", Id2 = 48869, Id3 = 21321},
+                    EventType = BeaconEventType.Enter
+                });
 
             IList<BeaconAction> result = await action.Task;
 
@@ -85,7 +95,7 @@ namespace SensorbergSDKTests
         [Timeout(2000)]
         public async Task ResolveSingleActionNoResult()
         {
-            LayoutManager layoutManager = (LayoutManager)ServiceManager.LayoutManager;
+            LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
             await layoutManager.VerifyLayoutAsync(true);
             SDKEngine engine = new SDKEngine(false);
             await engine.InitializeAsync();
@@ -100,7 +110,12 @@ namespace SensorbergSDKTests
                     action.SetResult(list);
                 }
             };
-            await engine.ResolveBeaconAction(new BeaconEventArgs() { Beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff1234", Id2 = 39178, Id3 = 30929 }, EventType = BeaconEventType.Enter });
+            await
+                engine.ResolveBeaconAction(new BeaconEventArgs()
+                {
+                    Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff1234", Id2 = 39178, Id3 = 30929},
+                    EventType = BeaconEventType.Enter
+                });
 
             if (await Task.WhenAny(action.Task, Task.Delay(500)) == action.Task)
             {

@@ -27,7 +27,7 @@ namespace SensorbergSDKTests
             ServiceManager.ApiConnction = new MockApiConnection();
             ServiceManager.LayoutManager = new LayoutManager();
             ServiceManager.SettingsManager = new SettingsManager();
-            ServiceManager.StorageService = new StorageService() { Storage = new MockStorage() };
+            ServiceManager.StorageService = new StorageService() {Storage = new MockStorage()};
             ServiceManager.ReadOnlyForTests = true;
         }
 
@@ -60,7 +60,7 @@ namespace SensorbergSDKTests
             args.Beacon = beacon;
             args.EventType = BeaconEventType.Enter;
             res.ActionsResolved += Res_ActionResolved;
-            await  res.CreateRequest(args);
+            await res.CreateRequest(args);
             _manualEvent.WaitOne();
 
             Assert.IsNotNull(_e);
@@ -71,7 +71,6 @@ namespace SensorbergSDKTests
 
             Assert.IsTrue(_e.ResolvedActions[0].IsInsideTimeframes(trueOffset));
             Assert.IsFalse(_e.ResolvedActions[0].IsInsideTimeframes(falseOffset));
-
         }
 
         [TestMethod]
@@ -85,7 +84,7 @@ namespace SensorbergSDKTests
             args.Beacon = beacon;
             args.EventType = BeaconEventType.Enter;
             res.ActionsResolved += Res_ActionResolved;
-            await  res.CreateRequest(args);
+            await res.CreateRequest(args);
             _manualEvent.WaitOne();
 
             Assert.IsNotNull(_e);
@@ -96,7 +95,6 @@ namespace SensorbergSDKTests
 
             Assert.IsTrue(_e.ResolvedActions[0].IsInsideTimeframes(trueOffset));
             Assert.IsFalse(_e.ResolvedActions[0].IsInsideTimeframes(falseOffset));
-
         }
 
         [TestMethod]
@@ -116,8 +114,6 @@ namespace SensorbergSDKTests
 
             Assert.IsNotNull(_e);
             Assert.IsTrue(_e.ResolvedActions.Count == 1);
-
- 
         }
 
         private void Res_ActionResolved(object sender, ResolvedActionsEventArgs e)
@@ -125,7 +121,6 @@ namespace SensorbergSDKTests
             _e = e;
             _manualEvent.Set();
         }
-
 
     }
 }

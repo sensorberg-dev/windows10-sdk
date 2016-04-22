@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
@@ -24,7 +25,7 @@ namespace SensorbergSDKTests
             ServiceManager.Clear();
             ServiceManager.LayoutManager = new MockLayoutManager() {FindOneAction = true};
             ServiceManager.SettingsManager = new SettingsManager();
-            ServiceManager.StorageService = new StorageService();
+            ServiceManager.StorageService = new StorageService() {Storage = new MockStorage()};
             ServiceManager.ReadOnlyForTests = true;
         }
 
@@ -45,7 +46,6 @@ namespace SensorbergSDKTests
             Assert.IsNotNull(_e);
             Assert.IsNotNull(_e.ResolvedActions);
             Assert.IsTrue(_e.ResolvedActions.Count == 1);
-
         }
 
         private void Res_ActionResolved(object sender, ResolvedActionsEventArgs e)

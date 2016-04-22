@@ -31,24 +31,12 @@ namespace SensorbergSDKTests
         [TestInitialize]
         public async Task Setup()
         {
-            logger.Debug("Setup - Start");
-            try
-            {
-                StorageFolder folder = await ApplicationData.Current.LocalFolder.GetFolderAsync("sensorberg-storage");
-                await TestHelper.ClearFiles(folder);
-//                await folder.DeleteAsync();
-//                await Task.Delay(200);
-            }
-            catch (FileNotFoundException)
-            {
-
-            }
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
             ServiceManager.LayoutManager = new LayoutManager();
             ServiceManager.SettingsManager = new SettingsManager();
-            ServiceManager.StorageService = new StorageService() { Storage = new MockStorage() };
+            ServiceManager.StorageService = new StorageService() {Storage = new MockStorage()};
             ServiceManager.ReadOnlyForTests = true;
             logger.Debug("Setup - End");
         }
@@ -58,11 +46,11 @@ namespace SensorbergSDKTests
         public async Task ResolveBackgroundEvent()
         {
             logger.Debug("ResolveBackgroundEvent - Start");
-            LayoutManager layoutManager = (LayoutManager)ServiceManager.LayoutManager;
+            LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
             await layoutManager.VerifyLayoutAsync(true);
             BeaconAction orgAction = layoutManager.Layout.ResolvedActions.FirstOrDefault(ra => ra.BeaconAction.Uuid == "9ded63644e424d758b0218f7c70f2473").BeaconAction;
 
-            List<Beacon> list = new List<Beacon>() { new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 } };
+            List<Beacon> list = new List<Beacon>() {new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929}};
             BackgroundEngine engine = new BackgroundEngine();
             TaskCompletionSource<BeaconAction> action = new TaskCompletionSource<BeaconAction>();
             engine.BeaconActionResolved += (sender, args) =>
@@ -84,14 +72,18 @@ namespace SensorbergSDKTests
         public async Task ResolveBackgroundEventSingle()
         {
             logger.Debug("ResolveBackgroundEventSingle - Start");
-            LayoutManager layoutManager = (LayoutManager)ServiceManager.LayoutManager;
+            LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
             await layoutManager.VerifyLayoutAsync(true);
             BeaconAction orgAction = layoutManager.Layout.ResolvedActions.FirstOrDefault(ra => ra.BeaconAction.Uuid == "9ded63644e424d758b0218f7c70f2473").BeaconAction;
 
-            List<Beacon> list = new List<Beacon>() { new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 }/*, new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 }*/ };
+            List<Beacon> list = new List<Beacon>()
+            {
+                new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929}
+                /*, new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 }*/
+            };
             BackgroundEngine engine = new BackgroundEngine();
             TaskCompletionSource<BeaconAction> action = new TaskCompletionSource<BeaconAction>();
-            int resolveCount=0;
+            int resolveCount = 0;
             engine.BeaconActionResolved += (sender, args) =>
             {
                 resolveCount++;
@@ -104,7 +96,7 @@ namespace SensorbergSDKTests
             BeaconAction result = await action.Task;
 
             Assert.AreEqual(orgAction, result, "action not found");
-            Assert.AreEqual(1,resolveCount, "More then onetime resolved");
+            Assert.AreEqual(1, resolveCount, "More then onetime resolved");
             logger.Debug("ResolveBackgroundEventSingle - End");
         }
 
@@ -113,11 +105,15 @@ namespace SensorbergSDKTests
         public async Task ResolveBackgroundEventSupress()
         {
             logger.Debug("ResolveBackgroundEventSupress - Start");
-            LayoutManager layoutManager = (LayoutManager)ServiceManager.LayoutManager;
+            LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
             await layoutManager.VerifyLayoutAsync(true);
             BeaconAction orgAction = layoutManager.Layout.ResolvedActions.FirstOrDefault(ra => ra.BeaconAction.Uuid == "9ded63644e424d758b0218f7c70f2473").BeaconAction;
 
-            List<Beacon> list = new List<Beacon>() { new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 }, new Beacon() { Id1 = "7367672374000000ffff0000ffff0003", Id2 = 48869, Id3 = 21321 } };
+            List<Beacon> list = new List<Beacon>()
+            {
+                new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929},
+                new Beacon() {Id1 = "7367672374000000ffff0000ffff0003", Id2 = 48869, Id3 = 21321}
+            };
             BackgroundEngine engine = new BackgroundEngine();
             TaskCompletionSource<BeaconAction> action = new TaskCompletionSource<BeaconAction>();
             int resolveCount = 0;
@@ -142,7 +138,7 @@ namespace SensorbergSDKTests
         public async Task ResolveMultipleAction()
         {
             logger.Debug("ResolveMultipleAction - Start");
-            LayoutManager layoutManager = (LayoutManager)ServiceManager.LayoutManager;
+            LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
             await layoutManager.VerifyLayoutAsync(true);
 
             BackgroundEngine engine = new BackgroundEngine();
@@ -151,7 +147,7 @@ namespace SensorbergSDKTests
             {
                 actions.Add(args);
             };
-            List<Beacon> list = new List<Beacon>() { new Beacon() { Id1 = "7367672374000000ffff0000ffff0003", Id2 = 48869, Id3 = 21321 } };
+            List<Beacon> list = new List<Beacon>() {new Beacon() {Id1 = "7367672374000000ffff0000ffff0003", Id2 = 48869, Id3 = 21321}};
 
             await engine.InitializeAsync();
             await engine.ResolveBeaconActionsAsync(list, OUT_OF_RANGE_DB);
@@ -166,7 +162,7 @@ namespace SensorbergSDKTests
         public async Task ResolveSingleActionNoResult()
         {
             logger.Debug("ResolveSingleActionNoResult - Start");
-            LayoutManager layoutManager = (LayoutManager)ServiceManager.LayoutManager;
+            LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
             await layoutManager.VerifyLayoutAsync(true);
 
             BackgroundEngine engine = new BackgroundEngine();
@@ -180,7 +176,7 @@ namespace SensorbergSDKTests
                     action.SetResult(actions);
                 }
             };
-            List<Beacon> list = new List<Beacon>() { new Beacon() { Id1 = "7367672374000000ffff0000ffff1234", Id2 = 39178, Id3 = 30929 } };
+            List<Beacon> list = new List<Beacon>() {new Beacon() {Id1 = "7367672374000000ffff0000ffff1234", Id2 = 39178, Id3 = 30929}};
 
             if (await Task.WhenAny(action.Task, Task.Delay(500)) == action.Task)
             {

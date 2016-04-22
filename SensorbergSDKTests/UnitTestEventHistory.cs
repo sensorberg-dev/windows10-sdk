@@ -18,7 +18,7 @@ namespace SensorbergSDKTests
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
-            ServiceManager.StorageService = new StorageService();
+            ServiceManager.StorageService = new StorageService() {Storage = new MockStorage()};
             await ServiceManager.StorageService.InitStorage();
             ServiceManager.ReadOnlyForTests = true;
         }
@@ -26,7 +26,6 @@ namespace SensorbergSDKTests
         [TestMethod]
         public async Task EventHistory_ShouldSupress()
         {
-            
             SDKData.Instance.ApiKey = "540aa95ccf215718295c2c563a2090676994f09927f09a6e09a67c83be10b00c";
             var beacon = new Beacon();
             beacon.Id1 = "7367672374000000ffff0000ffff0007";
@@ -36,14 +35,14 @@ namespace SensorbergSDKTests
             var args = new BeaconEventArgs();
             args.Beacon = beacon;
             args.EventType = BeaconEventType.Exit;
-            var resolvedActionEventArgs = new ResolvedActionsEventArgs() { BeaconPid = beacon.Pid, BeaconEventType = BeaconEventType.Enter };
+            var resolvedActionEventArgs = new ResolvedActionsEventArgs() {BeaconPid = beacon.Pid, BeaconEventType = BeaconEventType.Enter};
 
-            BeaconAction beaconaction1 = new BeaconAction() { Body = "body", Url = "http://www.com",  Uuid = "1223" };
-            BeaconAction beaconaction2 = new BeaconAction() { Body = "body", Url = "http://www.com",  Uuid = "5678" };
-            BeaconAction beaconaction3 = new BeaconAction() { Body = "body", Url = "http://www.com",  Uuid = "9678" };
-            ResolvedAction res1 = new ResolvedAction() { SupressionTime = 100, SendOnlyOnce = true, BeaconAction = beaconaction1 };
-            ResolvedAction res2 = new ResolvedAction() { SupressionTime = 100, SendOnlyOnce = true, BeaconAction = beaconaction2 };
-            ResolvedAction res3 = new ResolvedAction() { SupressionTime = 1, SendOnlyOnce = true, BeaconAction = beaconaction3 };
+            BeaconAction beaconaction1 = new BeaconAction() {Body = "body", Url = "http://www.com", Uuid = "1223"};
+            BeaconAction beaconaction2 = new BeaconAction() {Body = "body", Url = "http://www.com", Uuid = "5678"};
+            BeaconAction beaconaction3 = new BeaconAction() {Body = "body", Url = "http://www.com", Uuid = "9678"};
+            ResolvedAction res1 = new ResolvedAction() {SupressionTime = 100, SendOnlyOnce = true, BeaconAction = beaconaction1};
+            ResolvedAction res2 = new ResolvedAction() {SupressionTime = 100, SendOnlyOnce = true, BeaconAction = beaconaction2};
+            ResolvedAction res3 = new ResolvedAction() {SupressionTime = 1, SendOnlyOnce = true, BeaconAction = beaconaction3};
 
             EventHistory eventHistory = new EventHistory();
 
@@ -58,14 +57,12 @@ namespace SensorbergSDKTests
 
             Assert.IsTrue(shouldSupress1);
             Assert.IsFalse(shouldSupress2);
-            Assert.IsFalse(shouldSupress3);//Supression time should be over
-           
+            Assert.IsFalse(shouldSupress3); //Supression time should be over
         }
 
         [TestMethod]
         public async Task EventHistory_FlushHistory()
         {
-
             SDKData.Instance.ApiKey = "540aa95ccf215718295c2c563a2090676994f09927f09a6e09a67c83be10b00c";
             var beacon = new Beacon();
             beacon.Id1 = "7367672374000000ffff0000ffff0007";
@@ -75,14 +72,14 @@ namespace SensorbergSDKTests
             var args = new BeaconEventArgs();
             args.Beacon = beacon;
             args.EventType = BeaconEventType.Exit;
-            var resolvedActionEventArgs = new ResolvedActionsEventArgs() { BeaconPid = beacon.Pid, BeaconEventType = BeaconEventType.Enter };
+            var resolvedActionEventArgs = new ResolvedActionsEventArgs() {BeaconPid = beacon.Pid, BeaconEventType = BeaconEventType.Enter};
 
-            BeaconAction beaconaction1 = new BeaconAction() { Body = "body", Url = "http://www.com", Uuid = "1223" };
-            BeaconAction beaconaction2 = new BeaconAction() { Body = "body", Url = "http://www.com", Uuid = "5678" };
-            BeaconAction beaconaction3 = new BeaconAction() { Body = "body", Url = "http://www.com", Uuid = "9678" };
-            ResolvedAction res1 = new ResolvedAction() { SupressionTime = 100, SendOnlyOnce = true, BeaconAction = beaconaction1 };
-            ResolvedAction res2 = new ResolvedAction() { SupressionTime = 100, SendOnlyOnce = true, BeaconAction = beaconaction2 };
-            ResolvedAction res3 = new ResolvedAction() { SupressionTime = 1, SendOnlyOnce = true, BeaconAction = beaconaction3 };
+            BeaconAction beaconaction1 = new BeaconAction() {Body = "body", Url = "http://www.com", Uuid = "1223"};
+            BeaconAction beaconaction2 = new BeaconAction() {Body = "body", Url = "http://www.com", Uuid = "5678"};
+            BeaconAction beaconaction3 = new BeaconAction() {Body = "body", Url = "http://www.com", Uuid = "9678"};
+            ResolvedAction res1 = new ResolvedAction() {SupressionTime = 100, SendOnlyOnce = true, BeaconAction = beaconaction1};
+            ResolvedAction res2 = new ResolvedAction() {SupressionTime = 100, SendOnlyOnce = true, BeaconAction = beaconaction2};
+            ResolvedAction res3 = new ResolvedAction() {SupressionTime = 1, SendOnlyOnce = true, BeaconAction = beaconaction3};
 
             EventHistory eventHistory = new EventHistory();
 
@@ -91,8 +88,6 @@ namespace SensorbergSDKTests
             await eventHistory.SaveExecutedResolvedActionAsync(resolvedActionEventArgs, beaconaction3);
 
             await eventHistory.FlushHistoryAsync();
-
-
         }
 
     }

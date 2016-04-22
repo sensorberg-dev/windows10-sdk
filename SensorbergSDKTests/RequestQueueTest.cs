@@ -55,7 +55,7 @@ namespace SensorbergSDKTests
                 {
                     req.Result += (sender, state1) =>
                     {
-                        Debug.WriteLine("MultipleRequestQueueTest - "+ ((Request)sender).RequestId+" - " + state1);
+                        Debug.WriteLine("MultipleRequestQueueTest - " + ((Request) sender).RequestId + " - " + state1);
                         requestsList.Add(state1);
                         requestReady.SetResult(state1);
                     };
@@ -64,7 +64,7 @@ namespace SensorbergSDKTests
                 {
                     req.Result += (sender, state1) =>
                     {
-                        Debug.WriteLine("MultipleRequestQueueTest - " + ((Request)sender).RequestId + " - " + state1);
+                        Debug.WriteLine("MultipleRequestQueueTest - " + ((Request) sender).RequestId + " - " + state1);
                         requestsList.Add(state1);
                     };
                 }
@@ -77,7 +77,9 @@ namespace SensorbergSDKTests
                 Assert.AreEqual(10, requestsList.Count, "Not 10 request results");
             }
             else
+            {
                 Assert.Fail("Timout");
+            }
         }
 
 
@@ -92,7 +94,7 @@ namespace SensorbergSDKTests
                     return;
                 }
 
-                if(r.RequestId == 6)
+                if (r.RequestId == 6)
                 {
                     fail.Fail = true;
                     return;
@@ -107,12 +109,12 @@ namespace SensorbergSDKTests
                 Request req = new Request(new BeaconEventArgs(), i);
                 req.Result += (sender, state1) =>
                 {
-                        Debug.WriteLine("MultipleRequestWithFailuresQueueTest - " + ((Request)sender).RequestId+" - " + state1);
-                    if (((Request)sender).RequestId == 5 && ((Request)sender).TryCount != 2)
+                    Debug.WriteLine("MultipleRequestWithFailuresQueueTest - " + ((Request) sender).RequestId + " - " + state1);
+                    if (((Request) sender).RequestId == 5 && ((Request) sender).TryCount != 2)
                     {
                         return;
                     }
-                    if (((Request)sender).RequestId == 6 && ((Request)sender).TryCount != 3)
+                    if (((Request) sender).RequestId == 6 && ((Request) sender).TryCount != 3)
                     {
                         return;
                     }
@@ -131,8 +133,9 @@ namespace SensorbergSDKTests
                 Assert.AreEqual(10, requestsList.Count, "Not 10 request results");
             }
             else
+            {
                 Assert.Fail("Timout");
-
+            }
         }
 
         [TestMethod]
@@ -146,7 +149,7 @@ namespace SensorbergSDKTests
                 Request req = new Request(new BeaconEventArgs(), i);
                 req.Result += (sender, state1) =>
                 {
-                    Debug.WriteLine("MultipleRequestBlocksQueueTest - " + ((Request)sender).RequestId+" - " + state1);
+                    Debug.WriteLine("MultipleRequestBlocksQueueTest - " + ((Request) sender).RequestId + " - " + state1);
                     requestsList.Add(state1);
                     if (requestsList.Count == 10)
                     {
@@ -163,7 +166,7 @@ namespace SensorbergSDKTests
             }
             else
             {
-                 Assert.Fail("Timout");
+                Assert.Fail("Timout");
             }
 
 
@@ -175,7 +178,7 @@ namespace SensorbergSDKTests
                 Request req = new Request(new BeaconEventArgs(), i);
                 req.Result += (sender, state1) =>
                 {
-                    Debug.WriteLine("MultipleRequestBlocksQueueTest#2 - " + ((Request)sender).RequestId+" - " + state1);
+                    Debug.WriteLine("MultipleRequestBlocksQueueTest#2 - " + ((Request) sender).RequestId + " - " + state1);
                     requestsList.Add(state1);
                     if (requestsList.Count == 10)
                     {

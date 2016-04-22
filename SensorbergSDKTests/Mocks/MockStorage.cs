@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
@@ -16,8 +17,11 @@ namespace SensorbergSDKTests.Mocks
 {
     public class MockStorage:IStorage
     {
-        public IList<HistoryAction> UndeliveredActions { get; set; }
-        public IList<HistoryEvent> UndeliveredEvents { get; set; }
+        public IList<HistoryAction> UndeliveredActions { get; set; } = new List<HistoryAction>();
+        public IList<HistoryEvent> UndeliveredEvents { get; set; }= new List<HistoryEvent>();
+        public Dictionary<string, BackgroundEvent> LastEventState { get; set; } = new Dictionary<string, BackgroundEvent>();
+        public List<DelayedActionData> DelayedActions { get; set; } = new List<DelayedActionData>();
+
         public async Task InitStorage()
         {
         }
@@ -41,24 +45,25 @@ namespace SensorbergSDKTests.Mocks
             UndeliveredActions?.Clear();
         }
 
-        public Task SaveHistoryAction(HistoryAction action)
+        public async Task SaveHistoryAction(HistoryAction action)
         {
-            throw new NotImplementedException();
+            UndeliveredActions.Add(action);
         }
 
-        public Task SaveHistoryEvents(HistoryEvent he)
+        
+        public async Task SaveHistoryEvents(HistoryEvent he)
         {
-            throw new NotImplementedException();
+            UndeliveredEvents.Add(he);
         }
 
-        public Task<IList<HistoryAction>> GetActions(string uuid)
+        public async Task<IList<HistoryAction>> GetActions(string uuid)
         {
-            throw new NotImplementedException();
+            return UndeliveredActions.Where(a => a.eid == uuid).ToList();
         }
 
-        public Task<HistoryAction> GetAction(string uuid)
+        public async Task<HistoryAction> GetAction(string uuid)
         {
-            throw new NotImplementedException();
+            return UndeliveredActions.FirstOrDefault(a => a.eid == uuid);
         }
 
         public Task CleanDatabase()
@@ -66,19 +71,20 @@ namespace SensorbergSDKTests.Mocks
             throw new NotImplementedException();
         }
 
-        public Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds)
+        public async Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds)
         {
-            throw new NotImplementedException();
+            DateTimeOffset maxDelayfromNow = DateTimeOffset.Now.AddSeconds(maxDelayFromNowInSeconds);
+            return DelayedActions.Where(da => da.dueTime < maxDelayfromNow).ToList();
         }
 
-        public Task SetDelayedActionAsExecuted(string id)
+        public async Task SetDelayedActionAsExecuted(string id)
         {
-            throw new NotImplementedException();
+            DelayedActions.Remove(DelayedActions.FirstOrDefault(d => d.Id == id));
         }
 
-        public Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice)
+        public async Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice)
         {
-            throw new NotImplementedException();
+            DelayedActions.Add(new DelayedActionData() {beaconPid = beaconPid,dueTime = dueTime, eventTypeDetectedByDevice =  eventTypeDetectedByDevice, Id = Guid.NewGuid().ToString(), resolvedAction = action});
         }
 
         public Task SaveHistoryAction(BeaconAction beaconAction)
@@ -86,14 +92,14 @@ namespace SensorbergSDKTests.Mocks
             throw new NotImplementedException();
         }
 
-        public Task SaveBeaconEventState(string pid, BeaconEventType enter)
+        public async Task SaveBeaconEventState(string pid, BeaconEventType enter)
         {
-            throw new NotImplementedException();
+            LastEventState[pid] = new BackgroundEvent() {BeaconID = pid, EventTime = DateTimeOffset.Now, LastEvent = enter};
         }
 
-        public Task<BackgroundEvent> GetLastEventStateForBeacon(string pid)
+        public async Task<BackgroundEvent> GetLastEventStateForBeacon(string pid)
         {
-            throw new NotImplementedException();
+            return LastEventState.ContainsKey(pid) ? LastEventState[pid] : null;
         }
 
         public Task SaveActionForForeground(BeaconAction beaconAction)
