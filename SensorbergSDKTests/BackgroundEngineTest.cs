@@ -78,8 +78,8 @@ namespace SensorbergSDKTests
 
             List<Beacon> list = new List<Beacon>()
             {
+                new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929},
                 new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929}
-                /*, new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 }*/
             };
             BackgroundEngine engine = new BackgroundEngine();
             TaskCompletionSource<BeaconAction> action = new TaskCompletionSource<BeaconAction>();
@@ -112,6 +112,8 @@ namespace SensorbergSDKTests
             List<Beacon> list = new List<Beacon>()
             {
                 new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929},
+                new Beacon() {Id1 = "7367672374000000ffff0000ffff0003", Id2 = 48869, Id3 = 21321},
+                new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929},
                 new Beacon() {Id1 = "7367672374000000ffff0000ffff0003", Id2 = 48869, Id3 = 21321}
             };
             BackgroundEngine engine = new BackgroundEngine();
@@ -129,12 +131,11 @@ namespace SensorbergSDKTests
             BeaconAction result = await action.Task;
 
             Assert.AreEqual(orgAction, result, "action not found");
-            Assert.AreEqual(1, resolveCount, "More then onetime resolved");
+            Assert.AreEqual(4, resolveCount, "More then 4 resolved");
             logger.Debug("ResolveBackgroundEventSupress - End");
         }
 
         [TestMethod]
-        [Timeout(2000)]
         public async Task ResolveMultipleAction()
         {
             logger.Debug("ResolveMultipleAction - Start");
@@ -153,12 +154,11 @@ namespace SensorbergSDKTests
             await engine.ResolveBeaconActionsAsync(list, OUT_OF_RANGE_DB);
 
 
-            Assert.AreEqual(3, actions.Count, "Not 3 action found");
+            Assert.AreEqual(4, actions.Count, "Not 4 action found");
             logger.Debug("ResolveMultipleAction - End");
         }
 
         [TestMethod]
-        [Timeout(2000)]
         public async Task ResolveSingleActionNoResult()
         {
             logger.Debug("ResolveSingleActionNoResult - Start");
