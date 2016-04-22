@@ -16,7 +16,7 @@ namespace SensorbergSDK.Internal
     public class LayoutManager : ILayoutManager
     {
         public const string KeyLayoutHeaders = "layout_headers";
-        private const string KeyLayoutContent = "layout_content.cache"; // Cache file
+        public const string KeyLayoutContent = "layout_content.cache"; // Cache file
         public const string KeyLayoutRetrievedTime = "layout_retrieved_time";
 
         /// <summary>

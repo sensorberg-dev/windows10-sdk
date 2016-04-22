@@ -43,5 +43,15 @@ namespace SensorbergSDKTests.Mocks
             {
             }
         }
+
+        public static async Task RemoveFile(string keyLayoutContent)
+        {
+            try
+            {
+                StorageFile storageFile = await ApplicationData.Current.LocalFolder.GetFileAsync(keyLayoutContent);
+                await storageFile.DeleteAsync();
+            }
+            catch (Exception) { }
+        }
     }
 }

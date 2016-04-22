@@ -68,6 +68,7 @@ namespace SensorbergSDKTests
 
             ApplicationData.Current.LocalSettings.Values.Remove(LayoutManager.KeyLayoutHeaders);
             ApplicationData.Current.LocalSettings.Values.Remove(LayoutManager.KeyLayoutRetrievedTime);
+            await TestHelper.RemoveFile(LayoutManager.KeyLayoutContent);
 
             connection.FailNetwork = true;
             LayoutResult layout = await service.RetrieveLayout();
@@ -78,9 +79,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(NetworkResult.Success, layout.Result, "Not successfull loaded");
             LayoutManagerTest.ValidateMockLayout(layout.Layout);
 
-
             connection.FailNetwork = true;
-
             //should be cached
             layout = await service.RetrieveLayout();
             Assert.AreEqual(NetworkResult.Success, layout.Result, "Not successfull loaded from cache");
