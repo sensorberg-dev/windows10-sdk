@@ -9,11 +9,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Data.Json;
+using Windows.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using SensorbergSDK;
+using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDKTests.Mocks;
 
-namespace SensorbergSDK.Internal
+namespace SensorbergSDKTests
 {
     [TestClass]
     public class FullSDKTest
@@ -23,14 +26,14 @@ namespace SensorbergSDK.Internal
         private const UInt16 BeaconCode = 0x0215;
 
         [TestInitialize]
-        public void Setup()
+        public async Task Setup()
         {
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
             ServiceManager.BeaconScanner = new MockBeaconScanner();
             ServiceManager.SettingsManager = new SettingsManager();
-            ServiceManager.StorageService = new StorageService();
+            ServiceManager.StorageService = new StorageService() {Storage = new MockStorage()};
             ServiceManager.ReadOnlyForTests = true;
         }
 

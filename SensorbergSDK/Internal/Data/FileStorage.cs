@@ -44,6 +44,7 @@ namespace SensorbergSDK.Internal.Data
 
         public async Task InitStorage()
         {
+            logger.Trace("Create folders");
             StorageFolder folder = ApplicationData.Current.LocalFolder;
             StorageFolder root = await folder.CreateFolderAsync(ROOT_FOLDER, CreationCollisionOption.OpenIfExists);
             StorageFolder background = await root.CreateFolderAsync(BACKGROUND_FOLDER_NAME, CreationCollisionOption.OpenIfExists);
@@ -430,7 +431,8 @@ namespace SensorbergSDK.Internal.Data
                 {
                     await CreateEventMarker(folder);
                 }
-                IReadOnlyList<StorageFolder> folders = await (await folder.GetParentAsync()).GetFoldersAsync();
+                StorageFolder parentFolder = (await folder.GetParentAsync());
+                IReadOnlyList<StorageFolder> folders = await parentFolder.GetFoldersAsync();
                 foreach (StorageFolder storageFolder in folders)
                 {
                     try

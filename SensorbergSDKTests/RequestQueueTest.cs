@@ -4,9 +4,11 @@
 // 
 // All rights reserved.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Windows.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
@@ -19,13 +21,11 @@ namespace SensorbergSDKTests
     public class RequestQueueTest
     {
         [TestInitialize]
-        public void TestSetup()
+        public async Task TestSetup()
         {
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.LayoutManager = new MockLayoutManager();
-            ServiceManager.SettingsManager = new SettingsManager();
-            ServiceManager.StorageService = new StorageService();
             ServiceManager.ReadOnlyForTests = true;
         }
 
@@ -162,7 +162,9 @@ namespace SensorbergSDKTests
                 Assert.AreEqual(10, requestsList.Count, "Not 10 request results");
             }
             else
-                Assert.Fail("Timout");
+            {
+                 Assert.Fail("Timout");
+            }
 
 
 
@@ -189,7 +191,9 @@ namespace SensorbergSDKTests
                 Assert.AreEqual(10, requestsList.Count, "Not 10 request results");
             }
             else
+            {
                 Assert.Fail("Timout2");
+            }
         }
     }
 }

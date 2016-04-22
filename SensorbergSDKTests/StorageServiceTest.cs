@@ -26,6 +26,7 @@ namespace SensorbergSDKTests
         [TestInitialize]
         public async Task Setup()
         {
+            await TestHelper.ClearFiles("sensorberg-storage");
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
@@ -35,15 +36,6 @@ namespace SensorbergSDKTests
             ServiceManager.ReadOnlyForTests = true;
 
 
-            try
-            {
-                StorageFolder folder = await ApplicationData.Current.LocalFolder.GetFolderAsync("sensorberg-storage");
-                await folder.DeleteAsync();
-            }
-            catch (FileNotFoundException)
-            {
-
-            }
             await ServiceManager.StorageService.InitStorage();
         }
 

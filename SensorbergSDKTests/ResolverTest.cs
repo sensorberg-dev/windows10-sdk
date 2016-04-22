@@ -4,8 +4,10 @@
 // 
 // All rights reserved.
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Windows.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
@@ -19,14 +21,15 @@ namespace SensorbergSDKTests
     public class ResolverTest
     {
         [TestInitialize]
-        public void Setup()
+        public async Task Setup()
         {
+            await TestHelper.ClearFiles("sensorberg-storage");
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
             ServiceManager.LayoutManager = new LayoutManager();
             ServiceManager.SettingsManager = new SettingsManager();
-            ServiceManager.StorageService = new StorageService();
+            ServiceManager.StorageService = new StorageService() { Storage = new MockStorage() };
             ServiceManager.ReadOnlyForTests = true;
         }
 

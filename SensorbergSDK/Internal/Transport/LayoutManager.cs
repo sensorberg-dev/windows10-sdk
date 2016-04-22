@@ -149,11 +149,10 @@ namespace SensorbergSDK.Internal
                 if (beaconId1s.Count > 0)
                 {
                     hash = beaconId1s[0];
-                    string currentUuid = string.Empty;
 
                     for (int i = 1; i < beaconId1s.Count; ++i)
                     {
-                        currentUuid = beaconId1s[i];
+                        var currentUuid = beaconId1s[i];
 
                         for (int j = 0; j < currentUuid.Length; ++j)
                         {

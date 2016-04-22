@@ -119,6 +119,7 @@
     <Compile Include="Internal\Constants.cs" />
     <Compile Include="AppSettings.cs" />
     <Compile Include="Internal\Data\BackgroundEvent.cs" />
+    <Compile Include="Internal\Data\BackgroundWorkerType.cs" />
     <Compile Include="Internal\Data\BeaconContainer.cs" />
     <Compile Include="Internal\Data\FileStorage.cs" />
     <Compile Include="Internal\Data\FileStorageHelper.cs" />

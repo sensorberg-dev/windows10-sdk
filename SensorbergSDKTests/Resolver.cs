@@ -1,13 +1,12 @@
-﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
-using System.Threading;
-using System.Threading.Tasks;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDKTests.Mocks;
 
-
-namespace SensorBergTests
+namespace SensorbergSDKTests
 {
     [TestClass]
     public class UnitTestResolver
@@ -19,11 +18,11 @@ namespace SensorBergTests
         ResolvedActionsEventArgs _e = null;
 
         [TestInitialize]
-        public void TestSetup()
+        public async Task TestSetup()
         {
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
-            ServiceManager.LayoutManager = new MockLayoutManager() {FindOneAction=true};
+            ServiceManager.LayoutManager = new MockLayoutManager() {FindOneAction = true};
             ServiceManager.SettingsManager = new SettingsManager();
             ServiceManager.StorageService = new StorageService();
             ServiceManager.ReadOnlyForTests = true;

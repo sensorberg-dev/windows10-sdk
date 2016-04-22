@@ -1,12 +1,12 @@
-﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
-using System;
-using System.Threading.Tasks;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDKTests.Mocks;
 
-namespace SensorBergTests
+namespace SensorbergSDKTests
 {
     [TestClass]
     public class UnitTestEventHistory
@@ -14,6 +14,7 @@ namespace SensorBergTests
         [TestInitialize]
         public async Task Setup()
         {
+            await TestHelper.ClearFiles("sensorberg-storage");
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();

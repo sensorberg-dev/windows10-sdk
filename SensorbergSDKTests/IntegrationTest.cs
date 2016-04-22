@@ -1,14 +1,14 @@
-﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using SensorbergSDK;
-using SensorbergSDK.Internal;
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Storage;
+using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using SensorbergSDK;
+using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDKTests.Mocks;
 
-
-namespace SensorBergTests
+namespace SensorbergSDKTests
 {
     [TestClass]
     public class IntegrationTest
@@ -20,14 +20,14 @@ namespace SensorBergTests
         ResolvedActionsEventArgs _e = null;
 
         [TestInitialize]
-        public void Setup()
+        public async Task Setup()
         {
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
             ServiceManager.LayoutManager = new LayoutManager();
             ServiceManager.SettingsManager = new SettingsManager();
-            ServiceManager.StorageService = new StorageService();
+            ServiceManager.StorageService = new StorageService() { Storage = new MockStorage() };
             ServiceManager.ReadOnlyForTests = true;
         }
 

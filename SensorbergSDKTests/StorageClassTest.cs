@@ -17,6 +17,7 @@ using SensorbergSDK;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Services;
+using SensorbergSDKTests.Mocks;
 
 namespace SensorbergSDKTests
 {
@@ -28,28 +29,7 @@ namespace SensorbergSDKTests
         [TestInitialize]
         public async Task Setup()
         {
-            try
-            {
-                StorageFile file = await ApplicationData.Current.LocalFolder.GetFileAsync("sensorberg.db");
-                if (file.IsAvailable)
-                {
-                    await file.DeleteAsync();
-                }
-            }
-            catch (FileNotFoundException)
-            {
-
-            }
-            try
-            {
-                StorageFolder folder = await ApplicationData.Current.LocalFolder.GetFolderAsync("sensorberg-storage");
-                await folder.DeleteAsync();
-            }
-            catch (FileNotFoundException)
-            {
-
-            }
-//                        storage = new SqlStorage();
+            await TestHelper.ClearFiles("sensorberg-storage");
             storage = new FileStorage();
         }
 

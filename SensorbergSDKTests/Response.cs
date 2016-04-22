@@ -1,13 +1,13 @@
-﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.Data.Json;
+using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
 
-namespace SensorBergTests
+namespace SensorbergSDKTests
 {
     [TestClass]
     public class UnitTestResponse
@@ -21,7 +21,7 @@ namespace SensorBergTests
         [TestMethod]
         public async Task Response_latest_response()
         {
-            var uri = new System.Uri("ms-appx:///Assets/raw/latest_response.json");
+            var uri = new Uri("ms-appx:///Assets/raw/latest_response.json");
             var file = await Windows.Storage.StorageFile.GetFileFromApplicationUriAsync(uri);
             string text = await Windows.Storage.FileIO.ReadTextAsync(file);
             var val = JsonValue.Parse(text);
@@ -40,7 +40,7 @@ namespace SensorBergTests
         [TestMethod]
         public async Task Response_reportImmediately_false()
         {
-            var uri = new System.Uri("ms-appx:///Assets/raw/reportImmediately_false.json");
+            var uri = new Uri("ms-appx:///Assets/raw/reportImmediately_false.json");
             var file = await Windows.Storage.StorageFile.GetFileFromApplicationUriAsync(uri);
             string text = await Windows.Storage.FileIO.ReadTextAsync(file);
             var val = JsonValue.Parse(text);
