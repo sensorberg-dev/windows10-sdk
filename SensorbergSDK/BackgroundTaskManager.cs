@@ -61,6 +61,7 @@ namespace SensorbergSDK
                 }
             }
         }
+
         /// <summary>
         /// Will remove OnProgress event handlers from advertisement background task
         /// OnProgress events are used to indicate UI tasks on beacon actions resolved in background

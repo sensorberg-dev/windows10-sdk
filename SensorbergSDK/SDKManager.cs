@@ -260,7 +260,7 @@ namespace SensorbergSDK
         public static void Dispose()
         {
             ServiceManager.BeaconScanner.StopWatcher();
-            _instance?._backgroundTaskManager.UnregisterBackgroundTask();
+            _instance?.UnregisterBackgroundTask();
             _instance?.SdkEngine.Dispose();
             _instance = null;
         }
