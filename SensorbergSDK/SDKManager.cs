@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Foundation.Metadata;
 using Windows.UI.Core;
 using MetroLog;
 using SensorbergSDK.Internal.Services;
@@ -123,44 +124,9 @@ namespace SensorbergSDK
         }
 
         /// <summary>
-        /// The API key for the Sensorberg service.
-        /// The recommended way is to set the API key when initializing the SDK.
+        /// Current configuration of the sdk.
         /// </summary>
-        public string ApiKey
-        {
-            [DebuggerStepThrough]
-            get
-            {
-                return SDKData.Instance.ApiKey;
-            }
-            [DebuggerStepThrough]
-            set
-            {
-                SDKData.Instance.ApiKey = value;
-            }
-        }
-
-        /// <summary>
-        /// The manufacturer ID to filter beacons that are being watched.
-        /// </summary>
-        public UInt16 ManufacturerId
-        {
-            [DebuggerStepThrough]
-            get;
-            [DebuggerStepThrough]
-            private set;
-        }
-
-        /// <summary>
-        /// The beacon code to filter beacons that are being watched.
-        /// </summary>
-        public UInt16 BeaconCode
-        {
-            [DebuggerStepThrough]
-            get;
-            [DebuggerStepThrough]
-            private set;
-        }
+        public SdkConfiguration Configuration { get; set; }
 
         /// <summary>
         /// Indicates whether the SDK is initialized and ready to function or not.
@@ -258,23 +224,34 @@ namespace SensorbergSDK
         /// <param name="manufacturerId">The manufacturer ID of beacons to watch.</param>
         /// <param name="beaconCode">The beacon code of beacons to watch.</param>
         /// <returns>The singleton instance of this class.</returns>
+        [Obsolete("Use new version without parameters")]
 		public static SDKManager Instance(UInt16 manufacturerId, UInt16 beaconCode)
         {
-            logger.Debug("Instance");
             Instance();
-
-            _instance.ManufacturerId = manufacturerId;
-            _instance.BeaconCode = beaconCode;
+            _instance.Configuration.ManufacturerId = manufacturerId;
+            _instance.Configuration.BeaconCode = beaconCode;
 
             return _instance;
         }
 
-        private static void Instance()
+        /// <summary>
+        /// Returns the singleton instance of this class.
+        /// </summary>
+        /// <param name="manufacturerId">The manufacturer ID of beacons to watch.</param>
+        /// <param name="beaconCode">The beacon code of beacons to watch.</param>
+        /// <returns>The singleton instance of this class.</returns>
+        public static SDKManager Instance()
         {
+            logger.Debug("Instance");
             if (_instance == null)
             {
                 _instance = new SDKManager();
             }
+            if (_instance.Configuration == null)
+            {
+                _instance.Configuration = new SdkConfiguration();
+            }
+            return _instance;
         }
 
         /// <summary>
@@ -306,6 +283,18 @@ namespace SensorbergSDK
             await Windows.System.Launcher.LaunchUriAsync(new Uri("ms-settings-bluetooth:"));
         }
 
+
+        /// <summary>
+        /// Initializes the SDK using the given configuration. The scanner can be used separately, but
+        /// the resolving beacon actions cannot be done unless the SDK is initialized.
+        /// If background task is enabled, this method check if there are updates for the
+        /// background task filters available and updates them if so.
+        /// </summary>
+        public async Task InitializeAsync(SdkConfiguration configuration)
+        {
+            await InitializeInternal(configuration);
+        }
+
         /// <summary>
         /// Initializes the SDK using the given API key. The scanner can be used separately, but
         /// the resolving beacon actions cannot be done unless the SDK is initialized.
@@ -317,14 +306,29 @@ namespace SensorbergSDK
         /// <param name="advertisementClassName">Full class name of the advertisement background process, if needed.</param>
         /// <param name="uuidSpace">UUID space for the background task, default value is Constants.SensorbergUuidSpace.</param>
         /// <param name="startScanning">Start the background scanner</param>
-        public async Task InitializeAsync(string apiKey, string timerClassName = null, string advertisementClassName = null, string uuidSpace = Constants.SensorbergUuidSpace, bool startScanning = true)
+        [Obsolete("The new method should be used")]
+        public async Task InitializeAsync(string apiKey, string timerClassName = null, string advertisementClassName = null, string uuidSpace = Constants.SensorbergUuidSpace,
+            bool startScanning = true)
+        {
+            await InitializeInternal(new SdkConfiguration()
+            {
+                ApiKey = apiKey,
+                BackgroundTimerClassName = timerClassName,
+                BackgroundAdvertisementClassName = advertisementClassName,
+                BackgroundBeaconUuidSpace = uuidSpace,
+                AutoStartScanner = startScanning
+            });
+        }
+
+        private async Task InitializeInternal(SdkConfiguration configuration)
         {
             logger.Debug("InitializeAsync");
+            Configuration = configuration;
             SDKData sdkData = SDKData.Instance;
 
             if (!IsInitialized)
             {
-                sdkData.ApiKey = apiKey;
+                sdkData.ApiKey = configuration.ApiKey;
                 await SdkEngine.InitializeAsync();
                 await InitializeSettingsAsync();
             }
@@ -332,14 +336,14 @@ namespace SensorbergSDK
             if (sdkData.BackgroundTaskEnabled)
             {
                 logger.Debug("InitializeAsync#InitializeBackgground");
-                await UpdateBackgroundTaskIfNeededAsync(timerClassName, advertisementClassName, uuidSpace);
+                await UpdateBackgroundTaskIfNeededAsync();
             }
 
-            if (startScanning)
+            if (configuration.AutoStartScanner)
             {
                 StartScanner();
             }
-        } 
+        }
 
         private void OnSettingsUpdated(object sender, SettingsEventArgs settingsEventArgs)
         {
@@ -386,13 +390,13 @@ namespace SensorbergSDK
         /// re-registers the task.
         /// </summary>
         /// <returns>The registration result.</returns>
-        public async Task<BackgroundTaskRegistrationResult> RegisterBackgroundTaskAsync(string timerClassName, string advertisementClassName, string uuidSpace)
+        public async Task<BackgroundTaskRegistrationResult> RegisterBackgroundTaskAsync()
         {
             SDKData.Instance.BackgroundTaskEnabled = true;
-            return await _backgroundTaskManager.RegisterBackgroundTaskAsync(timerClassName, advertisementClassName, ManufacturerId, BeaconCode, uuidSpace);
+            return await _backgroundTaskManager.RegisterBackgroundTaskAsync(Configuration);
         }
 
-        public async Task<BackgroundTaskRegistrationResult> UpdateBackgroundTaskIfNeededAsync(string timerClassName, string advertisementClassName, string uuidSpace)
+        public async Task<BackgroundTaskRegistrationResult> UpdateBackgroundTaskIfNeededAsync()
         {
             BackgroundTaskRegistrationResult result = new BackgroundTaskRegistrationResult()
             {
@@ -402,7 +406,7 @@ namespace SensorbergSDK
 
             if (BackgroundTaskManager.CheckIfBackgroundFilterUpdateIsRequired())
             {
-                result = await _backgroundTaskManager.UpdateBackgroundTaskAsync(timerClassName, advertisementClassName, ManufacturerId, BeaconCode, uuidSpace);
+                result = await _backgroundTaskManager.UpdateBackgroundTaskAsync(Configuration);
             }
 
             SDKData.Instance.BackgroundTaskEnabled = true;
@@ -431,7 +435,7 @@ namespace SensorbergSDK
                 Scanner.BeaconEvent += OnBeaconEventAsync;
                 InitializeSettingsAsync().ContinueWith(task =>
                     {
-                        Scanner.StartWatcher(ManufacturerId, BeaconCode, _appSettings.BeaconExitTimeout, _appSettings.RssiEnterThreshold, _appSettings.EnterDistanceThreshold);
+                        Scanner.StartWatcher(Configuration.ManufacturerId, Configuration.BeaconCode, _appSettings.BeaconExitTimeout, _appSettings.RssiEnterThreshold, _appSettings.EnterDistanceThreshold);
                     });
             }
         }

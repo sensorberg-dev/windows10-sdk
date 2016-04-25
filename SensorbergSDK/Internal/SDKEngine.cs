@@ -279,35 +279,31 @@ namespace SensorbergSDK.Internal
                 return;
             }
             logger.Debug("SDKEngine: OnBeaconActionResolvedAsync " + e.RequestID + " BeaconEventType:" + e.BeaconEventType);
-            //TODO verify event needed?
-            if (e.ResolvedActions.Count > 0)
+            foreach (ResolvedAction action in e.ResolvedActions)
             {
-                foreach (ResolvedAction action in e.ResolvedActions)
+                if (action.Delay > 0 && action.ReportImmediately == false)
                 {
-                    if (action.Delay > 0 && action.ReportImmediately == false)
+                    logger.Debug("SDKEngine: OnBeaconActionResolvedAsync " + e.RequestID + " delay");
+                    // Delay action execution
+                    DateTimeOffset dueTime = DateTimeOffset.Now.AddSeconds((int) action.Delay);
+
+                    await ServiceManager.StorageService.SaveDelayedAction(action, dueTime, e.BeaconPid, action.EventTypeDetectedByDevice);
+
+                    if (_appIsOnForeground && (_processDelayedActionsTimer == null || _nextTimeToProcessDelayedActions > dueTime))
                     {
-                        logger.Debug("SDKEngine: OnBeaconActionResolvedAsync " + e.RequestID + " delay");
-                        // Delay action execution
-                        DateTimeOffset dueTime = DateTimeOffset.Now.AddSeconds((int) action.Delay);
-
-                        await ServiceManager.StorageService.SaveDelayedAction(action, dueTime, e.BeaconPid, action.EventTypeDetectedByDevice);
-
-                        if (_appIsOnForeground && (_processDelayedActionsTimer == null || _nextTimeToProcessDelayedActions > dueTime))
+                        if (_nextTimeToProcessDelayedActions > dueTime)
                         {
-                            if (_nextTimeToProcessDelayedActions > dueTime)
-                            {
-                                _nextTimeToProcessDelayedActions = dueTime;
-                            }
-
-                            ResetProcessDelayedActionsTimer(dueTime);
+                            _nextTimeToProcessDelayedActions = dueTime;
                         }
+
+                        ResetProcessDelayedActionsTimer(dueTime);
                     }
-                    else
-                    {
-                        logger.Debug("SDKEngine: OnBeaconActionResolvedAsync/ExecuteActionAsync " + e.RequestID + " -> Beacon Pid " + e.BeaconPid);
-                        // Execute action immediately
-                        await ExecuteActionAsync(action, e.BeaconPid, e.BeaconEventType);
-                    }
+                }
+                else
+                {
+                    logger.Debug("SDKEngine: OnBeaconActionResolvedAsync/ExecuteActionAsync " + e.RequestID + " -> Beacon Pid " + e.BeaconPid);
+                    // Execute action immediately
+                    await ExecuteActionAsync(action, e.BeaconPid, e.BeaconEventType);
                 }
             }
             UnresolvedActionCount--;

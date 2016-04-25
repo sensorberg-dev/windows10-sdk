@@ -105,13 +105,13 @@ namespace SensorbergSDK
             return isRequired;
         }
 
-        public async Task<BackgroundTaskRegistrationResult> UpdateBackgroundTaskAsync(string timerClassName, string advertisementClassName, ushort manufacturerId, ushort beaconCode, string uuidSpace)
+        public async Task<BackgroundTaskRegistrationResult> UpdateBackgroundTaskAsync(SdkConfiguration configuration)
         {
             UnregisterBackgroundTask();
-            return await RegisterBackgroundTaskAsync(timerClassName, advertisementClassName, manufacturerId, beaconCode, uuidSpace);
+            return await RegisterBackgroundTaskAsync(configuration);
         }
 
-        public async Task<BackgroundTaskRegistrationResult> RegisterBackgroundTaskAsync(string timerClassName, string advertisementClassName, ushort manufacturerId, ushort beaconCode, string uuidSpace)
+        public async Task<BackgroundTaskRegistrationResult> RegisterBackgroundTaskAsync(SdkConfiguration configuration)
         {
             BackgroundTaskRegistrationResult result = new BackgroundTaskRegistrationResult()
             {
@@ -126,11 +126,11 @@ namespace SensorbergSDK
                 if (backgroundAccessStatus == BackgroundAccessStatus.AllowedMayUseActiveRealTimeConnectivity
                     || backgroundAccessStatus == BackgroundAccessStatus.AllowedWithAlwaysOnRealTimeConnectivity)
                 {
-                    result = RegisterTimedBackgroundTask(timerClassName);
+                    result = RegisterTimedBackgroundTask(configuration.BackgroundTimerClassName);
 
                     if (result.Success)
                     {
-                        result = await RegisterAdvertisementWatcherBackgroundTaskAsync(advertisementClassName, manufacturerId, beaconCode, uuidSpace);
+                        result = await RegisterAdvertisementWatcherBackgroundTaskAsync(configuration);
                     }
                 }
 
@@ -150,12 +150,8 @@ namespace SensorbergSDK
         /// <summary>
         /// Registers the BLE advertisement watcher background task.
         /// </summary>
-        /// <param name="advertisementClassName">Full class name of the advertisment background task</param>
-        /// <param name="manufacturerId">The manufacturer ID of beacons to watch.</param>
-        /// <param name="beaconCode">The beacon code of beacons to watch.</param>
-        /// <param name="uuidSpace">UUID space for the beacons</param>
         /// <returns>The registration result.</returns>
-        private async Task<BackgroundTaskRegistrationResult> RegisterAdvertisementWatcherBackgroundTaskAsync(string advertisementClassName, ushort manufacturerId, ushort beaconCode, string uuidSpace)
+        private async Task<BackgroundTaskRegistrationResult> RegisterAdvertisementWatcherBackgroundTaskAsync(SdkConfiguration configuration)
         {
             BackgroundTaskRegistrationResult result = new BackgroundTaskRegistrationResult()
             {
@@ -174,12 +170,12 @@ namespace SensorbergSDK
                 BackgroundTaskBuilder backgroundTaskBuilder = new BackgroundTaskBuilder();
 
                 backgroundTaskBuilder.Name = ADVERTISEMENT_CLASS;
-                backgroundTaskBuilder.TaskEntryPoint = advertisementClassName;
+                backgroundTaskBuilder.TaskEntryPoint = configuration.BackgroundAdvertisementClassName;
 
                 BluetoothLEAdvertisementWatcherTrigger advertisementWatcherTrigger = new BluetoothLEAdvertisementWatcherTrigger();
 
                 // This filter includes all Sensorberg beacons 
-                var pattern = BeaconFactory.UUIDToAdvertisementBytePattern(uuidSpace, manufacturerId, beaconCode);
+                var pattern = BeaconFactory.UUIDToAdvertisementBytePattern(configuration.BackgroundBeaconUuidSpace, configuration.ManufacturerId, configuration.BeaconCode);
                 advertisementWatcherTrigger.AdvertisementFilter.BytePatterns.Add(pattern);
 
                 ILayoutManager layoutManager = ServiceManager.LayoutManager;

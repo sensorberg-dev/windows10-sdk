@@ -52,7 +52,7 @@ namespace SensorbergSDK.Internal
             private set;
         }
 
-        [Deprecated("remove me",DeprecationType.Deprecate, 1)]
+        [Obsolete]
         public bool IsBeingProcessed
         {
             get;
