@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -87,7 +88,6 @@ namespace SensorbergSDK.Internal.Data
         public async Task<IList<HistoryAction>> GetUndeliveredActions()
         {
             return await GetUndeliveredActions(true);
-
         }
 
         public async Task SetActionsAsDelivered()
@@ -169,6 +169,9 @@ namespace SensorbergSDK.Internal.Data
                     }
                 }
             }
+            catch (SEHException)
+            {
+            }
             catch (FileNotFoundException)
             {
             }
@@ -188,6 +191,9 @@ namespace SensorbergSDK.Internal.Data
                 StorageFolder folder = ApplicationData.Current.LocalFolder;
                 StorageFolder root = await folder.CreateFolderAsync(ROOT_FOLDER, CreationCollisionOption.OpenIfExists);
                 await root.DeleteAsync();
+            }
+            catch (SEHException)
+            {
             }
             catch (FileNotFoundException)
             {
@@ -263,6 +269,10 @@ namespace SensorbergSDK.Internal.Data
             try
             {
                 return FileStorageHelper.BeaconEventStateFromString(await FileIO.ReadTextAsync(file));
+            }
+            catch (SEHException)
+            {
+                return null;
             }
             catch (FileNotFoundException )
             {
@@ -340,6 +350,9 @@ namespace SensorbergSDK.Internal.Data
                         }
                     }
                 }
+                catch (SEHException)
+                {
+                }
                 catch (FileNotFoundException)
                 {
                 }
@@ -369,6 +382,10 @@ namespace SensorbergSDK.Internal.Data
                     {
                         return storageFolder;
                     }
+                }
+                catch (SEHException)
+                {
+                    return storageFolder;
                 }
                 catch (FileNotFoundException)
                 {
@@ -462,6 +479,9 @@ namespace SensorbergSDK.Internal.Data
                             }
                         }
                     }
+                    catch (SEHException)
+                    {
+                    }
                     catch (FileNotFoundException)
                     {
                     }
@@ -497,6 +517,7 @@ namespace SensorbergSDK.Internal.Data
                 }
                 await Task.Delay((int) Math.Pow(2, retry + 1)*10);
             } while (retry < maxRetry);
+
             throw new UnauthorizedAccessException("File was locked");
         }
         /// <summary>
@@ -531,6 +552,7 @@ namespace SensorbergSDK.Internal.Data
                 }
                 await Task.Delay((int)Math.Pow(2, retry + 1) * 10);
             } while (retry < maxRetry);
+
             throw new UnauthorizedAccessException("File was locked");
         }
 
