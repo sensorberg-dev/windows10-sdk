@@ -70,8 +70,6 @@ namespace SensorbergSimpleApp
 
             if (pendingBeaconAction != null)
             {
-                _sdkManager.ClearPendingActions();
-
                 if (await pendingBeaconAction.LaunchWebBrowserAsync())
                 {
                     Application.Current.Exit();
@@ -116,14 +114,14 @@ namespace SensorbergSimpleApp
                 {
                     BackgroundTaskRegistrationResult result = await _sdkManager.RegisterBackgroundTaskAsync();
 
-                    if (result.success)
+                    if (result.Success)
                     {
                         toggleBackgroundTaskButton.Label = "turn off notifications";
                         AddLogEntry("Background task is registered.");
                     }
                     else
                     {
-                        AddLogEntry("Background task registration failed: " + result.exception.Message);
+                        AddLogEntry("Background task registration failed: " + result.Exception.Message);
                     }
                 }
                 else
