@@ -2,11 +2,7 @@
 using SensorbergSDK.Internal;
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.Background;
-using Windows.Devices.Bluetooth;
-using Windows.Devices.Bluetooth.Background;
 using Windows.UI.Notifications;
 using MetroLog;
 using SensorbergSDK.Internal.Data;
@@ -22,18 +18,12 @@ namespace SensorbergSDKBackground
     public class BackgroundEngine : IDisposable
     {
         private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<BackgroundEngine>();
-        private const int ExitEventDelayInSeconds = 13;
-        private const int KillTimerDelayInMilliseconds = 200;
 
         public event EventHandler<BackgroundWorkerType> Finished;
 
         private SDKEngine SdkEngine { get; }
         private IList<Beacon> Beacons { get; set; }
         private readonly IList<BeaconEventArgs> _beaconArgs;
-        private Timer _killTimer;
-        private int _unsolvedCounter;
-        private bool _readyToFinish = false;
-        private int _finishingRounds = 5;
         private AppSettings AppSettings { get; set; }
 
         public event EventHandler<BeaconAction> BeaconActionResolved
@@ -58,7 +48,6 @@ namespace SensorbergSDKBackground
         {
             SdkEngine = new SDKEngine(false);
             _beaconArgs = new List<BeaconEventArgs>();
-//            SdkEngine.Resolver.RequestQueueCountChanged += OnRequestQueueCountChanged;
             SdkEngine.BeaconActionResolved += OnBeaconActionResolvedAsync;
         }
 
@@ -94,8 +83,6 @@ namespace SensorbergSDKBackground
             if (_beaconArgs.Count > 0)
             {
                 // Resolve new events
-                _unsolvedCounter = _beaconArgs.Count;
-
                 foreach (var beaconArg in _beaconArgs)
                 {
                     await SdkEngine.ResolveBeaconAction(beaconArg);
@@ -105,7 +92,7 @@ namespace SensorbergSDKBackground
         }
 
         /// <summary>
-        /// Processes the delayed actions and executes them as necessary.
+        /// Processes the delayed actions, executes them as necessary and sends history statistics.
         /// </summary>
         public async Task ProcessDelayedActionsAsync()
         {
@@ -132,10 +119,6 @@ namespace SensorbergSDKBackground
                     // No history for this beacon. Let's save it and add it to event args array for solving.
                     AddBeaconArgs(beacon, BeaconEventType.Enter);
                     await ServiceManager.StorageService.SaveBeaconEventState(beacon.Pid, BeaconEventType.Enter);
-#if LOUD_DEBUG
-                    ToastNotification toastNotification = NotificationUtils.CreateToastNotification("Enter Beacon", _beacons[0].Id1 + " " + _beacons[0].BeaconId2 + " " + _beacons[0].BeaconId3);
-                    NotificationUtils.ShowToastNotification(toastNotification);
-#endif
                 }
                 else if (history.LastEvent == BeaconEventType.Enter)
                 {
@@ -144,10 +127,6 @@ namespace SensorbergSDKBackground
                         // Exit event
                         AddBeaconArgs(beacon, BeaconEventType.Exit);
                         await ServiceManager.StorageService.SaveBeaconEventState(beacon.Pid, BeaconEventType.Exit);
-#if LOUD_DEBUG
-                            ToastNotification toastNotification = NotificationUtils.CreateToastNotification("Exit Beacon", _beacons[0].Id1 + " " + _beacons[0].BeaconId2 + " " + _beacons[0].BeaconId3);
-                            NotificationUtils.ShowToastNotification(toastNotification);
-#endif
                     }
                 }
             }
@@ -167,27 +146,6 @@ namespace SensorbergSDKBackground
         }
 
         /// <summary>
-        /// Observers changes in the RequestQueue. When the queue is empty, kill timer is started which will finish background task
-        /// </summary>
-        private void OnRequestQueueCountChanged(object sender, int e)
-        {
-            logger.Trace("BackgroundEngine.OnRequestQueueCountChanged(): " + e);
-
-            if (e > 0)
-            {
-                if (_killTimer != null)
-                {
-                    _killTimer.Dispose();
-                    _killTimer = null;
-                }
-            }
-            else
-            {
-                _killTimer = new Timer(OnKill, null, KillTimerDelayInMilliseconds, KillTimerDelayInMilliseconds);  
-            }
-        }
-
-        /// <summary>
         /// Handles BeaconActions that are resolved in the SDKEngine.
         /// All resolved actions are stored into local database. And the UI app will show actions to the user.
         /// When the UI app is not running, toast notification is shown for the user.
@@ -197,24 +155,6 @@ namespace SensorbergSDKBackground
             logger.Trace("BackgroundEngine.OnBeaconActionResolvedAsync()");
         }
 
-        private void OnKill(object state)
-        {
-            if (_readyToFinish)
-            {
-                Dispose();
-                return;
-            }
-            
-            // Finish when there are no more unresolved actions or timer has been called 5 times
-            // (1 second in total)
-            if (SdkEngine.UnresolvedActionCount <= 0 || _finishingRounds-- <= 0)
-            {
-                // Signals that we are ready to finish. Waits one more cycle to ensure everything
-                // has been finished.
-                _readyToFinish = true;
-            }
-        }
-        
         /// <summary>
         /// Finishes background processing and releases all resources
         /// </summary>
@@ -223,9 +163,6 @@ namespace SensorbergSDKBackground
         {
             try
             {
-                _killTimer?.Dispose();
-                _killTimer = null;
-
                 SdkEngine.BeaconActionResolved -= OnBeaconActionResolvedAsync;
             }
             finally

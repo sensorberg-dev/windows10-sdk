@@ -29,7 +29,7 @@ namespace SensorbergSDKTests
         private const int OUT_OF_RANGE_DB = -128;
 
         [TestInitialize]
-        public async Task Setup()
+        public void Setup()
         {
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
