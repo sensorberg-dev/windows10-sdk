@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdktests\mocks\mockbackgroundtaskinstance.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 20.04.2016
+// 
+// Copyright (c) 2016,  EagleEye .
+// 
+// All rights reserved.
+
+using System;
+using Windows.ApplicationModel.Background;
+
+namespace SensorbergSDKTests.Mocks
+{
+    public class MockBackgroundTaskInstance: IBackgroundTaskInstance
+    {
+        public BackgroundTaskDeferral GetDeferral()
+        {
+            return null;
+        }
+
+        public Guid InstanceId { get; }
+        public uint Progress { get; set; }
+        public uint SuspendedCount { get; }
+        public BackgroundTaskRegistration Task { get; }
+        public object TriggerDetails { get; }
+        public event BackgroundTaskCanceledEventHandler Canceled;
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[15,9,15,10,0],[16,13,16,25,0],[17,9,17,10,0],[19,34,19,38,0],[20,32,20,36,0],[20,37,20,41,0],[21,38,21,42,0],[22,50,22,54,0],[23,40,23,44,0]]);
+    </script>
+  </body>
+</html>

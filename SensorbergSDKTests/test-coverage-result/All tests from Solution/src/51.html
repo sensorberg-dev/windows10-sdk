@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\utils\helper.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 15.03.2016
+// 
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System.Text;
+using System.Text.RegularExpressions;
+
+namespace SensorbergSDK.Internal.Utils
+{
+    public static class Helper
+    {
+        public static string EnsureEncodingIsUTF8(string str)
+        {
+            byte[] bytes = Encoding.UTF8.GetBytes(str);
+            return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
+        }
+
+        public static string StripLineBreaksAndExcessWhitespaces(string str)
+        {
+            string stripped = str.Replace(&quot;\r\n&quot;, string.Empty).Replace(&quot;\n&quot;, string.Empty).Replace(&quot;\r&quot;, string.Empty);
+            stripped = Regex.Replace(stripped, @&quot; +&quot;, &quot; &quot;);
+            stripped = stripped.Trim();
+            return stripped;
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[15,9,15,10,1],[16,13,16,56,1],[17,13,17,68,1],[18,9,18,10,1],[21,9,21,10,1],[22,13,22,121,1],[23,13,23,60,1],[24,13,24,40,1],[25,13,25,29,1],[26,9,26,10,1]]);
+    </script>
+  </body>
+</html>

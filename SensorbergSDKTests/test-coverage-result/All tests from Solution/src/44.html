@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\utils\jsonhelper.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using Windows.Data.Json;
+
+namespace SensorbergSDK.Internal
+{
+    class JsonHelper
+    {
+        public static int Optional(JsonObject jsonObject, string name, int defaultValue = 0)
+        {
+            int val = defaultValue;
+
+            try
+            {
+                if (jsonObject.ContainsKey(name))
+                    val = (int)jsonObject.GetNamedValue(name).GetNumber();
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(&quot;JsonHelper.Optional(): &quot; + e.Message);
+            }
+
+            return val;
+        }
+
+        public static string OptionalString(JsonObject jsonObject, string name, string defaultValue = &quot;&quot;)
+        {
+            string val = defaultValue;
+
+            try
+            {
+                if(jsonObject.ContainsKey(name))
+                    val = (string)jsonObject.GetNamedValue(name).GetString();
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(&quot;JsonHelper.OptionalString(): &quot; + e.Message);
+            }
+
+            return val;
+        }
+        public static JsonObject OptionalObject(JsonObject jsonObject, string name)
+        {
+            JsonObject val = null;
+
+            try
+            {
+                if (jsonObject.ContainsKey(name))
+                    if(jsonObject.GetNamedValue(name).ValueType == JsonValueType.Object)
+                        val = jsonObject.GetNamedObject(name);
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(&quot;JsonHelper.OptionalObject(): &quot; + e.Message);
+            }
+
+            return val;
+        }
+
+        /// &lt;summary&gt;
+        /// 
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;jsonObject&quot;&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;name&quot;&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;defaultValue&quot;&gt;&lt;/param&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        public static bool OptionalBoolean(JsonObject jsonObject, string name, bool defaultValue)
+        {
+            //System.Diagnostics.Debug.WriteLine(&quot;JsonHelper.OptionalBoolean(): &quot; + name);
+            bool val = defaultValue;
+
+            try
+            {
+                if (jsonObject.ContainsKey(name))
+                {
+                    val = jsonObject.GetNamedBoolean(name);
+                }
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(&quot;JsonHelper.OptionalBoolean(): &quot; + e.Message);
+            }
+
+            return val;
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[17,13,17,32,0],[18,13,18,14,0],[19,17,19,91,0],[20,13,20,14,0],[34,13,34,32,0],[35,13,35,14,0],[36,17,36,97,0],[37,13,37,14,0],[51,13,51,32,0],[52,13,52,14,0],[53,17,53,97,0],[54,13,54,14,0],[78,13,78,32,0],[79,13,79,14,0],[80,17,80,98,0],[81,13,81,14,0],[9,9,9,10,1],[10,13,10,36,1],[13,13,13,14,1],[14,17,14,50,1],[15,21,15,75,1],[16,13,16,14,1],[22,13,22,24,1],[23,9,23,10,1],[26,9,26,10,1],[27,13,27,39,1],[30,13,30,14,1],[31,17,31,49,1],[32,21,32,78,1],[33,13,33,14,1],[39,13,39,24,1],[40,9,40,10,1],[42,9,42,10,1],[43,13,43,35,1],[46,13,46,14,1],[47,17,47,50,1],[48,21,48,89,1],[49,25,49,63,1],[50,13,50,14,1],[56,13,56,24,1],[57,9,57,10,1],[67,9,67,10,1],[69,13,69,37,1],[72,13,72,14,1],[73,17,73,50,1],[74,17,74,18,1],[75,21,75,60,1],[76,17,76,18,1],[77,13,77,14,1],[83,13,83,24,1],[84,9,84,10,1]]);
+    </script>
+  </body>
+</html>
