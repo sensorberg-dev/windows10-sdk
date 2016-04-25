@@ -316,7 +316,9 @@ namespace SensorbergSDK
                 BackgroundTimerClassName = timerClassName,
                 BackgroundAdvertisementClassName = advertisementClassName,
                 BackgroundBeaconUuidSpace = uuidSpace,
-                AutoStartScanner = startScanning
+                AutoStartScanner = startScanning,
+                BeaconCode = Configuration != null ? Configuration.BeaconCode : (ushort) 0,
+                ManufacturerId = Configuration != null ? Configuration.ManufacturerId : (ushort) 0
             });
         }
 
