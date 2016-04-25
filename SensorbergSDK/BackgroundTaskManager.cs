@@ -105,13 +105,13 @@ namespace SensorbergSDK
             return isRequired;
         }
 
-        public async Task<BackgroundTaskRegistrationResult> UpdateBackgroundTaskAsync(string timerClassName, string advertisementClassName, ushort manufacturerId, ushort beaconCode)
+        public async Task<BackgroundTaskRegistrationResult> UpdateBackgroundTaskAsync(string timerClassName, string advertisementClassName, ushort manufacturerId, ushort beaconCode, string uuidSpace)
         {
             UnregisterBackgroundTask();
-            return await RegisterBackgroundTaskAsync(timerClassName, advertisementClassName, manufacturerId, beaconCode);
+            return await RegisterBackgroundTaskAsync(timerClassName, advertisementClassName, manufacturerId, beaconCode, uuidSpace);
         }
 
-        public async Task<BackgroundTaskRegistrationResult> RegisterBackgroundTaskAsync(string timerClassName, string advertisementClassName, ushort manufacturerId, ushort beaconCode)
+        public async Task<BackgroundTaskRegistrationResult> RegisterBackgroundTaskAsync(string timerClassName, string advertisementClassName, ushort manufacturerId, ushort beaconCode, string uuidSpace)
         {
             BackgroundTaskRegistrationResult result = new BackgroundTaskRegistrationResult()
             {
@@ -130,7 +130,7 @@ namespace SensorbergSDK
 
                     if (result.Success)
                     {
-                        result = await RegisterAdvertisementWatcherBackgroundTaskAsync(advertisementClassName, manufacturerId, beaconCode);
+                        result = await RegisterAdvertisementWatcherBackgroundTaskAsync(advertisementClassName, manufacturerId, beaconCode, uuidSpace);
                     }
                 }
 
@@ -153,8 +153,9 @@ namespace SensorbergSDK
         /// <param name="advertisementClassName">Full class name of the advertisment background task</param>
         /// <param name="manufacturerId">The manufacturer ID of beacons to watch.</param>
         /// <param name="beaconCode">The beacon code of beacons to watch.</param>
+        /// <param name="uuidSpace">UUID space for the beacons</param>
         /// <returns>The registration result.</returns>
-        private async Task<BackgroundTaskRegistrationResult> RegisterAdvertisementWatcherBackgroundTaskAsync(string advertisementClassName, ushort manufacturerId, ushort beaconCode)
+        private async Task<BackgroundTaskRegistrationResult> RegisterAdvertisementWatcherBackgroundTaskAsync(string advertisementClassName, ushort manufacturerId, ushort beaconCode, string uuidSpace)
         {
             BackgroundTaskRegistrationResult result = new BackgroundTaskRegistrationResult()
             {
@@ -178,32 +179,10 @@ namespace SensorbergSDK
                 BluetoothLEAdvertisementWatcherTrigger advertisementWatcherTrigger = new BluetoothLEAdvertisementWatcherTrigger();
 
                 // This filter includes all Sensorberg beacons 
-                var pattern = BeaconFactory.UUIDToAdvertisementBytePattern(Constants.SensorbergUuidSpace, manufacturerId, beaconCode);
+                var pattern = BeaconFactory.UUIDToAdvertisementBytePattern(uuidSpace, manufacturerId, beaconCode);
                 advertisementWatcherTrigger.AdvertisementFilter.BytePatterns.Add(pattern);
 
                 ILayoutManager layoutManager = ServiceManager.LayoutManager;
-
-#if FILTER_SUPPORTS_MORE_UUIDS
-                // Only UUIDs that are registered to the app will be added into filter                      
-                if (await layoutManager.VerifyLayoutAsync(false)
-                    && layoutManager.Layout.ContainsOtherThanSensorbergBeaconId1s())
-                {
-                    int counter = 0;
-
-                    foreach (string beaconId1 in LayoutManager.Instance.Layout.AccountBeaconId1s)
-                    {
-                        if (beaconId1.Length == Constants.BeaconId1LengthWithoutDashes && counter < MaxBeaconId1FilterCount)
-                        {
-                            if (!beaconId1.StartsWith(Constants.SensorbergUuidSpace, StringComparison.CurrentCultureIgnoreCase))
-                            {
-                                pattern = BeaconFactory.UUIDToAdvertisementBytePattern(beaconId1);
-                                advertisementWatcherTrigger.AdvertisementFilter.BytePatterns.Add(pattern);
-                                counter++;
-                            }
-                        }
-                    }
-                }
-#endif
 
                 AppSettings = await ServiceManager.SettingsManager.GetSettings();
 

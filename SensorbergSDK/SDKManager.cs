@@ -309,14 +309,15 @@ namespace SensorbergSDK
         /// <summary>
         /// Initializes the SDK using the given API key. The scanner can be used separately, but
         /// the resolving beacon actions cannot be done unless the SDK is initialized.
-        /// 
         /// If background task is enabled, this method check if there are updates for the
         /// background task filters available and updates them if so.
         /// </summary>
         /// <param name="apiKey">The API key for the Sensorberg service.</param>
-        /// <param name="timerClassName">Full class name of the timer background process, if needed</param>
-        /// <param name="advertisementClassName">Full class name of the advertisement background process, if needed</param>
-        public async Task InitializeAsync(string apiKey, string timerClassName = null, string advertisementClassName = null, bool startScanning = true)
+        /// <param name="timerClassName">Full class name of the timer background process, if needed.</param>
+        /// <param name="advertisementClassName">Full class name of the advertisement background process, if needed.</param>
+        /// <param name="uuidSpace">UUID space for the background task, default value is Constants.SensorbergUuidSpace.</param>
+        /// <param name="startScanning">Start the background scanner</param>
+        public async Task InitializeAsync(string apiKey, string timerClassName = null, string advertisementClassName = null, string uuidSpace = Constants.SensorbergUuidSpace, bool startScanning = true)
         {
             logger.Debug("InitializeAsync");
             SDKData sdkData = SDKData.Instance;
@@ -331,7 +332,7 @@ namespace SensorbergSDK
             if (sdkData.BackgroundTaskEnabled)
             {
                 logger.Debug("InitializeAsync#InitializeBackgground");
-                await UpdateBackgroundTaskIfNeededAsync(timerClassName, advertisementClassName);
+                await UpdateBackgroundTaskIfNeededAsync(timerClassName, advertisementClassName, uuidSpace);
             }
 
             if (startScanning)
@@ -385,13 +386,13 @@ namespace SensorbergSDK
         /// re-registers the task.
         /// </summary>
         /// <returns>The registration result.</returns>
-        public async Task<BackgroundTaskRegistrationResult> RegisterBackgroundTaskAsync(string timerClassName, string advertisementClassName)
+        public async Task<BackgroundTaskRegistrationResult> RegisterBackgroundTaskAsync(string timerClassName, string advertisementClassName, string uuidSpace)
         {
             SDKData.Instance.BackgroundTaskEnabled = true;
-            return await _backgroundTaskManager.RegisterBackgroundTaskAsync(timerClassName, advertisementClassName, ManufacturerId, BeaconCode);
+            return await _backgroundTaskManager.RegisterBackgroundTaskAsync(timerClassName, advertisementClassName, ManufacturerId, BeaconCode, uuidSpace);
         }
 
-        public async Task<BackgroundTaskRegistrationResult> UpdateBackgroundTaskIfNeededAsync(string timerClassName, string advertisementClassName)
+        public async Task<BackgroundTaskRegistrationResult> UpdateBackgroundTaskIfNeededAsync(string timerClassName, string advertisementClassName, string uuidSpace)
         {
             BackgroundTaskRegistrationResult result = new BackgroundTaskRegistrationResult()
             {
@@ -401,7 +402,7 @@ namespace SensorbergSDK
 
             if (BackgroundTaskManager.CheckIfBackgroundFilterUpdateIsRequired())
             {
-                result = await _backgroundTaskManager.UpdateBackgroundTaskAsync(timerClassName, advertisementClassName, ManufacturerId, BeaconCode);
+                result = await _backgroundTaskManager.UpdateBackgroundTaskAsync(timerClassName, advertisementClassName, ManufacturerId, BeaconCode, uuidSpace);
             }
 
             SDKData.Instance.BackgroundTaskEnabled = true;
