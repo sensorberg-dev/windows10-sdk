@@ -119,12 +119,16 @@
     <Compile Include="Internal\Constants.cs" />
     <Compile Include="AppSettings.cs" />
     <Compile Include="Internal\Data\BackgroundEvent.cs" />
+    <Compile Include="Internal\Data\BackgroundWorkerType.cs" />
     <Compile Include="Internal\Data\BeaconContainer.cs" />
     <Compile Include="Internal\Data\FileStorage.cs" />
     <Compile Include="Internal\Data\FileStorageHelper.cs" />
+    <Compile Include="Internal\Data\IResolver.cs" />
     <Compile Include="Internal\Data\UserAgentModel.cs" />
     <Compile Include="Internal\SDKEngine.cs" />
     <Compile Include="Internal\Services\ApiConnection.cs" />
+    <Compile Include="Internal\Services\SyncResolver.cs" />
+    <Compile Include="SdkConfiguration.cs" />
     <Compile Include="SensorbergSDKBackground\BackgroundEngine.cs" />
     <Compile Include="SensorbergSDKBackground\AdvertisementWatcherBackgroundWorker.cs" />
     <Compile Include="SensorbergSDKBackground\TimedBackgroundWorker.cs" />

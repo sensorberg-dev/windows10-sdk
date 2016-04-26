@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdktests\mocks\mockbeaconscanner.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 08.03.2016
+// 
+// Copyright (c) 2016,  EagleEye .
+// 
+// All rights reserved.
+
+using System;
+using SensorbergSDK;
+using SensorbergSDK.Services;
+
+namespace SensorbergSDKTests.Mocks
+{
+    public class MockBeaconScanner : IBeaconScanner
+    {
+        public event EventHandler&lt;Beacon&gt; BeaconNotSeenForAWhile;
+        public event EventHandler&lt;ScannerStatus&gt; StatusChanged;
+        public event EventHandler&lt;BeaconEventArgs&gt; BeaconEvent;
+        public ScannerStatus Status { get; }
+
+        public void StartWatcher(ushort manufacturerId, ushort beaconCode, ulong beaconExitTimeout, short? rssiEnterThreshold, ulong? enterDistanceThreshold)
+        {
+        }
+
+        public void StopWatcher()
+        {
+        }
+
+        public void FireBeaconEvent(Beacon beacon, BeaconEventType eventType)
+        {
+            BeaconEvent?.Invoke(this, new BeaconEventArgs() {Beacon = beacon, EventType = eventType});
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[18,39,18,43,1],[21,9,21,10,1],[22,9,22,10,1],[25,9,25,10,1],[26,9,26,10,1],[29,9,29,10,1],[30,13,30,103,1],[31,9,31,10,1]]);
+    </script>
+  </body>
+</html>

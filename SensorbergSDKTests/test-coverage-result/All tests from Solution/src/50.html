@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\utils\notificationutils.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Windows.Data.Xml.Dom;
+using Windows.UI.Notifications;
+
+namespace SensorbergSDK.Internal
+{
+    public class NotificationUtils
+    {
+        private static readonly string KeyLaunch = &quot;launch&quot;;
+        private static readonly string KeyText = &quot;text&quot;;
+        private static readonly string KeyToast = &quot;toast&quot;;
+
+        /// &lt;summary&gt;
+        /// Creates a toast notification template and populates it with the given data.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;beaconActionType&quot;&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;subject&quot;&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;body&quot;&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;url&quot;&gt;&lt;/param&gt;
+        /// &lt;returns&gt;A newly created toast notification template.&lt;/returns&gt;
+        public static XmlDocument CreateToastTemplate(BeaconActionType beaconActionType, string subject, string body, string url)
+        {
+            XmlDocument toastTemplate = ToastNotificationManager.GetTemplateContent(ToastTemplateType.ToastText04);
+            XmlNodeList toastTextAttributes = toastTemplate.GetElementsByTagName(KeyText);
+            int textAttributeIndex = 0;
+
+            if (!string.IsNullOrEmpty(subject))
+            {
+                toastTextAttributes[textAttributeIndex].InnerText = subject;
+                textAttributeIndex++;
+            }
+
+            if (!string.IsNullOrEmpty(body))
+            {
+                toastTextAttributes[textAttributeIndex].InnerText = body;
+                textAttributeIndex++;
+            }
+
+            if (!string.IsNullOrEmpty(url))
+            {
+                toastTextAttributes[textAttributeIndex].InnerText = url;
+            }
+
+            return toastTemplate;
+        }
+
+        /// &lt;summary&gt;
+        /// Creates a toast notification instance based on the data of the given beacon action.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;beaconAction&quot;&gt;&lt;/param&gt;
+        /// &lt;returns&gt;A newly created toast notification.&lt;/returns&gt;
+        public static ToastNotification CreateToastNotification(BeaconAction beaconAction)
+        {
+            XmlDocument toastTemplate =
+                CreateToastTemplate(beaconAction.Type, beaconAction.Subject, beaconAction.Body, beaconAction.Url);
+
+            XmlAttribute urlAttribute = toastTemplate.CreateAttribute(KeyLaunch);
+
+            string beaconActionAsString = beaconAction.ToString();
+            urlAttribute.Value = beaconActionAsString;
+
+            XmlNodeList toastElementList = toastTemplate.GetElementsByTagName(KeyToast);
+            XmlElement toastElement = toastElementList[0] as XmlElement;
+
+            if (toastElement != null)
+            {
+                toastElement.SetAttribute(KeyLaunch, beaconActionAsString);
+            }
+
+            return new ToastNotification(toastTemplate);
+        }
+
+        /// &lt;summary&gt;
+        /// For testing and debugging.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;textLine1&quot;&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;textLine2&quot;&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;textLine3&quot;&gt;&lt;/param&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        public static ToastNotification CreateToastNotification(string textLine1, string textLine2 = null, string textLine3 = null)
+        {
+            XmlDocument toastTemplate = ToastNotificationManager.GetTemplateContent(ToastTemplateType.ToastText04);
+            XmlNodeList toastTextAttributes = toastTemplate.GetElementsByTagName(KeyText);
+            int textAttributeIndex = 0;
+
+            if (!string.IsNullOrEmpty(textLine1))
+            {
+                toastTextAttributes[textAttributeIndex].InnerText = textLine1;
+                textAttributeIndex++;
+            }
+
+            if (!string.IsNullOrEmpty(textLine2))
+            {
+                toastTextAttributes[textAttributeIndex].InnerText = textLine2;
+                textAttributeIndex++;
+            }
+
+            if (!string.IsNullOrEmpty(textLine3))
+            {
+                toastTextAttributes[textAttributeIndex].InnerText = textLine3;
+            }
+
+            return new ToastNotification(toastTemplate);
+        }
+
+        public static void ShowToastNotification(ToastNotification toastNotification)
+        {
+            if (toastNotification != null)
+            {
+                ToastNotificationManager.CreateToastNotifier().Show(toastNotification);
+            }
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[21,9,21,10,0],[22,13,22,116,0],[23,13,23,91,0],[24,13,24,40,0],[26,13,26,48,0],[27,13,27,14,0],[28,17,28,77,0],[29,17,29,38,0],[30,13,30,14,0],[32,13,32,45,0],[33,13,33,14,0],[34,17,34,74,0],[35,17,35,38,0],[36,13,36,14,0],[38,13,38,44,0],[39,13,39,14,0],[40,17,40,73,0],[41,13,41,14,0],[43,13,43,34,0],[44,9,44,10,0],[52,9,52,10,0],[53,13,54,115,0],[56,13,56,82,0],[58,13,58,67,0],[59,13,59,55,0],[61,13,61,89,0],[62,13,62,73,0],[64,13,64,38,0],[65,13,65,14,0],[66,17,66,76,0],[67,13,67,14,0],[69,13,69,57,0],[70,9,70,10,0],[80,9,80,10,0],[81,13,81,116,0],[82,13,82,91,0],[83,13,83,40,0],[85,13,85,50,0],[86,13,86,14,0],[87,17,87,79,0],[88,17,88,38,0],[89,13,89,14,0],[91,13,91,50,0],[92,13,92,14,0],[93,17,93,79,0],[94,17,94,38,0],[95,13,95,14,0],[97,13,97,50,0],[98,13,98,14,0],[99,17,99,79,0],[100,13,100,14,0],[102,13,102,57,0],[103,9,103,10,0],[106,9,106,10,0],[107,13,107,43,0],[108,13,108,14,0],[109,17,109,88,0],[110,13,110,14,0],[111,9,111,10,0],[8,9,8,61,0],[9,9,9,57,0],[10,9,10,59,0]]);
+    </script>
+  </body>
+</html>

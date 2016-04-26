@@ -9,11 +9,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Data.Json;
+using Windows.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using SensorbergSDK;
+using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDKTests.Mocks;
 
-namespace SensorbergSDK.Internal
+namespace SensorbergSDKTests
 {
     [TestClass]
     public class FullSDKTest
@@ -23,14 +26,14 @@ namespace SensorbergSDK.Internal
         private const UInt16 BeaconCode = 0x0215;
 
         [TestInitialize]
-        public void Setup()
+        public async Task Setup()
         {
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
             ServiceManager.BeaconScanner = new MockBeaconScanner();
             ServiceManager.SettingsManager = new SettingsManager();
-            ServiceManager.StorageService = new StorageService();
+            ServiceManager.StorageService = new StorageService() {Storage = new MockStorage()};
             ServiceManager.ReadOnlyForTests = true;
         }
 
@@ -44,41 +47,52 @@ namespace SensorbergSDK.Internal
         [TestMethod]
         public async Task BeaconEntered()
         {
-            MockBeaconScanner scanner = (MockBeaconScanner) ServiceManager.BeaconScanner;
-            SDKData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
-
-            SDKManager sdkManager = SDKManager.Instance(ManufacturerId, BeaconCode);
-            sdkManager.ScannerStatusChanged += (sender, status) => {};
-            TaskCompletionSource<BeaconAction> actionResolved = new TaskCompletionSource<BeaconAction>();
-            sdkManager.BeaconActionResolved += (sender, action) =>
+            try
             {
-                actionResolved.SetResult(action);
-            };
+                MockBeaconScanner scanner = (MockBeaconScanner) ServiceManager.BeaconScanner;
+                SDKData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
+
+                SDKManager sdkManager = SDKManager.Instance(ManufacturerId, BeaconCode);
+                sdkManager.ScannerStatusChanged += (sender, status) => { };
+                TaskCompletionSource<BeaconAction> actionResolved = new TaskCompletionSource<BeaconAction>();
+                sdkManager.BeaconActionResolved += (sender, action) =>
+                {
+                    actionResolved.SetResult(action);
+                };
 
 
-            await sdkManager.InitializeAsync(ApiKey);
+                await sdkManager.InitializeAsync(ApiKey);
 
-            // Listening to the following events is not necessary, but provides interesting data for our log
-            sdkManager.Scanner.BeaconEvent += (sender, args) => {};
-            sdkManager.FailedToResolveBeaconAction += (sender, s) => {};
+                // Listening to the following events is not necessary, but provides interesting data for our log
+                sdkManager.Scanner.BeaconEvent += (sender, args) => { };
+                sdkManager.FailedToResolveBeaconAction += (sender, s) => { };
 
-            scanner.FireBeaconEvent(new Beacon() {Id1 = "7367672374000000ffff0000ffff0006", Id2 = 23430, Id3 = 28018 }, BeaconEventType.Enter);
+                scanner.FireBeaconEvent(new Beacon() {Id1 = "7367672374000000ffff0000ffff0006", Id2 = 23430, Id3 = 28018}, BeaconEventType.Enter);
 
-            BeaconAction action1 = await actionResolved.Task;
+                BeaconAction action1 = await actionResolved.Task;
 
-            Assert.AreEqual("4224871362624826b510141da0d4fc5d", action1.Uuid, "Wrong id in action");
-            Assert.AreEqual("payload://is.awesome", action1.Url, "Wrong url in action");
-            Assert.AreEqual(string.Empty, action1.Subject, "beacon 8 - Different action subject");
-            Assert.AreEqual(string.Empty, action1.Body, "beacon 8 - Different action body");
-            Assert.AreEqual("payload://is.awesome", action1.Url, "beacon 8 - wrong url is set");
-            Assert.IsNotNull(action1.Payload, "beacon 8 - Payload is null");
-            Assert.AreEqual(JsonObject.Parse("{\"payload\":\"is\",\"awesome\":true}").ToString(), action1.Payload.ToString());
+                Assert.AreEqual("4224871362624826b510141da0d4fc5d", action1.Uuid, "Wrong id in action");
+                Assert.AreEqual("payload://is.awesome", action1.Url, "Wrong url in action");
+                Assert.AreEqual(string.Empty, action1.Subject, "beacon 8 - Different action subject");
+                Assert.AreEqual(string.Empty, action1.Body, "beacon 8 - Different action body");
+                Assert.AreEqual("payload://is.awesome", action1.Url, "beacon 8 - wrong url is set");
+                Assert.IsNotNull(action1.Payload, "beacon 8 - Payload is null");
+                Assert.AreEqual(JsonObject.Parse("{\"payload\":\"is\",\"awesome\":true}").ToString(), action1.Payload.ToString());
+            }
+            catch (AssertFailedException a)
+            {
+                throw a;
+            }
+            catch (Exception e)
+            {
+                Assert.Fail(e.Message);
+            }
         }
 
         [TestMethod]
         public async Task BeaconMultipleEntered()
         {
-            MockBeaconScanner scanner = (MockBeaconScanner)ServiceManager.BeaconScanner;
+            MockBeaconScanner scanner = (MockBeaconScanner) ServiceManager.BeaconScanner;
             SDKData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
 
             SDKManager sdkManager = SDKManager.Instance(ManufacturerId, BeaconCode);
@@ -98,7 +112,7 @@ namespace SensorbergSDK.Internal
             sdkManager.Scanner.BeaconEvent += (sender, args) => { };
             sdkManager.FailedToResolveBeaconAction += (sender, s) => { };
 
-            scanner.FireBeaconEvent(new Beacon() { Id1 = "7367672374000000ffff0000ffff0006", Id2 = 23430, Id3 = 28018 }, BeaconEventType.Enter);
+            scanner.FireBeaconEvent(new Beacon() {Id1 = "7367672374000000ffff0000ffff0006", Id2 = 23430, Id3 = 28018}, BeaconEventType.Enter);
 
             BeaconAction action1 = await actionResolved.Task;
 
@@ -112,7 +126,7 @@ namespace SensorbergSDK.Internal
             Assert.IsNotNull(action1.Payload, "beacon 8 - Payload is null");
             Assert.AreEqual(JsonObject.Parse("{\"payload\":\"is\",\"awesome\":true}").ToString(), action1.Payload.ToString());
 
-            scanner.FireBeaconEvent(new Beacon() { Id1 = "7367672374000000ffff0000ffff0006", Id2 = 23430, Id3 = 28018 }, BeaconEventType.Enter);
+            scanner.FireBeaconEvent(new Beacon() {Id1 = "7367672374000000ffff0000ffff0006", Id2 = 23430, Id3 = 28018}, BeaconEventType.Enter);
 
             await Task.Delay(200);
 
@@ -122,7 +136,7 @@ namespace SensorbergSDK.Internal
         [TestMethod]
         public async Task BeaconMultipleEnteredOneFired()
         {
-            MockBeaconScanner scanner = (MockBeaconScanner)ServiceManager.BeaconScanner;
+            MockBeaconScanner scanner = (MockBeaconScanner) ServiceManager.BeaconScanner;
             SDKData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
 
             SDKManager sdkManager = SDKManager.Instance(ManufacturerId, BeaconCode);
@@ -142,7 +156,7 @@ namespace SensorbergSDK.Internal
             sdkManager.Scanner.BeaconEvent += (sender, args) => { };
             sdkManager.FailedToResolveBeaconAction += (sender, s) => { };
 
-            scanner.FireBeaconEvent(new Beacon() { Id1 = "7367672374000000ffff0000ffff0008", Id2 = 23430, Id3 = 28018 }, BeaconEventType.Enter);
+            scanner.FireBeaconEvent(new Beacon() {Id1 = "7367672374000000ffff0000ffff0008", Id2 = 23430, Id3 = 28018}, BeaconEventType.Enter);
 
             BeaconAction action1 = await actionResolved.Task;
             actionResolved = new TaskCompletionSource<BeaconAction>();
@@ -155,7 +169,7 @@ namespace SensorbergSDK.Internal
             Assert.IsNotNull(action1.Payload, "beacon 8 - Payload is null");
             Assert.AreEqual(JsonObject.Parse("{\"payload\":\"is\",\"awesome\":true}").ToString(), action1.Payload.ToString());
 
-            scanner.FireBeaconEvent(new Beacon() { Id1 = "7367672374000000ffff0000ffff0008", Id2 = 23430, Id3 = 28018 }, BeaconEventType.Enter);
+            scanner.FireBeaconEvent(new Beacon() {Id1 = "7367672374000000ffff0000ffff0008", Id2 = 23430, Id3 = 28018}, BeaconEventType.Enter);
 
             Debug.WriteLine("Waiting");
             await Task.Delay(2000);

@@ -45,8 +45,7 @@ namespace SensorbergSDK.Internal
 
             if (overwrite)
             {
-                bool updateResult = TryUpdate(beacon);
-                if (updateResult == false)
+                if (!TryUpdate(beacon))
                 {
                     SaveAddBeacon(beacon);
                 }
@@ -85,8 +84,6 @@ namespace SensorbergSDK.Internal
         /// <returns>True, if updated. False, if no matching beacon was found.</returns>
         public bool TryUpdate(Beacon beacon)
         {
-            bool found = false;
-
             lock (_beaconListLock)
             {
                 for (int i = 0; i < _beacons.Count; ++i)
@@ -94,13 +91,12 @@ namespace SensorbergSDK.Internal
                     if (beacon.Matches(_beacons[i]))
                     {
                         _beacons[i] = beacon;
-                        found = true;
-                        break;
+                        return true;
                     }
                 }
             }
 
-            return found;
+            return false;
         }
 
         /// <summary>
@@ -114,14 +110,13 @@ namespace SensorbergSDK.Internal
 
             if (_beacons.Count > 0)
             {
-                Beacon currentBeacon = null;
                 TimeSpan ageAsTimeSpan = TimeSpan.FromMilliseconds(olderThanAgeInMilliseconds);
 
                 lock (_beaconListLock)
                 {
                     for (int i = _beacons.Count - 1; i >= 0; --i)
                     {
-                        currentBeacon = _beacons[i];
+                        var currentBeacon = _beacons[i];
 
                         if (currentBeacon.Timestamp.Add(ageAsTimeSpan) < DateTime.Now)
                         {

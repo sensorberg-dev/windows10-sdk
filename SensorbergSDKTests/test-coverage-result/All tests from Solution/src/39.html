@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\settingseventargs.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+
+namespace SensorbergSDK.Internal
+{
+    public class SettingsEventArgs: EventArgs
+    {
+        public SettingsEventArgs(AppSettings settings)
+        {
+            Settings = settings;
+        }
+
+        public AppSettings Settings { get; private set; }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[7,9,7,55,0],[8,9,8,10,0],[9,13,9,33,0],[10,9,10,10,0],[12,39,12,43,0],[12,44,12,56,0]]);
+    </script>
+  </body>
+</html>

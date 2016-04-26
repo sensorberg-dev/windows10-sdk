@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\utils\beaconfactory.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text;
+using Windows.Devices.Bluetooth.Advertisement;
+using Windows.Storage.Streams;
+
+namespace SensorbergSDK
+{
+    /// &lt;summary&gt;
+    /// Creates beacon instances from received advertisement data.
+    /// Can also turn beacon instances back to advertisement data.
+    /// &lt;/summary&gt;
+    public sealed class BeaconFactory
+    {
+        private const char HexStringSeparator = &#39;-&#39;;
+        private const byte FirstBeaconDataSectionDataType = 0x01;
+        private const byte SecondBeaconDataSectionDataType = 0xFF;
+        private const int SecondBeaconDataSectionMinimumLengthInBytes = 25;
+
+        /// &lt;summary&gt;
+        /// Constructs a Beacon instance and sets the properties based on the given data.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;args&quot;&gt;&lt;/param&gt;
+        /// &lt;returns&gt;A newly created Beacon instance or null in case of a failure.&lt;/returns&gt;
+        public static Beacon BeaconFromBluetoothLEAdvertisementReceivedEventArgs(BluetoothLEAdvertisementReceivedEventArgs args)
+        {
+            Beacon beacon = null;
+
+            if (args != null &amp;&amp; args.Advertisement != null)
+            {
+                beacon = BeaconFromDataSectionList(args.Advertisement.DataSections);
+
+                if (beacon != null)
+                {
+                    beacon.Timestamp = args.Timestamp;
+                    beacon.RawSignalStrengthInDBm = args.RawSignalStrengthInDBm;
+                }
+            }
+
+            return beacon;
+        }
+
+        /// &lt;summary&gt;
+        /// Constructs a Beacon instance and sets the properties based on the given data.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;dataSection&quot;&gt;A data section containing beacon data.&lt;/param&gt;
+        /// &lt;returns&gt;A newly created Beacon instance or null in case of a failure.&lt;/returns&gt;
+        public static Beacon BeaconFromDataSectionList(IList&lt;BluetoothLEAdvertisementDataSection&gt; dataSections)
+        {
+            Beacon beacon = null;
+
+            if (dataSections != null &amp;&amp; dataSections.Count &gt; 0)
+            {
+                foreach (BluetoothLEAdvertisementDataSection dataSection in dataSections)
+                {
+                    if (dataSection != null)
+                    {
+                        if (dataSection.DataType == SecondBeaconDataSectionDataType)
+                        {
+                            beacon = BeaconFromDataSection(dataSection);
+                        }
+                    }
+                }
+            }
+
+            return beacon;
+        }
+
+        /// &lt;summary&gt;
+        /// Constructs a Beacon instance and sets the properties based on the given data.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;dataSection&quot;&gt;A data section containing beacon data.&lt;/param&gt;
+        /// &lt;returns&gt;A newly created Beacon instance or null in case of a failure.&lt;/returns&gt;
+        public static Beacon BeaconFromDataSection(BluetoothLEAdvertisementDataSection dataSection)
+        {
+            Beacon beacon = null;
+
+            if (dataSection != null &amp;&amp; dataSection.Data != null)
+            {
+                beacon = BeaconFromByteArray(dataSection.Data.ToArray());
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine(&quot;BeaconFactory.BeaconFromDataSection(): The given data (section) is null&quot;);
+            }
+
+            return beacon;
+        }
+
+        /// &lt;summary&gt;
+        /// Constructs a Beacon instance and sets the properties based on the given data.
+        /// 
+        /// The expected specification of the data is as follows:
+        /// 
+        /// Byte(s)     Name
+        /// --------------------------
+        /// 0-1         Manufacturer ID (16-bit unsigned integer, big endian)
+        /// 2-3         Beacon code (two 8-bit unsigned integers, but can be considered as one 16-bit unsigned integer in little endian)
+        /// 4-19        ID1 (UUID)
+        /// 20-21       ID2 (16-bit unsigned integer, big endian)
+        /// 22-23       ID3 (16-bit unsigned integer, big endian)
+        /// 24          Measured Power (signed 8-bit integer)
+        /// 25          Additional information byte (optional)
+        /// 
+        /// For more details on the beacon specifications see https://github.com/AltBeacon/spec
+        /// 
+        /// The minimum length of the given byte array is 25. If it is longer than 26 bits,
+        /// everything after the 26th bit is ignored.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;data&quot;&gt;The data to populate the Beacon instance properties with.&lt;/param&gt;
+        /// &lt;returns&gt;A newly created Beacon instance or null in case of a failure.&lt;/returns&gt;
+        public static Beacon BeaconFromByteArray([ReadOnlyArray] byte[] data)
+        {
+            if (data == null || data.Length &lt; SecondBeaconDataSectionMinimumLengthInBytes)
+            {
+                // The given data is null or too short
+                return null;
+            }
+
+            Beacon beacon = new Beacon();
+            beacon.Code = BitConverter.ToUInt16(data, 2); // Bytes 2-3
+            beacon.Id1 = FormatUuid(BitConverter.ToString(data, 4, 16)); // Bytes 4-19
+            beacon.MeasuredPower = Convert.ToSByte(BitConverter.ToString(data, 24, 1), 16); // Byte 24
+            
+            if (data.Length &gt;= SecondBeaconDataSectionMinimumLengthInBytes + 1)
+            {
+                beacon.Aux = data[25]; // Byte 25
+            }
+
+            // Data is expected to be big endian. Thus, if we are running on a little endian,
+            // we need to switch the bytes
+            if (BitConverter.IsLittleEndian)
+            {
+                data = ChangeInt16ArrayEndianess(data);
+            }
+
+            beacon.ManufacturerId = BitConverter.ToUInt16(data, 0); // Bytes 0-1
+            beacon.Id2 = BitConverter.ToUInt16(data, 20); // Bytes 20-21
+            beacon.Id3 = BitConverter.ToUInt16(data, 22); // Bytes 22-23
+
+            return beacon;
+        }
+
+        /// &lt;summary&gt;
+        /// Creates a BluetoothLEManufacturerData instance based on the given manufacturer ID and
+        /// beacon code. The returned instance can be used as a filter for a BLE advertisement
+        /// watcher.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;manufacturerId&quot;&gt;The manufacturer ID.&lt;/param&gt;
+        /// &lt;param name=&quot;beaconCode&quot;&gt;The beacon code.&lt;/param&gt;
+        /// &lt;returns&gt;BluetoothLEManufacturerData instance based on given arguments.&lt;/returns&gt;
+        public static BluetoothLEManufacturerData BeaconManufacturerData(UInt16 manufacturerId, UInt16 beaconCode)
+        {
+            BluetoothLEManufacturerData manufacturerData = new BluetoothLEManufacturerData();
+            manufacturerData.CompanyId = manufacturerId;
+            DataWriter writer = new DataWriter();
+            writer.WriteUInt16(beaconCode);
+            manufacturerData.Data = writer.DetachBuffer();
+            return manufacturerData;
+        }
+
+        /// &lt;summary&gt;
+        /// Creates the second part of the beacon advertizing packet.
+        /// Uses the beacon IDs 1, 2, 3 and measured power to create the data section.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;beacon&quot;&gt;A beacon instance.&lt;/param&gt;
+        /// &lt;param name=&quot;includeAuxByte&quot;&gt;Defines whether we should add the additional byte or not.&lt;/param&gt;
+        /// &lt;returns&gt;A newly created data section.&lt;/returns&gt;
+        public static BluetoothLEAdvertisementDataSection BeaconToSecondDataSection(
+            Beacon beacon, bool includeAuxByte = false)
+        {
+            string[] temp = beacon.Id1.Split(HexStringSeparator);
+            string beaconId1 = string.Join(&quot;&quot;, temp);
+
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append(ManufacturerIdToString(beacon.ManufacturerId));
+            stringBuilder.Append(BeaconCodeToString(beacon.Code));
+            stringBuilder.Append(beaconId1.ToUpper());
+
+            byte[] beginning = HexStringToByteArray(stringBuilder.ToString());
+
+            byte[] data = includeAuxByte
+                ? new byte[SecondBeaconDataSectionMinimumLengthInBytes + 1]
+                : new byte[SecondBeaconDataSectionMinimumLengthInBytes];
+            
+            beginning.CopyTo(data, 0);
+            ChangeInt16ArrayEndianess(BitConverter.GetBytes(beacon.Id2)).CopyTo(data, 20);
+            ChangeInt16ArrayEndianess(BitConverter.GetBytes(beacon.Id3)).CopyTo(data, 22);
+            data[24] = (byte)Convert.ToSByte(beacon.MeasuredPower);
+            
+            if (includeAuxByte)
+            {
+                data[25] = beacon.Aux;
+            }
+
+            BluetoothLEAdvertisementDataSection dataSection = new BluetoothLEAdvertisementDataSection();
+            dataSection.DataType = SecondBeaconDataSectionDataType;
+            dataSection.Data = data.AsBuffer();
+
+            return dataSection;
+        }
+
+        /// &lt;summary&gt;
+        /// Converts the given manufacturer ID to string.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;manufacturerId&quot;&gt;The manufacturer ID as Uint16.&lt;/param&gt;
+        /// &lt;returns&gt;The manufacturer ID as string.&lt;/returns&gt;        
+        public static string ManufacturerIdToString(UInt16 manufacturerId)
+        {
+            byte[] manufacturerIdAsByteArray = BitConverter.GetBytes(manufacturerId);
+            string manufacturerIdAsString = BitConverter.ToString(manufacturerIdAsByteArray);
+            return manufacturerIdAsString.Replace(HexStringSeparator.ToString(), string.Empty);
+        }
+        
+        /// &lt;summary&gt;
+        /// Converts the given beacon code to string.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;beaconCode&quot;&gt;The beacon code as Uint16.&lt;/param&gt;
+        /// &lt;returns&gt;The beacon code as string.&lt;/returns&gt;        
+        public static string BeaconCodeToString(UInt16 beaconCode)
+        {
+            byte[] beaconCodeAsByteArray = ChangeInt16ArrayEndianess(BitConverter.GetBytes(beaconCode));
+            string beaconCodeAsString = BitConverter.ToString(beaconCodeAsByteArray);
+            return beaconCodeAsString.Replace(HexStringSeparator.ToString(), string.Empty);
+        }
+
+        /// &lt;summary&gt;
+        /// Calculates the beacon distance based on the given values.
+        /// http://developer.radiusnetworks.com/2014/12/04/fundamentals-of-beacon-ranging.html
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;rawSignalStrengthInDBm&quot;&gt;The detected signal strength.&lt;/param&gt;
+        /// &lt;param name=&quot;measuredPower&quot;&gt;The device specific measured power as reported by the beacon.&lt;/param&gt;
+        /// &lt;returns&gt;The distance to the beacon in meters.&lt;/returns&gt;
+        public static double CalculateDistanceFromRssi(double rawSignalStrengthInDBm, int measuredPower)
+        {
+            double distance = 0d;
+            double near = rawSignalStrengthInDBm / measuredPower;
+
+            if (near &lt; 1.0f)
+            {
+                distance = Math.Pow(near, 10);
+            }
+            else
+            {
+                distance = 0.89976f * Math.Pow(near, 7.7095f) + 0.111f;
+            }
+
+            return distance;
+        }
+
+        /// &lt;summary&gt;
+        /// Formats the given UUID. The method also accepts strings, which do
+        /// not have the full UUID (are shorter than expected). Too long
+        /// strings are truncated.
+        /// 
+        /// An example of a formatted UUID: de305d54-75b4-431b-adb2-eb6b9e546014
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;uuid&quot;&gt;A UUID to format.&lt;/param&gt;
+        /// &lt;returns&gt;The formatted UUID.&lt;/returns&gt;
+        public static string FormatUuid(string uuid)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            if (uuid.Length &gt; 0 &amp;&amp; uuid.Trim().Length &gt; 0)
+            {
+                uuid = uuid.Trim();
+                uuid = uuid.Replace(HexStringSeparator.ToString(), string.Empty);
+
+                if (uuid.Length &gt; 8)
+                {
+                    stringBuilder.Append(uuid.Substring(0, 8));
+                    stringBuilder.Append(HexStringSeparator);
+
+                    if (uuid.Length &gt; 12)
+                    {
+                        stringBuilder.Append(uuid.Substring(8, 4));
+                        stringBuilder.Append(HexStringSeparator);
+
+                        if (uuid.Length &gt; 16)
+                        {
+                            stringBuilder.Append(uuid.Substring(12, 4));
+                            stringBuilder.Append(HexStringSeparator);
+
+                            if (uuid.Length &gt; 20)
+                            {
+                                stringBuilder.Append(uuid.Substring(16, 4));
+                                stringBuilder.Append(HexStringSeparator);
+
+                                if (uuid.Length &gt; 32)
+                                {
+                                    stringBuilder.Append(uuid.Substring(20, 12));
+                                }
+                                else
+                                {
+                                    stringBuilder.Append(uuid.Substring(20));
+                                }
+                            }
+                            else
+                            {
+                                stringBuilder.Append(uuid.Substring(16));
+                            }
+                        }
+                        else
+                        {
+                            stringBuilder.Append(uuid.Substring(12));
+                        }
+                    }
+                    else
+                    {
+                        stringBuilder.Append(uuid.Substring(8));
+                    }
+                }
+                else
+                {
+                    stringBuilder.Append(uuid);
+                }
+            }
+
+            return stringBuilder.ToString().ToLower();
+        }
+
+        /// &lt;summary&gt;
+        /// Converts the data of the given BluetoothLEAdvertisementDataSection to a string.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;dataSection&quot;&gt;The data section instance.&lt;/param&gt;
+        /// &lt;returns&gt;The data of the given data section as a string.&lt;/returns&gt;
+        public static string DataSectionToRawString(BluetoothLEAdvertisementDataSection dataSection)
+        {
+            return BitConverter.ToString(dataSection.Data.ToArray());
+        }
+
+        /// &lt;summary&gt;
+        /// Constructs a BluetoothLEAdvertisementBytePattern instance from the given UUID.
+        /// UUID doesn&#39;t have to be full 32 hex digits, but length needs to be even.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;uuid&quot;&gt;The UUID.&lt;/param&gt;
+        /// &lt;param name=&quot;manufacturerId&quot;&gt;The manufacturer ID.&lt;/param&gt;
+        /// &lt;param name=&quot;beaconCode&quot;&gt;The beacon code.&lt;/param&gt;
+        /// &lt;returns&gt;BluetoothLEAdvertisementBytePattern&lt;/returns&gt;
+        public static BluetoothLEAdvertisementBytePattern UUIDToAdvertisementBytePattern(
+            string uuid, UInt16 manufacturerId, UInt16 beaconCode)
+        {
+            if (uuid.Length % 2 != 0)
+            {
+                uuid = uuid.Remove(uuid.Length - 1);
+            }
+
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append(ManufacturerIdToString(manufacturerId));
+            stringBuilder.Append(BeaconCodeToString(beaconCode));
+            stringBuilder.Append(uuid.ToUpper());
+
+            byte[] data = HexStringToByteArray(stringBuilder.ToString());
+
+            BluetoothLEAdvertisementBytePattern pattern = new BluetoothLEAdvertisementBytePattern();
+            pattern.DataType = SecondBeaconDataSectionDataType;
+            pattern.Offset = 0;
+            pattern.Data = data.AsBuffer();
+
+            return pattern;
+        }
+        
+        /// &lt;summary&gt;
+        /// Converts the given hex string to byte array.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;hexString&quot;&gt;The hex string to convert.&lt;/param&gt;
+        /// &lt;returns&gt;The given hex string as a byte array.&lt;/returns&gt;
+        private static byte[] HexStringToByteArray(string hexString)
+        {
+            return Enumerable.Range(0, hexString.Length)
+                .Where(x =&gt; x % 2 == 0)
+                .Select(x =&gt; Convert.ToByte(hexString.Substring(x, 2), 16))
+                .ToArray();
+        }
+
+        /// &lt;summary&gt;
+        /// Switches the endianess of the given byte array so that every two bytes
+        /// are switched.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;byteArray&quot;&gt;A byte array, whose endianess needs to be changed.&lt;/param&gt;
+        /// &lt;returns&gt;The modified byte array.&lt;/returns&gt;
+        private static byte[] ChangeInt16ArrayEndianess(byte[] byteArray)
+        {
+            byte[] convertedArray = new byte[byteArray.Length];
+
+            for (int i = 0; i &lt; byteArray.Length; i += 2)
+            {
+                if (i + 1 &lt; byteArray.Length)
+                {
+                    convertedArray[i] = byteArray[i + 1];
+                    convertedArray[i + 1] = byteArray[i];
+                }
+                else
+                {
+                    convertedArray[i] = byteArray[i];
+                }
+            }
+
+            return convertedArray;
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[28,9,28,10,0],[29,13,29,34,0],[31,13,31,60,0],[32,13,32,14,0],[33,17,33,85,0],[35,17,35,36,0],[36,17,36,18,0],[37,21,37,55,0],[38,21,38,81,0],[39,17,39,18,0],[40,13,40,14,0],[42,13,42,27,0],[43,9,43,10,0],[51,9,51,10,0],[52,13,52,34,0],[54,13,54,64,0],[55,13,55,14,0],[56,17,56,24,0],[56,77,56,89,0],[56,26,56,73,0],[57,17,57,18,0],[58,21,58,45,0],[59,21,59,22,0],[60,25,60,85,0],[61,25,61,26,0],[62,29,62,73,0],[63,25,63,26,0],[64,21,64,22,0],[65,17,65,18,0],[56,74,56,76,0],[66,13,66,14,0],[68,13,68,27,0],[69,9,69,10,0],[77,9,77,10,0],[78,13,78,34,0],[80,13,80,65,0],[81,13,81,14,0],[82,17,82,74,0],[83,13,83,14,0],[85,13,85,14,0],[86,17,86,127,0],[87,13,87,14,0],[89,13,89,27,0],[90,9,90,10,0],[115,9,115,10,0],[116,13,116,91,0],[117,13,117,14,0],[119,17,119,29,0],[122,13,122,42,0],[123,13,123,58,0],[124,13,124,73,0],[125,13,125,92,0],[127,13,127,80,0],[128,13,128,14,0],[129,17,129,39,0],[130,13,130,14,0],[134,13,134,45,0],[135,13,135,14,0],[136,17,136,56,0],[137,13,137,14,0],[139,13,139,68,0],[140,13,140,58,0],[141,13,141,58,0],[143,13,143,27,0],[144,9,144,10,0],[155,9,155,10,0],[156,13,156,94,0],[157,13,157,57,0],[158,13,158,50,0],[159,13,159,44,0],[160,13,160,59,0],[161,13,161,37,0],[162,9,162,10,0],[173,9,173,10,0],[174,13,174,66,0],[175,13,175,54,0],[177,13,177,63,0],[178,13,178,81,0],[179,13,179,67,0],[180,13,180,55,0],[182,13,182,79,0],[184,13,186,73,0],[188,13,188,39,0],[189,13,189,91,0],[190,13,190,91,0],[191,13,191,68,0],[193,13,193,32,0],[194,13,194,14,0],[195,17,195,39,0],[196,13,196,14,0],[198,13,198,105,0],[199,13,199,68,0],[200,13,200,48,0],[202,13,202,32,0],[203,9,203,10,0],[211,9,211,10,0],[212,13,212,86,0],[213,13,213,94,0],[214,13,214,96,0],[215,9,215,10,0],[223,9,223,10,0],[224,13,224,105,0],[225,13,225,86,0],[226,13,226,92,0],[227,9,227,10,0],[237,9,237,10,0],[238,13,238,34,0],[239,13,239,66,0],[241,13,241,29,0],[242,13,242,14,0],[243,17,243,47,0],[244,13,244,14,0],[246,13,246,14,0],[247,17,247,72,0],[248,13,248,14,0],[250,13,250,29,0],[251,9,251,10,0],[263,9,263,10,0],[264,13,264,63,0],[266,13,266,59,0],[267,13,267,14,0],[268,17,268,36,0],[269,17,269,82,0],[271,17,271,37,0],[272,17,272,18,0],[273,21,273,64,0],[274,21,274,62,0],[276,21,276,42,0],[277,21,277,22,0],[278,25,278,68,0],[279,25,279,66,0],[281,25,281,46,0],[282,25,282,26,0],[283,29,283,73,0],[284,29,284,70,0],[286,29,286,50,0],[287,29,287,30,0],[288,33,288,77,0],[289,33,289,74,0],[291,33,291,54,0],[292,33,292,34,0],[293,37,293,82,0],[294,33,294,34,0],[296,33,296,34,0],[297,37,297,78,0],[298,33,298,34,0],[299,29,299,30,0],[301,29,301,30,0],[302,33,302,74,0],[303,29,303,30,0],[304,25,304,26,0],[306,25,306,26,0],[307,29,307,70,0],[308,25,308,26,0],[309,21,309,22,0],[311,21,311,22,0],[312,25,312,65,0],[313,21,313,22,0],[314,17,314,18,0],[316,17,316,18,0],[317,21,317,48,0],[318,17,318,18,0],[319,13,319,14,0],[321,13,321,55,0],[322,9,322,10,0],[330,9,330,10,0],[331,13,331,70,0],[332,9,332,10,0],[344,9,344,10,0],[345,13,345,38,0],[346,13,346,14,0],[347,17,347,53,0],[348,13,348,14,0],[350,13,350,63,0],[351,13,351,74,0],[352,13,352,66,0],[353,13,353,50,0],[355,13,355,74,0],[357,13,357,101,0],[358,13,358,64,0],[359,13,359,32,0],[360,13,360,44,0],[362,13,362,28,0],[363,9,363,10,0],[371,9,371,10,0],[372,13,373,29,0],[373,39,374,30,0],[374,75,375,28,0],[376,9,376,10,0],[385,9,385,10,0],[386,13,386,64,0],[388,18,388,27,0],[389,13,389,14,0],[390,17,390,46,0],[391,17,391,18,0],[392,21,392,58,0],[393,21,393,58,0],[394,17,394,18,0],[396,17,396,18,0],[397,21,397,54,0],[398,17,398,18,0],[399,13,399,14,0],[388,51,388,57,0],[388,29,388,49,0],[401,13,401,35,0],[402,9,402,10,0],[374,30,374,75,0],[373,29,373,39,0]]);
+    </script>
+  </body>
+</html>

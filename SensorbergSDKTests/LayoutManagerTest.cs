@@ -8,25 +8,26 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Data.Json;
+using Windows.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
 using SensorbergSDKTests.Mocks;
 
-namespace SensorbergSDK.Internal
+namespace SensorbergSDKTests
 {
     [TestClass]
     public class LayoutManagerTest
     {
         [TestInitialize]
-        public void Setup()
+        public async Task Setup()
         {
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
             ServiceManager.LayoutManager = new LayoutManager();
-            ServiceManager.SettingsManager = new SettingsManager();
-            ServiceManager.StorageService = new StorageService();
+            ServiceManager.StorageService = new StorageService() {Storage = new MockStorage()};
             ServiceManager.ReadOnlyForTests = true;
         }
 
@@ -67,7 +68,7 @@ namespace SensorbergSDK.Internal
 
             ResolvedAction a = layout.ResolvedActions.FirstOrDefault(t => t.BeaconAction.Uuid == "9ded63644e424d758b0218f7c70f2473");
             Assert.AreEqual(3, (int) a.EventTypeDetectedByDevice, "beacon 1 - Wrong trigger type");
-            Assert.AreEqual(1, a.BeaconPids.Count, "beacon 1 - Beacon count wrong");
+            Assert.AreEqual(2, a.BeaconPids.Count, "beacon 1 - Beacon count wrong");
             Assert.IsTrue(a.BeaconPids.Contains("7367672374000000ffff0000ffff00043917830929"), "beacon 1 - No Beacon found!");
 
             Assert.AreEqual(43200, a.SupressionTime, "beacon 1 - Wrong supression time!");

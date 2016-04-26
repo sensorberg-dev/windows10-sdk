@@ -102,13 +102,14 @@
     <Content Include="Assets\raw\response_supressionTime.json" />
     <Content Include="Assets\raw\mock\layout_request.json" />
     <Content Include="Assets\raw\mock\layout_request_header.txt" />
-    <None Include=".runsettings" />
     <Content Include="Assets\raw\mock\mock_layout.json" />
+    <None Include=".runsettings" />
     <None Include="project.json" />
     <SDKReference Include="MSTestFramework.Universal, Version=$(UnitTestPlatformVersion)" />
     <SDKReference Include="TestPlatform.Universal, Version=$(UnitTestPlatformVersion)" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BackgroundEngineTest.cs" />
     <Compile Include="FileStorageHelperTest.cs" />
     <Compile Include="FullSDKTest.cs" />
     <Compile Include="IntegrationTest.cs" />
@@ -116,14 +117,18 @@
     <Compile Include="Mocks\FailToken.cs" />
     <Compile Include="Mocks\LayoutManagerExtend.cs" />
     <Compile Include="Mocks\MockApiConnection.cs" />
+    <Compile Include="Mocks\MockBackgroundTaskInstance.cs" />
     <Compile Include="Mocks\MockBeaconScanner.cs" />
     <Compile Include="Mocks\MockLayoutManager.cs" />
     <Compile Include="Mocks\MockStorage.cs" />
+    <Compile Include="Mocks\TestHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestQueueTest.cs" />
     <Compile Include="Resolver.cs" />
+    <Compile Include="ResolverTest.cs" />
     <Compile Include="Response.cs" />
     <Compile Include="Mocks\StorageServiceExtend.cs" />
+    <Compile Include="SDKEngineTest.cs" />
     <Compile Include="StorageClassTest.cs" />
     <Compile Include="StorageServiceTest.cs" />
     <Compile Include="UnitTestApp.xaml.cs">

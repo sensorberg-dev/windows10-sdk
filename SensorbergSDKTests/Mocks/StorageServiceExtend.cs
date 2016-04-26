@@ -7,7 +7,7 @@
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
 
-namespace SensorbergSDKTests
+namespace SensorbergSDKTests.Mocks
 {
     public class StorageServiceExtend : StorageService
     {

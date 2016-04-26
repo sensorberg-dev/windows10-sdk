@@ -61,6 +61,7 @@ namespace SensorbergSDK
                 }
             }
         }
+
         /// <summary>
         /// Will remove OnProgress event handlers from advertisement background task
         /// OnProgress events are used to indicate UI tasks on beacon actions resolved in background
@@ -105,13 +106,13 @@ namespace SensorbergSDK
             return isRequired;
         }
 
-        public async Task<BackgroundTaskRegistrationResult> UpdateBackgroundTaskAsync(string timerClassName, string advertisementClassName, ushort manufacturerId, ushort beaconCode)
+        public async Task<BackgroundTaskRegistrationResult> UpdateBackgroundTaskAsync(SdkConfiguration configuration)
         {
             UnregisterBackgroundTask();
-            return await RegisterBackgroundTaskAsync(timerClassName, advertisementClassName, manufacturerId, beaconCode);
+            return await RegisterBackgroundTaskAsync(configuration);
         }
 
-        public async Task<BackgroundTaskRegistrationResult> RegisterBackgroundTaskAsync(string timerClassName, string advertisementClassName, ushort manufacturerId, ushort beaconCode)
+        public async Task<BackgroundTaskRegistrationResult> RegisterBackgroundTaskAsync(SdkConfiguration configuration)
         {
             BackgroundTaskRegistrationResult result = new BackgroundTaskRegistrationResult()
             {
@@ -126,11 +127,11 @@ namespace SensorbergSDK
                 if (backgroundAccessStatus == BackgroundAccessStatus.AllowedMayUseActiveRealTimeConnectivity
                     || backgroundAccessStatus == BackgroundAccessStatus.AllowedWithAlwaysOnRealTimeConnectivity)
                 {
-                    result = RegisterTimedBackgroundTask(timerClassName);
+                    result = RegisterTimedBackgroundTask(configuration.BackgroundTimerClassName);
 
                     if (result.Success)
                     {
-                        result = await RegisterAdvertisementWatcherBackgroundTaskAsync(advertisementClassName, manufacturerId, beaconCode);
+                        result = await RegisterAdvertisementWatcherBackgroundTaskAsync(configuration);
                     }
                 }
 
@@ -150,11 +151,8 @@ namespace SensorbergSDK
         /// <summary>
         /// Registers the BLE advertisement watcher background task.
         /// </summary>
-        /// <param name="advertisementClassName">Full class name of the advertisment background task</param>
-        /// <param name="manufacturerId">The manufacturer ID of beacons to watch.</param>
-        /// <param name="beaconCode">The beacon code of beacons to watch.</param>
         /// <returns>The registration result.</returns>
-        private async Task<BackgroundTaskRegistrationResult> RegisterAdvertisementWatcherBackgroundTaskAsync(string advertisementClassName, ushort manufacturerId, ushort beaconCode)
+        private async Task<BackgroundTaskRegistrationResult> RegisterAdvertisementWatcherBackgroundTaskAsync(SdkConfiguration configuration)
         {
             BackgroundTaskRegistrationResult result = new BackgroundTaskRegistrationResult()
             {
@@ -173,37 +171,15 @@ namespace SensorbergSDK
                 BackgroundTaskBuilder backgroundTaskBuilder = new BackgroundTaskBuilder();
 
                 backgroundTaskBuilder.Name = ADVERTISEMENT_CLASS;
-                backgroundTaskBuilder.TaskEntryPoint = advertisementClassName;
+                backgroundTaskBuilder.TaskEntryPoint = configuration.BackgroundAdvertisementClassName;
 
                 BluetoothLEAdvertisementWatcherTrigger advertisementWatcherTrigger = new BluetoothLEAdvertisementWatcherTrigger();
 
                 // This filter includes all Sensorberg beacons 
-                var pattern = BeaconFactory.UUIDToAdvertisementBytePattern(Constants.SensorbergUuidSpace, manufacturerId, beaconCode);
+                var pattern = BeaconFactory.UUIDToAdvertisementBytePattern(configuration.BackgroundBeaconUuidSpace, configuration.ManufacturerId, configuration.BeaconCode);
                 advertisementWatcherTrigger.AdvertisementFilter.BytePatterns.Add(pattern);
 
                 ILayoutManager layoutManager = ServiceManager.LayoutManager;
-
-#if FILTER_SUPPORTS_MORE_UUIDS
-                // Only UUIDs that are registered to the app will be added into filter                      
-                if (await layoutManager.VerifyLayoutAsync(false)
-                    && layoutManager.Layout.ContainsOtherThanSensorbergBeaconId1s())
-                {
-                    int counter = 0;
-
-                    foreach (string beaconId1 in LayoutManager.Instance.Layout.AccountBeaconId1s)
-                    {
-                        if (beaconId1.Length == Constants.BeaconId1LengthWithoutDashes && counter < MaxBeaconId1FilterCount)
-                        {
-                            if (!beaconId1.StartsWith(Constants.SensorbergUuidSpace, StringComparison.CurrentCultureIgnoreCase))
-                            {
-                                pattern = BeaconFactory.UUIDToAdvertisementBytePattern(beaconId1);
-                                advertisementWatcherTrigger.AdvertisementFilter.BytePatterns.Add(pattern);
-                                counter++;
-                            }
-                        }
-                    }
-                }
-#endif
 
                 AppSettings = await ServiceManager.SettingsManager.GetSettings();
 
@@ -232,6 +208,7 @@ namespace SensorbergSDK
                     BackgroundTaskRegistration backgroundTaskRegistration = backgroundTaskBuilder.Register();
                     backgroundTaskRegistration.Completed += OnAdvertisementWatcherBackgroundTaskCompleted;
                     backgroundTaskRegistration.Progress += OnAdvertisementWatcherBackgroundTaskProgress;
+
                     result.Success = true;
                 }
                 catch (Exception ex)
@@ -270,6 +247,9 @@ namespace SensorbergSDK
                     }
                 }
             }
+
+            //Load last events from background
+            await LoadBackgroundActions();
 
             return result;
         }
@@ -352,6 +332,11 @@ namespace SensorbergSDK
         }
 
         private async void OnAdvertisementWatcherBackgroundTaskProgress(BackgroundTaskRegistration sender, BackgroundTaskProgressEventArgs args)
+        {
+            await LoadBackgroundActions();
+        }
+
+        private async Task LoadBackgroundActions()
         {
             logger.Debug("BackgroundTaskManager.OnAdvertisementWatcherBackgroundTaskProgress()");
 

@@ -2,11 +2,7 @@
 using SensorbergSDK.Internal;
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.Background;
-using Windows.Devices.Bluetooth;
-using Windows.Devices.Bluetooth.Background;
 using Windows.UI.Notifications;
 using MetroLog;
 using SensorbergSDK.Internal.Data;
@@ -22,20 +18,12 @@ namespace SensorbergSDKBackground
     public class BackgroundEngine : IDisposable
     {
         private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<BackgroundEngine>();
-        private const int ExitEventDelayInSeconds = 13;
-        private const int KillTimerDelayInMilliseconds = 200;
 
-        public event EventHandler<int> Finished;
+        public event EventHandler<BackgroundWorkerType> Finished;
 
         private SDKEngine SdkEngine { get; }
-        private BackgroundTaskDeferral _deferral;
-        private IBackgroundTaskInstance _backgroundTaskInstance;
-        private readonly IList<Beacon> _beacons;
+        private IList<Beacon> Beacons { get; set; }
         private readonly IList<BeaconEventArgs> _beaconArgs;
-        private Timer _killTimer;
-        private int _unsolvedCounter;
-        private bool _readyToFinish = false;
-        private int _finishingRounds = 5;
         private AppSettings AppSettings { get; set; }
 
         public event EventHandler<BeaconAction> BeaconActionResolved
@@ -59,19 +47,15 @@ namespace SensorbergSDKBackground
         public BackgroundEngine()
         {
             SdkEngine = new SDKEngine(false);
-            _beacons = new List<Beacon>();
             _beaconArgs = new List<BeaconEventArgs>();
-            SdkEngine.Resolver.RequestQueueCountChanged += OnRequestQueueCountChanged;
             SdkEngine.BeaconActionResolved += OnBeaconActionResolvedAsync;
         }
 
         /// <summary>
         /// Initializes BackgroundEngine
         /// </summary>
-        public async Task InitializeAsync(IBackgroundTaskInstance taskInstance)
+        public async Task InitializeAsync()
         {
-            _deferral = taskInstance.GetDeferral();
-            _backgroundTaskInstance = taskInstance;
             await SdkEngine.InitializeAsync();
             AppSettings = await ServiceManager.SettingsManager.GetSettings();
 
@@ -86,122 +70,71 @@ namespace SensorbergSDKBackground
         /// <summary>
         /// Resolves beacons, which triggered the background task.
         /// </summary>
-        public async Task ResolveBeaconActionsAsync()
+        public async Task ResolveBeaconActionsAsync(List<Beacon> beacons, int outOfRangeDb)
         {
             logger.Trace("ResolveBeaconActionsAsync");
-            var triggerDetails = _backgroundTaskInstance.TriggerDetails as BluetoothLEAdvertisementWatcherTriggerDetails;
 
-            if (triggerDetails != null)
+            Beacons = beacons;
+            if (Beacons.Count > 0)
             {
-                TriggerDetailsToBeacons(triggerDetails);
-
-                if (_beacons.Count > 0)
-                {
-                    await AddBeaconsToBeaconArgsAsync(triggerDetails.SignalStrengthFilter);
-                }
-
-                if (_beaconArgs.Count > 0)
-                {
-                    // Resolve new events
-                    _unsolvedCounter = _beaconArgs.Count;
-
-                    foreach (var beaconArg in _beaconArgs)
-                    {
-                        await SdkEngine.ResolveBeaconAction(beaconArg);
-                    }
-                }
-                else
-                {
-                    Finish();
-                } 
+                await AddBeaconsToBeaconArgsAsync(outOfRangeDb);
             }
+
+            if (_beaconArgs.Count > 0)
+            {
+                // Resolve new events
+                foreach (var beaconArg in _beaconArgs)
+                {
+                    await SdkEngine.ResolveBeaconAction(beaconArg);
+                }
+            }
+            Finished?.Invoke(this, BackgroundWorkerType.ADVERTISEMENT_WORKER);
         }
-        
+
         /// <summary>
-        /// Processes the delayed actions and executes them as necessary.
+        /// Processes the delayed actions, executes them as necessary and sends history statistics.
         /// </summary>
         public async Task ProcessDelayedActionsAsync()
         {
             await SdkEngine.ProcessDelayedActionsAsync();
-            Finish();
+            await SdkEngine.FlushHistory();
+            Finished?.Invoke(this, BackgroundWorkerType.TIMED_WORKER);
         }
 
-        /// <summary>
-        /// Finishes background processing and releases all resources
-        /// </summary>
-        private void Finish()
-        {
-            if (_killTimer != null)
-            {
-                _killTimer.Dispose();
-                _killTimer = null;
-            }
-
-            Finished?.Invoke(this, 0);
-
-            SdkEngine.BeaconActionResolved -= OnBeaconActionResolvedAsync;
-
-            SdkEngine.Deinitialize();
-            _deferral.Complete();
-        }
-
-        /// <summary>
-        /// Constructs Beacon instances from the trigger data and adds recognized beacons to the _beacons list
-        /// </summary>
-        /// <param name="triggerDetails"></param>
-        private void TriggerDetailsToBeacons(BluetoothLEAdvertisementWatcherTriggerDetails triggerDetails)
-        {
-            if (triggerDetails != null)
-            {
-                foreach (var bleAdvertisementReceivedEventArgs in triggerDetails.Advertisements)
-                {
-                    Beacon beacon = BeaconFactory.BeaconFromBluetoothLEAdvertisementReceivedEventArgs(bleAdvertisementReceivedEventArgs);
-                    _beacons.Add(beacon);
-                }
-            }
-        }
 
         /// <summary>
         /// Generates BeaconArgs from beacon events.
         /// For instance if a beacon is seen for the first time, BeaconArgs with enter type is generated
         /// </summary>
-        private async Task AddBeaconsToBeaconArgsAsync(BluetoothSignalStrengthFilter filter)
+        private async Task AddBeaconsToBeaconArgsAsync(int outOfRangeDb)
         {
             logger.Trace("AddBeaconsToBeaconArgsAsync");
-            foreach (var beacon in _beacons)
+            foreach (var beacon in Beacons)
             {
                 BackgroundEvent history = await ServiceManager.StorageService.GetLastEventStateForBeacon(beacon.Pid);
 
                 if (history == null || history.LastEvent == BeaconEventType.Exit ||
-                    (!IsOutOfRange(filter, beacon) && history.EventTime.AddMilliseconds(AppSettings.BeaconExitTimeout) < DateTimeOffset.Now))
+                    (!IsOutOfRange(outOfRangeDb, beacon) && history.EventTime.AddMilliseconds(AppSettings.BeaconExitTimeout) < DateTimeOffset.Now))
                 {
                     // No history for this beacon. Let's save it and add it to event args array for solving.
                     AddBeaconArgs(beacon, BeaconEventType.Enter);
                     await ServiceManager.StorageService.SaveBeaconEventState(beacon.Pid, BeaconEventType.Enter);
-#if LOUD_DEBUG
-                    ToastNotification toastNotification = NotificationUtils.CreateToastNotification("Enter Beacon", _beacons[0].Id1 + " " + _beacons[0].BeaconId2 + " " + _beacons[0].BeaconId3);
-                    NotificationUtils.ShowToastNotification(toastNotification);
-#endif
                 }
                 else if (history.LastEvent == BeaconEventType.Enter)
                 {
-                    if (IsOutOfRange(filter, beacon))
+                    if (IsOutOfRange(outOfRangeDb, beacon))
                     {
                         // Exit event
                         AddBeaconArgs(beacon, BeaconEventType.Exit);
                         await ServiceManager.StorageService.SaveBeaconEventState(beacon.Pid, BeaconEventType.Exit);
-#if LOUD_DEBUG
-                            ToastNotification toastNotification = NotificationUtils.CreateToastNotification("Exit Beacon", _beacons[0].Id1 + " " + _beacons[0].BeaconId2 + " " + _beacons[0].BeaconId3);
-                            NotificationUtils.ShowToastNotification(toastNotification);
-#endif
                     }
                 }
             }
         }
 
-        private static bool IsOutOfRange(BluetoothSignalStrengthFilter filter, Beacon beacon)
+        private static bool IsOutOfRange(int outOfRangeDb, Beacon beacon)
         {
-            return beacon.RawSignalStrengthInDBm == filter.OutOfRangeThresholdInDBm;
+            return beacon.RawSignalStrengthInDBm == outOfRangeDb;
         }
 
         private void AddBeaconArgs(Beacon beacon, BeaconEventType eventType)
@@ -210,27 +143,6 @@ namespace SensorbergSDKBackground
             args.Beacon = beacon;
             args.EventType = eventType;
             _beaconArgs.Add(args);
-        }
-
-        /// <summary>
-        /// Observers changes in the RequestQueue. When the queue is empty, kill timer is started which will finish background task
-        /// </summary>
-        private void OnRequestQueueCountChanged(object sender, int e)
-        {
-            logger.Trace("BackgroundEngine.OnRequestQueueCountChanged(): " + e);
-
-            if (e > 0)
-            {
-                if (_killTimer != null)
-                {
-                    _killTimer.Dispose();
-                    _killTimer = null;
-                }
-            }
-            else
-            {
-                _killTimer = new Timer(OnKill, null, KillTimerDelayInMilliseconds, KillTimerDelayInMilliseconds);  
-            }
         }
 
         /// <summary>
@@ -243,27 +155,20 @@ namespace SensorbergSDKBackground
             logger.Trace("BackgroundEngine.OnBeaconActionResolvedAsync()");
         }
 
-        private void OnKill(object state)
-        {
-            if (_readyToFinish)
-            {
-                Finish();
-                return;
-            }
-            
-            // Finish when there are no more unresolved actions or timer has been called 5 times
-            // (1 second in total)
-            if (SdkEngine.UnresolvedActionCount <= 0 || _finishingRounds-- <= 0)
-            {
-                // Signals that we are ready to finish. Waits one more cycle to ensure everything
-                // has been finished.
-                _readyToFinish = true;
-            }
-        }
+        /// <summary>
+        /// Finishes background processing and releases all resources
+        /// </summary>
 
         public void Dispose()
         {
-            _killTimer?.Dispose();
+            try
+            {
+                SdkEngine.BeaconActionResolved -= OnBeaconActionResolvedAsync;
+            }
+            finally
+            {
+                SdkEngine.Dispose();
+            }
         }
     }
 }

@@ -26,6 +26,7 @@ namespace SensorbergSDKTests
         [TestInitialize]
         public async Task Setup()
         {
+            await TestHelper.ClearFiles("sensorberg-storage");
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
@@ -35,15 +36,6 @@ namespace SensorbergSDKTests
             ServiceManager.ReadOnlyForTests = true;
 
 
-            try
-            {
-                StorageFolder folder = await ApplicationData.Current.LocalFolder.GetFolderAsync("sensorberg-storage");
-                await folder.DeleteAsync();
-            }
-            catch (FileNotFoundException)
-            {
-
-            }
             await ServiceManager.StorageService.InitStorage();
         }
 
@@ -76,6 +68,7 @@ namespace SensorbergSDKTests
 
             ApplicationData.Current.LocalSettings.Values.Remove(LayoutManager.KeyLayoutHeaders);
             ApplicationData.Current.LocalSettings.Values.Remove(LayoutManager.KeyLayoutRetrievedTime);
+            await TestHelper.RemoveFile(LayoutManager.KeyLayoutContent);
 
             connection.FailNetwork = true;
             LayoutResult layout = await service.RetrieveLayout();
@@ -86,9 +79,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(NetworkResult.Success, layout.Result, "Not successfull loaded");
             LayoutManagerTest.ValidateMockLayout(layout.Layout);
 
-
             connection.FailNetwork = true;
-
             //should be cached
             layout = await service.RetrieveLayout();
             Assert.AreEqual(NetworkResult.Success, layout.Result, "Not successfull loaded from cache");

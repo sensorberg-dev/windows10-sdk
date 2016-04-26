@@ -16,12 +16,12 @@ namespace SensorbergSDK.Internal
 
         public const string DemoApiKey = "04a709a208c83e2bc0ec66871c46d35af49efde5151032b3e865768bbf878db8";
 
-        public static readonly string LayoutApiUriAsString = "https://resolver.sensorberg.com/layout";
-        public static readonly string ApiUrlTemplate = "https://connect.sensorberg.com/api/beacon/resolve/?proximityId={0}&major={1}&minor={2}&event={3}&deviceId={4}";
-        public static readonly string FilterUrlTemplate = "https://connect.sensorberg.com/api/application/{0}/uuids";
-        public static readonly string SettingsUri = "https://resolver.sensorberg.com/applications/{0}/settings/windows/";
+        public const string LayoutApiUriAsString = "https://resolver.sensorberg.com/layout";
+        public const string ApiUrlTemplate = "https://connect.sensorberg.com/api/beacon/resolve/?proximityId={0}&major={1}&minor={2}&event={3}&deviceId={4}";
+        public const string FilterUrlTemplate = "https://connect.sensorberg.com/api/application/{0}/uuids";
+        public const string SettingsUri = "https://resolver.sensorberg.com/applications/{0}/settings/windows/";
 
-        public static readonly string SensorbergUuidSpace = "7367672374000000ffff0000ffff00";
+        public const string SensorbergUuidSpace = "7367672374000000ffff0000ffff00";
 
         public const int ActionTypeUrlMessage = 1;
         public const int ActionTypeVisitWebsite = 2;

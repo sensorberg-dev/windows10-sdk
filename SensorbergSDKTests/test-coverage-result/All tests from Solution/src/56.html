@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\services\servicemanager.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 04.03.2016
+// 
+// Copyright (c) 2016,  EagleEye .
+// 
+// All rights reserved.
+
+using System.Diagnostics;
+using SensorbergSDK.Services;
+
+namespace SensorbergSDK.Internal.Services
+{
+    public static class ServiceManager
+    {
+        private static IApiConnection _apiConnction;
+        private static IBeaconScanner _beaconScanner;
+        private static ILayoutManager _layoutManager;
+        private static IStorageService _storageService;
+        private static ISettingsManager _settingsManager;
+
+        public static IStorageService StorageService
+        {
+            [DebuggerStepThrough]
+            get { return _storageService; }
+            [DebuggerStepThrough]
+            set
+            {
+                if (_storageService == null || !ReadOnlyForTests)
+                {
+                    _storageService = value;
+                }
+            }
+        }
+
+        public static IApiConnection ApiConnction
+        {
+            [DebuggerStepThrough]
+            get { return _apiConnction; }
+            [DebuggerStepThrough]
+            set
+            {
+                if (_apiConnction == null || !ReadOnlyForTests)
+                {
+                    _apiConnction = value;
+                }
+            }
+        }
+
+        public static IBeaconScanner BeaconScanner
+        {
+            [DebuggerStepThrough]
+            get { return _beaconScanner; }
+            [DebuggerStepThrough]
+            set
+            {
+                if (_beaconScanner == null || !ReadOnlyForTests)
+                {
+                    _beaconScanner = value;
+                }
+            }
+        }
+
+        public static ILayoutManager LayoutManager
+        {
+            [DebuggerStepThrough]
+            get { return _layoutManager; }
+            [DebuggerStepThrough]
+            set
+            {
+                if (_layoutManager == null || !ReadOnlyForTests)
+                {
+                    _layoutManager = value;
+                }
+            }
+        }
+
+        public static ISettingsManager SettingsManager
+        {
+            [DebuggerStepThrough]
+            get { return _settingsManager; }
+            [DebuggerStepThrough]
+            set
+            {
+                if (_settingsManager == null || !ReadOnlyForTests)
+                {
+                    _settingsManager = value;
+                }
+            }
+        }
+
+        public static bool ReadOnlyForTests { get; set; }
+
+        public static void Clear()
+        {
+            if (ReadOnlyForTests)
+            {
+                return;
+            }
+            _apiConnction = null;
+            _beaconScanner = null;
+            _layoutManager = null;
+            _storageService = null;
+            _settingsManager = null;
+            ReadOnlyForTests = false;
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[23,17,23,18,1],[23,19,23,42,1],[23,43,23,44,1],[26,13,26,14,1],[27,17,27,66,1],[28,17,28,18,1],[29,21,29,45,1],[30,17,30,18,1],[31,13,31,14,1],[37,17,37,18,1],[37,19,37,40,1],[37,41,37,42,1],[40,13,40,14,1],[41,17,41,64,1],[42,17,42,18,1],[43,21,43,43,1],[44,17,44,18,1],[45,13,45,14,1],[51,17,51,18,1],[51,19,51,41,1],[51,42,51,43,1],[54,13,54,14,1],[55,17,55,65,1],[56,17,56,18,1],[57,21,57,44,1],[58,17,58,18,1],[59,13,59,14,1],[65,17,65,18,1],[65,19,65,41,1],[65,42,65,43,1],[68,13,68,14,1],[69,17,69,65,1],[70,17,70,18,1],[71,21,71,44,1],[72,17,72,18,1],[73,13,73,14,1],[79,17,79,18,1],[79,19,79,43,1],[79,44,79,45,1],[82,13,82,14,1],[83,17,83,67,1],[84,17,84,18,1],[85,21,85,46,1],[86,17,86,18,1],[87,13,87,14,1],[90,47,90,51,1],[90,52,90,56,1],[93,9,93,10,1],[94,13,94,34,1],[95,13,95,14,1],[96,17,96,24,1],[98,13,98,34,1],[99,13,99,35,1],[100,13,100,35,1],[101,13,101,36,1],[102,13,102,37,1],[103,13,103,38,1],[104,9,104,10,1]]);
+    </script>
+  </body>
+</html>

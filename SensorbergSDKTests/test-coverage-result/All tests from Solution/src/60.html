@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\data\filestorage.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 30.03.2016
+// 
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+using Windows.Storage;
+using MetroLog;
+using SensorbergSDK.Services;
+
+namespace SensorbergSDK.Internal.Data
+{
+    public class FileStorage : IStorage
+    {
+        private static readonly  ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger&lt;FileStorage&gt;();
+        private const string BACKGROUND_FOLDER_NAME = &quot;background&quot;;
+        private const string FOREGROUND_FOLDER_NAME = &quot;foreground&quot;;
+        private const string ACTIONS_FOLDER_NAME = &quot;actions&quot;;
+        private const string EVENTS_FOLDER_NAME = &quot;events&quot;;
+        private const string SETTINGS_FOLDER_NAME = &quot;settings&quot;;
+        private const string FOLDER_LOCK_FILE = &quot;folderlock&quot;;
+        public const string ACTIONS_FILE_NAME = &quot;actions.ini&quot;;
+        private const string DELAYED_ACTIONS_FILE_NAME = &quot;delayedactions.ini&quot;;
+        const string SERPERATOR = &quot;\\&quot;;
+        const string ROOT_FOLDER = &quot;sensorberg-storage&quot;;
+        const string BACKGROUND_FOLDER = ROOT_FOLDER + SERPERATOR + BACKGROUND_FOLDER_NAME;
+        const string FOREGROUND_FOLDER = ROOT_FOLDER + SERPERATOR + FOREGROUND_FOLDER_NAME;
+        const string BACKGROUND_ACTIONS_FOLDER = BACKGROUND_FOLDER + SERPERATOR + ACTIONS_FOLDER_NAME;
+        const string BACKGROUND_EVENTS_FOLDER = BACKGROUND_FOLDER + SERPERATOR + EVENTS_FOLDER_NAME;
+        const string BACKGROUND_SETTINGS_FOLDER = BACKGROUND_FOLDER + SERPERATOR + SETTINGS_FOLDER_NAME;
+        public const string FOREGROUND_ACTIONS_FOLDER = FOREGROUND_FOLDER + SERPERATOR + ACTIONS_FOLDER_NAME;
+        public const string FOREGROUND_EVENTS_FOLDER = FOREGROUND_FOLDER + SERPERATOR + EVENTS_FOLDER_NAME;
+        private readonly string[] EVENT_FOLDERS = new string[] {BACKGROUND_EVENTS_FOLDER, FOREGROUND_EVENTS_FOLDER};
+        private readonly string[] ACTION_FOLDERS = new string[] {BACKGROUND_ACTIONS_FOLDER, FOREGROUND_ACTIONS_FOLDER};
+
+        public bool Background { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
+
+        public async Task InitStorage()
+        {
+            logger.Trace(&quot;Create folders&quot;);
+            StorageFolder folder = ApplicationData.Current.LocalFolder;
+            StorageFolder root = await folder.CreateFolderAsync(ROOT_FOLDER, CreationCollisionOption.OpenIfExists);
+            StorageFolder background = await root.CreateFolderAsync(BACKGROUND_FOLDER_NAME, CreationCollisionOption.OpenIfExists);
+            StorageFolder foreground = await root.CreateFolderAsync(FOREGROUND_FOLDER_NAME, CreationCollisionOption.OpenIfExists);
+            await background.CreateFolderAsync(ACTIONS_FOLDER_NAME, CreationCollisionOption.OpenIfExists);
+            await background.CreateFolderAsync(EVENTS_FOLDER_NAME, CreationCollisionOption.OpenIfExists);
+            await background.CreateFolderAsync(SETTINGS_FOLDER_NAME, CreationCollisionOption.OpenIfExists);
+            await foreground.CreateFolderAsync(ACTIONS_FOLDER_NAME, CreationCollisionOption.OpenIfExists);
+            await foreground.CreateFolderAsync(EVENTS_FOLDER_NAME, CreationCollisionOption.OpenIfExists);
+            await foreground.CreateFolderAsync(SETTINGS_FOLDER_NAME, CreationCollisionOption.OpenIfExists);
+        }
+
+        public async Task&lt;IList&lt;HistoryEvent&gt;&gt; GetUndeliveredEvents()
+        {
+            return await GetUndeliveredEvents(true);
+        }
+
+
+        public async Task SetEventsAsDelivered()
+        {
+            foreach (string currentfolder in EVENT_FOLDERS)
+            {
+                StorageFolder folder = await GetFolder(currentfolder, true);
+                IReadOnlyList&lt;StorageFolder&gt; folders = await folder.GetFoldersAsync();
+                foreach (StorageFolder storageFolder in folders)
+                {
+                    IReadOnlyList&lt;StorageFile&gt; files = await storageFolder.GetFilesAsync();
+
+                    //ignore unlocked folders
+                    if (files.FirstOrDefault(f =&gt; f.Name == FOLDER_LOCK_FILE) == null)
+                    {
+                        continue;
+                    }
+                    await storageFolder.DeleteAsync();
+                }
+            }
+        }
+
+
+        public async Task&lt;IList&lt;HistoryAction&gt;&gt; GetUndeliveredActions()
+        {
+            return await GetUndeliveredActions(true);
+        }
+
+        public async Task SetActionsAsDelivered()
+        {
+            foreach (string currentfolder in ACTION_FOLDERS)
+            {
+                StorageFolder folder = await GetFolder(currentfolder, true);
+                StorageFile deliveredActionsFile = await folder.CreateFileAsync(ACTIONS_FILE_NAME, CreationCollisionOption.OpenIfExists);
+                IReadOnlyList&lt;StorageFolder&gt; folders = await folder.GetFoldersAsync();
+                foreach (StorageFolder storageFolder in folders)
+                {
+                    IReadOnlyList&lt;StorageFile&gt; files = await storageFolder.GetFilesAsync();
+
+                    //ignore unlocked folders
+                    if (files.FirstOrDefault(f =&gt; f.Name == FOLDER_LOCK_FILE) == null)
+                    {
+                        continue;
+                    }
+
+                    StorageFile actionFile = files.FirstOrDefault(f =&gt; f.Name == ACTIONS_FILE_NAME);
+                    if (actionFile != null)
+                    {
+                        List&lt;HistoryAction&gt; actions = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(actionFile));
+
+                        List&lt;string&gt; stringActions = new List&lt;string&gt;();
+                        foreach (HistoryAction historyAction in actions)
+                        {
+                            historyAction.Delivered = true;
+                            stringActions.Add(FileStorageHelper.ActionToString(historyAction));
+                        }
+                        await FileIO.AppendLinesAsync(deliveredActionsFile, stringActions);
+                    }
+                    await storageFolder.DeleteAsync();
+                }
+            }
+        }
+
+        public async Task SaveHistoryAction(HistoryAction action)
+        {
+            StorageFolder folder = await GetFolder(Background ? BACKGROUND_ACTIONS_FOLDER : FOREGROUND_ACTIONS_FOLDER);
+            StorageFile file = await folder.CreateFileAsync(ACTIONS_FILE_NAME, CreationCollisionOption.OpenIfExists);
+            action.Background = Background;
+            string actionToString = FileStorageHelper.ActionToString(action);
+            await RetryAppending(file, actionToString);
+        }
+
+        public async Task SaveHistoryEvents(HistoryEvent he)
+        {
+            StorageFolder folder = await GetFolder(Background ? BACKGROUND_EVENTS_FOLDER : FOREGROUND_EVENTS_FOLDER);
+            StorageFile file = await folder.CreateFileAsync(he.pid, CreationCollisionOption.OpenIfExists);
+            string eventToString = FileStorageHelper.EventToString(he);
+            await RetryAppending(file, eventToString);
+        }
+
+
+        public async Task&lt;IList&lt;HistoryAction&gt;&gt; GetActions(string uuid)
+        {
+            logger.Trace(&quot;GetActions {0}&quot;, uuid);
+            List&lt;HistoryAction&gt; returnActions = new List&lt;HistoryAction&gt;();
+            IList&lt;HistoryAction&gt; actions = await GetUndeliveredActions(false);
+
+            foreach (HistoryAction historyAction in actions)
+            {
+                if (historyAction.eid == uuid)
+                {
+                    returnActions.Add(historyAction);
+                }
+            }
+            try
+            {
+                StorageFolder folder = await GetFolder(FOREGROUND_ACTIONS_FOLDER, true);
+                StorageFile storageFile = await folder.GetFileAsync(ACTIONS_FILE_NAME);
+                List&lt;HistoryAction&gt; actionsFromStrings = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(storageFile));
+                foreach (HistoryAction historyAction in actionsFromStrings)
+                {
+                    if (historyAction.eid == uuid)
+                    {
+                        returnActions.Add(historyAction);
+                    }
+                }
+            }
+            catch (SEHException)
+            {
+            }
+            catch (FileNotFoundException)
+            {
+            }
+            logger.Trace(&quot;GetActions {0} End&quot;, uuid);
+            return returnActions;
+        }
+
+        public async Task&lt;HistoryAction&gt; GetAction(string uuid)
+        {
+            return (await GetActions(uuid)).FirstOrDefault();
+        }
+
+        public async Task CleanDatabase()
+        {
+            try
+            {
+                StorageFolder folder = ApplicationData.Current.LocalFolder;
+                StorageFolder root = await folder.CreateFolderAsync(ROOT_FOLDER, CreationCollisionOption.OpenIfExists);
+                await root.DeleteAsync();
+            }
+            catch (SEHException)
+            {
+            }
+            catch (FileNotFoundException)
+            {
+            }
+            await InitStorage();
+        }
+
+        public async Task&lt;IList&lt;DelayedActionData&gt;&gt; GetDelayedActions(int maxDelayFromNowInSeconds)
+        {
+            DateTimeOffset maxDelayfromNow = DateTimeOffset.Now.AddSeconds(maxDelayFromNowInSeconds);
+            List&lt;DelayedActionData&gt; actions = new List&lt;DelayedActionData&gt;();
+
+            StorageFolder folder = await GetFolder(FOREGROUND_ACTIONS_FOLDER, true);
+            StorageFile file = await folder.CreateFileAsync(DELAYED_ACTIONS_FILE_NAME, CreationCollisionOption.OpenIfExists);
+            List&lt;FileStorageHelper.DelayedActionHelper&gt; delayedActionHelpers = FileStorageHelper.DelayedActionsFromStrings(await FileIO.ReadLinesAsync(file));
+
+            foreach (FileStorageHelper.DelayedActionHelper delayedActionHelper in delayedActionHelpers)
+            {
+                if (delayedActionHelper.Offset &lt; maxDelayfromNow &amp;&amp; !delayedActionHelper.Executed)
+                {
+                    DelayedActionData data = FileStorageHelper.DelayedActionFromHelper(delayedActionHelper);
+                    actions.Add(data);
+                }
+            }
+
+            return actions;
+        }
+
+        public async Task SetDelayedActionAsExecuted(string id)
+        {
+            StorageFolder folder = await GetFolder(FOREGROUND_ACTIONS_FOLDER, true);
+            StorageFile file = await folder.CreateFileAsync(DELAYED_ACTIONS_FILE_NAME, CreationCollisionOption.OpenIfExists);
+            List&lt;FileStorageHelper.DelayedActionHelper&gt; delayedActionHelpers = FileStorageHelper.DelayedActionsFromStrings(await FileIO.ReadLinesAsync(file));
+
+            bool needed = false;
+            List&lt;string&gt; strings = new List&lt;string&gt;();
+            foreach (FileStorageHelper.DelayedActionHelper delayedActionHelper in delayedActionHelpers)
+            {
+                if (delayedActionHelper.Id == id)
+                {
+                    delayedActionHelper.Executed = true;
+                    needed = true;
+                }
+                strings.Add(FileStorageHelper.DelayedActionToString(delayedActionHelper));
+            }
+            if (needed)
+            {
+                await FileIO.WriteLinesAsync(file, strings);
+            }
+
+        }
+
+        public async Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType beaconEventType)
+        {
+            StorageFolder folder = await GetFolder(Background ? BACKGROUND_ACTIONS_FOLDER : FOREGROUND_ACTIONS_FOLDER, true);
+            StorageFile file = await folder.CreateFileAsync(DELAYED_ACTIONS_FILE_NAME, CreationCollisionOption.OpenIfExists);
+            string actionToString = FileStorageHelper.DelayedActionToString(action, dueTime, beaconPid, beaconEventType);
+            await RetryAppending(file, actionToString);
+
+        }
+
+        public async Task SaveBeaconEventState(string pid, BeaconEventType type)
+        {
+            StorageFolder folder = await GetFolder(BACKGROUND_SETTINGS_FOLDER, true);
+            StorageFile file = await folder.CreateFileAsync(pid, CreationCollisionOption.OpenIfExists);
+            await RetryWriting(file, FileStorageHelper.BeaconEventStateToString(pid,type,DateTimeOffset.Now));
+        }
+
+        public async Task&lt;BackgroundEvent&gt; GetLastEventStateForBeacon(string pid)
+        {
+            StorageFolder folder = await GetFolder(BACKGROUND_SETTINGS_FOLDER, true);
+            StorageFile file = await folder.CreateFileAsync(pid, CreationCollisionOption.OpenIfExists);
+            try
+            {
+                return FileStorageHelper.BeaconEventStateFromString(await FileIO.ReadTextAsync(file));
+            }
+            catch (SEHException)
+            {
+                return null;
+            }
+            catch (FileNotFoundException )
+            {
+                return null;
+            }
+        }
+
+        public async Task&lt;List&lt;HistoryAction&gt;&gt; GetActionsForForeground(bool doNotDelete = false)
+        {
+            List&lt;HistoryAction&gt; actions = new List&lt;HistoryAction&gt;();
+
+            StorageFolder folder = await GetFolder(BACKGROUND_ACTIONS_FOLDER, true);
+            StorageFile deliveredActionsFile = await folder.CreateFileAsync(ACTIONS_FILE_NAME, CreationCollisionOption.OpenIfExists);
+
+            List&lt;HistoryAction&gt; fileActions = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(deliveredActionsFile));
+            if (fileActions != null)
+            {
+                foreach (HistoryAction historyAction in fileActions)
+                {
+                    if (historyAction.Background)
+                    {
+                        actions.Add(historyAction);
+                    }
+                }
+                if (!doNotDelete &amp;&amp; fileActions.Count!=0)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    foreach (HistoryAction historyAction in fileActions)
+                    {
+                        historyAction.Background = false;
+                        sb.Append(FileStorageHelper.ActionToString(historyAction));
+                        sb.Append(&#39;\n&#39;);
+                    }
+                    await RetryWriting(deliveredActionsFile, sb.ToString());
+                }
+            }
+            IReadOnlyList&lt;StorageFolder&gt; folders = await folder.GetFoldersAsync();
+            foreach (StorageFolder storageFolder in folders)
+            {
+                try
+                {
+                    IReadOnlyList&lt;StorageFile&gt; files = await storageFolder.GetFilesAsync();
+                    StorageFile first = null;
+                    foreach (var f in files)
+                    {
+                        if (f.Name == ACTIONS_FILE_NAME)
+                        {
+                            first = f;
+                            break;
+                        }
+                    }
+                    if (first != null)
+                    {
+                        fileActions = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(first));
+                        if (fileActions != null &amp;&amp; fileActions.Count != 0)
+                        {
+                            foreach (HistoryAction historyAction in fileActions)
+                            {
+                                if(historyAction.Background)
+                                {
+                                    actions.Add(historyAction);
+                                }
+                            }
+                            if (!doNotDelete)
+                            {
+                                StringBuilder sb = new StringBuilder();
+                                foreach (HistoryAction historyAction in fileActions)
+                                {
+                                    historyAction.Background = false;
+                                    sb.Append(FileStorageHelper.ActionToString(historyAction));
+                                    sb.Append(&#39;\n&#39;);
+                                }
+                                await RetryWriting(first, sb.ToString());
+                            }
+                        }
+                    }
+                }
+                catch (SEHException)
+                {
+                }
+                catch (FileNotFoundException)
+                {
+                }
+            }
+            return actions;
+        }
+
+        private async Task CreateEventMarker(StorageFolder folder)
+        {
+            StorageFile storageFile = await folder.CreateFileAsync(FOLDER_LOCK_FILE, CreationCollisionOption.OpenIfExists);
+            await FileIO.WriteTextAsync(storageFile, &quot;lock&quot;);
+        }
+
+        public async Task&lt;StorageFolder&gt; GetFolder(string path, bool parentOnly = false)
+        {
+            StorageFolder folder = await ApplicationData.Current.LocalFolder.GetFolderAsync(path);
+            if (parentOnly)
+            {
+                return folder;
+            }
+            IReadOnlyList&lt;StorageFolder&gt; readOnlyList = await folder.GetFoldersAsync();
+            foreach (StorageFolder storageFolder in readOnlyList)
+            {
+                try
+                {
+                    if (await storageFolder.GetFileAsync(FOLDER_LOCK_FILE) == null)
+                    {
+                        return storageFolder;
+                    }
+                }
+                catch (SEHException)
+                {
+                    return storageFolder;
+                }
+                catch (FileNotFoundException)
+                {
+                    return storageFolder;
+                }
+            }
+            return await folder.CreateFolderAsync(DateTime.UtcNow.ToString(&quot;yyyy-MM-dd-HHmmss&quot;), CreationCollisionOption.OpenIfExists);
+        }
+
+        private async Task&lt;IList&lt;HistoryEvent&gt;&gt; GetUndeliveredEvents(bool lockFolder)
+        {
+            IList&lt;HistoryEvent&gt; events = new List&lt;HistoryEvent&gt;();
+
+            foreach (string currentfolder in EVENT_FOLDERS)
+            {
+                StorageFolder folder = await GetFolder(currentfolder);
+                if (lockFolder)
+                {
+                    await CreateEventMarker(folder);
+                }
+                IReadOnlyList&lt;StorageFolder&gt; folders = await (await folder.GetParentAsync()).GetFoldersAsync();
+                foreach (StorageFolder storageFolder in folders)
+                {
+                    IReadOnlyList&lt;StorageFile&gt; files = await storageFolder.GetFilesAsync();
+
+                    //when no lock ignore unlocked folders
+                    if (!lockFolder &amp;&amp; files.FirstOrDefault(f =&gt; f.Name == FOLDER_LOCK_FILE) == null)
+                    {
+                        continue;
+                    }
+
+                    foreach (StorageFile file in files)
+                    {
+                        List&lt;HistoryEvent&gt; fileEvents = FileStorageHelper.EventsFromStrings(await FileIO.ReadLinesAsync(file));
+                        if (fileEvents != null)
+                        {
+                            foreach (HistoryEvent historyEvent in fileEvents)
+                            {
+                                if (!historyEvent.Delivered)
+                                {
+                                    events.Add(historyEvent);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return events;
+        }
+
+        private async Task&lt;IList&lt;HistoryAction&gt;&gt; GetUndeliveredActions(bool lockFolder)
+        {
+            IList&lt;HistoryAction&gt; actions = new List&lt;HistoryAction&gt;();
+
+            foreach (string currentfolder in ACTION_FOLDERS)
+            {
+                StorageFolder folder = await GetFolder(currentfolder);
+                if (lockFolder)
+                {
+                    await CreateEventMarker(folder);
+                }
+                StorageFolder parentFolder = (await folder.GetParentAsync());
+                IReadOnlyList&lt;StorageFolder&gt; folders = await parentFolder.GetFoldersAsync();
+                foreach (StorageFolder storageFolder in folders)
+                {
+                    try
+                    {
+                        IReadOnlyList&lt;StorageFile&gt; files = await storageFolder.GetFilesAsync();
+                        StorageFile first = null;
+                        foreach (var f in files)
+                        {
+                            if (f.Name == ACTIONS_FILE_NAME)
+                            {
+                                first = f;
+                                break;
+                            }
+                        }
+                        if (first != null)
+                        {
+                            List&lt;HistoryAction&gt; fileActions = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(first));
+                            if (fileActions != null)
+                            {
+                                foreach (HistoryAction historyAction in fileActions)
+                                {
+                                    if (!historyAction.Delivered)
+                                    {
+                                        actions.Add(historyAction);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch (SEHException)
+                    {
+                    }
+                    catch (FileNotFoundException)
+                    {
+                    }
+                }
+            }
+            return actions;
+        }
+
+
+        /// &lt;summary&gt;
+        /// Retry of append to file.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;file&quot;&gt;File to write.&lt;/param&gt;
+        /// &lt;param name=&quot;s&quot;&gt;String to write.&lt;/param&gt;
+        private static async Task RetryAppending(StorageFile file, string s)
+        {
+            int retry = 0;
+            int maxRetry = 6;
+            do
+            {
+                try
+                {
+                    await FileIO.AppendTextAsync(file, s);
+                    return;
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    //file is locked
+                }
+                finally
+                {
+                    retry++;
+                }
+                await Task.Delay((int) Math.Pow(2, retry + 1)*10);
+            } while (retry &lt; maxRetry);
+
+            throw new UnauthorizedAccessException(&quot;File was locked&quot;);
+        }
+        /// &lt;summary&gt;
+        /// Retry of writing to file.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;file&quot;&gt;File to write.&lt;/param&gt;
+        /// &lt;param name=&quot;s&quot;&gt;String to write.&lt;/param&gt;
+        private static async Task RetryWriting(StorageFile file, string s)
+        {
+            logger.Trace(&quot;RetryWriting &quot;+s);
+            int retry = 0;
+            int maxRetry = 6;
+            do
+            {
+                try
+                {
+//                    using (IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.ReadWrite))
+//                    {
+//                        await stream.WriteAsync(Encoding.UTF8.GetBytes(s).AsBuffer());
+//                        await stream.FlushAsync();
+//                    }
+                    await FileIO.WriteTextAsync(file, s);
+                    return;
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    //file is locked
+                }
+                finally
+                {
+                    retry++;
+                }
+                await Task.Delay((int)Math.Pow(2, retry + 1) * 10);
+            } while (retry &lt; maxRetry);
+
+            throw new UnauthorizedAccessException(&quot;File was locked&quot;);
+        }
+
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[415,66,415,92,0],[172,13,172,33,0],[173,13,173,14,0],[174,13,174,14,0],[195,13,195,33,0],[196,13,196,14,0],[197,13,197,14,0],[198,13,198,42,0],[199,13,199,14,0],[200,13,200,14,0],[273,13,273,33,0],[274,13,274,14,0],[275,17,275,29,0],[277,13,277,43,0],[278,13,278,14,0],[279,17,279,29,0],[353,17,353,37,0],[354,17,354,18,0],[355,17,355,18,0],[356,17,356,46,0],[357,17,357,18,0],[358,17,358,18,0],[382,21,382,22,0],[383,25,383,46,0],[386,17,386,37,0],[387,17,387,18,0],[388,21,388,42,0],[416,21,416,22,0],[417,25,417,34,0],[482,21,482,41,0],[483,21,483,22,0],[484,21,484,22,0],[485,21,485,50,0],[486,21,486,22,0],[487,21,487,22,0],[545,17,545,52,0],[546,17,546,18,0],[548,17,548,18,0],[553,17,553,68,0],[554,13,554,14,0],[554,15,554,40,0],[556,13,556,70,0],[44,34,44,60,1],[44,61,44,87,1],[41,9,41,117,1],[42,9,42,120,1],[23,9,23,112,1],[47,9,47,10,1],[48,13,48,44,1],[49,13,49,72,1],[50,13,50,116,1],[51,13,51,131,1],[52,13,52,131,1],[53,13,53,107,1],[54,13,54,106,1],[55,13,55,108,1],[56,13,56,107,1],[57,13,57,106,1],[58,13,58,108,1],[59,9,59,10,1],[62,9,62,10,1],[63,13,63,53,1],[64,9,64,10,1],[78,51,78,77,1],[105,51,105,77,1],[110,72,110,99,1],[68,9,68,10,1],[69,13,69,20,1],[69,46,69,59,1],[69,22,69,42,1],[70,13,70,14,1],[71,17,71,77,1],[72,17,72,87,1],[73,17,73,24,1],[73,57,73,64,1],[73,26,73,53,1],[74,17,74,18,1],[75,21,75,92,1],[78,21,78,51,1],[78,77,78,87,1],[79,21,79,22,1],[80,25,80,34,1],[82,21,82,55,1],[83,17,83,18,1],[73,54,73,56,1],[84,13,84,14,1],[69,43,69,45,1],[85,9,85,10,1],[89,9,89,10,1],[90,13,90,54,1],[91,9,91,10,1],[94,9,94,10,1],[95,13,95,20,1],[95,46,95,60,1],[95,22,95,42,1],[96,13,96,14,1],[97,17,97,77,1],[98,17,98,138,1],[99,17,99,87,1],[100,17,100,24,1],[100,57,100,64,1],[100,26,100,53,1],[101,17,101,18,1],[102,21,102,92,1],[105,21,105,51,1],[105,77,105,87,1],[106,21,106,22,1],[107,25,107,34,1],[110,21,110,72,1],[110,99,110,101,1],[111,21,111,44,1],[112,21,112,22,1],[113,25,113,133,1],[115,25,115,73,1],[116,25,116,32,1],[116,65,116,72,1],[116,34,116,61,1],[117,25,117,26,1],[118,29,118,60,1],[119,29,119,96,1],[120,25,120,26,1],[116,62,116,64,1],[121,25,121,92,1],[122,21,122,22,1],[123,21,123,55,1],[124,17,124,18,1],[100,54,100,56,1],[125,13,125,14,1],[95,43,95,45,1],[126,9,126,10,1],[129,9,129,10,1],[130,13,130,120,1],[131,13,131,118,1],[132,13,132,44,1],[133,13,133,78,1],[134,13,134,56,1],[135,9,135,10,1],[138,9,138,10,1],[139,13,139,118,1],[140,13,140,107,1],[141,13,141,72,1],[142,13,142,55,1],[143,9,143,10,1],[147,9,147,10,1],[148,13,148,50,1],[149,13,149,75,1],[150,13,150,79,1],[152,13,152,20,1],[152,53,152,60,1],[152,22,152,49,1],[153,13,153,14,1],[154,17,154,47,1],[155,17,155,18,1],[156,21,156,54,1],[157,17,157,18,1],[158,13,158,14,1],[152,50,152,52,1],[160,13,160,14,1],[161,17,161,89,1],[162,17,162,88,1],[163,17,163,137,1],[164,17,164,24,1],[164,57,164,75,1],[164,26,164,53,1],[165,17,165,18,1],[166,21,166,51,1],[167,21,167,22,1],[168,25,168,58,1],[169,21,169,22,1],[170,17,170,18,1],[164,54,164,56,1],[171,13,171,14,1],[175,13,175,42,1],[176,13,176,14,1],[177,13,177,14,1],[178,13,178,54,1],[179,13,179,34,1],[180,9,180,10,1],[183,9,183,10,1],[184,13,184,62,1],[185,9,185,10,1],[188,9,188,10,1],[190,13,190,14,1],[191,17,191,76,1],[192,17,192,120,1],[193,17,193,42,1],[194,13,194,14,1],[201,13,201,33,1],[202,9,202,10,1],[205,9,205,10,1],[206,13,206,102,1],[207,13,207,77,1],[209,13,209,85,1],[210,13,210,126,1],[211,13,211,159,1],[213,13,213,20,1],[213,83,213,103,1],[213,22,213,79,1],[214,13,214,14,1],[215,17,215,99,1],[216,17,216,18,1],[217,21,217,109,1],[218,21,218,39,1],[219,17,219,18,1],[220,13,220,14,1],[213,80,213,82,1],[222,13,222,28,1],[223,9,223,10,1],[226,9,226,10,1],[227,13,227,85,1],[228,13,228,126,1],[229,13,229,159,1],[231,13,231,33,1],[232,13,232,55,1],[233,13,233,20,1],[233,83,233,103,1],[233,22,233,79,1],[234,13,234,14,1],[235,17,235,50,1],[236,17,236,18,1],[237,21,237,57,1],[238,21,238,35,1],[239,17,239,18,1],[240,17,240,91,1],[241,13,241,14,1],[233,80,233,82,1],[242,13,242,24,1],[243,13,243,14,1],[244,17,244,61,1],[245,13,245,14,1],[247,9,247,10,1],[250,9,250,10,1],[251,13,251,126,1],[252,13,252,126,1],[253,13,253,122,1],[254,13,254,56,1],[256,9,256,10,1],[259,9,259,10,1],[260,13,260,86,1],[261,13,261,104,1],[262,13,262,111,1],[263,9,263,10,1],[266,9,266,10,1],[267,13,267,86,1],[268,13,268,104,1],[270,13,270,14,1],[271,17,271,103,1],[281,9,281,10,1],[284,9,284,10,1],[285,13,285,69,1],[287,13,287,85,1],[288,13,288,134,1],[290,13,290,135,1],[291,13,291,37,1],[292,13,292,14,1],[293,17,293,24,1],[293,57,293,68,1],[293,26,293,53,1],[294,17,294,18,1],[295,21,295,50,1],[296,21,296,22,1],[297,25,297,52,1],[298,21,298,22,1],[299,17,299,18,1],[293,54,293,56,1],[300,17,300,58,1],[301,17,301,18,1],[302,21,302,60,1],[303,21,303,28,1],[303,61,303,72,1],[303,30,303,57,1],[304,21,304,22,1],[305,25,305,58,1],[306,25,306,84,1],[307,25,307,41,1],[308,21,308,22,1],[303,58,303,60,1],[309,21,309,77,1],[310,17,310,18,1],[311,13,311,14,1],[312,13,312,83,1],[313,13,313,20,1],[313,53,313,60,1],[313,22,313,49,1],[314,13,314,14,1],[316,17,316,18,1],[317,21,317,92,1],[318,21,318,46,1],[319,21,319,28,1],[319,39,319,44,1],[319,30,319,35,1],[320,21,320,22,1],[321,25,321,57,1],[322,25,322,26,1],[323,29,323,39,1],[324,29,324,35,1],[326,21,326,22,1],[319,36,319,38,1],[327,21,327,39,1],[328,21,328,22,1],[329,25,329,112,1],[330,25,330,75,1],[331,25,331,26,1],[332,29,332,36,1],[332,69,332,80,1],[332,38,332,65,1],[333,29,333,30,1],[334,33,334,61,1],[335,33,335,34,1],[336,37,336,64,1],[337,33,337,34,1],[338,29,338,30,1],[332,66,332,68,1],[339,29,339,46,1],[340,29,340,30,1],[341,33,341,72,1],[342,33,342,40,1],[342,73,342,84,1],[342,42,342,69,1],[343,33,343,34,1],[344,37,344,70,1],[345,37,345,96,1],[346,37,346,53,1],[347,33,347,34,1],[342,70,342,72,1],[348,33,348,74,1],[349,29,349,30,1],[350,25,350,26,1],[351,21,351,22,1],[352,17,352,18,1],[359,13,359,14,1],[313,50,313,52,1],[360,13,360,28,1],[361,9,361,10,1],[364,9,364,10,1],[365,13,365,124,1],[366,13,366,62,1],[367,9,367,10,1],[370,9,370,10,1],[371,13,371,99,1],[372,13,372,28,1],[373,13,373,14,1],[374,17,374,31,1],[376,13,376,88,1],[377,13,377,20,1],[377,53,377,65,1],[377,22,377,49,1],[378,13,378,14,1],[380,17,380,18,1],[381,21,381,84,1],[385,17,385,18,1],[390,17,390,46,1],[391,17,391,18,1],[392,21,392,42,1],[394,13,394,14,1],[377,50,377,52,1],[395,13,395,136,1],[396,9,396,10,1],[399,9,399,10,1],[400,13,400,67,1],[402,13,402,20,1],[402,46,402,59,1],[402,22,402,42,1],[403,13,403,14,1],[404,17,404,71,1],[405,17,405,32,1],[406,17,406,18,1],[407,21,407,53,1],[408,17,408,18,1],[409,17,409,112,1],[410,17,410,24,1],[410,57,410,64,1],[410,26,410,53,1],[411,17,411,18,1],[412,21,412,92,1],[415,21,415,66,1],[415,92,415,102,1],[420,21,420,28,1],[420,50,420,55,1],[420,30,420,46,1],[421,21,421,22,1],[422,25,422,128,1],[423,25,423,48,1],[424,25,424,26,1],[425,29,425,36,1],[425,67,425,77,1],[425,38,425,63,1],[426,29,426,30,1],[427,33,427,61,1],[428,33,428,34,1],[429,37,429,62,1],[430,33,430,34,1],[431,29,431,30,1],[425,64,425,66,1],[432,25,432,26,1],[433,21,433,22,1],[420,47,420,49,1],[434,17,434,18,1],[410,54,410,56,1],[435,13,435,14,1],[402,43,402,45,1],[437,13,437,27,1],[438,9,438,10,1],[441,9,441,10,1],[442,13,442,70,1],[444,13,444,20,1],[444,46,444,60,1],[444,22,444,42,1],[445,13,445,14,1],[446,17,446,71,1],[447,17,447,32,1],[448,17,448,18,1],[449,21,449,53,1],[450,17,450,18,1],[451,17,451,78,1],[452,17,452,93,1],[453,17,453,24,1],[453,57,453,64,1],[453,26,453,53,1],[454,17,454,18,1],[456,21,456,22,1],[457,25,457,96,1],[458,25,458,50,1],[459,25,459,32,1],[459,43,459,48,1],[459,34,459,39,1],[460,25,460,26,1],[461,29,461,61,1],[462,29,462,30,1],[463,33,463,43,1],[464,33,464,39,1],[466,25,466,26,1],[459,40,459,42,1],[467,25,467,43,1],[468,25,468,26,1],[469,29,469,136,1],[470,29,470,53,1],[471,29,471,30,1],[472,33,472,40,1],[472,73,472,84,1],[472,42,472,69,1],[473,33,473,34,1],[474,37,474,66,1],[475,37,475,38,1],[476,41,476,68,1],[477,37,477,38,1],[478,33,478,34,1],[472,70,472,72,1],[479,29,479,30,1],[480,25,480,26,1],[481,21,481,22,1],[488,17,488,18,1],[453,54,453,56,1],[489,13,489,14,1],[444,43,444,45,1],[490,13,490,28,1],[491,9,491,10,1],[500,9,500,10,1],[501,13,501,27,1],[502,13,502,30,1],[504,13,504,14,1],[506,17,506,18,1],[507,21,507,59,1],[508,21,508,28,1],[510,17,510,52,1],[511,17,511,18,1],[513,17,513,18,1],[515,17,515,18,1],[516,21,516,29,1],[517,17,517,18,1],[518,17,518,67,1],[519,13,519,14,1],[519,15,519,40,1],[521,13,521,70,1],[522,9,522,10,1],[529,9,529,10,1],[530,13,530,45,1],[531,13,531,27,1],[532,13,532,30,1],[534,13,534,14,1],[536,17,536,18,1],[542,21,542,58,1],[543,21,543,28,1],[550,17,550,18,1],[551,21,551,29,1],[552,17,552,18,1],[557,9,557,10,1]]);
+    </script>
+  </body>
+</html>

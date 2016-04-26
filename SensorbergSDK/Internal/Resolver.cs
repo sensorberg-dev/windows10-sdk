@@ -1,14 +1,16 @@
 ﻿using SensorbergSDK.Internal;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MetroLog;
+using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDK
 {
     /// <summary>
     /// Manages resolving the actions associated to beacon events.
     /// </summary>
-	public sealed class Resolver
+	public sealed class Resolver: IResolver
     {
         private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<Resolver>();
         public event EventHandler<ResolvedActionsEventArgs> ActionsResolved;
@@ -28,7 +30,7 @@ namespace SensorbergSDK
             _requestQueue = new RequestQueue();
         }
 
-        public void ClearRequests()
+        public void Dispose()
         {
             _requestQueue.Clear();
         }
@@ -38,7 +40,7 @@ namespace SensorbergSDK
         /// </summary>
         /// <param name="beaconEventArgs">The beacon event details.</param>
         /// <returns>The request ID.</returns>
-        public int CreateRequest(BeaconEventArgs beaconEventArgs)
+        public async Task<int> CreateRequest(BeaconEventArgs beaconEventArgs)
         {
             int requestId = SDKData.Instance.NextId();
             logger.Debug("Resolver: Beacon " + beaconEventArgs.Beacon.Id1 + " " + beaconEventArgs.Beacon.Id2 + " " + beaconEventArgs.Beacon.Id3+" ---> Request: "+requestId);

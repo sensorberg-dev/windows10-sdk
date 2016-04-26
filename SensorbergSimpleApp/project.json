@@ -1,10 +1,7 @@
 ﻿{
   "dependencies": {
-    "HockeySDK.WINRT": "2.2.2",
-    "Microsoft.Diagnostics.Tracing.EventSource.Redist": "1.1.25",
-    "Microsoft.NETCore.UniversalWindowsPlatform": "5.0.0",
-    "System.Numerics.Vectors": "4.1.0",
-    "System.Numerics.Vectors.WindowsRuntime": "4.0.0"
+    "HockeySDK.WINRT": "2.2.3",
+    "Microsoft.NETCore.UniversalWindowsPlatform": "5.1.0"
   },
   "frameworks": {
     "uap10.0": {}

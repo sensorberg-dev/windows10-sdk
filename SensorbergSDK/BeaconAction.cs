@@ -289,16 +289,6 @@ namespace SensorbergSDK
             return stringBuilder.ToString();
         }
 
-//        /// <summary>
-//        /// Creates a toast notification instance with populates it with data associated to this
-//        /// beacon action.
-//        /// </summary>
-//        /// <returns>A newly created toast notification.</returns>
-//        public ToastNotification ToToastNotification()
-//        {
-//            return NotificationUtils.CreateToastNotification(this);
-//        }
-
         /// <summary>
         /// Creates a message dialog based on the data of this beacon action.
         /// Note that no commands is added to the created dialog.

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdktests\mocks\mocklayoutmanager.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 09.03.2016
+// 
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Windows.Foundation;
+using SensorbergSDK.Internal;
+using SensorbergSDK.Services;
+
+namespace SensorbergSDKTests.Mocks
+{
+    public class MockLayoutManager:ILayoutManager
+    {
+        public IAsyncOperation&lt;RequestResultState&gt; ExecuteRequestAsync(Request currentRequest)
+        {
+            FailToken token = new FailToken();
+            if (FindOneAction)
+            {
+                currentRequest.ResolvedActions = new List&lt;ResolvedAction&gt;() {new ResolvedAction()};
+            }
+            ShouldFail?.Invoke(currentRequest, token);
+            return Task.FromResult&lt;RequestResultState&gt;(token.Fail ? RequestResultState.Failed : RequestResultState.Success).AsAsyncOperation();
+        }
+
+        public async Task InvalidateLayout()
+        {
+        }
+
+        public bool IsLayoutValid { get; }
+        public Layout Layout { get; set; }
+        public bool FindOneAction { get; set; }
+
+        public IAsyncOperation&lt;bool&gt; VerifyLayoutAsync(bool b = false)
+        {
+            return Task.FromResult&lt;bool&gt;(true).AsAsyncOperation();
+        }
+
+        public event EventHandler&lt;bool&gt; LayoutValidityChanged;
+        public ResolvedAction GetAction(string actionId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public event Action&lt;Request,FailToken&gt; ShouldFail;
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[33,37,33,41,0],[34,32,34,36,0],[34,37,34,41,0],[38,9,38,10,0],[39,13,39,67,0],[40,9,40,10,0],[44,9,44,10,0],[45,13,45,49,0],[30,9,30,10,0],[31,9,31,10,0],[19,9,19,10,1],[20,13,20,47,1],[21,13,21,31,1],[22,13,22,14,1],[23,17,23,100,1],[24,13,24,14,1],[25,13,25,55,1],[26,13,26,144,1],[27,9,27,10,1],[35,37,35,41,1],[35,42,35,46,1]]);
+    </script>
+  </body>
+</html>

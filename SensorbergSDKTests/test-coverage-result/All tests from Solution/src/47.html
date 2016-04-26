@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\transport\resolvedaction.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
+using Windows.Data.Json;
+
+namespace SensorbergSDK.Internal
+{
+    public sealed class Timeframe
+    {
+        public DateTimeOffset ?Start
+        {
+            get;
+            set;
+        }
+        public DateTimeOffset ?End
+        {
+            get;
+            set;
+        }
+
+        private bool Equals(Timeframe other)
+        {
+            return Start.Equals(other.Start) &amp;&amp; End.Equals(other.End);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            return obj is Timeframe &amp;&amp; Equals((Timeframe) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (Start.GetHashCode()*397) ^ End.GetHashCode();
+            }
+        }
+
+        public static bool operator ==(Timeframe left, Timeframe right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(Timeframe left, Timeframe right)
+        {
+            return !Equals(left, right);
+        }
+    }
+
+    /// &lt;summary&gt;
+    /// Internal class that represents a single action coming from the server. 
+    /// Class holds a BeaconAction object which exposes public API for the application. 
+    /// &lt;/summary&gt;
+    /// 
+    [DataContract]
+    public sealed class ResolvedAction
+    {
+        private static readonly string KeyActionUuid = &quot;eid&quot;;
+        private static readonly string KeyBeacons = &quot;beacons&quot;;
+        private static readonly string KeyContent = &quot;content&quot;;
+        private static readonly string KeyDelayTime = &quot;delay&quot;;
+        private static readonly string KeyTrigger = &quot;trigger&quot;;
+        private static readonly string KeyType = &quot;type&quot;;
+        private static readonly string KeySendOnlyOnce = &quot;sendOnlyOnce&quot;;
+        private static readonly string KeysupressionTime = &quot;suppressionTime&quot;;
+        private static readonly string KeyReportImmediately = &quot;reportImmediately&quot;;
+        private static readonly string KeyTimeframes = &quot;timeframes&quot;;
+        private static readonly string KeyStart = &quot;start&quot;;
+        private static readonly string KeyEnd = &quot;end&quot;;
+        private ICollection&lt;string&gt; beaconPids;
+
+        [DataMember]
+        public BeaconAction BeaconAction
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        [DataMember]
+        public ICollection&lt;string&gt; BeaconPids
+        {
+            [DebuggerStepThrough]
+            get { return beaconPids; }
+            [DebuggerStepThrough]
+            set { beaconPids = value; }
+        }
+
+        [DataMember]
+        public BeaconEventType EventTypeDetectedByDevice
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        [DataMember]
+        public long Delay
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        [DataMember]
+        public bool SendOnlyOnce
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        [DataMember]
+        public int SupressionTime
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        [DataMember]
+        public bool ReportImmediately
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        [DataMember]
+        public IList&lt;Timeframe&gt; Timeframes
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        public ResolvedAction()
+        {
+            BeaconPids = new HashSet&lt;string&gt;();
+            Timeframes = new List&lt;Timeframe&gt;();
+        }
+
+        /// &lt;summary&gt;
+        /// Parses and constructs a ResolvedAction instance from the given JSON data.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;contentJson&quot;&gt;&lt;/param&gt;
+        /// &lt;returns&gt;A newly created ResolvedAction instance.&lt;/returns&gt;
+        public static ResolvedAction ResolvedActionFromJsonObject(JsonObject contentJson)
+        {
+            var resolvedAction = new ResolvedAction();
+
+            var obj = contentJson.GetObject();
+            var type = (int)obj.GetNamedValue(KeyType).GetNumber();
+            var actionUUID = obj.GetNamedString(KeyActionUuid);
+            var trigger = (int)obj.GetNamedNumber(KeyTrigger);
+            var delaySeconds = JsonHelper.Optional(obj, KeyDelayTime, 0);
+            var jsonContent = obj.GetNamedObject(KeyContent);
+            var sendOnlyOnce = JsonHelper.OptionalBoolean(obj, KeySendOnlyOnce, false);
+            var beacons = contentJson.GetNamedArray(KeyBeacons);
+            var supressionTime = JsonHelper.Optional(obj, KeysupressionTime, -1);
+            var reportImmediately = JsonHelper.OptionalBoolean(obj, KeyReportImmediately, false);
+
+            // TimeFrames
+            if (obj.ContainsKey(KeyTimeframes))
+            {
+                if (obj.GetNamedValue(KeyTimeframes).ValueType == JsonValueType.Array)
+                {
+                    var keyframes = obj.GetNamedArray(KeyTimeframes);
+
+                    foreach (var frame in keyframes)
+                    {
+                        if (frame.ValueType == JsonValueType.Object)
+                        {
+                            string start = JsonHelper.OptionalString(frame.GetObject(), KeyStart);
+                            string end = JsonHelper.OptionalString(frame.GetObject(), KeyEnd);
+                            DateTimeOffset? startOffset = null;
+                            DateTimeOffset? endOffset = null;
+
+                            var newFrame = new Timeframe();
+
+                            if (start.Length &gt; 5)
+                            {
+                                startOffset = DateTimeOffset.Parse(start);
+                            }
+                            if (end.Length &gt; 5)
+                            {
+                                endOffset = DateTimeOffset.Parse(end);
+                            }
+
+                            resolvedAction.Timeframes.Add(new Timeframe() { Start = startOffset, End = endOffset });
+                        }
+                    }
+                }
+            }
+
+            foreach (JsonValue resp in beacons)
+            {
+                if (resp.ValueType == JsonValueType.String)
+                {
+                    resolvedAction.BeaconPids.Add(resp.GetString());
+                }
+            }
+
+            BeaconAction action = ActionFactory.CreateBeaconAction(type, jsonContent, actionUUID);
+            resolvedAction.BeaconAction = action;
+            resolvedAction.EventTypeDetectedByDevice = (BeaconEventType)trigger;
+            resolvedAction.Delay = delaySeconds;
+            resolvedAction.SendOnlyOnce = sendOnlyOnce;
+            resolvedAction.SupressionTime = supressionTime;
+            resolvedAction.ReportImmediately = reportImmediately;
+
+            return resolvedAction;
+        }
+
+        /// &lt;summary&gt;
+        /// Serializes the given ResolvedAction instance.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;resolvedAction&quot;&gt;The instance to serialize.&lt;/param&gt;
+        /// &lt;returns&gt;The serialized instance as string.&lt;/returns&gt;
+        public static string Serialize(ResolvedAction resolvedAction)
+        {
+            MemoryStream stream = new MemoryStream();
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ResolvedAction));
+            serializer.WriteObject(stream, resolvedAction);
+            stream.Position = 0;
+            StreamReader streamReader = new StreamReader(stream);
+            return streamReader.ReadToEnd();
+        }
+
+        /// &lt;summary&gt;
+        /// Deserializes the given serialized ResolvedAction.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;serializedResolvedAction&quot;&gt;The serialized ResolvedAction as string.&lt;/param&gt;
+        /// &lt;returns&gt;The deserialized ResolvedAction instance.&lt;/returns&gt;
+        public static ResolvedAction Deserialize(string serializedResolvedAction)
+        {
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ResolvedAction));
+            var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(serializedResolvedAction));
+            return (ResolvedAction)serializer.ReadObject(stream);
+        }
+
+        /// &lt;summary&gt;
+        /// 
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;time&quot;&gt;&lt;/param&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        public bool IsInsideTimeframes(DateTimeOffset time)
+        {
+            if (Timeframes.Count == 0)
+            {
+                // No timeframes specified
+                return true;
+            }
+
+            foreach (var frame in Timeframes)
+            {
+                // If time is inside any Timeframes then we return true
+                bool start = false;
+                bool end = false;
+
+                if (frame.Start != null)
+                {
+                    if (frame.Start &lt; time)
+                    {
+                        start = true;
+                    }
+                }
+                else
+                {
+                    // No start set so we are in it
+                    start = true;
+                }
+
+                if (frame.End != null)
+                {
+                    if (frame.End &gt; time)
+                    {
+                        end = true;
+                    }
+                }
+                else
+                {
+                    end = true;
+                }
+
+                if (start &amp;&amp; end)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool Equals(ResolvedAction other)
+        {
+            return /*Equals(beaconPids, other.beaconPids)*/ (!beaconPids?.Except(other.beaconPids).GetEnumerator().MoveNext()).Value &amp;&amp; Equals(BeaconAction.ToString(), other.BeaconAction.ToString()) &amp;&amp; EventTypeDetectedByDevice == other.EventTypeDetectedByDevice &amp;&amp;
+                   Delay == other.Delay &amp;&amp; SendOnlyOnce == other.SendOnlyOnce &amp;&amp; SupressionTime == other.SupressionTime &amp;&amp; ReportImmediately == other.ReportImmediately &amp;&amp;
+                   /*Equals(Timeframes, other.Timeframes)*/ (!Timeframes?.Except(other.Timeframes).GetEnumerator().MoveNext()).Value;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) { return false;}
+            if (ReferenceEquals(this, obj)) { return true;}
+            return obj is ResolvedAction &amp;&amp; Equals((ResolvedAction) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (beaconPids != null ? beaconPids.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (BeaconAction != null ? BeaconAction.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (int) EventTypeDetectedByDevice;
+                hashCode = (hashCode*397) ^ Delay.GetHashCode();
+                hashCode = (hashCode*397) ^ SendOnlyOnce.GetHashCode();
+                hashCode = (hashCode*397) ^ SupressionTime;
+                hashCode = (hashCode*397) ^ ReportImmediately.GetHashCode();
+                hashCode = (hashCode*397) ^ (Timeframes != null ? Timeframes.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(ResolvedAction left, ResolvedAction right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(ResolvedAction left, ResolvedAction right)
+        {
+            return !Equals(left, right);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[32,45,32,58,0],[33,45,33,57,0],[46,9,46,10,0],[47,13,47,40,0],[48,9,48,10,0],[51,9,51,10,0],[52,13,52,41,0],[53,9,53,10,0],[263,13,263,14,0],[265,17,265,29,0],[282,17,282,18,0],[284,21,284,34,0],[285,17,285,18,0],[317,45,317,46,0],[317,47,317,60,0],[318,45,318,46,0],[318,47,318,59,0],[323,9,323,10,0],[325,13,325,14,0],[326,17,326,84,0],[327,17,327,101,0],[328,17,328,77,0],[329,17,329,65,0],[330,17,330,72,0],[331,17,331,60,0],[332,17,332,77,0],[333,17,333,97,0],[334,17,334,33,0],[336,9,336,10,0],[339,9,339,10,0],[340,13,340,40,0],[341,9,341,10,0],[16,13,16,17,1],[17,13,17,17,1],[21,13,21,17,1],[22,13,22,17,1],[26,9,26,10,1],[27,13,27,71,1],[28,9,28,10,1],[31,9,31,10,1],[32,13,32,44,1],[33,13,33,44,1],[34,13,34,64,1],[35,9,35,10,1],[38,9,38,10,1],[40,13,40,14,1],[41,17,41,70,1],[43,9,43,10,1],[81,13,82,17,1],[83,13,84,17,1],[91,17,91,18,1],[91,19,91,37,1],[91,38,91,39,1],[93,17,93,18,1],[93,19,93,38,1],[93,39,93,40,1],[99,13,100,17,1],[101,13,102,17,1],[108,13,109,17,1],[110,13,111,17,1],[117,13,118,17,1],[119,13,120,17,1],[126,13,127,17,1],[128,13,129,17,1],[135,13,136,17,1],[137,13,138,17,1],[144,13,145,17,1],[146,13,147,17,1],[150,9,150,32,1],[151,9,151,10,1],[152,13,152,48,1],[153,13,153,48,1],[154,9,154,10,1],[162,9,162,10,1],[163,13,163,55,1],[165,13,165,47,1],[166,13,166,68,1],[167,13,167,64,1],[168,13,168,63,1],[169,13,169,74,1],[170,13,170,62,1],[171,13,171,88,1],[172,13,172,65,1],[173,13,173,82,1],[174,13,174,98,1],[177,13,177,48,1],[178,13,178,14,1],[179,17,179,87,1],[180,17,180,18,1],[181,21,181,70,1],[183,21,183,28,1],[183,43,183,52,1],[183,30,183,39,1],[184,21,184,22,1],[185,25,185,69,1],[186,25,186,26,1],[187,29,187,99,1],[188,29,188,95,1],[189,29,189,64,1],[190,29,190,62,1],[192,29,192,60,1],[194,29,194,50,1],[195,29,195,30,1],[196,33,196,75,1],[197,29,197,30,1],[198,29,198,48,1],[199,29,199,30,1],[200,33,200,71,1],[201,29,201,30,1],[203,29,203,117,1],[204,25,204,26,1],[205,21,205,22,1],[183,40,183,42,1],[206,17,206,18,1],[207,13,207,14,1],[209,13,209,20,1],[209,40,209,47,1],[209,22,209,36,1],[210,13,210,14,1],[211,17,211,60,1],[212,17,212,18,1],[213,21,213,69,1],[214,17,214,18,1],[215,13,215,14,1],[209,37,209,39,1],[217,13,217,99,1],[218,13,218,50,1],[219,13,219,81,1],[220,13,220,49,1],[221,13,221,56,1],[222,13,222,60,1],[223,13,223,66,1],[225,13,225,35,1],[226,9,226,10,1],[234,9,234,10,1],[235,13,235,54,1],[236,13,236,108,1],[237,13,237,60,1],[238,13,238,33,1],[239,13,239,66,1],[240,13,240,45,1],[241,9,241,10,1],[249,9,249,10,1],[250,13,250,108,1],[251,13,251,105,1],[252,13,252,66,1],[253,9,253,10,1],[261,9,261,10,1],[262,13,262,39,1],[268,13,268,20,1],[268,35,268,45,1],[268,22,268,31,1],[269,13,269,14,1],[271,17,271,36,1],[272,17,272,34,1],[274,17,274,41,1],[275,17,275,18,1],[276,21,276,44,1],[277,21,277,22,1],[278,25,278,38,1],[279,21,279,22,1],[280,17,280,18,1],[287,17,287,39,1],[288,17,288,18,1],[289,21,289,42,1],[290,21,290,22,1],[291,25,291,36,1],[292,21,292,22,1],[293,17,293,18,1],[295,17,295,18,1],[296,21,296,32,1],[297,17,297,18,1],[299,17,299,34,1],[300,17,300,18,1],[301,21,301,33,1],[303,13,303,14,1],[268,32,268,34,1],[305,13,305,26,1],[306,9,306,10,1],[309,9,309,10,1],[310,13,312,134,1],[313,9,313,10,1],[316,9,316,10,1],[317,13,317,44,1],[318,13,318,44,1],[319,13,319,74,1],[320,9,320,10,1],[344,9,344,10,1],[345,13,345,41,1],[346,9,346,10,1],[64,9,64,62,1],[65,9,65,63,1],[66,9,66,63,1],[67,9,67,63,1],[68,9,68,63,1],[69,9,69,57,1],[70,9,70,73,1],[71,9,71,78,1],[72,9,72,83,1],[73,9,73,69,1],[74,9,74,59,1],[75,9,75,55,1]]);
+    </script>
+  </body>
+</html>

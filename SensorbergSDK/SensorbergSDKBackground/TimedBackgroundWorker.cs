@@ -1,4 +1,5 @@
 ﻿using Windows.ApplicationModel.Background;
+using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDKBackground
 {
@@ -9,6 +10,7 @@ namespace SensorbergSDKBackground
     public class TimedBackgroundWorker 
     {
         protected BackgroundEngine BackgroundEngine { get; }
+        protected BackgroundTaskDeferral Deferral { get; set; }
 
         public TimedBackgroundWorker()
         {
@@ -19,13 +21,18 @@ namespace SensorbergSDKBackground
         public async void Run(IBackgroundTaskInstance taskInstance)
         {
             System.Diagnostics.Debug.WriteLine("TimedBackgroundWorker.Run()");
-            await BackgroundEngine.InitializeAsync(taskInstance);
+            Deferral = taskInstance.GetDeferral();
+
+            await BackgroundEngine.InitializeAsync();
             await BackgroundEngine.ProcessDelayedActionsAsync();
         }
 
-        private void OnFinished(object sender, int e)
+        private void OnFinished(object sender, BackgroundWorkerType e)
         {
             System.Diagnostics.Debug.WriteLine("TimedBackgroundWorker.OnFinished()");
+            Deferral?.Complete();
+            BackgroundEngine.Finished -= OnFinished;
+            BackgroundEngine.Dispose();
         }
     }
 }

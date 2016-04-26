@@ -16,7 +16,7 @@ namespace SensorbergSDK.Internal
     public class LayoutManager : ILayoutManager
     {
         public const string KeyLayoutHeaders = "layout_headers";
-        private const string KeyLayoutContent = "layout_content.cache"; // Cache file
+        public const string KeyLayoutContent = "layout_content.cache"; // Cache file
         public const string KeyLayoutRetrievedTime = "layout_retrieved_time";
 
         /// <summary>
@@ -149,11 +149,10 @@ namespace SensorbergSDK.Internal
                 if (beaconId1s.Count > 0)
                 {
                     hash = beaconId1s[0];
-                    string currentUuid = string.Empty;
 
                     for (int i = 1; i < beaconId1s.Count; ++i)
                     {
-                        currentUuid = beaconId1s[i];
+                        var currentUuid = beaconId1s[i];
 
                         for (int j = 0; j < currentUuid.Length; ++j)
                         {

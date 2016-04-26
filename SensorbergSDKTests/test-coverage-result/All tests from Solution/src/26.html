@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\advertiser.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Diagnostics;
+using Windows.Devices.Bluetooth.Advertisement;
+using MetroLog;
+
+namespace SensorbergSDK
+{
+    /// &lt;summary&gt;
+    /// Manages publishing BLE advertisements.
+    /// &lt;/summary&gt;
+	public sealed class Advertiser
+    {
+        private static ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger&lt;Advertiser&gt;();
+        private const int DefaultMeasuredPower = -59;
+        private BluetoothLEAdvertisementPublisher _advertisementPublisher;
+        private Beacon _beacon;
+
+        public string BeaconId1
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        public ushort ManufacturerId
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        public ushort BeaconCode
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        public ushort BeaconId2
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        public ushort BeaconId3
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        public bool IsStarted
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            private set;
+        }
+
+
+        /// &lt;summary&gt;
+        /// Starts advertizing based on the set values (beacon ID 1, ID 2 and ID 3).
+        /// Note that this method does not validate the values and will throw exception, if the
+        /// values are invalid.
+        /// &lt;/summary&gt;
+            public void Start()
+            {
+                if (!IsStarted)
+                {
+                _beacon = new Beacon();
+                _beacon.Id1 = BeaconId1;
+                _beacon.ManufacturerId = ManufacturerId;
+                _beacon.Code = BeaconCode;
+                _beacon.Id2 = BeaconId2;
+                _beacon.Id3 = BeaconId3;
+                _beacon.MeasuredPower = DefaultMeasuredPower;
+
+                _advertisementPublisher = new BluetoothLEAdvertisementPublisher();
+               
+                BluetoothLEAdvertisementDataSection dataSection = BeaconFactory.BeaconToSecondDataSection(_beacon);
+                logger.Debug(&quot;Advertiser.Start(): &quot; + BeaconFactory.DataSectionToRawString(dataSection));
+                _advertisementPublisher.Advertisement.DataSections.Add(dataSection);
+                _advertisementPublisher.Start();
+
+                IsStarted = true;
+            }
+        }
+
+        public void Stop()
+        {
+            if (IsStarted)
+            {
+                _advertisementPublisher.Stop();
+                _advertisementPublisher = null;
+                IsStarted = false;
+            }
+            logger.Debug(&quot;Advertiser.Stoped&quot;);
+        }
+	}
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[19,13,20,17,0],[21,13,22,17,0],[27,13,28,17,0],[29,13,30,17,0],[35,13,36,17,0],[37,13,38,17,0],[43,13,44,17,0],[45,13,46,17,0],[51,13,52,17,0],[53,13,54,17,0],[59,13,60,17,0],[61,13,62,25,0],[72,13,72,14,0],[73,17,73,32,0],[74,17,74,18,0],[75,17,75,40,0],[76,17,76,41,0],[77,17,77,57,0],[78,17,78,43,0],[79,17,79,41,0],[80,17,80,41,0],[81,17,81,62,0],[83,17,83,83,0],[85,17,85,116,0],[86,17,86,106,0],[87,17,87,85,0],[88,17,88,49,0],[90,17,90,34,0],[91,13,91,14,0],[92,9,92,10,0],[95,9,95,10,0],[96,13,96,27,0],[97,13,97,14,0],[98,17,98,48,0],[99,17,99,48,0],[100,17,100,35,0],[101,13,101,14,0],[102,13,102,47,0],[103,9,103,10,0],[12,9,12,101,0]]);
+    </script>
+  </body>
+</html>
