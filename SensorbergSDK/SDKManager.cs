@@ -24,7 +24,6 @@ namespace SensorbergSDK
 
         private readonly BackgroundTaskManager _backgroundTaskManager;
         private Timer _startScannerTimer;
-        private bool _scannerShouldBeRunning;
 
 
         /// <summary>
@@ -362,7 +361,7 @@ namespace SensorbergSDK
                 return;
             }
 
-            if (_scannerShouldBeRunning)
+            if (Configuration.AutoStartScanner)
             {
                 StopScanner();
                 StartScanner();
@@ -433,7 +432,6 @@ namespace SensorbergSDK
 
             if (Scanner.Status != ScannerStatus.Started)
             {
-                _scannerShouldBeRunning = true;
                 Scanner.BeaconEvent += OnBeaconEventAsync;
                 InitializeSettingsAsync().ContinueWith(task =>
                     {
@@ -447,7 +445,6 @@ namespace SensorbergSDK
         /// </summary>
         public void StopScanner()
         {
-            _scannerShouldBeRunning = false;
             Scanner.StatusChanged -= OnScannerStatusChanged;
 
             if (Scanner.Status == ScannerStatus.Started)
@@ -505,7 +502,7 @@ namespace SensorbergSDK
             {
                 Scanner.BeaconEvent -= OnBeaconEventAsync;
 
-                if (_scannerShouldBeRunning)
+                if (Configuration.AutoStartScanner)
                 {
                     _startScannerTimer = new Timer(StartScannerTimerCallback, null, StartScannerIntervalInMilliseconds, Timeout.Infinite);
                 }
@@ -520,7 +517,7 @@ namespace SensorbergSDK
                 _startScannerTimer = null;
             }
 
-            if (_scannerShouldBeRunning)
+            if (Configuration.AutoStartScanner)
             {
                 StartScanner();
             }
