@@ -33,7 +33,6 @@ namespace SensorbergSDK.Internal.Services
 
         public StorageService(bool createdOnForeground = true)
         {
-            //Ensures that database tables are created
             Storage = new FileStorage() {Background = !createdOnForeground};
             historyActionsCache = new Dictionary<string, IList<HistoryAction>>();
         }
@@ -273,6 +272,14 @@ namespace SensorbergSDK.Internal.Services
                 historyActionsCache[uuid].Add(action);
                 await Storage.SaveHistoryAction(action);
             }
+            catch (UnauthorizedAccessException)
+            {
+                await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, --retry);
+            }
+            catch (NotStoredException)
+            {
+                await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, --retry);
+            }
             catch (FileNotFoundException)
             {
                 await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, --retry);
@@ -293,6 +300,14 @@ namespace SensorbergSDK.Internal.Services
             try
             {
                 await Storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent(pid, timestamp, eventType));
+            }
+            catch (UnauthorizedAccessException)
+            {
+                await SaveHistoryEventRetry(pid, timestamp, eventType, --retry);
+            }
+            catch (NotStoredException)
+            {
+                await SaveHistoryEventRetry(pid, timestamp, eventType, --retry);
             }
             catch (FileNotFoundException)
             {
@@ -345,7 +360,15 @@ namespace SensorbergSDK.Internal.Services
             }
             try
             {
-            await Storage.SaveDelayedAction(action, dueTime, beaconPid, eventTypeDetectedByDevice);
+                await Storage.SaveDelayedAction(action, dueTime, beaconPid, eventTypeDetectedByDevice);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice, --retry);
+            }
+            catch (NotStoredException)
+            {
+                await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice, --retry);
             }
             catch (FileNotFoundException)
             {
@@ -372,6 +395,14 @@ namespace SensorbergSDK.Internal.Services
             try
             {
                 await Storage.SaveBeaconEventState(pid, enter);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                await SaveBeaconEventStateRetry(pid, enter, --retry);
+            }
+            catch (NotStoredException)
+            {
+                await SaveBeaconEventStateRetry(pid, enter, --retry);
             }
             catch (FileNotFoundException)
             {

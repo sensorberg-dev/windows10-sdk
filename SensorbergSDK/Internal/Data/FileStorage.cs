@@ -518,7 +518,7 @@ namespace SensorbergSDK.Internal.Data
                 await Task.Delay((int) Math.Pow(2, retry + 1)*10);
             } while (retry < maxRetry);
 
-            throw new UnauthorizedAccessException("File was locked");
+            throw new NotStoredException();
         }
         /// <summary>
         /// Retry of writing to file.
@@ -553,7 +553,7 @@ namespace SensorbergSDK.Internal.Data
                 await Task.Delay((int)Math.Pow(2, retry + 1) * 10);
             } while (retry < maxRetry);
 
-            throw new UnauthorizedAccessException("File was locked");
+            throw new NotStoredException();
         }
 
     }
