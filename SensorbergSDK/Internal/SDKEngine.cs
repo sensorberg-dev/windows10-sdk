@@ -274,7 +274,8 @@ namespace SensorbergSDK.Internal
 
         private async void OnBeaconActionResolvedAsync(object sender, ResolvedActionsEventArgs e)
         {
-            if (e == null)
+            UnresolvedActionCount--;
+            if (e == null || e.ResolvedActions == null || e.ResolvedActions.Count == 0)
             {
                 return;
             }
@@ -306,7 +307,6 @@ namespace SensorbergSDK.Internal
                     await ExecuteActionAsync(action, e.BeaconPid, e.BeaconEventType);
                 }
             }
-            UnresolvedActionCount--;
         }
 
         /// <summary>

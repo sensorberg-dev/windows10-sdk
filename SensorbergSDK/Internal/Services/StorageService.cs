@@ -25,7 +25,7 @@ namespace SensorbergSDK.Internal.Services
         private const string KeyLayoutContent = "layout_content.cache"; // Cache file
         private const string KeyLayoutRetrievedTime = "layout_retrieved_time";
         private readonly Dictionary<string, IList<HistoryAction>> historyActionsCache;
-        private const int MAX_RETRIES= 5;
+        private const int MAX_RETRIES = 2;
 
         public int RetryCount { get; set; } = 3;
 
@@ -56,12 +56,11 @@ namespace SensorbergSDK.Internal.Services
 
             if (responseMessage != null && responseMessage.IsSuccess)
             {
-
                 return string.IsNullOrEmpty(responseMessage.Content) || responseMessage.Content.Length < Constants.MinimumLayoutContentLength
                     ? ApiKeyValidationResult.Invalid
                     : ApiKeyValidationResult.Valid;
             }
-            return responseMessage.NetworResult == NetworkResult.NetworkError ? ApiKeyValidationResult.NetworkError : ApiKeyValidationResult.UnknownError;
+            return responseMessage?.NetworResult == NetworkResult.NetworkError ? ApiKeyValidationResult.NetworkError : ApiKeyValidationResult.UnknownError;
         }
 
 
