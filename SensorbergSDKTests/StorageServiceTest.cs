@@ -10,6 +10,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
@@ -262,6 +263,49 @@ namespace SensorbergSDKTests
             beaconActions = await storageService.GetActionsForForeground();
 
             Assert.AreEqual(4, beaconActions.Count, "Not 4 actions found");
+        }
+
+        [TestMethod]
+        public async Task TestFileLock()
+        {
+            IStorageService service = ServiceManager.StorageService;
+            await service.SaveHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter);
+            await service.SaveHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit);
+
+            StorageFolder folder = await ((FileStorage) ((StorageService) service).Storage).GetFolder(FileStorage.FOREGROUND_ACTIONS_FOLDER);
+            StorageFile file = await folder.CreateFileAsync(FileStorage.ACTIONS_FILE_NAME, CreationCollisionOption.OpenIfExists);
+            IRandomAccessStream randomAccessStream;
+            using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
+            {
+                Task.Run(() =>
+                {
+                    Task.Delay(200);
+                    randomAccessStream.Dispose();
+                }).ConfigureAwait(false);
+                await service.SaveHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter);
+            }
+            using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
+            {
+                await service.SaveHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit);
+            }
+            folder = await ((FileStorage) ((StorageService) service).Storage).GetFolder(FileStorage.FOREGROUND_EVENTS_FOLDER);
+            file = await folder.CreateFileAsync("1", CreationCollisionOption.OpenIfExists);
+            await service.SaveHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter);
+            await service.SaveHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit);
+
+            using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
+            {
+                Task.Run(() =>
+                {
+                    Task.Delay(200);
+                    randomAccessStream.Dispose();
+                }).ConfigureAwait(false);
+                await service.SaveHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter);
+            }
+            using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
+            {
+                await service.SaveHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit);
+            }
         }
     }
 }
