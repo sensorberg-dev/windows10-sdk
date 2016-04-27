@@ -13,9 +13,9 @@ using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDK.Internal.Services
 {
-    public class SyncResolver : IResolver
+    public class Resolver : IResolver
     {
-        private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<SyncResolver>();
+        private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<Resolver>();
         public event EventHandler<ResolvedActionsEventArgs> ActionsResolved;
         public event EventHandler<string> FailedToResolveActions;
         public event Action Finished;
@@ -25,7 +25,7 @@ namespace SensorbergSDK.Internal.Services
         private CancellationTokenSource CancelToken { get; set; }
         public bool SynchronResolver { get; }
 
-        public SyncResolver(bool synchron)
+        public Resolver(bool synchron)
         {
             SynchronResolver = synchron;
 
@@ -86,13 +86,14 @@ namespace SensorbergSDK.Internal.Services
                 Cancel();
             }
         }
+
         private void Cancel()
         {
             CancelToken?.Cancel();
             CancelToken?.Dispose();
             CancelToken = null;
             WorkerTask = null;
-                Finished?.Invoke();
+            Finished?.Invoke();
         }
 
         private async Task Resolve(Request request)

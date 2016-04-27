@@ -128,7 +128,7 @@
     <Compile Include="Internal\NotStoredException.cs" />
     <Compile Include="Internal\SDKEngine.cs" />
     <Compile Include="Internal\Services\ApiConnection.cs" />
-    <Compile Include="Internal\Services\SyncResolver.cs" />
+    <Compile Include="Internal\Services\Resolver.cs" />
     <Compile Include="SdkConfiguration.cs" />
     <Compile Include="SensorbergSDKBackground\BackgroundEngine.cs" />
     <Compile Include="SensorbergSDKBackground\AdvertisementWatcherBackgroundWorker.cs" />
@@ -165,7 +165,6 @@
     <Compile Include="LayoutResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Internal\ResolvedActionsEventArgs.cs" />
-    <Compile Include="Internal\Resolver.cs" />
     <Compile Include="Scanner.cs" />
     <Compile Include="SDKManager.cs" />
   </ItemGroup>

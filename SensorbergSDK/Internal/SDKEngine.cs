@@ -83,7 +83,7 @@ namespace SensorbergSDK.Internal
             ServiceManager.SettingsManager = new SettingsManager();
 
             _appIsOnForeground = createdOnForeground;
-            Resolver = new SyncResolver(!createdOnForeground);
+            Resolver = new Resolver(!createdOnForeground);
             _eventHistory = new EventHistory();
             _nextTimeToProcessDelayedActions = DateTimeOffset.MaxValue;
             UnresolvedActionCount = 0;
