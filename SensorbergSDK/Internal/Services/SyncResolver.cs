@@ -5,6 +5,8 @@
 // All rights reserved.
 
 using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using MetroLog;
 using SensorbergSDK.Internal.Data;
@@ -16,10 +18,25 @@ namespace SensorbergSDK.Internal.Services
         private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<SyncResolver>();
         public event EventHandler<ResolvedActionsEventArgs> ActionsResolved;
         public event EventHandler<string> FailedToResolveActions;
+        public event Action Finished;
+        private Task WorkerTask { get; set; }
 
+        public Queue<Request> RequestQueue { get;}
+        private CancellationTokenSource CancelToken { get; set; }
+        public bool SynchronResolver { get; }
+
+        public SyncResolver(bool synchron)
+        {
+            SynchronResolver = synchron;
+
+            if (!SynchronResolver)
+            {
+                RequestQueue= new Queue<Request>();
+            }
+        }
         public void Dispose()
         {
-            throw new NotImplementedException();
+            CancelToken?.Dispose();
         }
 
         public async Task<int> CreateRequest(BeaconEventArgs beaconEventArgs)
@@ -27,15 +44,62 @@ namespace SensorbergSDK.Internal.Services
             int requestId = SDKData.Instance.NextId();
             logger.Debug("Resolver: Beacon " + beaconEventArgs.Beacon.Id1 + " " + beaconEventArgs.Beacon.Id2 + " " + beaconEventArgs.Beacon.Id3 + " ---> Request: " + requestId);
             Request request = new Request(beaconEventArgs, requestId);
-            await Resolve(request);
+            if (SynchronResolver)
+            {
+                await Resolve(request);
+                Finished?.Invoke();
+            }
+            else
+            {
+                AddAsynchronRequest(request);
+            }
             return requestId;
+        }
+
+        private void AddAsynchronRequest(Request request)
+        {
+            RequestQueue.Enqueue(request);
+            logger.Trace("Add new request {0}", request.RequestId);
+            if (RequestQueue.Count > 0 &&
+                (WorkerTask == null || WorkerTask.Status == TaskStatus.Canceled || WorkerTask.Status == TaskStatus.Faulted || WorkerTask.Status == TaskStatus.RanToCompletion))
+            {
+                CancelToken = new CancellationTokenSource();
+                (WorkerTask = Task.Run(ServeNextRequest, CancelToken.Token)).ConfigureAwait(false);
+            }
+        }
+
+        /// <summary>
+        /// Serves the request in the current index.
+        /// </summary>
+        private async Task ServeNextRequest()
+        {
+            try
+            {
+                while (RequestQueue.Count != 0)
+                {
+                    Request request = RequestQueue.Dequeue();
+                    await Resolve(request);
+                }
+            }
+            finally
+            {
+                Cancel();
+            }
+        }
+        private void Cancel()
+        {
+            CancelToken?.Cancel();
+            CancelToken?.Dispose();
+            CancelToken = null;
+            WorkerTask = null;
+                Finished?.Invoke();
         }
 
         private async Task Resolve(Request request)
         {
             logger.Trace("take next request " + request.RequestId);
             request.TryCount++;
-            RequestResultState requestResult = RequestResultState.None;
+            RequestResultState requestResult;
 
             try
             {
@@ -73,8 +137,8 @@ namespace SensorbergSDK.Internal.Services
                         await Resolve(request);
                     }
 
-                }
                     break;
+                }
                 case RequestResultState.Success:
                 {
                     OnRequestServed(request, requestResult);

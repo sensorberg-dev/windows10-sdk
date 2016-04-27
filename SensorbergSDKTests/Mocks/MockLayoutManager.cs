@@ -18,11 +18,11 @@ namespace SensorbergSDKTests.Mocks
         public IAsyncOperation<RequestResultState> ExecuteRequestAsync(Request currentRequest)
         {
             FailToken token = new FailToken();
+            ShouldFail?.Invoke(currentRequest, token);
             if (FindOneAction)
             {
-                currentRequest.ResolvedActions = new List<ResolvedAction>() {new ResolvedAction()};
+                currentRequest.ResolvedActions = new List<ResolvedAction>() { new ResolvedAction() };
             }
-            ShouldFail?.Invoke(currentRequest, token);
             return Task.FromResult<RequestResultState>(token.Fail ? RequestResultState.Failed : RequestResultState.Success).AsAsyncOperation();
         }
 

@@ -15,6 +15,7 @@ namespace SensorbergSDK.Internal
     {
         private const int DefaultMaxNumberOfRetries = 3;
 
+        [Obsolete]
         public event EventHandler<RequestResultState> Result;
 
         public BeaconEventArgs BeaconEventArgs
