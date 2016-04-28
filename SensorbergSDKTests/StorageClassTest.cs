@@ -614,7 +614,7 @@ namespace SensorbergSDKTests
                     await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit));
                     Assert.Fail("No exception thrown");
                 }
-                catch (UnauthorizedAccessException)
+                catch (NotStoredException)
                 {
                 }
                 randomAccessStream.Dispose();
@@ -640,7 +640,7 @@ namespace SensorbergSDKTests
                     await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit));
                     Assert.Fail("No exception thrown");
                 }
-                catch (UnauthorizedAccessException)
+                catch (NotStoredException)
                 {
                 }
                 randomAccessStream.Dispose();

@@ -125,11 +125,13 @@ namespace SensorbergSDK.Internal
                                     _requestQueue.Enqueue(currentRequest);
                                 }
 
-                            }
                                 break;
+                            }
                             case RequestResultState.Success:
+                            {
                                 OnRequestServed(currentRequest, requestResult);
                                 break;
+                            }
                         }
 
                         currentRequest.IsBeingProcessed = false;
