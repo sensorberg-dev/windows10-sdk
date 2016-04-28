@@ -268,7 +268,7 @@ namespace SensorbergSDK.Internal.Services
                 {
                     historyActionsCache[uuid] = new List<HistoryAction>();
                 }
-                historyActionsCache[uuid].Add(action);
+//                historyActionsCache[uuid].Add(action);
                 await Storage.SaveHistoryAction(action);
             }
             catch (UnauthorizedAccessException)
@@ -323,7 +323,7 @@ namespace SensorbergSDK.Internal.Services
                     return historyActionsCache[uuid];
                 }
             }
-            return historyActionsCache[uuid] = await Storage.GetActions(uuid);
+            return /*historyActionsCache[uuid] =*/ await Storage.GetActions(uuid);
         }
 
         public async Task<HistoryAction> GetAction(string uuid, bool forceUpdate = false)
