@@ -511,6 +511,10 @@ namespace SensorbergSDK.Internal.Data
                 {
                     //file is locked
                 }
+                catch (Exception ex)
+                {
+                    logger.Error("unknown error RetryWriting", ex);
+                }
                 finally
                 {
                     retry++;
@@ -545,6 +549,10 @@ namespace SensorbergSDK.Internal.Data
                 catch (UnauthorizedAccessException)
                 {
                     //file is locked
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("unknown error RetryWriting", ex);
                 }
                 finally
                 {
