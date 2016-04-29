@@ -24,8 +24,8 @@ namespace SensorbergSDK.Services
         Task<IList<HistoryAction>> GetUndeliveredActions();
         Task SetEventsAsDelivered();
         Task SetActionsAsDelivered();
-        Task SaveHistoryAction(HistoryAction action);
-        Task SaveHistoryEvents(HistoryEvent he);
+        Task<bool> SaveHistoryAction(HistoryAction action);
+        Task<bool> SaveHistoryEvents(HistoryEvent he);
         Task<IList<HistoryAction>> GetActions(string uuid);
         Task<HistoryAction> GetAction(string uuid);
 
@@ -43,8 +43,8 @@ namespace SensorbergSDK.Services
         /// <returns></returns>
         Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds);
         Task SetDelayedActionAsExecuted(string id);
-        Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice);
-        Task SaveBeaconEventState(string pid, BeaconEventType enter);
+        Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice);
+        Task<bool> SaveBeaconEventState(string pid, BeaconEventType enter);
         Task<BackgroundEvent> GetLastEventStateForBeacon(string pid);
         Task<List<HistoryAction>> GetActionsForForeground(bool doNotDelete = false);
     }

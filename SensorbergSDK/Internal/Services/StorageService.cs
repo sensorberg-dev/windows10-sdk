@@ -250,16 +250,16 @@ namespace SensorbergSDK.Internal.Services
         }
 
 #region storage methods
-        public async Task SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType)
+        public async Task<bool> SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType)
         {
-            await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, MAX_RETRIES);
+            return await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, MAX_RETRIES);
         }
 
-        private async Task SaveHistoryActionRetry(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType, int retry)
+        private async Task<bool> SaveHistoryActionRetry(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType, int retry)
         {
             if (retry < 0)
             {
-                return;
+                return false;
             }
             try
             {
@@ -269,48 +269,56 @@ namespace SensorbergSDK.Internal.Services
                     historyActionsCache[uuid] = new List<HistoryAction>();
                 }
 //                historyActionsCache[uuid].Add(action);
-                await Storage.SaveHistoryAction(action);
+                if (await Storage.SaveHistoryAction(action))
+                {
+                    return true;
+                }
+                return await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, --retry);
             }
             catch (UnauthorizedAccessException)
             {
-                await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, --retry);
+                return await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, --retry);
             }
             catch (NotStoredException)
             {
-                await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, --retry);
+                return await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, --retry);
             }
             catch (FileNotFoundException)
             {
-                await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, --retry);
+                return await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, --retry);
             }
         }
 
-        public async Task SaveHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType)
+        public async Task<bool> SaveHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType)
         {
-            await SaveHistoryEventRetry(pid, timestamp, eventType,MAX_RETRIES);
+            return await SaveHistoryEventRetry(pid, timestamp, eventType,MAX_RETRIES);
         }
 
-        private async Task SaveHistoryEventRetry(string pid, DateTimeOffset timestamp, BeaconEventType eventType, int retry)
+        private async Task<bool> SaveHistoryEventRetry(string pid, DateTimeOffset timestamp, BeaconEventType eventType, int retry)
         {
             if (retry < 0)
             {
-                return;
+                return false;
             }
             try
             {
-                await Storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent(pid, timestamp, eventType));
+                if (await Storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent(pid, timestamp, eventType)))
+                {
+                    return true;
+                }
+                return await SaveHistoryEventRetry(pid, timestamp, eventType, --retry);
             }
             catch (UnauthorizedAccessException)
             {
-                await SaveHistoryEventRetry(pid, timestamp, eventType, --retry);
+                return await SaveHistoryEventRetry(pid, timestamp, eventType, --retry);
             }
             catch (NotStoredException)
             {
-                await SaveHistoryEventRetry(pid, timestamp, eventType, --retry);
+                return await SaveHistoryEventRetry(pid, timestamp, eventType, --retry);
             }
             catch (FileNotFoundException)
             {
-                await SaveHistoryEventRetry(pid, timestamp, eventType, --retry);
+                return await SaveHistoryEventRetry(pid, timestamp, eventType, --retry);
             }
         }
 
@@ -346,32 +354,36 @@ namespace SensorbergSDK.Internal.Services
             await Storage.SetDelayedActionAsExecuted(id);
         }
 
-        public async Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice)
+        public async Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice)
         {
-            await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice,MAX_RETRIES);
+            return await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice,MAX_RETRIES);
         }
 
-        private async Task SaveDelayedActionsRetry(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice, int retry)
+        private async Task<bool> SaveDelayedActionsRetry(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice, int retry)
         {
             if (retry < 0)
             {
-                return;
+                return false;
             }
             try
             {
-                await Storage.SaveDelayedAction(action, dueTime, beaconPid, eventTypeDetectedByDevice);
+                if (await Storage.SaveDelayedAction(action, dueTime, beaconPid, eventTypeDetectedByDevice))
+                {
+                    return true;
+                }
+                return await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice, --retry);
             }
             catch (UnauthorizedAccessException)
             {
-                await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice, --retry);
+                return await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice, --retry);
             }
             catch (NotStoredException)
             {
-                await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice, --retry);
+                return await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice, --retry);
             }
             catch (FileNotFoundException)
             {
-                await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice, --retry);
+                return await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice, --retry);
             }
         }
 
@@ -380,32 +392,36 @@ namespace SensorbergSDK.Internal.Services
             return await Storage.GetLastEventStateForBeacon(pid);
         }
 
-        public async Task SaveBeaconEventState(string pid, BeaconEventType enter)
+        public async Task<bool> SaveBeaconEventState(string pid, BeaconEventType enter)
         {
-            await SaveBeaconEventStateRetry(pid, enter,MAX_RETRIES);
+            return await SaveBeaconEventStateRetry(pid, enter,MAX_RETRIES);
         }
 
-        private async Task SaveBeaconEventStateRetry(string pid, BeaconEventType enter, int retry)
+        private async Task<bool> SaveBeaconEventStateRetry(string pid, BeaconEventType enter, int retry)
         {
             if (retry < 0)
             {
-                return;
+                return false;
             }
             try
             {
-                await Storage.SaveBeaconEventState(pid, enter);
+                if (await Storage.SaveBeaconEventState(pid, enter))
+                {
+                    return true;
+                }
+                return await SaveBeaconEventStateRetry(pid, enter, --retry);
             }
             catch (UnauthorizedAccessException)
             {
-                await SaveBeaconEventStateRetry(pid, enter, --retry);
+                return await SaveBeaconEventStateRetry(pid, enter, --retry);
             }
             catch (NotStoredException)
             {
-                await SaveBeaconEventStateRetry(pid, enter, --retry);
+                return await SaveBeaconEventStateRetry(pid, enter, --retry);
             }
             catch (FileNotFoundException)
             {
-                await SaveBeaconEventStateRetry(pid, enter, --retry);
+                return await SaveBeaconEventStateRetry(pid, enter, --retry);
             }
         }
 

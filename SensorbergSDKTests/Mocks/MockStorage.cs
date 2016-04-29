@@ -45,15 +45,17 @@ namespace SensorbergSDKTests.Mocks
             UndeliveredActions?.Clear();
         }
 
-        public async Task SaveHistoryAction(HistoryAction action)
+        public async Task<bool> SaveHistoryAction(HistoryAction action)
         {
             UndeliveredActions.Add(action);
+            return true;
         }
 
         
-        public async Task SaveHistoryEvents(HistoryEvent he)
+        public async Task<bool> SaveHistoryEvents(HistoryEvent he)
         {
             UndeliveredEvents.Add(he);
+            return true;
         }
 
         public async Task<IList<HistoryAction>> GetActions(string uuid)
@@ -82,9 +84,10 @@ namespace SensorbergSDKTests.Mocks
             DelayedActions.Remove(DelayedActions.FirstOrDefault(d => d.Id == id));
         }
 
-        public async Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice)
+        public async Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice)
         {
             DelayedActions.Add(new DelayedActionData() {beaconPid = beaconPid,dueTime = dueTime, eventTypeDetectedByDevice =  eventTypeDetectedByDevice, Id = Guid.NewGuid().ToString(), resolvedAction = action});
+            return true;
         }
 
         public Task SaveHistoryAction(BeaconAction beaconAction)
@@ -92,9 +95,10 @@ namespace SensorbergSDKTests.Mocks
             throw new NotImplementedException();
         }
 
-        public async Task SaveBeaconEventState(string pid, BeaconEventType enter)
+        public async Task<bool> SaveBeaconEventState(string pid, BeaconEventType enter)
         {
             LastEventState[pid] = new BackgroundEvent() {BeaconID = pid, EventTime = DateTimeOffset.Now, LastEvent = enter};
+            return true;
         }
 
         public async Task<BackgroundEvent> GetLastEventStateForBeacon(string pid)
