@@ -1,4 +1,5 @@
 ﻿using System;
+using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.Serialization;
@@ -18,22 +19,22 @@ namespace SensorbergSDK
         private const string SETTINGS_UPDATE_INTERVAL_KEY = "settings.updateTime";
 
         [DataMember(Name = "scanner.exitTimeoutMillis")]
-        public UInt64 BeaconExitTimeout { get; set; }
+        public ulong BeaconExitTimeout { get; set; }
 
         [DataMember(Name = "network.historyUploadInterval")]
-        public UInt64 HistoryUploadInterval { get; set; }
+        public ulong HistoryUploadInterval { get; set; }
 
         [DataMember(Name = "scanner.enterRssiThreshold")]
-        public Int16? RssiEnterThreshold { get; set; }
+        public short? RssiEnterThreshold { get; set; }
 
         [DataMember(Name = "scanner.enterDistanceThreshold")]
-        public UInt64? EnterDistanceThreshold { get; set; }
+        public ulong? EnterDistanceThreshold { get; set; }
 
         [DataMember(Name = "network.beaconLayoutUpdateInterval")]
-        public UInt64 LayoutUpdateInterval { get; set; }
+        public ulong LayoutUpdateInterval { get; set; }
 
         [DataMember(Name = "settings.updateTime")]
-        public UInt64 SettingsUpdateInterval { get; set; }
+        public ulong SettingsUpdateInterval { get; set; }
 
         /// <summary>
         /// Creates an appsettings object, including the basic setup.

@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
 using System.Collections.Generic;
 
 namespace SensorbergSDK.Internal
@@ -23,7 +27,7 @@ namespace SensorbergSDK.Internal
         }
 
         /// <summary>
-        /// Constructor.
+        /// Constructor for empty BeaconContainer.
         /// </summary>
         public BeaconContainer()
         {
@@ -60,7 +64,6 @@ namespace SensorbergSDK.Internal
         /// <returns>True, if the given beacon matches an existing one in this container.</returns>
         public bool Contains(Beacon beacon)
         {
-            bool found = false;
 
             lock (_beaconListLock)
             {
@@ -68,13 +71,12 @@ namespace SensorbergSDK.Internal
                 {
                     if (beacon.Matches(existingBeacon))
                     {
-                        found = true;
-                        break;
+                        return true;
                     }
                 }
             }
 
-            return found;
+            return false;
         }
 
         /// <summary>
@@ -104,7 +106,7 @@ namespace SensorbergSDK.Internal
         /// </summary>
         /// <param name="olderThanAgeInMilliseconds">The minimum age of the beacons, which should be removed.</param>
         /// <returns>A list of removed beacons.</returns>
-        public List<Beacon> RemoveBeaconsBasedOnAge(UInt64 olderThanAgeInMilliseconds)
+        public List<Beacon> RemoveBeaconsBasedOnAge(ulong olderThanAgeInMilliseconds)
         {
             List<Beacon> removedBeacons = new List<Beacon>();
 
@@ -139,7 +141,7 @@ namespace SensorbergSDK.Internal
         /// </summary>
         /// <param name="olderThanAgeInMilliseconds">The minimum age of the beacons to find.</param>
         /// <returns>A list of beacons matching the age criteria.</returns>
-        public List<Beacon> BeaconsBasedOnAge(UInt64 olderThanAgeInMilliseconds)
+        public List<Beacon> BeaconsBasedOnAge(ulong olderThanAgeInMilliseconds)
         {
             List<Beacon> beacons = new List<Beacon>();
             TimeSpan ageAsTimeSpan = TimeSpan.FromMilliseconds(olderThanAgeInMilliseconds);
@@ -159,7 +161,7 @@ namespace SensorbergSDK.Internal
         }
 
         /// <summary>
-        /// Locks collection and add beacon to it
+        /// Locks collection and add beacon to it.
         /// </summary>
         /// <param name="beacon">Beacon to add</param>
         private void SaveAddBeacon(Beacon beacon)

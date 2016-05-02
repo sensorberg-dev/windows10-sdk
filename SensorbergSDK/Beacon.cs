@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Text;
@@ -11,7 +15,7 @@ namespace SensorbergSDK
         private const char HexStringSeparator = '-'; // For UpdatePid()
 
         [DataMember]
-        public UInt16 ManufacturerId
+        public ushort ManufacturerId
         {
             [DebuggerStepThrough]
             get;
@@ -20,7 +24,7 @@ namespace SensorbergSDK
         }
 
         [DataMember]
-        public UInt16 Code
+        public ushort Code
         {
             [DebuggerStepThrough]
             get;
@@ -48,9 +52,9 @@ namespace SensorbergSDK
             }
         }
 
-        private UInt16 _id2;
+        private ushort _id2;
         [DataMember]
-        public UInt16 Id2
+        public ushort Id2
         {
             [DebuggerStepThrough]
             get
@@ -68,9 +72,9 @@ namespace SensorbergSDK
             }
         }
 
-        private UInt16 _id3;
+        private ushort _id3;
         [DataMember]
-        public UInt16 Id3
+        public ushort Id3
         {
             [DebuggerStepThrough]
             get
@@ -195,7 +199,7 @@ namespace SensorbergSDK
 
         /// <summary>
         /// Updated the beacon PID; The ID 1 (without dashes) + 5 digits ID 2
-        /// (padded with zeros) + 5 digits ID 3 (padded with zeros)
+        /// (padded with zeros) + 5 digits ID 3 (padded with zeros).
         /// </summary>
         private void UpdatePid()
         {
@@ -204,7 +208,7 @@ namespace SensorbergSDK
             string beaconId3 = Id3.ToString();
             beaconId2 = template.Substring(beaconId2.Length) + beaconId2;
             beaconId3 = template.Substring(beaconId3.Length) + beaconId3;
-            string pid = Id1.Replace(HexStringSeparator.ToString(), "") + beaconId2 + beaconId3;
+            string pid = Id1.Replace(HexStringSeparator.ToString(), String.Empty) + beaconId2 + beaconId3;
             Pid = pid.ToLower();
         }
 

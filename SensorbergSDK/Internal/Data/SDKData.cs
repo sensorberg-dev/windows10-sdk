@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
 using System.Diagnostics;
 using Windows.Storage;
 
@@ -14,7 +18,6 @@ namespace SensorbergSDK.Internal
         private const string KeyLayoutBeaconId1Hash = "sensorberg_sdk_layout_uuid_hash";
         private const string KeyDatabaseCleaningTime = "sensorberg_sdk_database_cleaning_time";
         private const string KeyBackgroundTaskEnabled = "sensorberg_sdk_background_task_enabled";
-        private const string KeyNewActionsFromBackground = "sensorberg_sdk_new_actions_from_background";
         private const string KeyBackgroundFilterUpdateRequired = "sensorberg_sdk_background_filter_update_required";
         public const string KeyIncrementalId = "sensorberg_sdk_incremental_id";
         private const string KeyAppIsVisible = "sensorberg_sdk_app_visibility";

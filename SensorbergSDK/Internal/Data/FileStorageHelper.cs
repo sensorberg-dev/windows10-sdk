@@ -18,8 +18,8 @@ namespace SensorbergSDK.Internal.Data
         /// <summary>
         /// Creates from the given parameters a string.
         /// </summary>
-        /// <param name="he">Historyevent to convert</param>
-        /// <returns>String representing the HistoryEvent</returns>
+        /// <param name="he">Historyevent to convert.</param>
+        /// <returns>String representing the HistoryEvent.</returns>
         public static string EventToString(HistoryEvent he)
         {
             return string.Format("{0},{1},{2},{3}\n", he.pid, DateTimeOffset.Parse(he.dt).ToUnixTimeMilliseconds(), he.trigger, false);
@@ -28,7 +28,7 @@ namespace SensorbergSDK.Internal.Data
         /// <summary>
         /// Parses the list of strings to a List of HistoryEvents.
         /// </summary>
-        /// <param name="strings">List of string representing a HistoryEvent</param>
+        /// <param name="strings">List of string representing a HistoryEvent.</param>
         /// <returns></returns>
         public static List<HistoryEvent> EventsFromStrings(IList<string> strings)
         {
@@ -51,7 +51,7 @@ namespace SensorbergSDK.Internal.Data
         /// <summary>
         /// Parse the given string to a HistoryEvent.
         /// </summary>
-        /// <param name="s">Comma separated string representing a HistoryEvent</param>
+        /// <param name="s">Comma separated string representing a HistoryEvent.</param>
         /// <returns></returns>
         public static HistoryEvent EventFromString(string s)
         {
@@ -129,7 +129,7 @@ namespace SensorbergSDK.Internal.Data
         /// <summary>
         /// Parse the given string to a HistoryAction.
         /// </summary>
-        /// <param name="s">Comma separated string representing a HistoryAction</param>
+        /// <param name="s">Comma separated string representing a HistoryAction.</param>
         /// <returns></returns>
         public static HistoryAction ActionFromString(string s)
         {
@@ -194,9 +194,10 @@ namespace SensorbergSDK.Internal.Data
 
         public static string DelayedActionToString(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType beaconEventType, Guid guid)
         {
-            string serializeObject = JsonConvert.SerializeObject(new SerializedAction() {Action = action, Time = dueTime, Beacon =  beaconPid, Event = beaconEventType});
+            string serializeObject = JsonConvert.SerializeObject(new SerializedAction() {Action = action, Time = dueTime, Beacon = beaconPid, Event = beaconEventType});
             return DelayedActionToString(Convert.ToBase64String(Encoding.UTF8.GetBytes(serializeObject)), dueTime, false, guid.ToString());
         }
+
         public static string DelayedActionToString(string action, DateTimeOffset dueTime, bool executed, string guid)
         {
             return string.Format("{0},{1},{2},{3}\n", guid, dueTime.ToUnixTimeMilliseconds(), executed, action);

@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
@@ -62,7 +66,6 @@ namespace SensorbergSDK.Internal
         public async Task<bool> ShouldSupressAsync(ResolvedAction resolvedAction)
         {
             logger.Trace("ShouldSupressAsync {0}", resolvedAction.BeaconAction.Id);
-            bool suppress = false;
 
             if (resolvedAction.SupressionTime > 0)
             {
@@ -75,12 +78,11 @@ namespace SensorbergSDK.Internal
                     {
                         foreach (var dbHistoryAction in dbHistoryActions)
                         {
-                            var action_timestamp = DateTimeOffset.Parse(dbHistoryAction.dt).AddSeconds(resolvedAction.SupressionTime);
+                            var actionTimestamp = DateTimeOffset.Parse(dbHistoryAction.dt).AddSeconds(resolvedAction.SupressionTime);
 
-                            if (action_timestamp > DateTimeOffset.Now)
+                            if (actionTimestamp > DateTimeOffset.Now)
                             {
-                                suppress = true;
-                                break;
+                                return true;
                             }
                         }
                     }
@@ -91,7 +93,7 @@ namespace SensorbergSDK.Internal
                 }
             }
 
-            return suppress;
+            return false;
         }
 
         /// <summary>

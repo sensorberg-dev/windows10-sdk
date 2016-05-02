@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
 
 namespace SensorbergSDK.Internal
 {
@@ -35,10 +39,10 @@ namespace SensorbergSDK.Internal
         /// <summary>
         /// Default values for api settings. All time values are in miliseconds.
         /// </summary>
-        public const UInt64 DefaultSettingsUpdateInterval = 86400000;
-        public const UInt64 DefaultBeaconExitTimeout = 10000;
-        public const UInt64 DefaultHistoryUploadInterval = 5*60*1000;
-        public const UInt64 DefaultLayoutUpdateInterval = 3600000;
+        public const ulong DefaultSettingsUpdateInterval = 86400000;
+        public const ulong DefaultBeaconExitTimeout = 10000;
+        public const ulong DefaultHistoryUploadInterval = 5*60*1000;
+        public const ulong DefaultLayoutUpdateInterval = 3600000;
         public const int DefaultBackgroundScannerEnterThreshold = -120;
 
     }
