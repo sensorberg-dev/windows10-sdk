@@ -111,7 +111,7 @@ namespace SensorbergSDKTests
             Assert.IsTrue(mockStorage.UndeliveredActions.Count == 0, "Actions were not marked as send");
         }
 
-        [TestMethod]
+// no cache available        [TestMethod]
         public async Task TestHistorActionCacheTest()
         {
             IStorageService service = ServiceManager.StorageService;
