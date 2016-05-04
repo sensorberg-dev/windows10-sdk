@@ -146,7 +146,6 @@
     <Compile Include="Internal\Services\StorageService.cs" />
     <Compile Include="Internal\SettingsEventArgs.cs" />
     <Compile Include="Internal\Services\SettingsManager.cs" />
-    <Compile Include="Internal\Utils\ActionFactory.cs" />
     <Compile Include="Advertiser.cs" />
     <Compile Include="BeaconEventArgs.cs" />
     <Compile Include="Beacon.cs" />
