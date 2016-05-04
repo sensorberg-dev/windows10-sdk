@@ -163,7 +163,7 @@ namespace SensorbergSDK.Internal
         /// <summary>
         /// Locks collection and add beacon to it.
         /// </summary>
-        /// <param name="beacon">Beacon to add</param>
+        /// <param name="beacon">Beacon to add.</param>
         private void SaveAddBeacon(Beacon beacon)
         {
             lock (_beaconListLock)

@@ -1,4 +1,8 @@
-﻿using System.Runtime.Serialization;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System.Runtime.Serialization;
 
 namespace SensorbergSDK.Internal.Data
 {

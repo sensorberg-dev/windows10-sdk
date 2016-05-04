@@ -281,10 +281,6 @@ namespace SensorbergSDK.Internal.Services
             {
                 return await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, --retry);
             }
-            catch (NotStoredException)
-            {
-                return await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, --retry);
-            }
             catch (FileNotFoundException)
             {
                 return await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, --retry);
@@ -311,10 +307,6 @@ namespace SensorbergSDK.Internal.Services
                 return await SaveHistoryEventRetry(pid, timestamp, eventType, --retry);
             }
             catch (UnauthorizedAccessException)
-            {
-                return await SaveHistoryEventRetry(pid, timestamp, eventType, --retry);
-            }
-            catch (NotStoredException)
             {
                 return await SaveHistoryEventRetry(pid, timestamp, eventType, --retry);
             }
@@ -372,10 +364,6 @@ namespace SensorbergSDK.Internal.Services
             {
                 return await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice, --retry);
             }
-            catch (NotStoredException)
-            {
-                return await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice, --retry);
-            }
             catch (FileNotFoundException)
             {
                 return await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice, --retry);
@@ -407,10 +395,6 @@ namespace SensorbergSDK.Internal.Services
                 return await SaveBeaconEventStateRetry(pid, enter, --retry);
             }
             catch (UnauthorizedAccessException)
-            {
-                return await SaveBeaconEventStateRetry(pid, enter, --retry);
-            }
-            catch (NotStoredException)
             {
                 return await SaveBeaconEventStateRetry(pid, enter, --retry);
             }

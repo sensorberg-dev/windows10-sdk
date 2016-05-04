@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
 using System.Runtime.Serialization;
 using SensorbergSDK.Internal;
 
