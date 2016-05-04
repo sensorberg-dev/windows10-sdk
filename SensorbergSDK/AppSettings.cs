@@ -20,7 +20,6 @@ namespace SensorbergSDK
         public short? RssiEnterThreshold { get; }
 
         [DataMember(Name = "scanner.enterDistanceThreshold")]
-        public UInt64? EnterDistanceThreshold { get; }
         public ulong? EnterDistanceThreshold { get; }
 
         [DataMember(Name = "network.beaconLayoutUpdateInterval")]
