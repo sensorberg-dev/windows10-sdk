@@ -40,9 +40,9 @@ namespace SensorbergSDKTests
             BeaconAction beaconaction1 = new BeaconAction() {Body = "body", Url = "http://www.com", Uuid = "1223"};
             BeaconAction beaconaction2 = new BeaconAction() {Body = "body", Url = "http://www.com", Uuid = "5678"};
             BeaconAction beaconaction3 = new BeaconAction() {Body = "body", Url = "http://www.com", Uuid = "9678"};
-            ResolvedAction res1 = new ResolvedAction() {SupressionTime = 100, SendOnlyOnce = true, BeaconAction = beaconaction1};
-            ResolvedAction res2 = new ResolvedAction() {SupressionTime = 100, SendOnlyOnce = true, BeaconAction = beaconaction2};
-            ResolvedAction res3 = new ResolvedAction() {SupressionTime = 1, SendOnlyOnce = true, BeaconAction = beaconaction3};
+            ResolvedAction res1 = new ResolvedAction() {SuppressionTime = 100, SendOnlyOnce = true, BeaconAction = beaconaction1};
+            ResolvedAction res2 = new ResolvedAction() {SuppressionTime = 100, SendOnlyOnce = true, BeaconAction = beaconaction2};
+            ResolvedAction res3 = new ResolvedAction() {SuppressionTime = 1, SendOnlyOnce = true, BeaconAction = beaconaction3};
 
             EventHistory eventHistory = new EventHistory();
 
@@ -77,9 +77,9 @@ namespace SensorbergSDKTests
             BeaconAction beaconaction1 = new BeaconAction() {Body = "body", Url = "http://www.com", Uuid = "1223"};
             BeaconAction beaconaction2 = new BeaconAction() {Body = "body", Url = "http://www.com", Uuid = "5678"};
             BeaconAction beaconaction3 = new BeaconAction() {Body = "body", Url = "http://www.com", Uuid = "9678"};
-            ResolvedAction res1 = new ResolvedAction() {SupressionTime = 100, SendOnlyOnce = true, BeaconAction = beaconaction1};
-            ResolvedAction res2 = new ResolvedAction() {SupressionTime = 100, SendOnlyOnce = true, BeaconAction = beaconaction2};
-            ResolvedAction res3 = new ResolvedAction() {SupressionTime = 1, SendOnlyOnce = true, BeaconAction = beaconaction3};
+            ResolvedAction res1 = new ResolvedAction() {SuppressionTime = 100, SendOnlyOnce = true, BeaconAction = beaconaction1};
+            ResolvedAction res2 = new ResolvedAction() {SuppressionTime = 100, SendOnlyOnce = true, BeaconAction = beaconaction2};
+            ResolvedAction res3 = new ResolvedAction() {SuppressionTime = 1, SendOnlyOnce = true, BeaconAction = beaconaction3};
 
             EventHistory eventHistory = new EventHistory();
 

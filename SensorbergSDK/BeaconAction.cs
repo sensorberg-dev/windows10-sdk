@@ -10,7 +10,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.UI.Popups;
-using Windows.UI.Xaml.Navigation;
 
 namespace SensorbergSDK
 {
@@ -39,19 +38,19 @@ namespace SensorbergSDK
         [DataMember]
         public int Id { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
-        [DataMember]
+        [DataMember/*(Name = "type")*/]
         public BeaconActionType Type { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
-        [DataMember]
+        [DataMember(Name = "eid")]
         public string Uuid { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
-        [DataMember]
+        [DataMember/*(Name = "subject")*/]
         public string Subject { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
-        [DataMember]
+        [DataMember/*(Name ="body")*/]
         public string Body { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
-        [DataMember]
+        [DataMember/*(Name = "url")*/]
         public string Url { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
         /// <summary>
@@ -70,58 +69,6 @@ namespace SensorbergSDK
         /// </summary>
         public JsonObject Payload { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
-        /// <summary>
-        /// Sets the beacon action type based on the given value.
-        /// </summary>
-        /// <param name="type">The type as integer.</param>
-        public void SetType(int type)
-        {
-            switch (type)
-            {
-                case Constants.ActionTypeUrlMessage:
-                    Type = BeaconActionType.UrlMessage;
-                    break;
-                case Constants.ActionTypeVisitWebsite:
-                    Type = BeaconActionType.VisitWebsite;
-                    break;
-                case Constants.ActionTypeInApp:
-                    Type = BeaconActionType.InApp;
-                    break;
-                default:
-                    throw new ArgumentException("Invalid type (" + type + ")");
-            }
-        }
-
-        /// <summary>
-        /// Sets the beacon action type based on the given value.
-        /// </summary>
-        /// <param name="type">The type as string.</param>
-        /// <returns>True, if the type was set. False otherwise.</returns>
-        public bool SetType(string type)
-        {
-            bool wasSet = false;
-
-            if (!string.IsNullOrEmpty(type))
-            {
-                if (type.Equals(BeaconActionType.InApp.ToString()))
-                {
-                    Type = BeaconActionType.InApp;
-                    wasSet = true;
-                }
-                else if (type.Equals(BeaconActionType.UrlMessage.ToString()))
-                {
-                    Type = BeaconActionType.UrlMessage;
-                    wasSet = true;
-                }
-                else if (type.Equals(BeaconActionType.VisitWebsite.ToString()))
-                {
-                    Type = BeaconActionType.VisitWebsite;
-                    wasSet = true;
-                }
-            }
-
-            return wasSet;
-        }
 
         /// <summary>
         /// Validates the received action.
@@ -175,96 +122,6 @@ namespace SensorbergSDK
             return webBrowserLaunched;
         }
 
-        /// <summary>
-        /// For convenience. Tries to create a beacon action instance from the parameter of the
-        /// given navigation event arguments.
-        /// </summary>
-        /// <param name="args"></param>
-        /// <returns>A newly created beacon action instance, if successful. Null in case of an error.</returns>
-        public static BeaconAction FromNavigationEventArgs(NavigationEventArgs args)
-        {
-            if (args != null && args.Parameter != null && args.Parameter is string)
-            {
-                return BeaconAction.FromString(args.Parameter as string);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Creates a beacon action instance from the given string.
-        /// </summary>
-        /// <param name="beaconActionAsString">The beacon action as string.</param>
-        /// <returns>A newly created beacon action instance, if successful. Null in case of an error.</returns>
-        public static BeaconAction FromString(string beaconActionAsString)
-        {
-            BeaconAction beaconAction = null;
-
-            if (!string.IsNullOrEmpty(beaconActionAsString))
-            {
-                string[] fields = beaconActionAsString.Split(FieldSeparator);
-
-                if (fields.Length >= 2)
-                {
-                    beaconAction = new BeaconAction();
-
-                    for (int i = 0; i < fields.Length; ++i)
-                    {
-                        if (fields[i].Trim().Length > 0)
-                        {
-                            switch (i)
-                            {
-                                case 0: // Id
-                                    int id = 0;
-
-                                    try
-                                    {
-                                        int.TryParse(fields[i], out id);
-                                    }
-                                    catch (Exception)
-                                    {
-                                    }
-
-                                    beaconAction.Id = id;
-                                    break;
-                                case 1: // Type
-                                    beaconAction.SetType(fields[i]);
-                                    break;
-                                case 2: // Subject
-                                    beaconAction.Subject = fields[i];
-                                    break;
-                                case 3: // Body
-                                    beaconAction.Body = fields[i];
-                                    break;
-                                case 4: // Url
-                                    beaconAction.Url = fields[i];
-                                    break;
-                                case 5: // Payload
-                                    JsonObject payload = null;
-                                    bool jsonObjectParsed = false;
-
-                                    try
-                                    {
-                                        jsonObjectParsed = JsonObject.TryParse(fields[i], out payload);
-                                    }
-                                    catch (Exception)
-                                    {
-                                    }
-
-                                    if (jsonObjectParsed)
-                                    {
-                                        beaconAction.Payload = payload;
-                                    }
-
-                                    break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            return beaconAction;
-        }
 
         /// <summary>
         /// Converts this instance to a string.

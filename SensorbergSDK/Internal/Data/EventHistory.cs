@@ -67,7 +67,7 @@ namespace SensorbergSDK.Internal
         {
             logger.Trace("ShouldSupressAsync {0}", resolvedAction.BeaconAction.Id);
 
-            if (resolvedAction.SupressionTime > 0)
+            if (resolvedAction.SuppressionTime > 0)
             {
                 try
                 {
@@ -78,7 +78,7 @@ namespace SensorbergSDK.Internal
                     {
                         foreach (var dbHistoryAction in dbHistoryActions)
                         {
-                            var actionTimestamp = DateTimeOffset.Parse(dbHistoryAction.dt).AddSeconds(resolvedAction.SupressionTime);
+                            var actionTimestamp = DateTimeOffset.Parse(dbHistoryAction.dt).AddSeconds(resolvedAction.SuppressionTime);
 
                             if (actionTimestamp > DateTimeOffset.Now)
                             {

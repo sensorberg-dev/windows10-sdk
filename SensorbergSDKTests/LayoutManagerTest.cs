@@ -71,7 +71,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(2, a.BeaconPids.Count, "beacon 1 - Beacon count wrong");
             Assert.IsTrue(a.BeaconPids.Contains("7367672374000000ffff0000ffff00043917830929"), "beacon 1 - No Beacon found!");
 
-            Assert.AreEqual(43200, a.SupressionTime, "beacon 1 - Wrong supression time!");
+            Assert.AreEqual(43200, a.SuppressionTime, "beacon 1 - Wrong supression time!");
             Assert.AreEqual(0, a.Delay, "beacon 1 - Different delay is set");
 
             Assert.AreEqual(string.Empty, a.BeaconAction.Subject, "beacon 1 - Different action subject");
@@ -91,7 +91,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(1, a.BeaconPids.Count, "beacon 2 - Beacon count wrong");
             Assert.IsTrue(a.BeaconPids.Contains("7367672374000000ffff0000ffff00034886921321"), "beacon 2 - No Beacon found!");
 
-            Assert.AreEqual(900, a.SupressionTime, "beacon 2 - Wrong supression time!");
+            Assert.AreEqual(900, a.SuppressionTime, "beacon 2 - Wrong supression time!");
             Assert.AreEqual(0, a.Delay, "beacon 2 - Different delay is set");
 
             Assert.AreEqual(string.Empty, a.BeaconAction.Subject, "beacon 2 - Different action subject");
@@ -111,7 +111,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(1, a.BeaconPids.Count, "beacon 3 - Beacon count wrong");
             Assert.IsTrue(a.BeaconPids.Contains("7367672374000000ffff0000ffff00034886921321"), "beacon 3 - No Beacon found!");
 
-            Assert.AreEqual(900, a.SupressionTime, "beacon 3 - Wrong supression time!");
+            Assert.AreEqual(900, a.SuppressionTime, "beacon 3 - Wrong supression time!");
             Assert.AreEqual(0, a.Delay, "beacon 3 - Different delay is set");
 
             Assert.AreEqual(string.Empty, a.BeaconAction.Subject, "beacon 3 - Different action subject");
@@ -131,7 +131,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(1, a.BeaconPids.Count, "beacon 4 - Beacon count wrong");
             Assert.IsTrue(a.BeaconPids.Contains("7367672374000000ffff0000ffff00034895330988"), "beacon 4 - No Beacon found!");
 
-            Assert.AreEqual(900, a.SupressionTime, "beacon 4 - Wrong supression time!");
+            Assert.AreEqual(900, a.SuppressionTime, "beacon 4 - Wrong supression time!");
             Assert.AreEqual(60, a.Delay, "beacon 4 - Different delay is set");
 
             Assert.AreEqual("Delay 1 minute", a.BeaconAction.Subject, "beacon 4 - Different action subject");
@@ -151,7 +151,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(1, a.BeaconPids.Count, "beacon 5 - Beacon count wrong");
             Assert.IsTrue(a.BeaconPids.Contains("7367672374000000ffff0000ffff00034886921321"), "beacon 5 - No Beacon found!");
 
-            Assert.AreEqual(900, a.SupressionTime, "beacon 5 - Wrong supression time!");
+            Assert.AreEqual(900, a.SuppressionTime, "beacon 5 - Wrong supression time!");
             Assert.AreEqual(0, a.Delay, "beacon 5 - Different delay is set");
 
             Assert.AreEqual(string.Empty, a.BeaconAction.Subject, "beacon 5 - Different action subject");
@@ -171,7 +171,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(1, a.BeaconPids.Count, "beacon 7 - Beacon count wrong");
             Assert.IsTrue(a.BeaconPids.Contains("7367672374000000ffff0000ffff00073918758763"), "beacon 7 - No Beacon found!");
 
-            Assert.AreEqual(31536000, a.SupressionTime, "beacon 7 - Wrong supression time!");
+            Assert.AreEqual(31536000, a.SuppressionTime, "beacon 7 - Wrong supression time!");
             Assert.AreEqual(0, a.Delay, "beacon 7 - Different delay is set");
 
             Assert.AreEqual("You´re in the year 2017!", a.BeaconAction.Subject, "beacon 7 - Different action subject");
@@ -192,7 +192,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(1, a.BeaconPids.Count, "beacon 8 - Beacon count wrong");
             Assert.IsTrue(a.BeaconPids.Contains("7367672374000000ffff0000ffff00062343028018"), "beacon 8 - No Beacon found!");
 
-            Assert.AreEqual(-1, a.SupressionTime, "beacon 8 - Wrong supression time!");
+            Assert.AreEqual(-1, a.SuppressionTime, "beacon 8 - Wrong supression time!");
             Assert.AreEqual(0, a.Delay, "beacon 8 - Different delay is set");
 
             Assert.AreEqual(string.Empty, a.BeaconAction.Subject, "beacon 8 - Different action subject");

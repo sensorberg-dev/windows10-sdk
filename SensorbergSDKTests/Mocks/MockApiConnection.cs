@@ -45,7 +45,7 @@ namespace SensorbergSDKTests.Mocks
 
         public async Task<string> LoadSettings(SDKData sdkData)
         {
-            return null;
+            return MockSettings;
         }
 
         public Task<ResponseMessage> SendHistory(History history)
@@ -68,5 +68,6 @@ namespace SensorbergSDKTests.Mocks
         public bool APIInvalid { get; set; }
         public bool FailNetwork { get; set; }
         public bool UnknownError { get; set; }
+        public string MockSettings { get; set; }
     }
 }

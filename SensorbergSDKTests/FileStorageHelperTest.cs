@@ -114,7 +114,7 @@ namespace SensorbergSDKTests
             action.EventTypeDetectedByDevice = BeaconEventType.EnterExit;
             action.ReportImmediately = true;
             action.SendOnlyOnce = true;
-            action.SupressionTime = 321;
+            action.SuppressionTime = 321;
             action.Timeframes = new List<Timeframe>()
             {
                 new Timeframe() {End = DateTimeOffset.Parse("2015-04-16T12:00:00.000+0000"), Start = DateTimeOffset.Parse("2015-04-15T12:00:00.000+0000")}
@@ -122,7 +122,7 @@ namespace SensorbergSDKTests
 
             Guid guid = Guid.NewGuid();
             string s = FileStorageHelper.DelayedActionToString(action, DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), "123", BeaconEventType.Enter, guid);
-            Assert.AreEqual(guid+",1429192800000,False,eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJVdWlkIjoidXVpZCIsIlN1YmplY3QiOiJTdWJqZWN0IiwiQm9keSI6ImJvZHkiLCJVcmwiOiJodHRwOi8vc2Vuc29yYmVyZy5jb20iLCJQYXlsb2FkU3RyaW5nIjoie1wicGF5XCI6XCJsb2FkXCJ9In0sIkJlYWNvblBpZHMiOlsiMSIsIjIiLCIzIiwiNCJdLCJFdmVudFR5cGVEZXRlY3RlZEJ5RGV2aWNlIjozLCJEZWxheSI6MTIzLCJTZW5kT25seU9uY2UiOnRydWUsIlN1cHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=\n", s);
+            Assert.AreEqual(guid+ ",1429192800000,False,eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJlaWQiOiJ1dWlkIiwiU3ViamVjdCI6IlN1YmplY3QiLCJCb2R5IjoiYm9keSIsIlVybCI6Imh0dHA6Ly9zZW5zb3JiZXJnLmNvbSIsIlBheWxvYWRTdHJpbmciOiJ7XCJwYXlcIjpcImxvYWRcIn0ifSwiYmVhY29ucyI6WyIxIiwiMiIsIjMiLCI0Il0sInRyaWdnZXIiOjMsIkRlbGF5IjoxMjMsIlNlbmRPbmx5T25jZSI6dHJ1ZSwic3VwcHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=\n", s);
         }
 
         [TestMethod]
@@ -134,21 +134,21 @@ namespace SensorbergSDKTests
             helper.Executed = false;
             helper.Offset = DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000");
             helper.Content =
-                "eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJVdWlkIjoidXVpZCIsIlN1YmplY3QiOiJTdWJqZWN0IiwiQm9keSI6ImJvZHkiLCJVcmwiOiJodHRwOi8vc2Vuc29yYmVyZy5jb20iLCJQYXlsb2FkU3RyaW5nIjoie1wicGF5XCI6XCJsb2FkXCJ9In0sIkJlYWNvblBpZHMiOlsiMSIsIjIiLCIzIiwiNCJdLCJFdmVudFR5cGVEZXRlY3RlZEJ5RGV2aWNlIjozLCJEZWxheSI6MTIzLCJTZW5kT25seU9uY2UiOnRydWUsIlN1cHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=";
+                "eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJlaWQiOiJ1dWlkIiwiU3ViamVjdCI6IlN1YmplY3QiLCJCb2R5IjoiYm9keSIsIlVybCI6Imh0dHA6Ly9zZW5zb3JiZXJnLmNvbSIsIlBheWxvYWRTdHJpbmciOiJ7XCJwYXlcIjpcImxvYWRcIn0ifSwiYmVhY29ucyI6WyIxIiwiMiIsIjMiLCI0Il0sInRyaWdnZXIiOjMsIkRlbGF5IjoxMjMsIlNlbmRPbmx5T25jZSI6dHJ1ZSwic3VwcHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=";
 
             string s = FileStorageHelper.DelayedActionToString(helper);
-            Assert.AreEqual(guid + ",1429192800000,False,eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJVdWlkIjoidXVpZCIsIlN1YmplY3QiOiJTdWJqZWN0IiwiQm9keSI6ImJvZHkiLCJVcmwiOiJodHRwOi8vc2Vuc29yYmVyZy5jb20iLCJQYXlsb2FkU3RyaW5nIjoie1wicGF5XCI6XCJsb2FkXCJ9In0sIkJlYWNvblBpZHMiOlsiMSIsIjIiLCIzIiwiNCJdLCJFdmVudFR5cGVEZXRlY3RlZEJ5RGV2aWNlIjozLCJEZWxheSI6MTIzLCJTZW5kT25seU9uY2UiOnRydWUsIlN1cHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=\n", s);
+            Assert.AreEqual(guid + ",1429192800000,False,eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJlaWQiOiJ1dWlkIiwiU3ViamVjdCI6IlN1YmplY3QiLCJCb2R5IjoiYm9keSIsIlVybCI6Imh0dHA6Ly9zZW5zb3JiZXJnLmNvbSIsIlBheWxvYWRTdHJpbmciOiJ7XCJwYXlcIjpcImxvYWRcIn0ifSwiYmVhY29ucyI6WyIxIiwiMiIsIjMiLCI0Il0sInRyaWdnZXIiOjMsIkRlbGF5IjoxMjMsIlNlbmRPbmx5T25jZSI6dHJ1ZSwic3VwcHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=\n", s);
         }
         [TestMethod]
         public void TestDelayedActionFromString()
         {
             Guid guid = Guid.NewGuid();
-            FileStorageHelper.DelayedActionHelper simpleDelayedActionFromString = FileStorageHelper.SimpleDelayedActionFromString(guid+",1429192800000,False,eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJVdWlkIjoidXVpZCIsIlN1YmplY3QiOiJTdWJqZWN0IiwiQm9keSI6ImJvZHkiLCJVcmwiOiJodHRwOi8vc2Vuc29yYmVyZy5jb20iLCJQYXlsb2FkU3RyaW5nIjoie1wicGF5XCI6XCJsb2FkXCJ9In0sIkJlYWNvblBpZHMiOlsiMSIsIjIiLCIzIiwiNCJdLCJFdmVudFR5cGVEZXRlY3RlZEJ5RGV2aWNlIjozLCJEZWxheSI6MTIzLCJTZW5kT25seU9uY2UiOnRydWUsIlN1cHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=");
+            FileStorageHelper.DelayedActionHelper simpleDelayedActionFromString = FileStorageHelper.SimpleDelayedActionFromString(guid+ ",1429192800000,False,eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJlaWQiOiJ1dWlkIiwiU3ViamVjdCI6IlN1YmplY3QiLCJCb2R5IjoiYm9keSIsIlVybCI6Imh0dHA6Ly9zZW5zb3JiZXJnLmNvbSIsIlBheWxvYWRTdHJpbmciOiJ7XCJwYXlcIjpcImxvYWRcIn0ifSwiYmVhY29ucyI6WyIxIiwiMiIsIjMiLCI0Il0sInRyaWdnZXIiOjMsIkRlbGF5IjoxMjMsIlNlbmRPbmx5T25jZSI6dHJ1ZSwic3VwcHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=");
 
             Assert.AreEqual(DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), simpleDelayedActionFromString.Offset, "Wrong offset");
             Assert.IsFalse(simpleDelayedActionFromString.Executed, "Is executed");
             string s =
-                "eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJVdWlkIjoidXVpZCIsIlN1YmplY3QiOiJTdWJqZWN0IiwiQm9keSI6ImJvZHkiLCJVcmwiOiJodHRwOi8vc2Vuc29yYmVyZy5jb20iLCJQYXlsb2FkU3RyaW5nIjoie1wicGF5XCI6XCJsb2FkXCJ9In0sIkJlYWNvblBpZHMiOlsiMSIsIjIiLCIzIiwiNCJdLCJFdmVudFR5cGVEZXRlY3RlZEJ5RGV2aWNlIjozLCJEZWxheSI6MTIzLCJTZW5kT25seU9uY2UiOnRydWUsIlN1cHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=";
+                "eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJlaWQiOiJ1dWlkIiwiU3ViamVjdCI6IlN1YmplY3QiLCJCb2R5IjoiYm9keSIsIlVybCI6Imh0dHA6Ly9zZW5zb3JiZXJnLmNvbSIsIlBheWxvYWRTdHJpbmciOiJ7XCJwYXlcIjpcImxvYWRcIn0ifSwiYmVhY29ucyI6WyIxIiwiMiIsIjMiLCI0Il0sInRyaWdnZXIiOjMsIkRlbGF5IjoxMjMsIlNlbmRPbmx5T25jZSI6dHJ1ZSwic3VwcHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=";
             Assert.AreEqual(s, simpleDelayedActionFromString.Content, "Wrong content");
 
             ResolvedAction action = new ResolvedAction();
@@ -165,7 +165,7 @@ namespace SensorbergSDKTests
             action.EventTypeDetectedByDevice = BeaconEventType.EnterExit;
             action.ReportImmediately = true;
             action.SendOnlyOnce = true;
-            action.SupressionTime = 321;
+            action.SuppressionTime = 321;
             action.Timeframes = new List<Timeframe>()
             {
                 new Timeframe() {End = DateTimeOffset.Parse("2015-04-16T12:00:00.000+0000"), Start = DateTimeOffset.Parse("2015-04-15T12:00:00.000+0000")}
@@ -236,7 +236,7 @@ namespace SensorbergSDKTests
         [TestMethod]
         public void TestBeaconActionToString()
         {
-            string s = "{\"Id\":1,\"Type\":3,\"Uuid\":\"uuid\",\"Subject\":\"Subject\",\"Body\":\"body\",\"Url\":\"http://sensorberg.com\",\"PayloadString\":\"{\\\"pay\\\":\\\"load\\\"}\"}";
+            string s = "{\"Id\":1,\"Type\":3,\"eid\":\"uuid\",\"Subject\":\"Subject\",\"Body\":\"body\",\"Url\":\"http://sensorberg.com\",\"PayloadString\":\"{\\\"pay\\\":\\\"load\\\"}\"}";
             BeaconAction beaconAction = new BeaconAction();
             beaconAction.Body = "body";
             beaconAction.Id = 1;
@@ -253,7 +253,7 @@ namespace SensorbergSDKTests
         [TestMethod]
         public void TestBeaconActionFromString()
         {
-            string s = "{\"Id\":1,\"Type\":3,\"Uuid\":\"uuid\",\"Subject\":\"Subject\",\"Body\":\"body\",\"Url\":\"http://sensorberg.com\",\"PayloadString\":\"{\\\"pay\\\":\\\"load\\\"}\"}";
+            string s = "{\"Id\":1,\"Type\":3,\"eid\":\"uuid\",\"Subject\":\"Subject\",\"Body\":\"body\",\"Url\":\"http://sensorberg.com\",\"PayloadString\":\"{\\\"pay\\\":\\\"load\\\"}\"}";
             BeaconAction beaconAction = new BeaconAction();
             beaconAction.Body = "body";
             beaconAction.Id = 1;

@@ -1,35 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
-using Windows.Data.Json;
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
+using SensorbergSDK.Internal.Transport.Converter;
 
 namespace SensorbergSDK.Internal
 {
     /// <summary>
     /// Represents a layout with beacons and actions associated with them.
     /// </summary>
+    [DataContract]
     public sealed class Layout
     {
         private const string KeyAccountBeaconId1s = "accountProximityUUIDs";
         private const string KeyActions = "actions";
         private const string KeyMaxAge = "max-age";
 
+        [DataMember(Name = "accountProximityUUIDs")]
         public IList<string> AccountBeaconId1s
         {
             get;
             private set;
         }
 
+        [DataMember(Name = "actions")]
+        [JsonConverter(typeof(ResolvedActionConverter))]
         public IList<ResolvedAction> ResolvedActions
         {
             get;
             private set;
         }
 
-        /*public IList<BeaconAction> InstantActions
+        private IList<BeaconAction> PlainActions
         {
             get;
-            private set;
-        }*/
+            set;
+        }
 
         public DateTimeOffset LastUpdated
         {
@@ -50,39 +56,35 @@ namespace SensorbergSDK.Internal
         /// <param name="content"></param>
         /// <param name="layoutRetrievedTime"></param>
         /// <returns></returns>
-        public static Layout FromJson(string headers, JsonObject content, DateTimeOffset layoutRetrievedTime)
+        public void FromJson(string headers/*, JsonObject content*/, DateTimeOffset layoutRetrievedTime)
         {
-            Layout layout = null;
 
             try
             {
-                layout = new Layout();
 
                 if (!string.IsNullOrEmpty(headers))
                 {
                     try
                     {
-                        layout.ResolveMaxAge(headers, layoutRetrievedTime);
+                        ResolveMaxAge(headers, layoutRetrievedTime);
                     }
                     catch (Exception)
                     {
-                        layout.ValidTill = DateTimeOffset.MaxValue;
+                        ValidTill = DateTimeOffset.MaxValue;
                     }
                 }
                 else
                 {
-                    layout.ValidTill = DateTimeOffset.MaxValue;
+                    ValidTill = DateTimeOffset.MaxValue;
                 }
 
-                layout.ResolveAccountBeaconId1s(content);
-                layout.ResolveActions(content);
+//                layout.ResolveAccountBeaconId1s(content);
+//                layout.ResolveActions(content);
             } 
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("Layout.FromJson(): Failed to parse: " + ex.ToString());
             }
-
-            return layout;
         }
 
         public Layout()
@@ -142,7 +144,7 @@ namespace SensorbergSDK.Internal
             ValidTill = layoutRetrievedTime + TimeSpan.FromSeconds(maxAgeAsDouble);
         }
 
-        private void ResolveAccountBeaconId1s(JsonObject content)
+       /* private void ResolveAccountBeaconId1s(JsonObject content)
         {
             AccountBeaconId1s.Clear();
             if (!content.ContainsKey(KeyAccountBeaconId1s))
@@ -176,6 +178,6 @@ namespace SensorbergSDK.Internal
                     ResolvedActions.Add(ResolvedAction.ResolvedActionFromJsonObject(resp.GetObject()));
                 }
             }
-        }
+        }*/
     }
 }
