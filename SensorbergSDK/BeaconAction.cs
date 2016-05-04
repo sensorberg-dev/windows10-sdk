@@ -35,19 +35,19 @@ namespace SensorbergSDK
         [DataMember]
         public int Id { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
-        [DataMember]
+        [DataMember/*(Name = "type")*/]
         public BeaconActionType Type { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
-        [DataMember]
+        [DataMember(Name = "eid")]
         public string Uuid { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
-        [DataMember]
+        [DataMember/*(Name = "subject")*/]
         public string Subject { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
-        [DataMember]
+        [DataMember/*(Name ="body")*/]
         public string Body { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
-        [DataMember]
+        [DataMember/*(Name = "url")*/]
         public string Url { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
         /// <summary>

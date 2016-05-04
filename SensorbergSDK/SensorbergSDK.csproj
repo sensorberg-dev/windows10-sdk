@@ -118,6 +118,7 @@
     <Compile Include="BeaconAction.cs" />
     <Compile Include="Internal\Constants.cs" />
     <Compile Include="AppSettings.cs" />
+    <Compile Include="Internal\Data\AppSettingsResponse.cs" />
     <Compile Include="Internal\Data\BackgroundEvent.cs" />
     <Compile Include="Internal\Data\BackgroundWorkerType.cs" />
     <Compile Include="Internal\Data\BeaconContainer.cs" />
@@ -129,6 +130,7 @@
     <Compile Include="Internal\SDKEngine.cs" />
     <Compile Include="Internal\Services\ApiConnection.cs" />
     <Compile Include="Internal\Services\Resolver.cs" />
+    <Compile Include="Internal\Transport\Converter\ResolvedActionConverter.cs" />
     <Compile Include="SdkConfiguration.cs" />
     <Compile Include="SensorbergSDKBackground\BackgroundEngine.cs" />
     <Compile Include="SensorbergSDKBackground\AdvertisementWatcherBackgroundWorker.cs" />

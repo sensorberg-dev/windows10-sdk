@@ -67,7 +67,7 @@ namespace SensorbergSDKTests
             action.EventTypeDetectedByDevice = BeaconEventType.EnterExit;
             action.ReportImmediately = true;
             action.SendOnlyOnce = true;
-            action.SupressionTime = 321;
+            action.SuppressionTime = 321;
             action.Timeframes = new List<Timeframe>()
             {
                 new Timeframe() {End = DateTimeOffset.Parse("2015-04-16T12:00:00.000+0000"), Start = DateTimeOffset.Parse("2015-04-15T12:00:00.000+0000")}
@@ -89,7 +89,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(action.EventTypeDetectedByDevice, delayAction.resolvedAction.EventTypeDetectedByDevice, "not same action event type");
             Assert.AreEqual(action.ReportImmediately, delayAction.resolvedAction.ReportImmediately, "not same ReportImmediately");
             Assert.AreEqual(action.SendOnlyOnce, delayAction.resolvedAction.SendOnlyOnce, "not same SendOnlyOnce");
-            Assert.AreEqual(action.SupressionTime, delayAction.resolvedAction.SupressionTime, "not same SendOnlyOnce");
+            Assert.AreEqual(action.SuppressionTime, delayAction.resolvedAction.SuppressionTime, "not same SendOnlyOnce");
             Assert.AreEqual(action.Timeframes.Count, delayAction.resolvedAction.Timeframes.Count, "not same Timeframes count");
             Assert.AreEqual(action.Timeframes[0].Start, delayAction.resolvedAction.Timeframes[0].Start, "not same Timeframes count");
             Assert.AreEqual(action.Timeframes[0].End, delayAction.resolvedAction.Timeframes[0].End, "not same Timeframes count");
@@ -121,7 +121,7 @@ namespace SensorbergSDKTests
             action2.EventTypeDetectedByDevice = BeaconEventType.EnterExit;
             action2.ReportImmediately = false;
             action2.SendOnlyOnce = false;
-            action2.SupressionTime = 3210;
+            action2.SuppressionTime = 3210;
             action2.Timeframes = new List<Timeframe>()
             {
                 new Timeframe() {End = DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), Start = DateTimeOffset.Parse("2014-04-15T12:00:00.000+0000")}
@@ -143,7 +143,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(action.EventTypeDetectedByDevice, delayAction.resolvedAction.EventTypeDetectedByDevice, "not same action event type");
             Assert.AreEqual(action.ReportImmediately, delayAction.resolvedAction.ReportImmediately, "not same ReportImmediately");
             Assert.AreEqual(action.SendOnlyOnce, delayAction.resolvedAction.SendOnlyOnce, "not same SendOnlyOnce");
-            Assert.AreEqual(action.SupressionTime, delayAction.resolvedAction.SupressionTime, "not same SendOnlyOnce");
+            Assert.AreEqual(action.SuppressionTime, delayAction.resolvedAction.SuppressionTime, "not same SendOnlyOnce");
             Assert.AreEqual(action.Timeframes.Count, delayAction.resolvedAction.Timeframes.Count, "not same Timeframes count");
             Assert.AreEqual(action.Timeframes[0].Start, delayAction.resolvedAction.Timeframes[0].Start, "not same Timeframes count");
             Assert.AreEqual(action.Timeframes[0].End, delayAction.resolvedAction.Timeframes[0].End, "not same Timeframes count");
@@ -170,7 +170,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(action.EventTypeDetectedByDevice, delayAction.resolvedAction.EventTypeDetectedByDevice, "not same action event type");
             Assert.AreEqual(action.ReportImmediately, delayAction.resolvedAction.ReportImmediately, "not same ReportImmediately");
             Assert.AreEqual(action.SendOnlyOnce, delayAction.resolvedAction.SendOnlyOnce, "not same SendOnlyOnce");
-            Assert.AreEqual(action.SupressionTime, delayAction.resolvedAction.SupressionTime, "not same SendOnlyOnce");
+            Assert.AreEqual(action.SuppressionTime, delayAction.resolvedAction.SuppressionTime, "not same SendOnlyOnce");
             Assert.AreEqual(action.Timeframes.Count, delayAction.resolvedAction.Timeframes.Count, "not same Timeframes count");
             Assert.AreEqual(action.Timeframes[0].Start, delayAction.resolvedAction.Timeframes[0].Start, "not same Timeframes count");
             Assert.AreEqual(action.Timeframes[0].End, delayAction.resolvedAction.Timeframes[0].End, "not same Timeframes count");

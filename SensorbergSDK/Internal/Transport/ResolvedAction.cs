@@ -84,7 +84,7 @@ namespace SensorbergSDK.Internal
             set;
         }
 
-        [DataMember]
+        [DataMember(Name = "beacons")]
         public ICollection<string> BeaconPids
         {
             [DebuggerStepThrough]
@@ -93,7 +93,7 @@ namespace SensorbergSDK.Internal
             set { beaconPids = value; }
         }
 
-        [DataMember]
+        [DataMember(Name = "trigger")]
         public BeaconEventType EventTypeDetectedByDevice
         {
             [DebuggerStepThrough]
@@ -120,8 +120,8 @@ namespace SensorbergSDK.Internal
             set;
         }
 
-        [DataMember]
-        public int SupressionTime
+        [DataMember(Name = "suppressionTime")]
+        public int SuppressionTime
         {
             [DebuggerStepThrough]
             get;
@@ -219,38 +219,12 @@ namespace SensorbergSDK.Internal
             resolvedAction.EventTypeDetectedByDevice = (BeaconEventType)trigger;
             resolvedAction.Delay = delaySeconds;
             resolvedAction.SendOnlyOnce = sendOnlyOnce;
-            resolvedAction.SupressionTime = supressionTime;
+            resolvedAction.SuppressionTime = supressionTime;
             resolvedAction.ReportImmediately = reportImmediately;
 
             return resolvedAction;
         }
 
-        /// <summary>
-        /// Serializes the given ResolvedAction instance.
-        /// </summary>
-        /// <param name="resolvedAction">The instance to serialize.</param>
-        /// <returns>The serialized instance as string.</returns>
-        public static string Serialize(ResolvedAction resolvedAction)
-        {
-            MemoryStream stream = new MemoryStream();
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ResolvedAction));
-            serializer.WriteObject(stream, resolvedAction);
-            stream.Position = 0;
-            StreamReader streamReader = new StreamReader(stream);
-            return streamReader.ReadToEnd();
-        }
-
-        /// <summary>
-        /// Deserializes the given serialized ResolvedAction.
-        /// </summary>
-        /// <param name="serializedResolvedAction">The serialized ResolvedAction as string.</param>
-        /// <returns>The deserialized ResolvedAction instance.</returns>
-        public static ResolvedAction Deserialize(string serializedResolvedAction)
-        {
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ResolvedAction));
-            var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(serializedResolvedAction));
-            return (ResolvedAction)serializer.ReadObject(stream);
-        }
 
         /// <summary>
         /// 
@@ -308,7 +282,7 @@ namespace SensorbergSDK.Internal
         private bool Equals(ResolvedAction other)
         {
             return /*Equals(beaconPids, other.beaconPids)*/ (!beaconPids?.Except(other.beaconPids).GetEnumerator().MoveNext()).Value && Equals(BeaconAction.ToString(), other.BeaconAction.ToString()) && EventTypeDetectedByDevice == other.EventTypeDetectedByDevice &&
-                   Delay == other.Delay && SendOnlyOnce == other.SendOnlyOnce && SupressionTime == other.SupressionTime && ReportImmediately == other.ReportImmediately &&
+                   Delay == other.Delay && SendOnlyOnce == other.SendOnlyOnce && SuppressionTime == other.SuppressionTime && ReportImmediately == other.ReportImmediately &&
                    /*Equals(Timeframes, other.Timeframes)*/ (!Timeframes?.Except(other.Timeframes).GetEnumerator().MoveNext()).Value;
         }
 
@@ -328,7 +302,7 @@ namespace SensorbergSDK.Internal
                 hashCode = (hashCode*397) ^ (int) EventTypeDetectedByDevice;
                 hashCode = (hashCode*397) ^ Delay.GetHashCode();
                 hashCode = (hashCode*397) ^ SendOnlyOnce.GetHashCode();
-                hashCode = (hashCode*397) ^ SupressionTime;
+                hashCode = (hashCode*397) ^ SuppressionTime;
                 hashCode = (hashCode*397) ^ ReportImmediately.GetHashCode();
                 hashCode = (hashCode*397) ^ (Timeframes != null ? Timeframes.GetHashCode() : 0);
                 return hashCode;

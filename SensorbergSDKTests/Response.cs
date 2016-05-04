@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Newtonsoft.Json;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
@@ -31,7 +32,11 @@ namespace SensorbergSDKTests
             string text = await FileIO.ReadTextAsync(file);
             var val = JsonValue.Parse(text);
 
-            Layout resp = Layout.FromJson(null, val.GetObject(), DateTimeOffset.Now);
+            Layout resp = JsonConvert.DeserializeObject<Layout>(text, new JsonSerializerSettings
+            {
+                DateTimeZoneHandling = DateTimeZoneHandling.Utc
+            });
+            resp?.FromJson(null, DateTimeOffset.Now);
 
             Assert.IsNotNull(resp);
             Assert.AreEqual(2, resp.AccountBeaconId1s.Count);
@@ -50,7 +55,11 @@ namespace SensorbergSDKTests
             string text = await FileIO.ReadTextAsync(file);
             var val = JsonValue.Parse(text);
 
-            Layout resp = Layout.FromJson(null, val.GetObject(), DateTimeOffset.Now);
+            Layout resp = JsonConvert.DeserializeObject<Layout>(text, new JsonSerializerSettings
+            {
+                DateTimeZoneHandling = DateTimeZoneHandling.Utc
+            });
+            resp?.FromJson(null, DateTimeOffset.Now);
 
             Assert.IsNotNull(resp);
             Assert.AreEqual(1, resp.AccountBeaconId1s.Count);
@@ -74,7 +83,11 @@ namespace SensorbergSDKTests
             string text = await FileIO.ReadTextAsync(file);
             var val = JsonValue.Parse(text);
 
-            Layout resp = Layout.FromJson(null, val.GetObject(), DateTimeOffset.Now);
+            Layout resp = JsonConvert.DeserializeObject<Layout>(text, new JsonSerializerSettings
+            {
+                DateTimeZoneHandling = DateTimeZoneHandling.Utc
+            });
+            resp?.FromJson(null, DateTimeOffset.Now);
 
             Assert.IsNotNull(resp);
             Assert.AreEqual(1, resp.AccountBeaconId1s.Count);
@@ -98,7 +111,11 @@ namespace SensorbergSDKTests
             string text = await FileIO.ReadTextAsync(file);
             var val = JsonValue.Parse(text);
 
-            Layout resp = Layout.FromJson(null, val.GetObject(), DateTimeOffset.Now);
+            Layout resp = JsonConvert.DeserializeObject<Layout>(text, new JsonSerializerSettings
+            {
+                DateTimeZoneHandling = DateTimeZoneHandling.Utc
+            });
+            resp?.FromJson(null, DateTimeOffset.Now);
 
             Assert.IsNotNull(resp);
             Assert.AreEqual(1, resp.AccountBeaconId1s.Count);
@@ -122,7 +139,11 @@ namespace SensorbergSDKTests
             string text = await FileIO.ReadTextAsync(file);
             var val = JsonValue.Parse(text);
 
-            Layout resp = Layout.FromJson(null, val.GetObject(), DateTimeOffset.Now);
+            Layout resp = JsonConvert.DeserializeObject<Layout>(text, new JsonSerializerSettings
+            {
+                DateTimeZoneHandling = DateTimeZoneHandling.Utc
+            });
+            resp?.FromJson(null, DateTimeOffset.Now);
 
             Assert.IsNotNull(resp);
             Assert.AreEqual(1, resp.AccountBeaconId1s.Count);
@@ -146,7 +167,11 @@ namespace SensorbergSDKTests
             string text = await FileIO.ReadTextAsync(file);
             var val = JsonValue.Parse(text);
 
-            Layout resp = Layout.FromJson(null, val.GetObject(), DateTimeOffset.Now);
+            Layout resp = JsonConvert.DeserializeObject<Layout>(text, new JsonSerializerSettings
+            {
+                DateTimeZoneHandling = DateTimeZoneHandling.Utc
+            });
+            resp?.FromJson(null, DateTimeOffset.Now);
 
             Assert.IsNotNull(resp);
             Assert.AreEqual(1, resp.AccountBeaconId1s.Count);
@@ -158,7 +183,7 @@ namespace SensorbergSDKTests
 
             foreach (var item in list)
             {
-                Assert.IsTrue(item.SupressionTime == 30);
+                Assert.IsTrue(item.SuppressionTime == 30);
             }
         }
 
@@ -168,26 +193,17 @@ namespace SensorbergSDKTests
             var uri = new Uri("ms-appx:///Assets/raw/response_sendOnlyOnce_true.json");
             var file = await StorageFile.GetFileFromApplicationUriAsync(uri);
             string text = await FileIO.ReadTextAsync(file);
-            var val = JsonValue.Parse(text);
-
-            Layout resp = Layout.FromJson(null, val.GetObject(), DateTimeOffset.Now);
+            Layout resp = JsonConvert.DeserializeObject<Layout>(text, new JsonSerializerSettings
+                {
+                    DateTimeZoneHandling = DateTimeZoneHandling.Utc
+                });
+            resp?.FromJson(null, DateTimeOffset.Now);
 
             Assert.IsNotNull(resp);
             Assert.AreEqual(1, resp.AccountBeaconId1s.Count);
             Assert.AreEqual(1, resp.ResolvedActions.Count);
 
             IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent("7367672374000000ffff0000ffff00070800800005", BeaconEventType.Exit);
-
-            foreach (var item in list)
-            {
-                string strObj = ResolvedAction.Serialize(item);
-
-                ResolvedAction obj = ResolvedAction.Deserialize(strObj);
-
-                Assert.AreEqual(obj.BeaconAction.Url, item.BeaconAction.Url);
-                Assert.AreEqual(obj.BeaconAction.Subject, item.BeaconAction.Subject);
-                Assert.AreEqual(obj.ReportImmediately, item.ReportImmediately);
-            }
         }
     }
 }

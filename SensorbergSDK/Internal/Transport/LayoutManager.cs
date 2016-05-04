@@ -114,8 +114,7 @@ namespace SensorbergSDK.Internal
             {
                 if (await VerifyLayoutAsync(false))
                 {
-                    request.ResolvedActions = Layout.GetResolvedActionsForPidAndEvent(
-                        request.BeaconEventArgs.Beacon.Pid, request.BeaconEventArgs.EventType);
+                    request.ResolvedActions = Layout.GetResolvedActionsForPidAndEvent(request.BeaconEventArgs.Beacon.Pid, request.BeaconEventArgs.EventType);
 
                     foreach (ResolvedAction resolvedAction in request.ResolvedActions)
                     {

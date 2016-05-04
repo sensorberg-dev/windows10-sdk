@@ -32,6 +32,7 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
+        [Timeout(10000)]
         public async Task Integration_connection()
         {
             SDKData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
@@ -50,6 +51,7 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
+        [Timeout(10000)]
         public async Task Integration_timeframes1()
         {
             SDKData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
@@ -74,6 +76,7 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
+        [Timeout(10000)]
         public async Task Integration_timeframes2()
         {
             SDKData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
@@ -98,6 +101,7 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
+        [Timeout(10000)]
         public async Task Integration_payload()
         {
             SDKData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";

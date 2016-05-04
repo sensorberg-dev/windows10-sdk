@@ -1,11 +1,15 @@
-﻿using System;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.Serialization.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Data.Json;
 using Windows.Storage;
+using Newtonsoft.Json;
+using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Services;
 
 namespace SensorbergSDK.Internal.Services
@@ -75,16 +79,13 @@ namespace SensorbergSDK.Internal.Services
                     return null;
                 }
 
-                var parsed = JsonValue.Parse(responseMessage);
+                var settings = JsonConvert.DeserializeObject<AppSettingsResponse>(responseMessage);
 
-                var settingsParsed = parsed.GetObject()["settings"];
+                SaveSettingsToStorage(settings.Settings);
 
-                var settings = AppSettings.FromJson(settingsParsed.GetObject());
-                SaveSettingsToStorage(settings);
+                Debug.WriteLine("Got settings from api. " + settings.Settings);
 
-                Debug.WriteLine("Got settings from api. " + settings);
-
-                return settings;
+                return settings.Settings;
             }
             catch (Exception ex)
             {
@@ -103,13 +104,7 @@ namespace SensorbergSDK.Internal.Services
 
         private void SaveSettingsToStorage(AppSettings settings)
         {
-            MemoryStream stream1 = new MemoryStream();
-            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(AppSettings));
-            ser.WriteObject(stream1, settings);
-            stream1.Position = 0;
-            StreamReader sr = new StreamReader(stream1);
-            string jsonString = sr.ReadToEnd();
-            _localSettings.Values[STORAGE_KEY] = jsonString;
+            _localSettings.Values[STORAGE_KEY] = JsonConvert.SerializeObject(settings);
         }
 
         private AppSettings GetSettingsFromStorage()
@@ -122,9 +117,7 @@ namespace SensorbergSDK.Internal.Services
             {
                 return null;
             }
-
-            var parsed = JsonValue.Parse(storageString);
-            return AppSettings.FromJson(parsed.GetObject());
+            return JsonConvert.DeserializeObject<AppSettings>(storageString);
         }
 
         public void Dispose()
