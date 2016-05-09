@@ -4,11 +4,9 @@
 // 
 // All rights reserved.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;

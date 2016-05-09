@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Data.Json;
-using Windows.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;

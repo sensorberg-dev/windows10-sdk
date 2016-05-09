@@ -6,9 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
-using Windows.Data.Json;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;

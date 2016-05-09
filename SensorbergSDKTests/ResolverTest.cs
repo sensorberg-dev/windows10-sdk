@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;

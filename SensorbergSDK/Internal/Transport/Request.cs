@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using Windows.Foundation.Metadata;
 
 namespace SensorbergSDK.Internal
 {
@@ -13,7 +12,7 @@ namespace SensorbergSDK.Internal
         None,
         Failed,
         Success
-    };
+    }
 
     public sealed class Request
     {
@@ -72,7 +71,7 @@ namespace SensorbergSDK.Internal
         }
 
         /// <summary>
-        /// Constructor.
+        /// Creates an new Request object.
         /// </summary>
         /// <param name="beaconEventArgs">The beacon event details.</param>
         /// <param name="requestId">The request ID (can be arbitrary).</param>
@@ -81,10 +80,6 @@ namespace SensorbergSDK.Internal
             BeaconEventArgs = beaconEventArgs;
             RequestId = requestId;
             ResultState = RequestResultState.None;
-        }
-         
-        private Request()
-        {
         }
 
         /// <summary>

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
