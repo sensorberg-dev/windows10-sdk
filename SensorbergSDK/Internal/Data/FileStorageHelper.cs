@@ -258,7 +258,7 @@ namespace SensorbergSDK.Internal.Data
             data.eventTypeDetectedByDevice = deserializeObject.Event;
 
             data.resolvedAction = deserializeObject.Action;
-            if (!string.IsNullOrEmpty(deserializeObject.Action.BeaconAction.PayloadString))
+            if (!string.IsNullOrEmpty(deserializeObject.Action.BeaconAction?.PayloadString))
             {
                 data.resolvedAction.BeaconAction.Payload = JsonObject.Parse(deserializeObject.Action.BeaconAction.PayloadString);
             }

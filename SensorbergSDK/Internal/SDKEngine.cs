@@ -221,21 +221,28 @@ namespace SensorbergSDK.Internal
         /// <param name="beaconEventType"></param>
         private async Task ExecuteActionAsync(ResolvedAction resolvedAction, string beaconPid, BeaconEventType beaconEventType)
         {
-            logger.Debug("SDKEngine: ExecuteActionAsync " + beaconPid + " BeaconEventType: " + beaconEventType);
-            bool checkOnlyOnce = await _eventHistory.CheckSendOnlyOnceAsync(resolvedAction);
-            bool shouldSupress = await _eventHistory.ShouldSupressAsync(resolvedAction);
-
-            logger.Trace("SDKEngine: ExecuteActionAsync " + beaconPid + " checkOnlyOnce: " + checkOnlyOnce + " shouldSupress:" + shouldSupress);
-            if (!shouldSupress && !checkOnlyOnce && resolvedAction.IsInsideTimeframes(DateTimeOffset.Now))
+            try
             {
-                logger.Trace("SDKEngine: ExecuteActionAsync " + beaconPid + " action resolved");
-                await _eventHistory.SaveExecutedResolvedActionAsync(resolvedAction.BeaconAction, beaconPid, beaconEventType);
+                logger.Debug("SDKEngine: ExecuteActionAsync " + beaconPid + " BeaconEventType: " + beaconEventType);
+                bool checkOnlyOnce = await _eventHistory.CheckSendOnlyOnceAsync(resolvedAction);
+                bool shouldSupress = await _eventHistory.ShouldSupressAsync(resolvedAction);
 
-                BeaconActionResolved?.Invoke(this, resolvedAction.BeaconAction);
+                logger.Trace("SDKEngine: ExecuteActionAsync " + beaconPid + " checkOnlyOnce: " + checkOnlyOnce + " shouldSupress:" + shouldSupress);
+                if (!shouldSupress && !checkOnlyOnce && resolvedAction.IsInsideTimeframes(DateTimeOffset.Now))
+                {
+                    logger.Trace("SDKEngine: ExecuteActionAsync " + beaconPid + " action resolved");
+                    await _eventHistory.SaveExecutedResolvedActionAsync(resolvedAction.BeaconAction, beaconPid, beaconEventType);
+
+                    BeaconActionResolved?.Invoke(this, resolvedAction.BeaconAction);
+                }
+                else
+                {
+                    logger.Trace("SDKEngine: ExecuteActionAsync " + beaconPid + " action not resolved");
+                }
             }
-            else
+            catch (Exception e)
             {
-                logger.Trace("SDKEngine: ExecuteActionAsync " + beaconPid + " action not resolved");
+                logger.Error("Error during ExecuteActionAsync", e);
             }
         }
 
