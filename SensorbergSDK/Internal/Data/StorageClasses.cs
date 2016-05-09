@@ -36,17 +36,6 @@ namespace SensorbergSDK.Internal
     public class HistoryEvent
     {
 
-        public HistoryEvent()
-        {
-        }
-
-//        public HistoryEvent(DBHistoryEvent dbEvent)
-//        {
-//            pid = dbEvent.pid;
-//            dt = dbEvent.dt.ToString(History.TIMEFORMAT);
-////            dt = dbEvent.dt.ToString(History.Formater.FormatProvider);
-//            trigger = dbEvent.trigger;
-//        }
         [DataMember]
         // ReSharper disable once InconsistentNaming
         public string pid { get; set; } //beaconId
@@ -63,17 +52,6 @@ namespace SensorbergSDK.Internal
     [DataContract]
     public class HistoryAction
     {
-        public HistoryAction()
-        {
-        }
-//        public HistoryAction(DBHistoryAction dbAction)
-//        {
-//            eid = dbAction.eid;
-//            pid = dbAction.pid;
-//            dt = dbAction.dt.ToString(History.TIMEFORMAT);
-//            //            dt = dbAction.dt.ToString(History.Formater.FormatProvider);
-//            trigger = dbAction.trigger;
-//        }
         [DataMember]
         public string eid { get; set; } //eventId
         [DataMember]

@@ -82,10 +82,9 @@ namespace SensorbergSDK.Internal
                 {
                     Request currentRequest = _requestQueue.Dequeue();
 
-                    if (currentRequest != null && !currentRequest.IsBeingProcessed)
+                    if (currentRequest != null)
                     {
                         logger.Trace("RequestQueue: take next request " + currentRequest.RequestId);
-                        currentRequest.IsBeingProcessed = true;
                         currentRequest.TryCount++;
                         RequestResultState requestResult = RequestResultState.None;
 
@@ -133,8 +132,6 @@ namespace SensorbergSDK.Internal
                                 break;
                             }
                         }
-
-                        currentRequest.IsBeingProcessed = false;
                     }
                 }
             }

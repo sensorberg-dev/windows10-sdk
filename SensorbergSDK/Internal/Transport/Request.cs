@@ -53,13 +53,6 @@ namespace SensorbergSDK.Internal
             private set;
         }
 
-        [Obsolete]
-        public bool IsBeingProcessed
-        {
-            get;
-            set;
-        }
-
         public int TryCount
         {
             get;
