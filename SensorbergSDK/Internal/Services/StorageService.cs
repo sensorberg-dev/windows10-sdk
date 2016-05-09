@@ -124,21 +124,21 @@ namespace SensorbergSDK.Internal.Services
             try
             {
                 History history = new History();
-                history.actions = await Storage.GetUndeliveredActions();
-                history.events = await Storage.GetUndeliveredEvents();
+                history.Actions = await Storage.GetUndeliveredActions();
+                history.Events = await Storage.GetUndeliveredEvents();
 
-                if ((history.events != null && history.events.Count > 0) || (history.actions != null && history.actions.Count > 0))
+                if ((history.Events != null && history.Events.Count > 0) || (history.Actions != null && history.Actions.Count > 0))
                 {
                     var responseMessage = await ExecuteCall(async () => await ServiceManager.ApiConnction.SendHistory(history));
 
                     if (responseMessage.IsSuccess)
                     {
-                        if ((history.events != null && history.events.Count > 0))
+                        if ((history.Events != null && history.Events.Count > 0))
                         {
                             await Storage.SetEventsAsDelivered();
                         }
 
-                        if (history.actions != null && history.actions.Count > 0)
+                        if (history.Actions != null && history.Actions.Count > 0)
                         {
                             await Storage.SetActionsAsDelivered();
                         }
@@ -410,7 +410,7 @@ namespace SensorbergSDK.Internal.Services
             List<HistoryAction> historyActions = await Storage.GetActionsForForeground(doNotDelete);
             foreach (HistoryAction historyAction in historyActions)
             {
-                ResolvedAction action = ServiceManager.LayoutManager.GetAction(historyAction.eid);
+                ResolvedAction action = ServiceManager.LayoutManager.GetAction(historyAction.Eid);
                 beaconActions.Add(action.BeaconAction);
             }
 

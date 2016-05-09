@@ -188,15 +188,15 @@ namespace SensorbergSDK.Internal
 
             foreach (DelayedActionData delayedActionData in delayedActionDataList)
             {
-                if (delayedActionData.dueTime < DateTimeOffset.Now.AddSeconds(DelayedActionExecutionTimeframeInSeconds))
+                if (delayedActionData.DueTime < DateTimeOffset.Now.AddSeconds(DelayedActionExecutionTimeframeInSeconds))
                 {
                     // Time to execute
-                    await ExecuteActionAsync(delayedActionData.resolvedAction, delayedActionData.beaconPid, delayedActionData.eventTypeDetectedByDevice);
+                    await ExecuteActionAsync(delayedActionData.ResolvedAction, delayedActionData.BeaconPid, delayedActionData.EventTypeDetectedByDevice);
                     await ServiceManager.StorageService.SetDelayedActionAsExecuted(delayedActionData.Id);
                 }
-                else if (delayedActionData.dueTime < nearestDueTime)
+                else if (delayedActionData.DueTime < nearestDueTime)
                 {
-                    nearestDueTime = delayedActionData.dueTime;
+                    nearestDueTime = delayedActionData.DueTime;
                 }
             }
             if (_appIsOnForeground)

@@ -60,12 +60,12 @@ namespace SensorbergSDKTests.Mocks
 
         public async Task<IList<HistoryAction>> GetActions(string uuid)
         {
-            return UndeliveredActions.Where(a => a.eid == uuid).ToList();
+            return UndeliveredActions.Where(a => a.Eid == uuid).ToList();
         }
 
         public async Task<HistoryAction> GetAction(string uuid)
         {
-            return UndeliveredActions.FirstOrDefault(a => a.eid == uuid);
+            return UndeliveredActions.FirstOrDefault(a => a.Eid == uuid);
         }
 
         public Task CleanDatabase()
@@ -76,7 +76,7 @@ namespace SensorbergSDKTests.Mocks
         public async Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds)
         {
             DateTimeOffset maxDelayfromNow = DateTimeOffset.Now.AddSeconds(maxDelayFromNowInSeconds);
-            return DelayedActions.Where(da => da.dueTime < maxDelayfromNow).ToList();
+            return DelayedActions.Where(da => da.DueTime < maxDelayfromNow).ToList();
         }
 
         public async Task SetDelayedActionAsExecuted(string id)
@@ -86,7 +86,7 @@ namespace SensorbergSDKTests.Mocks
 
         public async Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice)
         {
-            DelayedActions.Add(new DelayedActionData() {beaconPid = beaconPid,dueTime = dueTime, eventTypeDetectedByDevice =  eventTypeDetectedByDevice, Id = Guid.NewGuid().ToString(), resolvedAction = action});
+            DelayedActions.Add(new DelayedActionData() {BeaconPid = beaconPid,DueTime = dueTime, EventTypeDetectedByDevice =  eventTypeDetectedByDevice, Id = Guid.NewGuid().ToString(), ResolvedAction = action});
             return true;
         }
 

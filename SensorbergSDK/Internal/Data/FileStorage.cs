@@ -147,7 +147,7 @@ namespace SensorbergSDK.Internal.Data
             try
             {
                 StorageFolder folder = await GetFolder(Background ? BACKGROUND_EVENTS_FOLDER : FOREGROUND_EVENTS_FOLDER);
-                StorageFile file = await folder.CreateFileAsync(he.pid, CreationCollisionOption.OpenIfExists);
+                StorageFile file = await folder.CreateFileAsync(he.Pid, CreationCollisionOption.OpenIfExists);
                 string eventToString = FileStorageHelper.EventToString(he);
                 return await RetryAppending(file, eventToString);
             }
@@ -167,7 +167,7 @@ namespace SensorbergSDK.Internal.Data
 
             foreach (HistoryAction historyAction in actions)
             {
-                if (historyAction.eid == uuid)
+                if (historyAction.Eid == uuid)
                 {
                     returnActions.Add(historyAction);
                 }
@@ -179,7 +179,7 @@ namespace SensorbergSDK.Internal.Data
                 List<HistoryAction> actionsFromStrings = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(storageFile));
                 foreach (HistoryAction historyAction in actionsFromStrings)
                 {
-                    if (historyAction.eid == uuid)
+                    if (historyAction.Eid == uuid)
                     {
                         returnActions.Add(historyAction);
                     }

@@ -78,7 +78,7 @@ namespace SensorbergSDK.Internal
                     {
                         foreach (var dbHistoryAction in dbHistoryActions)
                         {
-                            var actionTimestamp = DateTimeOffset.Parse(dbHistoryAction.dt).AddSeconds(resolvedAction.SuppressionTime);
+                            var actionTimestamp = DateTimeOffset.Parse(dbHistoryAction.ActionTime).AddSeconds(resolvedAction.SuppressionTime);
 
                             if (actionTimestamp > DateTimeOffset.Now)
                             {

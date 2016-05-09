@@ -68,8 +68,8 @@ namespace SensorbergSDKTests.Mocks
             }
             if (history != null)
             {
-                HistoryEvents.AddRange(history.events);
-                HistoryActions.AddRange(history.actions);
+                HistoryEvents.AddRange(history.Events);
+                HistoryActions.AddRange(history.Actions);
             }
             return Task.FromResult(new ResponseMessage() {IsSuccess = true});
         }
