@@ -23,7 +23,7 @@ namespace SensorbergSDK.Internal
     [DataContract]
     public class History
     {
-        public const string TIMEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.fffzzz";
+        public const string Timeformat = "yyyy-MM-dd'T'HH:mm:ss.fffzzz";
         [DataMember(Name="deviceTimestamp")]
         public string DeviceTimestamp { get; set; }
         [DataMember(Name= "events")]
@@ -37,9 +37,9 @@ namespace SensorbergSDK.Internal
     {
 
         [DataMember(Name = "pid")]
-        public string Pid { get; set; } //beaconId
+        public string BeaconId { get; set; }
         [DataMember(Name = "dt")]
-        public string EventTime { get; set; } //eventDate
+        public string EventTime { get; set; }
         [DataMember(Name = "trigger")]
         public int Trigger { get; set; }
 
@@ -50,11 +50,11 @@ namespace SensorbergSDK.Internal
     public class HistoryAction
     {
         [DataMember(Name = "eid")]
-        public string Eid { get; set; } //eventId
+        public string EventId { get; set; } 
         [DataMember(Name = "pid")]
-        public string Pid { get; set; } //beaconId
+        public string BeaconId { get; set; }
         [DataMember(Name = "dt")]
-        public string ActionTime { get; set; } //eventDate
+        public string ActionTime { get; set; } 
         [DataMember(Name = "trigger")]
         public int Trigger { get; set; }
         public bool Delivered { get; set; }

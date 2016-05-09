@@ -59,7 +59,7 @@ namespace SensorbergSDK.Internal
     [DataContract]
     public sealed class ResolvedAction
     {
-        private ICollection<string> beaconPids;
+        private ICollection<string> _beaconPids;
 
         [DataMember]
         public BeaconAction BeaconAction
@@ -74,9 +74,9 @@ namespace SensorbergSDK.Internal
         public ICollection<string> BeaconPids
         {
             [DebuggerStepThrough]
-            get { return beaconPids; }
+            get { return _beaconPids; }
             [DebuggerStepThrough]
-            set { beaconPids = value; }
+            set { _beaconPids = value; }
         }
 
         [DataMember(Name = "trigger")]
@@ -195,7 +195,7 @@ namespace SensorbergSDK.Internal
 
         private bool Equals(ResolvedAction other)
         {
-            return /*Equals(beaconPids, other.beaconPids)*/ (!beaconPids?.Except(other.beaconPids).GetEnumerator().MoveNext()).Value && Equals(BeaconAction.ToString(), other.BeaconAction.ToString()) && EventTypeDetectedByDevice == other.EventTypeDetectedByDevice &&
+            return /*Equals(beaconPids, other.beaconPids)*/ (!_beaconPids?.Except(other._beaconPids).GetEnumerator().MoveNext()).Value && Equals(BeaconAction.ToString(), other.BeaconAction.ToString()) && EventTypeDetectedByDevice == other.EventTypeDetectedByDevice &&
                    Delay == other.Delay && SendOnlyOnce == other.SendOnlyOnce && SuppressionTime == other.SuppressionTime && ReportImmediately == other.ReportImmediately &&
                    /*Equals(Timeframes, other.Timeframes)*/ (!Timeframes?.Except(other.Timeframes).GetEnumerator().MoveNext()).Value;
         }
@@ -211,7 +211,7 @@ namespace SensorbergSDK.Internal
         {
             unchecked
             {
-                var hashCode = (beaconPids != null ? beaconPids.GetHashCode() : 0);
+                var hashCode = (_beaconPids != null ? _beaconPids.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (BeaconAction != null ? BeaconAction.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (int) EventTypeDetectedByDevice;
                 hashCode = (hashCode*397) ^ Delay.GetHashCode();

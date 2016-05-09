@@ -71,7 +71,7 @@ namespace SensorbergSDKBackground
             {
                 foreach (var bleAdvertisementReceivedEventArgs in triggerDetails.Advertisements)
                 {
-                    Beacon beacon = BeaconFactory.BeaconFromBluetoothLEAdvertisementReceivedEventArgs(bleAdvertisementReceivedEventArgs);
+                    Beacon beacon = BeaconFactory.BeaconFromBluetoothLeAdvertisementReceivedEventArgs(bleAdvertisementReceivedEventArgs);
                     beacons.Add(beacon);
                 }
             }
@@ -80,7 +80,7 @@ namespace SensorbergSDKBackground
 
         private void OnFinished(object sender, BackgroundWorkerType type)
         {
-            if (type == BackgroundWorkerType.ADVERTISEMENT_WORKER)
+            if (type == BackgroundWorkerType.AdvertisementWorker)
             {
                 BackgroundEngine.ProcessDelayedActionsAsync().ConfigureAwait(false);
             }

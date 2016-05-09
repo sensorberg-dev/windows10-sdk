@@ -39,7 +39,7 @@ namespace SensorbergSDKTests.Mocks
         }
 
 
-        public async Task<ResponseMessage> RetrieveLayoutResponse(SDKData data, string apiId = null)
+        public async Task<ResponseMessage> RetrieveLayoutResponse(SdkData data, string apiId = null)
         {
             return new ResponseMessage()
             {
@@ -47,7 +47,7 @@ namespace SensorbergSDKTests.Mocks
             };
         }
 
-        public async Task<string> LoadSettings(SDKData sdkData)
+        public async Task<string> LoadSettings(SdkData sdkData)
         {
             return MockSettings;
         }

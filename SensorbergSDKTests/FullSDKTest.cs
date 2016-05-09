@@ -40,7 +40,7 @@ namespace SensorbergSDKTests
         [TestCleanup]
         public void Teardown()
         {
-            SDKManager sdkManager = SDKManager.Instance();
+            SdkManager sdkManager = SdkManager.Instance();
             sdkManager.Deinitialize(true);
         }
 
@@ -50,9 +50,9 @@ namespace SensorbergSDKTests
             try
             {
                 MockBeaconScanner scanner = (MockBeaconScanner) ServiceManager.BeaconScanner;
-                SDKData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
+                SdkData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
 
-                SDKManager sdkManager = SDKManager.Instance();
+                SdkManager sdkManager = SdkManager.Instance();
                 sdkManager.ScannerStatusChanged += (sender, status) => { };
                 TaskCompletionSource<BeaconAction> actionResolved = new TaskCompletionSource<BeaconAction>();
                 sdkManager.BeaconActionResolved += (sender, action) =>
@@ -93,9 +93,9 @@ namespace SensorbergSDKTests
         public async Task BeaconMultipleEntered()
         {
             MockBeaconScanner scanner = (MockBeaconScanner) ServiceManager.BeaconScanner;
-            SDKData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
+            SdkData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
 
-            SDKManager sdkManager = SDKManager.Instance();
+            SdkManager sdkManager = SdkManager.Instance();
             sdkManager.ScannerStatusChanged += (sender, status) => { };
             TaskCompletionSource<BeaconAction> actionResolved = new TaskCompletionSource<BeaconAction>();
             List<BeaconAction> actions = new List<BeaconAction>();
@@ -137,9 +137,9 @@ namespace SensorbergSDKTests
         public async Task BeaconMultipleEnteredOneFired()
         {
             MockBeaconScanner scanner = (MockBeaconScanner) ServiceManager.BeaconScanner;
-            SDKData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
+            SdkData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
 
-            SDKManager sdkManager = SDKManager.Instance();
+            SdkManager sdkManager = SdkManager.Instance();
             sdkManager.ScannerStatusChanged += (sender, status) => { };
             TaskCompletionSource<BeaconAction> actionResolved = new TaskCompletionSource<BeaconAction>();
             List<BeaconAction> actions = new List<BeaconAction>();
@@ -183,7 +183,7 @@ namespace SensorbergSDKTests
         [Timeout(10000)]
         public async Task MultipleEventsFired()
         {
-            SDKManager sdkManager = SDKManager.Instance();
+            SdkManager sdkManager = SdkManager.Instance();
             int resolvedAction = 0;
             sdkManager.BeaconActionResolved += (sender, action) => resolvedAction++;
             await sdkManager.InitializeAsync(new SdkConfiguration() {ApiKey = ApiKey, ManufacturerId = ManufacturerId, BeaconCode = BeaconCode});

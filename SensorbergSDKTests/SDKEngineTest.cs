@@ -38,7 +38,7 @@ namespace SensorbergSDKTests
         {
             LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
             await layoutManager.VerifyLayoutAsync(true);
-            SDKEngine engine = new SDKEngine(false);
+            SdkEngine engine = new SdkEngine(false);
             await engine.InitializeAsync();
 
             BeaconAction orgAction = layoutManager.Layout.ResolvedActions.FirstOrDefault(ra => ra.BeaconAction.Uuid == "9ded63644e424d758b0218f7c70f2473").BeaconAction;
@@ -66,7 +66,7 @@ namespace SensorbergSDKTests
         {
             LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
             await layoutManager.VerifyLayoutAsync(true);
-            SDKEngine engine = new SDKEngine(false);
+            SdkEngine engine = new SdkEngine(false);
             await engine.InitializeAsync();
 
             TaskCompletionSource<IList<BeaconAction>> action = new TaskCompletionSource<IList<BeaconAction>>();
@@ -97,7 +97,7 @@ namespace SensorbergSDKTests
         {
             LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
             await layoutManager.VerifyLayoutAsync(true);
-            SDKEngine engine = new SDKEngine(false);
+            SdkEngine engine = new SdkEngine(false);
             await engine.InitializeAsync();
 
             TaskCompletionSource<IList<BeaconAction>> action = new TaskCompletionSource<IList<BeaconAction>>();

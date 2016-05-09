@@ -16,7 +16,7 @@ namespace SensorbergSDK.Internal
     /// </summary>
     public sealed class EventHistory : IDisposable
     {
-        private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<EventHistory>();
+        private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<EventHistory>();
         private readonly AutoResetEvent _asyncWaiter;
 
         public EventHistory()
@@ -32,7 +32,7 @@ namespace SensorbergSDK.Internal
         /// <returns>True ,if action type is SendOnlyOnce, and it has been shown already. Otherwise false.</returns>
         public async Task<bool> CheckSendOnlyOnceAsync(ResolvedAction resolvedAction)
         {
-            logger.Trace("CheckSendOnlyOnceAsync {0}", resolvedAction.BeaconAction.Id);
+            Logger.Trace("CheckSendOnlyOnceAsync {0}", resolvedAction.BeaconAction.Id);
             bool sendonlyOnce = false;
 
             if (resolvedAction.SendOnlyOnce)
@@ -65,7 +65,7 @@ namespace SensorbergSDK.Internal
         /// <returns>True only if action should be supressed.</returns>
         public async Task<bool> ShouldSupressAsync(ResolvedAction resolvedAction)
         {
-            logger.Trace("ShouldSupressAsync {0}", resolvedAction.BeaconAction.Id);
+            Logger.Trace("ShouldSupressAsync {0}", resolvedAction.BeaconAction.Id);
 
             if (resolvedAction.SuppressionTime > 0)
             {

@@ -13,8 +13,8 @@ namespace SensorbergSDK.Internal
         public const string Xpid = "X-pid"; // Request layout with beacon pid
         public const string Xgeo = "X-geo"; // Request layout for given geo location
         public const string Xqos = "X-qos"; // Connection type
-        public const string ADVERTISEMENT_IDENTIFIER_HEADER = "x-aid";
-        public const string USER_IDENTIFIER_HEADER = "x-uid";
+        public const string AdvertisementIdentifierHeader = "x-aid";
+        public const string UserIdentifierHeader = "x-uid";
         public const string XUserAgent = "User-Agent"; // user agent
         public const string AuthorizationHeader = "Authorization"; // authorization token
 

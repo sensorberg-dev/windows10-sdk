@@ -60,12 +60,12 @@ namespace SensorbergSDKTests.Mocks
 
         public async Task<IList<HistoryAction>> GetActions(string uuid)
         {
-            return UndeliveredActions.Where(a => a.Eid == uuid).ToList();
+            return UndeliveredActions.Where(a => a.EventId == uuid).ToList();
         }
 
         public async Task<HistoryAction> GetAction(string uuid)
         {
-            return UndeliveredActions.FirstOrDefault(a => a.Eid == uuid);
+            return UndeliveredActions.FirstOrDefault(a => a.EventId == uuid);
         }
 
         public Task CleanDatabase()
@@ -97,7 +97,7 @@ namespace SensorbergSDKTests.Mocks
 
         public async Task<bool> SaveBeaconEventState(string pid, BeaconEventType enter)
         {
-            LastEventState[pid] = new BackgroundEvent() {BeaconID = pid, EventTime = DateTimeOffset.Now, LastEvent = enter};
+            LastEventState[pid] = new BackgroundEvent() {BeaconId = pid, EventTime = DateTimeOffset.Now, LastEvent = enter};
             return true;
         }
 

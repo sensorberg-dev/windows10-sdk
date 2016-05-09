@@ -16,7 +16,7 @@ namespace SensorbergSDK.Internal
     /// </summary>
     public sealed class RequestQueue:IDisposable
     {
-        private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<RequestQueue>();
+        private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<RequestQueue>();
         public event EventHandler<int> QueueCountChanged;
         private Task _workerTask;
 
@@ -65,7 +65,7 @@ namespace SensorbergSDK.Internal
         public void Add(Request request)
         {
             _requestQueue.Enqueue(request);
-            logger.Trace("Add new request {0}", request.RequestId);
+            Logger.Trace("Add new request {0}", request.RequestId);
             if (_requestQueue.Count > 0 &&
                 (_workerTask == null || _workerTask.Status == TaskStatus.Canceled || _workerTask.Status == TaskStatus.Faulted || _workerTask.Status == TaskStatus.RanToCompletion))
             {
@@ -88,7 +88,7 @@ namespace SensorbergSDK.Internal
 
                     if (currentRequest != null)
                     {
-                        logger.Trace("RequestQueue: take next request " + currentRequest.RequestId);
+                        Logger.Trace("RequestQueue: take next request " + currentRequest.RequestId);
                         currentRequest.TryCount++;
                         RequestResultState requestResult = RequestResultState.None;
 
@@ -106,7 +106,7 @@ namespace SensorbergSDK.Internal
                             currentRequest.ErrorMessage = ex.Message;
                             requestResult = RequestResultState.Failed;
                         }
-                        logger.Debug("RequestQueue: request result " + currentRequest.RequestId + " " + requestResult);
+                        Logger.Debug("RequestQueue: request result " + currentRequest.RequestId + " " + requestResult);
 
                         switch (requestResult)
                         {
@@ -121,7 +121,7 @@ namespace SensorbergSDK.Internal
                                 {
                                     int numberOfTriesLeft = currentRequest.MaxNumberOfRetries - currentRequest.TryCount;
 
-                                    logger.Debug("RequestQueue.ServeNextRequestAsync(): Request with ID "
+                                    Logger.Debug("RequestQueue.ServeNextRequestAsync(): Request with ID "
                                                  + currentRequest.RequestId + " failed, will try "
                                                  + numberOfTriesLeft + " more " + (numberOfTriesLeft > 1 ? "times" : "time"));
 

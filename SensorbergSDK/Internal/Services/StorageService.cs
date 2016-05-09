@@ -22,11 +22,11 @@ namespace SensorbergSDK.Internal.Services
 {
     public class StorageService : IStorageService
     {
-        private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<StorageService>();
+        private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<StorageService>();
         private const string KeyLayoutHeaders = "layout_headers";
         private const string KeyLayoutContent = "layout_content.cache"; // Cache file
         private const string KeyLayoutRetrievedTime = "layout_retrieved_time";
-        private const int MAX_RETRIES = 2;
+        private const int MaxRetries = 2;
 
         public int RetryCount { get; set; } = 3;
 
@@ -50,9 +50,7 @@ namespace SensorbergSDK.Internal.Services
         /// <returns>The validation result.</returns>
         public async Task<ApiKeyValidationResult> ValidateApiKey(string apiKey)
         {
-            ResponseMessage responseMessage = null;
-
-            responseMessage = await ExecuteCall(async () => await ServiceManager.ApiConnction.RetrieveLayoutResponse(SDKData.Instance, apiKey));
+            var responseMessage = await ExecuteCall(async () => await ServiceManager.ApiConnction.RetrieveLayoutResponse(SdkData.Instance, apiKey));
 
             if (responseMessage != null && responseMessage.IsSuccess)
             {
@@ -71,13 +69,13 @@ namespace SensorbergSDK.Internal.Services
 
         public async Task<LayoutResult> RetrieveLayout()
         {
-            ResponseMessage responseMessage = await ExecuteCall(async () => await ServiceManager.ApiConnction.RetrieveLayoutResponse(SDKData.Instance));
+            ResponseMessage responseMessage = await ExecuteCall(async () => await ServiceManager.ApiConnction.RetrieveLayoutResponse(SdkData.Instance));
             if (responseMessage != null && responseMessage.IsSuccess)
             {
                 Layout layout = null;
                 string headersAsString = Helper.StripLineBreaksAndExcessWhitespaces(responseMessage.Header);
                 string contentAsString = Helper.StripLineBreaksAndExcessWhitespaces(responseMessage.Content);
-                contentAsString = Helper.EnsureEncodingIsUTF8(contentAsString);
+                contentAsString = Helper.EnsureEncodingIsUtf8(contentAsString);
                 DateTimeOffset layoutRetrievedTime = DateTimeOffset.Now;
 
                 if (contentAsString.Length > Constants.MinimumLayoutContentLength)
@@ -89,11 +87,11 @@ namespace SensorbergSDK.Internal.Services
                             DateTimeZoneHandling = DateTimeZoneHandling.Utc
                         });
                         layout?.FromJson(headersAsString, layoutRetrievedTime);
-                        logger.Debug("LayoutManager: new Layout received: Beacons: " + layout.AccountBeaconId1s.Count + " Actions :" + layout.ResolvedActions.Count);
+                        Logger.Debug("LayoutManager: new Layout received: Beacons: " + layout?.AccountBeaconId1S.Count + " Actions :" + layout?.ResolvedActions.Count);
                     }
                     catch (Exception ex)
                     {
-                        logger.Debug("LayoutManager.RetrieveLayout(): Failed to parse layout: " + ex);
+                        Logger.Debug("LayoutManager.RetrieveLayout(): Failed to parse layout: " + ex);
                         layout = null;
                     }
                 }
@@ -133,7 +131,7 @@ namespace SensorbergSDK.Internal.Services
 
                     if (responseMessage.IsSuccess)
                     {
-                        if ((history.Events != null && history.Events.Count > 0))
+                        if (history.Events != null && history.Events.Count > 0)
                         {
                             await Storage.SetEventsAsDelivered();
                         }
@@ -148,7 +146,7 @@ namespace SensorbergSDK.Internal.Services
             }
             catch (Exception ex)
             {
-                logger.Error("Error while sending history: " + ex.Message, ex);
+                Logger.Error("Error while sending history: " + ex.Message, ex);
             }
             return false;
         }
@@ -188,7 +186,7 @@ namespace SensorbergSDK.Internal.Services
             }
             catch (Exception ex)
             {
-                logger.Error("LayoutManager.StoreData(): Failed to save content: " + ex, ex);
+                Logger.Error("LayoutManager.StoreData(): Failed to save content: " + ex, ex);
             }
 
             return success;
@@ -226,12 +224,12 @@ namespace SensorbergSDK.Internal.Services
             }
             catch (Exception ex)
             {
-                logger.Error("LayoutManager.LoadLayoutFromLocalStorage(): Failed to load content: " + ex, ex);
+                Logger.Error("LayoutManager.LoadLayoutFromLocalStorage(): Failed to load content: " + ex, ex);
             }
 
             if (!string.IsNullOrEmpty(content))
             {
-                content = Helper.EnsureEncodingIsUTF8(content);
+                content = Helper.EnsureEncodingIsUtf8(content);
                 try
                 {
                     layout = JsonConvert.DeserializeObject<Layout>(content, new JsonSerializerSettings
@@ -242,7 +240,7 @@ namespace SensorbergSDK.Internal.Services
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("LayoutManager.LoadLayoutFromLocalStorage(): Failed to parse layout: " + ex, ex);
+                    Logger.Error("LayoutManager.LoadLayoutFromLocalStorage(): Failed to parse layout: " + ex, ex);
                 }
             }
 
@@ -259,7 +257,7 @@ namespace SensorbergSDK.Internal.Services
 
         public async Task<bool> SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType)
         {
-            return await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, MAX_RETRIES);
+            return await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, MaxRetries);
         }
 
         private async Task<bool> SaveHistoryActionRetry(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType, int retry)
@@ -289,7 +287,7 @@ namespace SensorbergSDK.Internal.Services
 
         public async Task<bool> SaveHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType)
         {
-            return await SaveHistoryEventRetry(pid, timestamp, eventType,MAX_RETRIES);
+            return await SaveHistoryEventRetry(pid, timestamp, eventType,MaxRetries);
         }
 
         private async Task<bool> SaveHistoryEventRetry(string pid, DateTimeOffset timestamp, BeaconEventType eventType, int retry)
@@ -343,7 +341,7 @@ namespace SensorbergSDK.Internal.Services
 
         public async Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice)
         {
-            return await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice,MAX_RETRIES);
+            return await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice,MaxRetries);
         }
 
         private async Task<bool> SaveDelayedActionsRetry(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice, int retry)
@@ -377,7 +375,7 @@ namespace SensorbergSDK.Internal.Services
 
         public async Task<bool> SaveBeaconEventState(string pid, BeaconEventType enter)
         {
-            return await SaveBeaconEventStateRetry(pid, enter,MAX_RETRIES);
+            return await SaveBeaconEventStateRetry(pid, enter,MaxRetries);
         }
 
         private async Task<bool> SaveBeaconEventStateRetry(string pid, BeaconEventType enter, int retry)
@@ -410,7 +408,7 @@ namespace SensorbergSDK.Internal.Services
             List<HistoryAction> historyActions = await Storage.GetActionsForForeground(doNotDelete);
             foreach (HistoryAction historyAction in historyActions)
             {
-                ResolvedAction action = ServiceManager.LayoutManager.GetAction(historyAction.Eid);
+                ResolvedAction action = ServiceManager.LayoutManager.GetAction(historyAction.EventId);
                 beaconActions.Add(action.BeaconAction);
             }
 
@@ -438,7 +436,7 @@ namespace SensorbergSDK.Internal.Services
             }
             catch (Exception ex)
             {
-                logger.Error("Error invalidating layout", ex);
+                Logger.Error("Error invalidating layout", ex);
             }
         }
 
@@ -458,25 +456,25 @@ namespace SensorbergSDK.Internal.Services
                 catch (TimeoutException e)
                 {
                     networkError = true;
-                    logger.Error("timeout error while executing call: " + e.Message, e);
+                    Logger.Error("timeout error while executing call: " + e.Message, e);
                     await WaitBackoff(retries);
                 }
                 catch (IOException e)
                 {
                     networkError = true;
-                    logger.Error("Error while executing call: " + e.Message, e);
+                    Logger.Error("Error while executing call: " + e.Message, e);
                     await WaitBackoff(retries);
                 }
                 catch (HttpRequestException e)
                 {
                     networkError = true;
-                    logger.Error("Error while executing call: " + e.Message, e);
+                    Logger.Error("Error while executing call: " + e.Message, e);
                     await WaitBackoff(retries);
                 }
                 catch (Exception e)
                 {
                     networkError = false;
-                    logger.Error("Error while executing call: " + e.Message, e);
+                    Logger.Error("Error while executing call: " + e.Message, e);
                     await WaitBackoff(retries);
                 }
                 finally

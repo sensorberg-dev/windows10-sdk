@@ -32,7 +32,7 @@ namespace SensorbergSDKTests
             ServiceManager.SettingsManager = new SettingsManager();
             ServiceManager.StorageService = new StorageService() {Storage = new MockStorage()};
             ServiceManager.ReadOnlyForTests = true;
-            ApplicationData.Current.LocalSettings.Values.Remove(SDKData.KeyIncrementalId);
+            ApplicationData.Current.LocalSettings.Values.Remove(SdkData.KeyIncrementalId);
         }
 
         [TestMethod]

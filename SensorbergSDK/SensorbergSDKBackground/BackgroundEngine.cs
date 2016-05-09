@@ -17,11 +17,11 @@ namespace SensorbergSDKBackground
     /// </summary>
     public class BackgroundEngine : IDisposable
     {
-        private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<BackgroundEngine>();
+        private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<BackgroundEngine>();
 
         public event EventHandler<BackgroundWorkerType> Finished;
 
-        private SDKEngine SdkEngine { get; }
+        private SdkEngine SdkEngine { get; }
         private IList<Beacon> Beacons { get; set; }
         private readonly IList<BeaconEventArgs> _beaconArgs;
         private AppSettings AppSettings { get; set; }
@@ -46,7 +46,7 @@ namespace SensorbergSDKBackground
 
         public BackgroundEngine()
         {
-            SdkEngine = new SDKEngine(false);
+            SdkEngine = new SdkEngine(false);
             _beaconArgs = new List<BeaconEventArgs>();
             SdkEngine.BeaconActionResolved += OnBeaconActionResolvedAsync;
         }
@@ -72,7 +72,7 @@ namespace SensorbergSDKBackground
         /// </summary>
         public async Task ResolveBeaconActionsAsync(List<Beacon> beacons, int outOfRangeDb)
         {
-            logger.Trace("ResolveBeaconActionsAsync");
+            Logger.Trace("ResolveBeaconActionsAsync");
 
             Beacons = beacons;
             if (Beacons.Count > 0)
@@ -88,7 +88,7 @@ namespace SensorbergSDKBackground
                     await SdkEngine.ResolveBeaconAction(beaconArg);
                 }
             }
-            Finished?.Invoke(this, BackgroundWorkerType.ADVERTISEMENT_WORKER);
+            Finished?.Invoke(this, BackgroundWorkerType.AdvertisementWorker);
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace SensorbergSDKBackground
         {
             await SdkEngine.ProcessDelayedActionsAsync();
             await SdkEngine.FlushHistory();
-            Finished?.Invoke(this, BackgroundWorkerType.TIMED_WORKER);
+            Finished?.Invoke(this, BackgroundWorkerType.TimedWorker);
         }
 
 
@@ -108,7 +108,7 @@ namespace SensorbergSDKBackground
         /// </summary>
         private async Task AddBeaconsToBeaconArgsAsync(int outOfRangeDb)
         {
-            logger.Trace("AddBeaconsToBeaconArgsAsync");
+            Logger.Trace("AddBeaconsToBeaconArgsAsync");
             foreach (var beacon in Beacons)
             {
                 BackgroundEvent history = await ServiceManager.StorageService.GetLastEventStateForBeacon(beacon.Pid);
@@ -152,7 +152,7 @@ namespace SensorbergSDKBackground
         /// </summary>
         private void OnBeaconActionResolvedAsync(object sender, BeaconAction beaconAction)
         {
-            logger.Trace("BackgroundEngine.OnBeaconActionResolvedAsync()");
+            Logger.Trace("BackgroundEngine.OnBeaconActionResolvedAsync()");
         }
 
         /// <summary>

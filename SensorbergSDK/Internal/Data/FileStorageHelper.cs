@@ -22,7 +22,7 @@ namespace SensorbergSDK.Internal.Data
         /// <returns>String representing the HistoryEvent.</returns>
         public static string EventToString(HistoryEvent he)
         {
-            return string.Format("{0},{1},{2},{3}\n", he.Pid, DateTimeOffset.Parse(he.EventTime).ToUnixTimeMilliseconds(), he.Trigger, false);
+            return string.Format("{0},{1},{2},{3}\n", he.BeaconId, DateTimeOffset.Parse(he.EventTime).ToUnixTimeMilliseconds(), he.Trigger, false);
         }
 
         /// <summary>
@@ -67,11 +67,11 @@ namespace SensorbergSDK.Internal.Data
             }
 
             HistoryEvent he = new HistoryEvent();
-            he.Pid = ss[0];
+            he.BeaconId = ss[0];
 
             try
             {
-                he.EventTime = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(ss[1])).ToString(History.TIMEFORMAT);
+                he.EventTime = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(ss[1])).ToString(History.Timeformat);
             }
             catch (FormatException)
             {
@@ -96,7 +96,7 @@ namespace SensorbergSDK.Internal.Data
 
         public static string ActionToString(HistoryAction historyAction)
         {
-            return ActionToString(historyAction.Eid, historyAction.Pid, DateTimeOffset.Parse(historyAction.ActionTime), historyAction.Trigger, historyAction.Delivered, historyAction.Background);
+            return ActionToString(historyAction.EventId, historyAction.BeaconId, DateTimeOffset.Parse(historyAction.ActionTime), historyAction.Trigger, historyAction.Delivered, historyAction.Background);
         }
         public static string ActionToString(string uuid, string beaconPid, DateTimeOffset timestamp, BeaconEventType beaconEventType)
         {
@@ -145,12 +145,12 @@ namespace SensorbergSDK.Internal.Data
             }
 
             HistoryAction ha = new HistoryAction();
-            ha.Eid = ss[0];
-            ha.Pid = ss[1];
+            ha.EventId = ss[0];
+            ha.BeaconId = ss[1];
 
             try
             {
-                ha.ActionTime = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(ss[2])).ToString(History.TIMEFORMAT);
+                ha.ActionTime = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(ss[2])).ToString(History.Timeformat);
             }
             catch (FormatException)
             {
@@ -305,7 +305,7 @@ namespace SensorbergSDK.Internal.Data
             }
 
             BackgroundEvent be = new BackgroundEvent();
-            be.BeaconID = ss[0];
+            be.BeaconId = ss[0];
             be.LastEvent = (BeaconEventType)int.Parse(ss[1]);
             be.EventTime = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(ss[2]));
             return be;
@@ -328,12 +328,12 @@ namespace SensorbergSDK.Internal.Data
 
         public static HistoryAction ToHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType)
         {
-            return new HistoryAction() { Pid = beaconPid, ActionTime = now.ToString(History.TIMEFORMAT), Eid = uuid, Trigger = (int)beaconEventType };
+            return new HistoryAction() { BeaconId = beaconPid, ActionTime = now.ToString(History.Timeformat), EventId = uuid, Trigger = (int)beaconEventType };
         }
 
         public static HistoryEvent ToHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType)
         {
-            return new HistoryEvent() { Pid = pid, EventTime = timestamp.ToString(History.TIMEFORMAT), Trigger = (int)eventType };
+            return new HistoryEvent() { BeaconId = pid, EventTime = timestamp.ToString(History.Timeformat), Trigger = (int)eventType };
         }
 
         public class SerializedAction

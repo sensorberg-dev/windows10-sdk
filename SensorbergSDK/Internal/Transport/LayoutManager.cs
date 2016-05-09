@@ -1,9 +1,15 @@
-﻿using System;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using MetroLog;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
 
@@ -15,6 +21,7 @@ namespace SensorbergSDK.Internal
     /// </summary>
     public class LayoutManager : ILayoutManager
     {
+        private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<LayoutManager>();
         public const string KeyLayoutHeaders = "layout_headers";
         public const string KeyLayoutContent = "layout_content.cache"; // Cache file
         public const string KeyLayoutRetrievedTime = "layout_retrieved_time";
@@ -43,12 +50,7 @@ namespace SensorbergSDK.Internal
         /// </summary>
         /// <param name="forceUpdate">If true, will update the layout even if valid.</param>
         /// <returns>True, if layout is valid (or was updated), false otherwise.</returns>
-        public IAsyncOperation<bool> VerifyLayoutAsync(bool forceUpdate)
-        {
-            return InternalVerifyLayoutAsync(forceUpdate).AsAsyncOperation<bool>();
-        }
-
-        private async Task<bool> InternalVerifyLayoutAsync(bool forceUpdate)
+        public async Task<bool> VerifyLayoutAsync(bool forceUpdate)
         {
             if (forceUpdate || !IsLayoutValid)
             {
@@ -67,7 +69,7 @@ namespace SensorbergSDK.Internal
                     if (freshLayout != null && freshLayout.Result == NetworkResult.Success)
                     {
                         Layout = freshLayout.Layout;
-                        Debug.WriteLine("Layout changed.");
+                        Logger.Debug("Layout changed.");
                     }
                     else
                     {
@@ -77,18 +79,6 @@ namespace SensorbergSDK.Internal
             }
 
             return IsLayoutValid;
-        }
-
-
-        /// <summary>
-        /// Executes the given request.
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns>The result state (success or failure).</returns>
-        public IAsyncOperation<RequestResultState> ExecuteRequestAsync(Request request)
-        {
-            IAsyncOperation<RequestResultState> resultState = InternalExecuteRequestAsync(request).AsAsyncOperation<RequestResultState>();
-            return resultState;
         }
 
         /// <summary>
@@ -105,29 +95,30 @@ namespace SensorbergSDK.Internal
             return Layout.ResolvedActions.FirstOrDefault(r => r.BeaconAction.Uuid == actionId);
         }
 
-        internal async Task<RequestResultState> InternalExecuteRequestAsync(Request request)
+        /// <summary>
+        /// Executes the given request.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns>The result state (success or failure).</returns>
+        public async Task<RequestResultState> ExecuteRequestAsync(Request request)
         {
-            System.Diagnostics.Debug.WriteLine("LayoutManager.InternalExecuteRequestAsync(): Request ID is " + request.RequestId);
+            Logger.Debug("LayoutManager.InternalExecuteRequestAsync(): Request ID is " + request.RequestId);
             RequestResultState resultState = RequestResultState.Failed;
 
-            if (request != null && request.BeaconEventArgs != null && request.BeaconEventArgs.Beacon != null)
+            if (request.BeaconEventArgs != null && request.BeaconEventArgs.Beacon != null && await VerifyLayoutAsync(false))
             {
-                if (await VerifyLayoutAsync(false))
+                request.ResolvedActions = Layout.GetResolvedActionsForPidAndEvent(request.BeaconEventArgs.Beacon.Pid, request.BeaconEventArgs.EventType);
+
+                foreach (ResolvedAction resolvedAction in request.ResolvedActions)
                 {
-                    request.ResolvedActions = Layout.GetResolvedActionsForPidAndEvent(request.BeaconEventArgs.Beacon.Pid, request.BeaconEventArgs.EventType);
-
-                    foreach (ResolvedAction resolvedAction in request.ResolvedActions)
+                    if (resolvedAction != null && resolvedAction.BeaconAction != null)
                     {
-                        if (resolvedAction != null && resolvedAction.BeaconAction != null)
-                        {
-                            resolvedAction.BeaconAction.Id = request.RequestId;
-                        }
+                        resolvedAction.BeaconAction.Id = request.RequestId;
                     }
-
-                    resultState = RequestResultState.Success;
                 }
-            }
 
+                resultState = RequestResultState.Success;
+            }
             return resultState;
         }
 
@@ -137,51 +128,54 @@ namespace SensorbergSDK.Internal
         /// </summary>
         /// <param name="layout">The layout containing the beacon ID1s.</param>
         /// <returns>A hash string of the beacon ID1s or null in case of an error.</returns>
-        public static string CreateHashOfBeaconId1sInLayout(Layout layout)
+        public static string CreateHashOfBeaconId1SInLayout(Layout layout)
         {
-            string hash = null;
 
             if (layout != null)
             {
-                IList<string> beaconId1s = layout.AccountBeaconId1s;
+                IList<string> beaconId1S = layout.AccountBeaconId1S;
 
-                if (beaconId1s.Count > 0)
+                if (beaconId1S.Count > 0)
                 {
-                    hash = beaconId1s[0];
+                    StringBuilder hash = new StringBuilder(beaconId1S[0]);
 
-                    for (int i = 1; i < beaconId1s.Count; ++i)
+                    for (int i = 1; i < beaconId1S.Count; ++i)
                     {
-                        var currentUuid = beaconId1s[i];
+                        var currentUuid = beaconId1S[i];
 
                         for (int j = 0; j < currentUuid.Length; ++j)
                         {
                             if (hash.Length < j + 1)
                             {
-                                hash += currentUuid[j];
+                                hash.Append(currentUuid[j]);
                             }
                             else
                             {
-                                char combinationChar = (char)(((int)hash[j] + (int)currentUuid[j]) / 2 + 1);
+                                char combinationChar = (char) (((int) hash[j] + (int) currentUuid[j])/2 + 1);
 
+                                string hashToString = hash.ToString();
                                 if (j == 0)
                                 {
-                                    hash = combinationChar + hash.Substring(j + 1);
-                                }
-                                else if (hash.Length > j + 1)
-                                {
-                                    hash = hash.Substring(0, j) + combinationChar + hash.Substring(j + 1);
+                                    hash = new StringBuilder(combinationChar);
+                                    hash.Append(hashToString.Substring(j + 1));
                                 }
                                 else
                                 {
-                                    hash = hash.Substring(0, j) + combinationChar;
+                                    hash = new StringBuilder(hashToString.Substring(0, j));
+                                    hash.Append(combinationChar);
+                                    if (hash.Length > j + 1)
+                                    {
+                                        hash.Append(hashToString.Substring(j + 1));
+                                    }
                                 }
                             }
                         }
                     }
+                    return hash.ToString();
                 }
             }
 
-            return hash;
+            return null;
         }
     }
 }

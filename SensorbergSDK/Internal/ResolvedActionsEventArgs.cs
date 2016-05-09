@@ -10,7 +10,7 @@ namespace SensorbergSDK
 {
     public sealed class ResolvedActionsEventArgs
     {
-        public int RequestID
+        public int RequestId
         {
             [DebuggerStepThrough]
             get;

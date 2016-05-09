@@ -28,7 +28,7 @@ namespace SensorbergSDK
     public sealed class BeaconAction
     {
         private const char FieldSeparator = ';'; // For FromString() and ToString()
-        private string payloadString;
+        private string _payloadString;
 
         public BeaconAction()
         {
@@ -59,8 +59,8 @@ namespace SensorbergSDK
         [DataMember]
         public string PayloadString
         {
-            get { return string.IsNullOrEmpty(payloadString) ? Payload?.ToString() : payloadString; }
-            set { payloadString = value; }
+            get { return string.IsNullOrEmpty(_payloadString) ? Payload?.ToString() : _payloadString; }
+            set { _payloadString = value; }
         }
 
         /// <summary>

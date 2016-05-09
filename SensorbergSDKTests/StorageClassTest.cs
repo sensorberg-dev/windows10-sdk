@@ -210,43 +210,43 @@ namespace SensorbergSDKTests
             Assert.AreEqual(4, historyActions.Count, "Not 4 actions");
 
             HistoryAction action = historyActions.First(t => t.Trigger == (int) BeaconEventType.Enter);
-            Assert.AreEqual("1", action.Pid, "not same pid");
-            Assert.AreEqual("1", action.Eid, "not same eid");
+            Assert.AreEqual("1", action.BeaconId, "not same pid");
+            Assert.AreEqual("1", action.EventId, "not same eid");
             Assert.AreEqual("2016-04-16T12:00:00.000+00:00", action.ActionTime, "not same date");
 
 
             action = historyActions.First(t => t.Trigger == (int) BeaconEventType.Exit);
-            Assert.AreEqual("2", action.Pid, "not same pid");
-            Assert.AreEqual("2", action.Eid, "not same eid");
+            Assert.AreEqual("2", action.BeaconId, "not same pid");
+            Assert.AreEqual("2", action.EventId, "not same eid");
             Assert.AreEqual("2016-04-16T13:00:00.000+00:00", action.ActionTime, "not same date");
 
 
-            action = historyActions.First(t => t.Trigger == (int) BeaconEventType.EnterExit && t.Pid == "3");
-            Assert.AreEqual("3", action.Pid, "not same pid");
-            Assert.AreEqual("3", action.Eid, "not same eid");
+            action = historyActions.First(t => t.Trigger == (int) BeaconEventType.EnterExit && t.BeaconId == "3");
+            Assert.AreEqual("3", action.BeaconId, "not same pid");
+            Assert.AreEqual("3", action.EventId, "not same eid");
             Assert.AreEqual("2016-04-16T14:00:00.000+00:00", action.ActionTime, "not same date");
 
 
             HistoryAction dbHistoryAction = await storage.GetAction("2");
             Assert.AreEqual((int) BeaconEventType.Exit, dbHistoryAction.Trigger, "not same type");
-            Assert.AreEqual("2", dbHistoryAction.Pid, "not same pid");
-            Assert.AreEqual("2", dbHistoryAction.Eid, "not same eid");
+            Assert.AreEqual("2", dbHistoryAction.BeaconId, "not same pid");
+            Assert.AreEqual("2", dbHistoryAction.EventId, "not same eid");
             Assert.AreEqual(DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), DateTimeOffset.Parse(dbHistoryAction.ActionTime), "not same date");
 
 
             IList<HistoryAction> dbHistoryActions = await storage.GetActions("3");
             Assert.AreEqual(2, dbHistoryActions.Count, "Not 2 actions");
 
-            dbHistoryAction = dbHistoryActions.First(t => t.Pid == "3");
+            dbHistoryAction = dbHistoryActions.First(t => t.BeaconId == "3");
             Assert.AreEqual((int) BeaconEventType.EnterExit, dbHistoryAction.Trigger, "not same type");
-            Assert.AreEqual("3", dbHistoryAction.Pid, "not same pid");
-            Assert.AreEqual("3", dbHistoryAction.Eid, "not same eid");
+            Assert.AreEqual("3", dbHistoryAction.BeaconId, "not same pid");
+            Assert.AreEqual("3", dbHistoryAction.EventId, "not same eid");
             Assert.AreEqual(DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), DateTimeOffset.Parse(dbHistoryAction.ActionTime), "not same date");
 
-            dbHistoryAction = dbHistoryActions.First(t => t.Pid == "2");
+            dbHistoryAction = dbHistoryActions.First(t => t.BeaconId == "2");
             Assert.AreEqual((int) BeaconEventType.EnterExit, dbHistoryAction.Trigger, "not same type");
-            Assert.AreEqual("2", dbHistoryAction.Pid, "not same pid");
-            Assert.AreEqual("3", dbHistoryAction.Eid, "not same eid");
+            Assert.AreEqual("2", dbHistoryAction.BeaconId, "not same pid");
+            Assert.AreEqual("3", dbHistoryAction.EventId, "not same eid");
             Assert.AreEqual(DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), DateTimeOffset.Parse(dbHistoryAction.ActionTime), "not same date");
 
             Assert.AreEqual(0, (await storage.GetActions("")).Count, "fails on empty id");
@@ -274,7 +274,7 @@ namespace SensorbergSDKTests
 
             IList<HistoryEvent> historyEvents = await storage.GetUndeliveredEvents();
             HistoryEvent historyEvent = historyEvents.FirstOrDefault(h => h.EventTime == "2016-04-16T15:00:00.000+00:00");
-            Assert.AreEqual("1", historyEvent.Pid, "Wrong pid");
+            Assert.AreEqual("1", historyEvent.BeaconId, "Wrong pid");
             Assert.AreEqual("2016-04-16T15:00:00.000+00:00", historyEvent.EventTime, "Wrong date");
             Assert.AreEqual((int) BeaconEventType.Exit, historyEvent.Trigger, "Wrong trigger");
 
@@ -364,7 +364,7 @@ namespace SensorbergSDKTests
 
             IList<HistoryEvent> historyEvents = await foregroundStorage.GetUndeliveredEvents();
             HistoryEvent historyEvent = historyEvents.FirstOrDefault(h => h.EventTime == "2016-04-16T15:00:00.000+00:00");
-            Assert.AreEqual("1", historyEvent.Pid, "Wrong pid");
+            Assert.AreEqual("1", historyEvent.BeaconId, "Wrong pid");
             Assert.AreEqual("2016-04-16T15:00:00.000+00:00", historyEvent.EventTime, "Wrong date");
             Assert.AreEqual((int) BeaconEventType.Exit, historyEvent.Trigger, "Wrong trigger");
 
@@ -384,7 +384,7 @@ namespace SensorbergSDKTests
 
             historyEvents = await backgroundStorage.GetUndeliveredEvents();
             historyEvent = historyEvents.FirstOrDefault(h => h.EventTime == "2016-04-15T15:00:00.000+00:00");
-            Assert.AreEqual("3", historyEvent.Pid, "Wrong pid");
+            Assert.AreEqual("3", historyEvent.BeaconId, "Wrong pid");
             Assert.AreEqual("2016-04-15T15:00:00.000+00:00", historyEvent.EventTime, "Wrong date");
             Assert.AreEqual((int) BeaconEventType.Exit, historyEvent.Trigger, "Wrong trigger");
 
@@ -415,24 +415,24 @@ namespace SensorbergSDKTests
             //verify every storage api accesses every data
             IList<HistoryEvent> historyEvents = await backgroundStorage.GetUndeliveredEvents();
             HistoryEvent historyEvent = historyEvents.FirstOrDefault(h => h.EventTime == "2016-04-15T15:00:00.000+00:00");
-            Assert.AreEqual("3", historyEvent.Pid, "Wrong pid");
+            Assert.AreEqual("3", historyEvent.BeaconId, "Wrong pid");
             Assert.AreEqual("2016-04-15T15:00:00.000+00:00", historyEvent.EventTime, "Wrong date");
             Assert.AreEqual((int) BeaconEventType.Exit, historyEvent.Trigger, "Wrong trigger");
 
             historyEvent = historyEvents.FirstOrDefault(h => h.EventTime == "2016-04-16T15:00:00.000+00:00");
-            Assert.AreEqual("1", historyEvent.Pid, "Wrong pid");
+            Assert.AreEqual("1", historyEvent.BeaconId, "Wrong pid");
             Assert.AreEqual("2016-04-16T15:00:00.000+00:00", historyEvent.EventTime, "Wrong date");
             Assert.AreEqual((int) BeaconEventType.Exit, historyEvent.Trigger, "Wrong trigger");
 
 
             historyEvents = await foregroundStorage.GetUndeliveredEvents();
             historyEvent = historyEvents.FirstOrDefault(h => h.EventTime == "2016-04-15T15:00:00.000+00:00");
-            Assert.AreEqual("3", historyEvent.Pid, "Wrong pid");
+            Assert.AreEqual("3", historyEvent.BeaconId, "Wrong pid");
             Assert.AreEqual("2016-04-15T15:00:00.000+00:00", historyEvent.EventTime, "Wrong date");
             Assert.AreEqual((int) BeaconEventType.Exit, historyEvent.Trigger, "Wrong trigger");
 
             historyEvent = historyEvents.FirstOrDefault(h => h.EventTime == "2016-04-16T15:00:00.000+00:00");
-            Assert.AreEqual("1", historyEvent.Pid, "Wrong pid");
+            Assert.AreEqual("1", historyEvent.BeaconId, "Wrong pid");
             Assert.AreEqual("2016-04-16T15:00:00.000+00:00", historyEvent.EventTime, "Wrong date");
             Assert.AreEqual((int) BeaconEventType.Exit, historyEvent.Trigger, "Wrong trigger");
 
@@ -462,20 +462,20 @@ namespace SensorbergSDKTests
             Assert.AreEqual(4, historyActions.Count, "Not 4 actions");
 
             HistoryAction action = historyActions.First(t => t.Trigger == (int) BeaconEventType.Enter);
-            Assert.AreEqual("1", action.Pid, "not same pid");
-            Assert.AreEqual("1", action.Eid, "not same eid");
+            Assert.AreEqual("1", action.BeaconId, "not same pid");
+            Assert.AreEqual("1", action.EventId, "not same eid");
             Assert.AreEqual("2016-04-16T12:00:00.000+00:00", action.ActionTime, "not same date");
 
 
             action = historyActions.First(t => t.Trigger == (int) BeaconEventType.Exit);
-            Assert.AreEqual("2", action.Pid, "not same pid");
-            Assert.AreEqual("2", action.Eid, "not same eid");
+            Assert.AreEqual("2", action.BeaconId, "not same pid");
+            Assert.AreEqual("2", action.EventId, "not same eid");
             Assert.AreEqual("2016-04-16T13:00:00.000+00:00", action.ActionTime, "not same date");
 
             HistoryAction dbHistoryAction = await foregroundStorage.GetAction("2");
             Assert.AreEqual((int) BeaconEventType.Exit, dbHistoryAction.Trigger, "not same type");
-            Assert.AreEqual("2", dbHistoryAction.Pid, "not same pid");
-            Assert.AreEqual("2", dbHistoryAction.Eid, "not same eid");
+            Assert.AreEqual("2", dbHistoryAction.BeaconId, "not same pid");
+            Assert.AreEqual("2", dbHistoryAction.EventId, "not same eid");
             Assert.AreEqual(DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), DateTimeOffset.Parse(dbHistoryAction.ActionTime), "not same date");
 
 
@@ -501,21 +501,21 @@ namespace SensorbergSDKTests
             Assert.AreEqual(4, historyActions.Count, "Not 4 actions");
 
             action = historyActions.First(t => t.Trigger == (int) BeaconEventType.Enter);
-            Assert.AreEqual("1", action.Pid, "not same pid");
-            Assert.AreEqual("4", action.Eid, "not same eid");
+            Assert.AreEqual("1", action.BeaconId, "not same pid");
+            Assert.AreEqual("4", action.EventId, "not same eid");
             Assert.AreEqual("2016-04-16T12:00:00.000+00:00", action.ActionTime, "not same date");
 
 
             action = historyActions.First(t => t.Trigger == (int) BeaconEventType.Exit);
-            Assert.AreEqual("2", action.Pid, "not same pid");
-            Assert.AreEqual("5", action.Eid, "not same eid");
+            Assert.AreEqual("2", action.BeaconId, "not same pid");
+            Assert.AreEqual("5", action.EventId, "not same eid");
             Assert.AreEqual("2016-04-16T13:00:00.000+00:00", action.ActionTime, "not same date");
 
 
             dbHistoryAction = await backgroundStorage.GetAction("5");
             Assert.AreEqual((int) BeaconEventType.Exit, dbHistoryAction.Trigger, "not same type");
-            Assert.AreEqual("2", dbHistoryAction.Pid, "not same pid");
-            Assert.AreEqual("5", dbHistoryAction.Eid, "not same eid");
+            Assert.AreEqual("2", dbHistoryAction.BeaconId, "not same pid");
+            Assert.AreEqual("5", dbHistoryAction.EventId, "not same eid");
             Assert.AreEqual(DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), DateTimeOffset.Parse(dbHistoryAction.ActionTime), "not same date");
 
 
@@ -564,14 +564,14 @@ namespace SensorbergSDKTests
 
             HistoryAction dbHistoryAction = await backgroundStorage.GetAction("5");
             Assert.AreEqual((int) BeaconEventType.Exit, dbHistoryAction.Trigger, "not same type");
-            Assert.AreEqual("2", dbHistoryAction.Pid, "not same pid");
-            Assert.AreEqual("5", dbHistoryAction.Eid, "not same eid");
+            Assert.AreEqual("2", dbHistoryAction.BeaconId, "not same pid");
+            Assert.AreEqual("5", dbHistoryAction.EventId, "not same eid");
             Assert.AreEqual(DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), DateTimeOffset.Parse(dbHistoryAction.ActionTime), "not same date");
 
             dbHistoryAction = await foregroundStorage.GetAction("5");
             Assert.AreEqual((int) BeaconEventType.Exit, dbHistoryAction.Trigger, "not same type");
-            Assert.AreEqual("2", dbHistoryAction.Pid, "not same pid");
-            Assert.AreEqual("5", dbHistoryAction.Eid, "not same eid");
+            Assert.AreEqual("2", dbHistoryAction.BeaconId, "not same pid");
+            Assert.AreEqual("5", dbHistoryAction.EventId, "not same eid");
             Assert.AreEqual(DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), DateTimeOffset.Parse(dbHistoryAction.ActionTime), "not same date");
 
 
@@ -595,8 +595,8 @@ namespace SensorbergSDKTests
             Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter)));
             Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit)));
 
-            StorageFolder folder = await ((FileStorage) storage).GetFolder(FileStorage.FOREGROUND_ACTIONS_FOLDER);
-            StorageFile file = await folder.CreateFileAsync(FileStorage.ACTIONS_FILE_NAME, CreationCollisionOption.OpenIfExists);
+            StorageFolder folder = await ((FileStorage) storage).GetFolder(FileStorage.ForegroundActionsFolder);
+            StorageFile file = await folder.CreateFileAsync(FileStorage.ActionsFileName, CreationCollisionOption.OpenIfExists);
             IRandomAccessStream randomAccessStream;
             using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
             {
@@ -612,7 +612,7 @@ namespace SensorbergSDKTests
                 Assert.IsFalse(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit)));
                 randomAccessStream.Dispose();
             }
-            folder = await ((FileStorage) storage).GetFolder(FileStorage.FOREGROUND_EVENTS_FOLDER);
+            folder = await ((FileStorage) storage).GetFolder(FileStorage.ForegroundEventsFolder);
             file = await folder.CreateFileAsync("1", CreationCollisionOption.OpenIfExists);
             Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter)));
             Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit)));
@@ -664,8 +664,8 @@ namespace SensorbergSDKTests
             Assert.AreEqual(4, historyActions.Count, "Not 4 actions");
 
             HistoryAction action = historyActions.First(t => t.Trigger == (int) BeaconEventType.Enter);
-            Assert.AreEqual("1", action.Pid, "not same pid");
-            Assert.AreEqual("1", action.Eid, "not same eid");
+            Assert.AreEqual("1", action.BeaconId, "not same pid");
+            Assert.AreEqual("1", action.EventId, "not same eid");
             Assert.AreEqual("2016-04-16T12:00:00.000+00:00", action.ActionTime, "not same date");
         }
 

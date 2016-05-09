@@ -18,9 +18,9 @@ namespace SensorbergSDK.Services
         /// <param name="data">api key and device id for the request</param>
         /// <param name="apiId">optional api id, overrides the given id by SDKData</param>
         /// <returns>A HttpResponseMessage containing the server response or null in case of an error.</returns>
-        Task<ResponseMessage> RetrieveLayoutResponse(SDKData data, string apiId = null);
+        Task<ResponseMessage> RetrieveLayoutResponse(SdkData data, string apiId = null);
 
-        Task<string> LoadSettings(SDKData sdkData);
+        Task<string> LoadSettings(SdkData sdkData);
 
         /// <summary>
         /// Sends History object to the api.

@@ -13,11 +13,11 @@ namespace SensorbergSDK.Services
 {
     public interface ILayoutManager
     {
-        IAsyncOperation<RequestResultState> ExecuteRequestAsync(Request currentRequest);
+        Task<RequestResultState> ExecuteRequestAsync(Request currentRequest);
         Task InvalidateLayout();
         bool IsLayoutValid { get; }
         Layout Layout { get; }
-        IAsyncOperation<bool> VerifyLayoutAsync(bool b = false);
+        Task<bool> VerifyLayoutAsync(bool b = false);
         event EventHandler<bool> LayoutValidityChanged;
         ResolvedAction GetAction(string actionId);
     }

@@ -13,7 +13,7 @@ namespace SensorbergSDK
     /// </summary>
     public sealed class Advertiser
     {
-        private static ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<Advertiser>();
+        private static ILogger _logger = LogManagerFactory.DefaultLogManager.GetLogger<Advertiser>();
         private const int DefaultMeasuredPower = -59;
         private BluetoothLEAdvertisementPublisher _advertisementPublisher;
         private Beacon _beacon;
@@ -51,7 +51,7 @@ namespace SensorbergSDK
                 _advertisementPublisher = new BluetoothLEAdvertisementPublisher();
 
                 BluetoothLEAdvertisementDataSection dataSection = BeaconFactory.BeaconToSecondDataSection(_beacon);
-                logger.Debug("Advertiser.Start(): " + BeaconFactory.DataSectionToRawString(dataSection));
+                _logger.Debug("Advertiser.Start(): " + BeaconFactory.DataSectionToRawString(dataSection));
                 _advertisementPublisher.Advertisement.DataSections.Add(dataSection);
                 _advertisementPublisher.Start();
 
@@ -67,7 +67,7 @@ namespace SensorbergSDK
                 _advertisementPublisher = null;
                 IsStarted = false;
             }
-            logger.Debug("Advertiser.Stoped");
+            _logger.Debug("Advertiser.Stoped");
         }
     }
 }

@@ -24,7 +24,7 @@ namespace SensorbergSDK
         /// </summary>
         /// <param name="args"></param>
         /// <returns>A newly created Beacon instance or null in case of a failure.</returns>
-        public static Beacon BeaconFromBluetoothLEAdvertisementReceivedEventArgs(BluetoothLEAdvertisementReceivedEventArgs args)
+        public static Beacon BeaconFromBluetoothLeAdvertisementReceivedEventArgs(BluetoothLEAdvertisementReceivedEventArgs args)
         {
             Beacon beacon = null;
 
@@ -339,7 +339,7 @@ namespace SensorbergSDK
         /// <param name="manufacturerId">The manufacturer ID.</param>
         /// <param name="beaconCode">The beacon code.</param>
         /// <returns>BluetoothLEAdvertisementBytePattern</returns>
-        public static BluetoothLEAdvertisementBytePattern UUIDToAdvertisementBytePattern(
+        public static BluetoothLEAdvertisementBytePattern UuidToAdvertisementBytePattern(
             string uuid, UInt16 manufacturerId, UInt16 beaconCode)
         {
             if (uuid.Length % 2 != 0)

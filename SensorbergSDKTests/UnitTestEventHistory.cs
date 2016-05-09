@@ -26,7 +26,7 @@ namespace SensorbergSDKTests
         [TestMethod]
         public async Task EventHistory_ShouldSupress()
         {
-            SDKData.Instance.ApiKey = "540aa95ccf215718295c2c563a2090676994f09927f09a6e09a67c83be10b00c";
+            SdkData.Instance.ApiKey = "540aa95ccf215718295c2c563a2090676994f09927f09a6e09a67c83be10b00c";
             var beacon = new Beacon();
             beacon.Id1 = "7367672374000000ffff0000ffff0007";
             beacon.Id2 = 8008;
@@ -63,7 +63,7 @@ namespace SensorbergSDKTests
         [TestMethod]
         public async Task EventHistory_FlushHistory()
         {
-            SDKData.Instance.ApiKey = "540aa95ccf215718295c2c563a2090676994f09927f09a6e09a67c83be10b00c";
+            SdkData.Instance.ApiKey = "540aa95ccf215718295c2c563a2090676994f09927f09a6e09a67c83be10b00c";
             var beacon = new Beacon();
             beacon.Id1 = "7367672374000000ffff0000ffff0007";
             beacon.Id2 = 8008;

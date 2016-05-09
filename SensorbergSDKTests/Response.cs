@@ -39,7 +39,7 @@ namespace SensorbergSDKTests
             resp?.FromJson(null, DateTimeOffset.Now);
 
             Assert.IsNotNull(resp);
-            Assert.AreEqual(2, resp.AccountBeaconId1s.Count);
+            Assert.AreEqual(2, resp.AccountBeaconId1S.Count);
             Assert.AreEqual(5, resp.ResolvedActions.Count);
 
             IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent("7367672374000000ffff0000ffff13370133701337", BeaconEventType.Enter);
@@ -62,7 +62,7 @@ namespace SensorbergSDKTests
             resp?.FromJson(null, DateTimeOffset.Now);
 
             Assert.IsNotNull(resp);
-            Assert.AreEqual(1, resp.AccountBeaconId1s.Count);
+            Assert.AreEqual(1, resp.AccountBeaconId1S.Count);
             Assert.AreEqual(1, resp.ResolvedActions.Count);
 
             IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent("7367672374000000ffff0000ffff00070800800005", BeaconEventType.Exit);
@@ -90,7 +90,7 @@ namespace SensorbergSDKTests
             resp?.FromJson(null, DateTimeOffset.Now);
 
             Assert.IsNotNull(resp);
-            Assert.AreEqual(1, resp.AccountBeaconId1s.Count);
+            Assert.AreEqual(1, resp.AccountBeaconId1S.Count);
             Assert.AreEqual(1, resp.ResolvedActions.Count);
 
             IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent("7367672374000000ffff0000ffff00070800800005", BeaconEventType.Exit);
@@ -118,7 +118,7 @@ namespace SensorbergSDKTests
             resp?.FromJson(null, DateTimeOffset.Now);
 
             Assert.IsNotNull(resp);
-            Assert.AreEqual(1, resp.AccountBeaconId1s.Count);
+            Assert.AreEqual(1, resp.AccountBeaconId1S.Count);
             Assert.AreEqual(1, resp.ResolvedActions.Count);
 
             IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent("7367672374000000ffff0000ffff00070800800005", BeaconEventType.Exit);
@@ -146,7 +146,7 @@ namespace SensorbergSDKTests
             resp?.FromJson(null, DateTimeOffset.Now);
 
             Assert.IsNotNull(resp);
-            Assert.AreEqual(1, resp.AccountBeaconId1s.Count);
+            Assert.AreEqual(1, resp.AccountBeaconId1S.Count);
             Assert.AreEqual(1, resp.ResolvedActions.Count);
 
             IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent("7367672374000000ffff0000ffff00070800800005", BeaconEventType.Exit);
@@ -174,7 +174,7 @@ namespace SensorbergSDKTests
             resp?.FromJson(null, DateTimeOffset.Now);
 
             Assert.IsNotNull(resp);
-            Assert.AreEqual(1, resp.AccountBeaconId1s.Count);
+            Assert.AreEqual(1, resp.AccountBeaconId1S.Count);
             Assert.AreEqual(1, resp.ResolvedActions.Count);
 
             IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent("7367672374000000ffff0000ffff00070800800005", BeaconEventType.Exit);
@@ -200,7 +200,7 @@ namespace SensorbergSDKTests
             resp?.FromJson(null, DateTimeOffset.Now);
 
             Assert.IsNotNull(resp);
-            Assert.AreEqual(1, resp.AccountBeaconId1s.Count);
+            Assert.AreEqual(1, resp.AccountBeaconId1S.Count);
             Assert.AreEqual(1, resp.ResolvedActions.Count);
 
             IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent("7367672374000000ffff0000ffff00070800800005", BeaconEventType.Exit);
