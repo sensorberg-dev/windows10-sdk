@@ -26,7 +26,6 @@ namespace SensorbergSDK.Internal.Services
         private const string KeyLayoutHeaders = "layout_headers";
         private const string KeyLayoutContent = "layout_content.cache"; // Cache file
         private const string KeyLayoutRetrievedTime = "layout_retrieved_time";
-        private readonly Dictionary<string, IList<HistoryAction>> historyActionsCache;
         private const int MAX_RETRIES = 2;
 
         public int RetryCount { get; set; } = 3;
@@ -36,7 +35,6 @@ namespace SensorbergSDK.Internal.Services
         public StorageService(bool createdOnForeground = true)
         {
             Storage = new FileStorage() {Background = !createdOnForeground};
-            historyActionsCache = new Dictionary<string, IList<HistoryAction>>();
         }
 
         public async Task InitStorage()
@@ -259,80 +257,68 @@ namespace SensorbergSDK.Internal.Services
 
         #region storage methods
 
-        public async Task SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType)
+        public async Task<bool> SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType)
         {
-            await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, MAX_RETRIES);
+            return await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, MAX_RETRIES);
         }
 
-        private async Task SaveHistoryActionRetry(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType, int retry)
+        private async Task<bool> SaveHistoryActionRetry(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType, int retry)
         {
             if (retry < 0)
             {
-                return;
+                return false;
             }
             try
             {
                 HistoryAction action = FileStorageHelper.ToHistoryAction(uuid, beaconPid, now, beaconEventType);
-                if (!historyActionsCache.ContainsKey(uuid))
+                if (await Storage.SaveHistoryAction(action))
                 {
-                    historyActionsCache[uuid] = new List<HistoryAction>();
+                    return true;
                 }
-                historyActionsCache[uuid].Add(action);
-                await Storage.SaveHistoryAction(action);
+                return await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, --retry);
             }
             catch (UnauthorizedAccessException)
             {
-                await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, --retry);
-            }
-            catch (NotStoredException)
-            {
-                await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, --retry);
+                return await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, --retry);
             }
             catch (FileNotFoundException)
             {
-                await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, --retry);
+                return await SaveHistoryActionRetry(uuid, beaconPid, now, beaconEventType, --retry);
             }
         }
 
-        public async Task SaveHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType)
+        public async Task<bool> SaveHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType)
         {
-            await SaveHistoryEventRetry(pid, timestamp, eventType, MAX_RETRIES);
+            return await SaveHistoryEventRetry(pid, timestamp, eventType,MAX_RETRIES);
         }
 
-        private async Task SaveHistoryEventRetry(string pid, DateTimeOffset timestamp, BeaconEventType eventType, int retry)
+        private async Task<bool> SaveHistoryEventRetry(string pid, DateTimeOffset timestamp, BeaconEventType eventType, int retry)
         {
             if (retry < 0)
             {
-                return;
+                return false;
             }
             try
             {
-                await Storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent(pid, timestamp, eventType));
+                if (await Storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent(pid, timestamp, eventType)))
+                {
+                    return true;
+                }
+                return await SaveHistoryEventRetry(pid, timestamp, eventType, --retry);
             }
             catch (UnauthorizedAccessException)
             {
-                await SaveHistoryEventRetry(pid, timestamp, eventType, --retry);
-            }
-            catch (NotStoredException)
-            {
-                await SaveHistoryEventRetry(pid, timestamp, eventType, --retry);
+                return await SaveHistoryEventRetry(pid, timestamp, eventType, --retry);
             }
             catch (FileNotFoundException)
             {
-                await SaveHistoryEventRetry(pid, timestamp, eventType, --retry);
+                return await SaveHistoryEventRetry(pid, timestamp, eventType, --retry);
             }
         }
 
         public async Task<IList<HistoryAction>> GetActions(string uuid, bool forceUpdate = false)
         {
-            if (!forceUpdate)
-            {
-                if (historyActionsCache.ContainsKey(uuid))
-                {
-                    return historyActionsCache[uuid];
-                }
-            }
-            return historyActionsCache[uuid] = await Storage.GetActions(uuid);
+            return await Storage.GetActions(uuid);
         }
 
         public async Task<HistoryAction> GetAction(string uuid, bool forceUpdate = false)
@@ -355,32 +341,32 @@ namespace SensorbergSDK.Internal.Services
             await Storage.SetDelayedActionAsExecuted(id);
         }
 
-        public async Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice)
+        public async Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice)
         {
-            await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice, MAX_RETRIES);
+            return await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice,MAX_RETRIES);
         }
 
-        private async Task SaveDelayedActionsRetry(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice, int retry)
+        private async Task<bool> SaveDelayedActionsRetry(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice, int retry)
         {
             if (retry < 0)
             {
-                return;
+                return false;
             }
             try
             {
-                await Storage.SaveDelayedAction(action, dueTime, beaconPid, eventTypeDetectedByDevice);
+                if (await Storage.SaveDelayedAction(action, dueTime, beaconPid, eventTypeDetectedByDevice))
+                {
+                    return true;
+                }
+                return await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice, --retry);
             }
             catch (UnauthorizedAccessException)
             {
-                await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice, --retry);
-            }
-            catch (NotStoredException)
-            {
-                await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice, --retry);
+                return await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice, --retry);
             }
             catch (FileNotFoundException)
             {
-                await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice, --retry);
+                return await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice, --retry);
             }
         }
 
@@ -389,32 +375,32 @@ namespace SensorbergSDK.Internal.Services
             return await Storage.GetLastEventStateForBeacon(pid);
         }
 
-        public async Task SaveBeaconEventState(string pid, BeaconEventType enter)
+        public async Task<bool> SaveBeaconEventState(string pid, BeaconEventType enter)
         {
-            await SaveBeaconEventStateRetry(pid, enter, MAX_RETRIES);
+            return await SaveBeaconEventStateRetry(pid, enter,MAX_RETRIES);
         }
 
-        private async Task SaveBeaconEventStateRetry(string pid, BeaconEventType enter, int retry)
+        private async Task<bool> SaveBeaconEventStateRetry(string pid, BeaconEventType enter, int retry)
         {
             if (retry < 0)
             {
-                return;
+                return false;
             }
             try
             {
-                await Storage.SaveBeaconEventState(pid, enter);
+                if (await Storage.SaveBeaconEventState(pid, enter))
+                {
+                    return true;
+                }
+                return await SaveBeaconEventStateRetry(pid, enter, --retry);
             }
             catch (UnauthorizedAccessException)
             {
-                await SaveBeaconEventStateRetry(pid, enter, --retry);
-            }
-            catch (NotStoredException)
-            {
-                await SaveBeaconEventStateRetry(pid, enter, --retry);
+                return await SaveBeaconEventStateRetry(pid, enter, --retry);
             }
             catch (FileNotFoundException)
             {
-                await SaveBeaconEventStateRetry(pid, enter, --retry);
+                return await SaveBeaconEventStateRetry(pid, enter, --retry);
             }
         }
 

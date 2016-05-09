@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
 using System.Collections.Generic;
 using Windows.Web.Http.Headers;
 using System.Threading.Tasks;
@@ -15,7 +19,7 @@ namespace SensorbergSDK
         Invalid,
         NetworkError,
         UnknownError
-    };
+    }
 
     public enum NetworkResult
     {
@@ -25,7 +29,7 @@ namespace SensorbergSDK
         ParsingError,
         NoWindowsCampains,
         UnknownError
-    };
+    }
 
     public class ApiKeyHelper
     {
@@ -181,7 +185,7 @@ namespace SensorbergSDK
                         }
                     }
                 }
-                else // if (!string.IsNullOrEmpty(authToken)) - else
+                else
                 {
                     result = NetworkResult.AuthenticationFailed;
                 }

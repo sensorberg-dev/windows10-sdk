@@ -1,4 +1,8 @@
-﻿using SensorbergSDK.Internal;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using SensorbergSDK.Internal;
 using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
@@ -15,7 +19,7 @@ namespace SensorbergSDK
         UrlMessage = Constants.ActionTypeUrlMessage,
         VisitWebsite = Constants.ActionTypeVisitWebsite,
         InApp = Constants.ActionTypeInApp
-    };
+    }
 
     /// <summary>
     /// Represents an action resolved based on a beacon event.
@@ -23,8 +27,8 @@ namespace SensorbergSDK
     [DataContract]
     public sealed class BeaconAction
     {
-        private string payloadString;
         private const char FieldSeparator = ';'; // For FromString() and ToString()
+        private string payloadString;
 
         public BeaconAction()
         {
@@ -68,11 +72,10 @@ namespace SensorbergSDK
 
         /// <summary>
         /// Validates the received action.
-        /// 
         /// Requirements for each action type:
         /// - URL message: Mandatory: subject, body, URL
         /// - Visit website: Optional: subject, body. Mandatory URL
-        /// - In-app: Optional: subject, body. Mandatory: URL
+        /// - In-app: Optional: subject, body. Mandatory: URL.
         /// </summary>
         /// <returns>True, if valid. False otherwise.</returns>
         public bool Validate()

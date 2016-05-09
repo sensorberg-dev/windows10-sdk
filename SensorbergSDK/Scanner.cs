@@ -161,7 +161,7 @@ namespace SensorbergSDK
         /// </summary>
         /// <param name="beacon"></param>
         /// <param name="eventType"></param>
-        private void NotifyBeaconEvent(Beacon beacon, BeaconEventType eventType)
+        public void NotifyBeaconEvent(Beacon beacon, BeaconEventType eventType)
         {
             BeaconEvent?.Invoke(this, new BeaconEventArgs() {Beacon = beacon, EventType = eventType});
         }

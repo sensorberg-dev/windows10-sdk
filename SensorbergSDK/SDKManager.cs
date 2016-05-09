@@ -1,9 +1,12 @@
-﻿using SensorbergSDK.Internal;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using SensorbergSDK.Internal;
 using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Foundation.Metadata;
 using Windows.UI.Core;
 using MetroLog;
 using SensorbergSDK.Internal.Services;

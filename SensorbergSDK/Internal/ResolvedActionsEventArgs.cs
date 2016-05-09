@@ -1,4 +1,8 @@
-﻿using SensorbergSDK.Internal;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using SensorbergSDK.Internal;
 using System.Collections.Generic;
 using System.Diagnostics;
 

@@ -57,14 +57,18 @@ namespace SensorbergSDK.Services
         /// <summary>
         /// Stores a resolved and executed action to the database.
         /// </summary>
+        /// <param name="uuid"></param>
+        /// <param name="beaconPid"></param>
+        /// <param name="now"></param>
+        /// <param name="beaconEventType"></param>
         /// <param name="eventArgs"></param>
         /// <param name="beaconAction"></param>
-        Task SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType);
+        Task<bool> SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType);
 
         /// <summary>
         /// Stores a beacon event to the database.
         /// </summary>
-        Task SaveHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType);
+        Task<bool> SaveHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType);
 
         /// <summary>
         /// Get all triggered actions by the given action uuid.
@@ -91,9 +95,9 @@ namespace SensorbergSDK.Services
         /// <returns></returns>
         Task InitStorage();
 
-        Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice);
+        Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice);
         Task<BackgroundEvent> GetLastEventStateForBeacon(string pid);
-        Task SaveBeaconEventState(string pid, BeaconEventType enter);
+        Task<bool> SaveBeaconEventState(string pid, BeaconEventType enter);
         Task<List<BeaconAction>> GetActionsForForeground(bool doNotDelete = false);
     }
 }
