@@ -94,8 +94,8 @@ namespace SensorbergSDKTests
             StorageServiceExtend sse = (StorageServiceExtend) ServiceManager.StorageService;
             MockStorage mockStorage = new MockStorage();
             sse.SetStorage(mockStorage);
-            mockStorage.UndeliveredActions = new List<HistoryAction> {new HistoryAction(new DBHistoryAction())};
-            mockStorage.UndeliveredEvents = new List<HistoryEvent> {new HistoryEvent(new DBHistoryEvent())};
+            mockStorage.UndeliveredActions = new List<HistoryAction> {new HistoryAction()};
+            mockStorage.UndeliveredEvents = new List<HistoryEvent> {new HistoryEvent()};
 
             MockApiConnection connection = (MockApiConnection) ServiceManager.ApiConnction;
             IStorageService service = ServiceManager.StorageService;

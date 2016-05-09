@@ -59,18 +59,6 @@ namespace SensorbergSDK.Internal
     [DataContract]
     public sealed class ResolvedAction
     {
-        private static readonly string KeyActionUuid = "eid";
-        private static readonly string KeyBeacons = "beacons";
-        private static readonly string KeyContent = "content";
-        private static readonly string KeyDelayTime = "delay";
-        private static readonly string KeyTrigger = "trigger";
-        private static readonly string KeyType = "type";
-        private static readonly string KeySendOnlyOnce = "sendOnlyOnce";
-        private static readonly string KeysupressionTime = "suppressionTime";
-        private static readonly string KeyReportImmediately = "reportImmediately";
-        private static readonly string KeyTimeframes = "timeframes";
-        private static readonly string KeyStart = "start";
-        private static readonly string KeyEnd = "end";
         private ICollection<string> beaconPids;
 
         [DataMember]

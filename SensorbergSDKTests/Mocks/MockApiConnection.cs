@@ -11,11 +11,15 @@ using Windows.Web.Http;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
+using System.Collections.Generic;
 
 namespace SensorbergSDKTests.Mocks
 {
     public class MockApiConnection : IApiConnection
     {
+        public List<HistoryAction> HistoryActions { get; } = new List<HistoryAction>();
+        public List<HistoryEvent> HistoryEvents { get; }= new List<HistoryEvent>();
+
         private async Task<string> Load(string file)
         {
             if (APIInvalid)
@@ -61,6 +65,11 @@ namespace SensorbergSDKTests.Mocks
             if (UnknownError)
             {
                 throw new Exception("ups");
+            }
+            if (history != null)
+            {
+                HistoryEvents.AddRange(history.events);
+                HistoryActions.AddRange(history.actions);
             }
             return Task.FromResult(new ResponseMessage() {IsSuccess = true});
         }

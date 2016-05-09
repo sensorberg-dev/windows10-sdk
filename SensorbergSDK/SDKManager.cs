@@ -108,7 +108,7 @@ namespace SensorbergSDK
         /// <summary>
         /// Instance of the SDKEngine.
         /// </summary>
-        private SDKEngine SdkEngine
+        public SDKEngine SdkEngine
         {
             [DebuggerStepThrough]
             get;

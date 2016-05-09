@@ -29,5 +29,10 @@ namespace SensorbergSDKTests.Mocks
         {
             BeaconEvent?.Invoke(this, new BeaconEventArgs() {Beacon = beacon, EventType = eventType});
         }
+
+        public void NotifyBeaconEvent(Beacon beacon, BeaconEventType eventType)
+        {
+            BeaconEvent?.Invoke(this, new BeaconEventArgs() { Beacon = beacon, EventType = eventType });
+        }
     }
 }

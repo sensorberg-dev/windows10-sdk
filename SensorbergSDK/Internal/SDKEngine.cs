@@ -56,7 +56,7 @@ namespace SensorbergSDK.Internal
         /// <summary>
         /// The Resolver instance.
         /// </summary>
-        public IResolver Resolver { [DebuggerStepThrough] get; [DebuggerStepThrough] private set; }
+        public IResolver Resolver { [DebuggerStepThrough] get; }
 
         /// <summary>
         /// Current count of unresolved actions
