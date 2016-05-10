@@ -111,7 +111,7 @@ namespace SensorbergSDK
         /// </summary>
         /// <param name="manufacturerId">The manufacturer ID.</param>
         /// <param name="beaconCode">The beacon code.</param>
-        /// <param name="beaconExitTimeoutInMiliseconds">Time in miliseconds after beacon will be trated as lost</param>
+        /// <param name="beaconExitTimeoutInMiliseconds">Time in miliseconds after beacon will be trated as lost.</param>
         /// <param name="rssiEnterThreshold">Optional rssi threshold which will trigger beacon discover event. Value must be between -128 and 127.</param>
         /// <param name="enterDistanceThreshold">Optional minimal distance in meters that will trigger beacon discover event.</param>
         public void StartWatcher(ushort manufacturerId, ushort beaconCode, ulong beaconExitTimeoutInMiliseconds, short? rssiEnterThreshold = null,

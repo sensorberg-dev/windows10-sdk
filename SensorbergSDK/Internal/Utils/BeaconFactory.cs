@@ -102,9 +102,7 @@ namespace SensorbergSDK.Internal.Utils
         /// 22-23       ID3 (16-bit unsigned integer, big endian)
         /// 24          Measured Power (signed 8-bit integer)
         /// 25          Additional information byte (optional)
-        /// 
         /// For more details on the beacon specifications see https://github.com/AltBeacon/spec
-        /// 
         /// The minimum length of the given byte array is 25. If it is longer than 26 bits,
         /// everything after the 26th bit is ignored.
         /// </summary>
