@@ -23,7 +23,6 @@ namespace SensorbergSDK.Internal
         private const string KeyAppIsVisible = "sensorberg_sdk_app_visibility";
         private const string KeyVisibilityLastUpdated = "sensorberg_sdk_visibility_last_updated";
 
-        private const int AppVisibilityFallbackDelayInSeconds = 60;
         private const string Userid = "userid";
 
         private readonly ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;

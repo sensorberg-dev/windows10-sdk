@@ -117,7 +117,7 @@
     <Compile Include="BackgroundTaskManager.cs" />
     <Compile Include="BeaconAction.cs" />
     <Compile Include="Internal\Constants.cs" />
-    <Compile Include="AppSettings.cs" />
+    <Compile Include="Internal\AppSettings.cs" />
     <Compile Include="Internal\Data\AppSettingsResponse.cs" />
     <Compile Include="Internal\Data\BackgroundEvent.cs" />
     <Compile Include="Internal\Data\BackgroundWorkerType.cs" />
