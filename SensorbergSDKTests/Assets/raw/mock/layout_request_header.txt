@@ -1,0 +1,1 @@
+{ Connection: keep-alive Server: nginx/1.4.6 (Ubuntu) Strict-Transport-Security: max-age=31536000; includeSubdomains Transfer-Encoding: chunked X-lid: b4abe42b-9d76-4708-95be-3ffb9a949d32 X-Application-Context: application Cache-Control: no-transform,public,max-age=86400,s-maxage=86400 Date: Fri, 04 Mar 2016 15:24:09 GMT ETag: 1457105049867}

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdktests\mocks\mockstorage.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 16.03.2016
+// 
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using SensorbergSDK;
+using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Services;
+
+namespace SensorbergSDKTests.Mocks
+{
+    public class MockStorage:IStorage
+    {
+        public IList&lt;HistoryAction&gt; UndeliveredActions { get; set; } = new List&lt;HistoryAction&gt;();
+        public IList&lt;HistoryEvent&gt; UndeliveredEvents { get; set; }= new List&lt;HistoryEvent&gt;();
+        public Dictionary&lt;string, BackgroundEvent&gt; LastEventState { get; set; } = new Dictionary&lt;string, BackgroundEvent&gt;();
+        public List&lt;DelayedActionData&gt; DelayedActions { get; set; } = new List&lt;DelayedActionData&gt;();
+
+        public async Task InitStorage()
+        {
+        }
+        public async Task&lt;IList&lt;HistoryEvent&gt;&gt; GetUndeliveredEvents()
+        {
+            return UndeliveredEvents;
+        }
+
+        public async Task&lt;IList&lt;HistoryAction&gt;&gt; GetUndeliveredActions()
+        {
+            return UndeliveredActions;
+        }
+
+        public async Task SetEventsAsDelivered()
+        {
+            UndeliveredEvents?.Clear();
+        }
+
+        public async Task SetActionsAsDelivered()
+        {
+            UndeliveredActions?.Clear();
+        }
+
+        public async Task SaveHistoryAction(HistoryAction action)
+        {
+            UndeliveredActions.Add(action);
+        }
+
+        
+        public async Task SaveHistoryEvents(HistoryEvent he)
+        {
+            UndeliveredEvents.Add(he);
+        }
+
+        public async Task&lt;IList&lt;HistoryAction&gt;&gt; GetActions(string uuid)
+        {
+            return UndeliveredActions.Where(a =&gt; a.eid == uuid).ToList();
+        }
+
+        public async Task&lt;HistoryAction&gt; GetAction(string uuid)
+        {
+            return UndeliveredActions.FirstOrDefault(a =&gt; a.eid == uuid);
+        }
+
+        public Task CleanDatabase()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task&lt;IList&lt;DelayedActionData&gt;&gt; GetDelayedActions(int maxDelayFromNowInSeconds)
+        {
+            DateTimeOffset maxDelayfromNow = DateTimeOffset.Now.AddSeconds(maxDelayFromNowInSeconds);
+            return DelayedActions.Where(da =&gt; da.dueTime &lt; maxDelayfromNow).ToList();
+        }
+
+        public async Task SetDelayedActionAsExecuted(string id)
+        {
+            DelayedActions.Remove(DelayedActions.FirstOrDefault(d =&gt; d.Id == id));
+        }
+
+        public async Task SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice)
+        {
+            DelayedActions.Add(new DelayedActionData() {beaconPid = beaconPid,dueTime = dueTime, eventTypeDetectedByDevice =  eventTypeDetectedByDevice, Id = Guid.NewGuid().ToString(), resolvedAction = action});
+        }
+
+        public Task SaveHistoryAction(BeaconAction beaconAction)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task SaveBeaconEventState(string pid, BeaconEventType enter)
+        {
+            LastEventState[pid] = new BackgroundEvent() {BeaconID = pid, EventTime = DateTimeOffset.Now, LastEvent = enter};
+        }
+
+        public async Task&lt;BackgroundEvent&gt; GetLastEventStateForBeacon(string pid)
+        {
+            return LastEventState.ContainsKey(pid) ? LastEventState[pid] : null;
+        }
+
+        public Task SaveActionForForeground(BeaconAction beaconAction)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task&lt;List&lt;HistoryAction&gt;&gt; GetActionsForForeground(bool doNotDelete = false)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[22,74,22,78,0],[23,62,23,66,0],[70,9,70,10,0],[71,13,71,49,0],[91,9,91,10,0],[92,13,92,49,0],[106,9,106,10,0],[107,13,107,49,0],[111,9,111,10,0],[112,13,112,49,0],[66,59,66,72,0],[65,9,65,10,0],[66,13,66,59,0],[66,72,66,74,0],[67,9,67,10,0],[77,47,77,75,0],[82,70,82,80,0],[81,9,81,10,0],[82,13,82,70,0],[82,80,82,83,0],[83,9,83,10,0],[86,9,86,10,0],[87,13,87,212,0],[88,9,88,10,0],[20,58,20,62,1],[20,63,20,67,1],[21,56,21,60,1],[21,61,21,65,1],[22,69,22,73,1],[23,57,23,61,1],[20,72,20,97,1],[21,69,21,93,1],[22,83,22,124,1],[23,71,23,100,1],[26,9,26,10,1],[27,9,27,10,1],[29,9,29,10,1],[30,13,30,38,1],[31,9,31,10,1],[34,9,34,10,1],[35,13,35,39,1],[36,9,36,10,1],[39,9,39,10,1],[40,13,40,40,1],[41,9,41,10,1],[44,9,44,10,1],[45,13,45,41,1],[46,9,46,10,1],[49,9,49,10,1],[50,13,50,44,1],[51,9,51,10,1],[55,9,55,10,1],[56,13,56,39,1],[57,9,57,10,1],[61,50,61,63,1],[60,9,60,10,1],[61,13,61,50,1],[61,63,61,74,1],[62,9,62,10,1],[75,9,75,10,1],[76,13,76,102,1],[77,13,77,47,1],[77,75,77,86,1],[78,9,78,10,1],[96,9,96,10,1],[97,13,97,125,1],[98,9,98,10,1],[101,9,101,10,1],[102,13,102,81,1],[103,9,103,10,1]]);
+    </script>
+  </body>
+</html>

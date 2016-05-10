@@ -1,9 +1,13 @@
-﻿using Windows.Data.Xml.Dom;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using Windows.Data.Xml.Dom;
 using Windows.UI.Notifications;
 
-namespace SensorbergSDK.Internal
+namespace SensorbergSDK.Internal.Utils
 {
-    public class NotificationUtils
+    public static class NotificationUtils
     {
         private static readonly string KeyLaunch = "launch";
         private static readonly string KeyText = "text";
@@ -46,7 +50,6 @@ namespace SensorbergSDK.Internal
         /// <summary>
         /// Creates a toast notification instance based on the data of the given beacon action.
         /// </summary>
-        /// <param name="beaconAction"></param>
         /// <returns>A newly created toast notification.</returns>
         public static ToastNotification CreateToastNotification(BeaconAction beaconAction)
         {
@@ -72,10 +75,6 @@ namespace SensorbergSDK.Internal
         /// <summary>
         /// For testing and debugging.
         /// </summary>
-        /// <param name="textLine1"></param>
-        /// <param name="textLine2"></param>
-        /// <param name="textLine3"></param>
-        /// <returns></returns>
         public static ToastNotification CreateToastNotification(string textLine1, string textLine2 = null, string textLine3 = null)
         {
             XmlDocument toastTemplate = ToastNotificationManager.GetTemplateContent(ToastTemplateType.ToastText04);

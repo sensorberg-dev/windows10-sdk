@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\data\filestoragehelper.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 30.03.2016
+// 
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+using Windows.Data.Json;
+using Newtonsoft.Json;
+
+namespace SensorbergSDK.Internal.Data
+{
+    public static class FileStorageHelper
+    {
+        /// &lt;summary&gt;
+        /// Creates from the given parameters a string.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;he&quot;&gt;Historyevent to convert&lt;/param&gt;
+        /// &lt;returns&gt;String representing the HistoryEvent&lt;/returns&gt;
+        public static string EventToString(HistoryEvent he)
+        {
+            return string.Format(&quot;{0},{1},{2},{3}\n&quot;, he.pid, DateTimeOffset.Parse(he.dt).ToUnixTimeMilliseconds(), he.trigger, false);
+        }
+
+        /// &lt;summary&gt;
+        /// Parses the list of strings to a List of HistoryEvents.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;strings&quot;&gt;List of string representing a HistoryEvent&lt;/param&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        public static List&lt;HistoryEvent&gt; EventsFromStrings(IList&lt;string&gt; strings)
+        {
+            if (strings == null || strings.Count == 0)
+            {
+                return new List&lt;HistoryEvent&gt;();
+            }
+            List&lt;HistoryEvent&gt; events = new List&lt;HistoryEvent&gt;();
+            foreach (string s in strings)
+            {
+                HistoryEvent he = EventFromString(s);
+                if(he!= null)
+                {
+                    events.Add(he);
+                }
+            }
+            return events;
+        }
+
+        /// &lt;summary&gt;
+        /// Parse the given string to a HistoryEvent.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;s&quot;&gt;Comma separated string representing a HistoryEvent&lt;/param&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        public static HistoryEvent EventFromString(string s)
+        {
+            if (string.IsNullOrEmpty(s))
+            {
+                return null;
+            }
+
+            string[] ss = s.Split(new char[] {&#39;,&#39;});
+            if (ss.Length &lt; 3)
+            {
+                return null;
+            }
+
+            HistoryEvent he = new HistoryEvent();
+            he.pid = ss[0];
+
+            try
+            {
+                he.dt = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(ss[1])).ToString(History.TIMEFORMAT);
+            }
+            catch (FormatException)
+            {
+                Debug.WriteLine(&quot;ERROR: parsing event: &quot;+ s);
+                return null;
+            }
+
+            he.trigger = int.Parse(ss[2]);
+            if (ss.Length &gt; 3)
+            {
+                try
+                {
+                    he.Delivered = bool.Parse(ss[3]);
+                }
+                catch (FormatException)
+                {
+                    Debug.WriteLine(&quot;ERROR: parsing event: &quot; + s);
+                }
+            }
+            return he;
+        }
+
+        public static string ActionToString(HistoryAction historyAction)
+        {
+            return ActionToString(historyAction.eid, historyAction.pid, DateTimeOffset.Parse(historyAction.dt), historyAction.trigger, historyAction.Delivered, historyAction.Background);
+        }
+        public static string ActionToString(string uuid, string beaconPid, DateTimeOffset timestamp, BeaconEventType beaconEventType)
+        {
+            return ActionToString(uuid, beaconPid, timestamp, (int) beaconEventType, false, false);
+        }
+
+        internal static string ActionToString(string uuid, string beaconPid, DateTimeOffset timestamp, int beaconEventType, bool delivered, bool background)
+        {
+            return string.Format(&quot;{0},{1},{2},{3},{4},{5}\n&quot;, uuid, beaconPid, timestamp.ToUnixTimeMilliseconds(), beaconEventType, delivered, background);
+        }
+
+        public static List&lt;HistoryAction&gt; ActionsFromStrings(IList&lt;string&gt; strings)
+        {
+            if (strings == null || strings.Count == 0)
+            {
+                return new List&lt;HistoryAction&gt;();
+            }
+            List&lt;HistoryAction&gt; actions = new List&lt;HistoryAction&gt;();
+            foreach (string s in strings)
+            {
+                HistoryAction ha = ActionFromString(s);
+                if (ha != null)
+                {
+                    actions.Add(ha);
+                }
+            }
+            return actions;
+        }
+
+        /// &lt;summary&gt;
+        /// Parse the given string to a HistoryAction.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;s&quot;&gt;Comma separated string representing a HistoryAction&lt;/param&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        public static HistoryAction ActionFromString(string s)
+        {
+            if (string.IsNullOrEmpty(s))
+            {
+                return null;
+            }
+
+            string[] ss = s.Split(new char[] {&#39;,&#39;});
+            if (ss.Length &lt; 5)
+            {
+                return null;
+            }
+
+            HistoryAction ha = new HistoryAction();
+            ha.eid = ss[0];
+            ha.pid = ss[1];
+
+            try
+            {
+                ha.dt = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(ss[2])).ToString(History.TIMEFORMAT);
+            }
+            catch (FormatException)
+            {
+                Debug.WriteLine(&quot;ERROR: parsing action: &quot; + s);
+                return null;
+            }
+
+            ha.trigger = int.Parse(ss[3]);
+            try
+            {
+                if (ss.Length &gt; 5)
+                {
+                    ha.Delivered = bool.Parse(ss[4]);
+                }
+            }
+            catch (FormatException)
+            {
+                Debug.WriteLine(&quot;ERROR: parsing action: &quot; + s);
+            }
+            try
+            {
+                ha.Background = bool.Parse(ss[ss.Length - 1]);
+            }
+            catch (FormatException)
+            {
+                Debug.WriteLine(&quot;ERROR: parsing action: &quot; + s);
+            }
+
+            return ha;
+        }
+
+        public static string DelayedActionToString(DelayedActionHelper delayedActionHelper)
+        {
+            return DelayedActionToString(delayedActionHelper.Content, delayedActionHelper.Offset, delayedActionHelper.Executed, delayedActionHelper.Id);
+        }
+
+        public static string DelayedActionToString(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType beaconEventType)
+        {
+            return DelayedActionToString(action, dueTime, beaconPid, beaconEventType, Guid.NewGuid());
+        }
+
+        public static string DelayedActionToString(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType beaconEventType, Guid guid)
+        {
+            string serializeObject = JsonConvert.SerializeObject(new SerializedAction() {Action = action, Time = dueTime, Beacon =  beaconPid, Event = beaconEventType});
+            return DelayedActionToString(Convert.ToBase64String(Encoding.UTF8.GetBytes(serializeObject)), dueTime, false, guid.ToString());
+        }
+        public static string DelayedActionToString(string action, DateTimeOffset dueTime, bool executed, string guid)
+        {
+            return string.Format(&quot;{0},{1},{2},{3}\n&quot;, guid, dueTime.ToUnixTimeMilliseconds(), executed, action);
+        }
+
+
+        public static List&lt;DelayedActionHelper&gt; DelayedActionsFromStrings(IList&lt;string&gt; strings)
+        {
+            if (strings == null || strings.Count == 0)
+            {
+                return new List&lt;DelayedActionHelper&gt;();
+            }
+            List&lt;DelayedActionHelper&gt; actions = new List&lt;DelayedActionHelper&gt;();
+            foreach (string s in strings)
+            {
+                DelayedActionHelper ha = SimpleDelayedActionFromString(s);
+                if (ha != null)
+                {
+                    actions.Add(ha);
+                }
+            }
+            return actions;
+        }
+
+        public static DelayedActionHelper SimpleDelayedActionFromString(string s)
+        {
+            if (string.IsNullOrEmpty(s))
+            {
+                return null;
+            }
+
+            string[] ss = s.Split(new char[] { &#39;,&#39; });
+            if (ss.Length &lt; 4)
+            {
+                return null;
+            }
+
+            DelayedActionHelper dah = new DelayedActionHelper();
+            dah.Id = ss[0];
+            dah.Offset = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(ss[1]));
+            dah.Executed = bool.Parse(ss[2]);
+            dah.Content = ss[3];
+            return dah;
+        }
+
+        public static DelayedActionData DelayedActionFromHelper(DelayedActionHelper delayedActionHelper)
+        {
+            if (delayedActionHelper == null)
+            {
+                return null;
+            }
+            string s = Encoding.UTF8.GetString(Convert.FromBase64String(delayedActionHelper.Content));
+            SerializedAction deserializeObject = JsonConvert.DeserializeObject&lt;SerializedAction&gt;(s);
+            DelayedActionData data = new DelayedActionData();
+            data.Id = delayedActionHelper.Id;
+            data.beaconPid = deserializeObject.Beacon;
+            data.dueTime = deserializeObject.Time;
+            data.eventTypeDetectedByDevice = deserializeObject.Event;
+
+            data.resolvedAction = deserializeObject.Action;
+            if (!string.IsNullOrEmpty(deserializeObject.Action.BeaconAction.PayloadString))
+            {
+                data.resolvedAction.BeaconAction.Payload = JsonObject.Parse(deserializeObject.Action.BeaconAction.PayloadString);
+            }
+            data.resolvedAction = deserializeObject.Action;
+
+            return data;
+        }
+
+        public static Dictionary&lt;string, Dictionary&lt;string, long&gt;&gt; BackoundEventsFromString(string s)
+        {
+            if (string.IsNullOrEmpty(s))
+            {
+                return null;
+            }
+            Dictionary&lt;string, Dictionary&lt;string, long&gt;&gt; dict = JsonConvert.DeserializeObject&lt; Dictionary&lt;string, Dictionary&lt;string, long&gt;&gt;&gt;(s);
+            if (dict == null)
+            {
+                dict = new Dictionary&lt;string, Dictionary&lt;string, long&gt;&gt;();
+            }
+            return dict;
+        }
+
+        public static string BackoundEventsToString(Dictionary&lt;string, Dictionary&lt;string, long&gt;&gt; dic)
+        {
+            return JsonConvert.SerializeObject(dic);
+        }
+
+        public static string BeaconEventStateToString(string pid, BeaconEventType type, DateTimeOffset now)
+        {
+            return string.Format(&quot;{0},{1},{2}&quot;, pid, (int)type, now.ToUnixTimeMilliseconds());
+        }
+
+        public static BackgroundEvent BeaconEventStateFromString(string s)
+        {
+            if (string.IsNullOrEmpty(s))
+            {
+                return null;
+            }
+
+            string[] ss = s.Split(new char[] { &#39;,&#39; });
+            if (ss.Length &lt; 3)
+            {
+                return null;
+            }
+
+            BackgroundEvent be = new BackgroundEvent();
+            be.BeaconID = ss[0];
+            be.LastEvent = (BeaconEventType)int.Parse(ss[1]);
+            be.EventTime = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(ss[2]));
+            return be;
+        }
+
+        public static string BeaconActionToString(BeaconAction action)
+        {
+            return JsonConvert.SerializeObject(action);
+        }
+
+        public static BeaconAction BeaconActionFromString(string s)
+        {
+            BeaconAction action = JsonConvert.DeserializeObject&lt;BeaconAction&gt;(s);
+            if (!string.IsNullOrEmpty(action?.PayloadString))
+            {
+                action.Payload = JsonObject.Parse(action.PayloadString);
+            }
+            return action;
+        }
+
+        public static HistoryAction ToHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType)
+        {
+            return new HistoryAction() { pid = beaconPid, dt = now.ToString(History.TIMEFORMAT), eid = uuid, trigger = (int)beaconEventType };
+        }
+
+        public static HistoryEvent ToHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType)
+        {
+            return new HistoryEvent() { pid = pid, dt = timestamp.ToString(History.TIMEFORMAT), trigger = (int)eventType };
+        }
+
+        public class SerializedAction
+        {
+            public ResolvedAction Action { get; set; }
+            public DateTimeOffset Time { get; set; }
+            public string Beacon { get; set; }
+            public BeaconEventType Event { get; set; }
+        }
+
+        public class DelayedActionHelper
+        {
+            public string Id { get; set; }
+            public DateTimeOffset Offset { get; set; }
+            public string Content { get; set; }
+
+            public bool Executed { get; set; }
+        }
+
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[36,13,36,14,0],[37,17,37,49,0],[169,13,169,36,0],[170,13,170,14,0],[171,17,171,64,0],[172,13,172,14,0],[233,13,233,14,0],[234,17,234,29,0],[277,13,277,14,0],[278,17,278,75,0],[279,13,279,14,0],[302,13,302,14,0],[303,17,303,29,0],[24,9,24,10,1],[25,13,25,136,1],[26,9,26,10,1],[34,9,34,10,1],[35,13,35,55,1],[39,13,39,66,1],[40,13,40,20,1],[40,34,40,41,1],[40,22,40,30,1],[41,13,41,14,1],[42,17,42,54,1],[43,17,43,30,1],[44,17,44,18,1],[45,21,45,36,1],[46,17,46,18,1],[47,13,47,14,1],[40,31,40,33,1],[48,13,48,27,1],[49,9,49,10,1],[57,9,57,10,1],[58,13,58,41,1],[59,13,59,14,1],[60,17,60,29,1],[63,13,63,53,1],[64,13,64,31,1],[65,13,65,14,1],[66,17,66,29,1],[69,13,69,50,1],[70,13,70,28,1],[73,13,73,14,1],[74,17,74,113,1],[75,13,75,14,1],[76,13,76,36,1],[77,13,77,14,1],[78,17,78,62,1],[79,17,79,29,1],[82,13,82,43,1],[83,13,83,31,1],[84,13,84,14,1],[86,17,86,18,1],[87,21,87,54,1],[88,17,88,18,1],[89,17,89,40,1],[90,17,90,18,1],[91,21,91,67,1],[92,17,92,18,1],[93,13,93,14,1],[94,13,94,23,1],[95,9,95,10,1],[98,9,98,10,1],[99,13,99,187,1],[100,9,100,10,1],[102,9,102,10,1],[103,13,103,100,1],[104,9,104,10,1],[107,9,107,10,1],[108,13,108,156,1],[109,9,109,10,1],[112,9,112,10,1],[113,13,113,55,1],[114,13,114,14,1],[115,17,115,50,1],[117,13,117,69,1],[118,13,118,20,1],[118,34,118,41,1],[118,22,118,30,1],[119,13,119,14,1],[120,17,120,56,1],[121,17,121,32,1],[122,17,122,18,1],[123,21,123,37,1],[124,17,124,18,1],[125,13,125,14,1],[118,31,118,33,1],[126,13,126,28,1],[127,9,127,10,1],[135,9,135,10,1],[136,13,136,41,1],[137,13,137,14,1],[138,17,138,29,1],[141,13,141,53,1],[142,13,142,31,1],[143,13,143,14,1],[144,17,144,29,1],[147,13,147,52,1],[148,13,148,28,1],[149,13,149,28,1],[152,13,152,14,1],[153,17,153,113,1],[154,13,154,14,1],[155,13,155,36,1],[156,13,156,14,1],[157,17,157,64,1],[158,17,158,29,1],[161,13,161,43,1],[163,13,163,14,1],[164,17,164,35,1],[165,17,165,18,1],[166,21,166,54,1],[167,17,167,18,1],[168,13,168,14,1],[174,13,174,14,1],[175,17,175,63,1],[176,13,176,14,1],[177,13,177,36,1],[178,13,178,14,1],[179,17,179,64,1],[180,13,180,14,1],[182,13,182,23,1],[183,9,183,10,1],[186,9,186,10,1],[187,13,187,153,1],[188,9,188,10,1],[191,9,191,10,1],[192,13,192,103,1],[193,9,193,10,1],[196,9,196,10,1],[197,13,197,170,1],[198,13,198,140,1],[199,9,199,10,1],[201,9,201,10,1],[202,13,202,113,1],[203,9,203,10,1],[207,9,207,10,1],[208,13,208,55,1],[209,13,209,14,1],[210,17,210,56,1],[212,13,212,81,1],[213,13,213,20,1],[213,34,213,41,1],[213,22,213,30,1],[214,13,214,14,1],[215,17,215,75,1],[216,17,216,32,1],[217,17,217,18,1],[218,21,218,37,1],[219,17,219,18,1],[220,13,220,14,1],[213,31,213,33,1],[221,13,221,28,1],[222,9,222,10,1],[225,9,225,10,1],[226,13,226,41,1],[227,13,227,14,1],[228,17,228,29,1],[231,13,231,55,1],[232,13,232,31,1],[237,13,237,65,1],[238,13,238,28,1],[239,13,239,85,1],[240,13,240,46,1],[241,13,241,33,1],[242,13,242,24,1],[243,9,243,10,1],[246,9,246,10,1],[247,13,247,45,1],[248,13,248,14,1],[249,17,249,29,1],[251,13,251,103,1],[252,13,252,101,1],[253,13,253,62,1],[254,13,254,46,1],[255,13,255,55,1],[256,13,256,51,1],[257,13,257,70,1],[259,13,259,60,1],[260,13,260,92,1],[261,13,261,14,1],[262,17,262,130,1],[263,13,263,14,1],[264,13,264,60,1],[266,13,266,25,1],[267,9,267,10,1],[270,9,270,10,1],[271,13,271,41,1],[272,13,272,14,1],[273,17,273,29,1],[275,13,275,145,1],[276,13,276,30,1],[280,13,280,25,1],[281,9,281,10,1],[284,9,284,10,1],[285,13,285,53,1],[286,9,286,10,1],[289,9,289,10,1],[290,13,290,95,1],[291,9,291,10,1],[294,9,294,10,1],[295,13,295,41,1],[296,13,296,14,1],[297,17,297,29,1],[300,13,300,55,1],[301,13,301,31,1],[306,13,306,56,1],[307,13,307,33,1],[308,13,308,62,1],[309,13,309,87,1],[310,13,310,23,1],[311,9,311,10,1],[314,9,314,10,1],[315,13,315,56,1],[316,9,316,10,1],[319,9,319,10,1],[320,13,320,82,1],[321,13,321,62,1],[322,13,322,14,1],[323,17,323,73,1],[324,13,324,14,1],[325,13,325,27,1],[326,9,326,10,1],[329,9,329,10,1],[330,13,330,143,1],[331,9,331,10,1],[334,9,334,10,1],[335,13,335,124,1],[336,9,336,10,1],[340,44,340,48,1],[340,49,340,53,1],[341,42,341,46,1],[341,47,341,51,1],[342,36,342,40,1],[342,41,342,45,1],[343,44,343,48,1],[343,49,343,53,1],[348,32,348,36,1],[348,37,348,41,1],[349,44,349,48,1],[349,49,349,53,1],[350,37,350,41,1],[350,42,350,46,1],[352,36,352,40,1],[352,41,352,45,1]]);
+    </script>
+  </body>
+</html>

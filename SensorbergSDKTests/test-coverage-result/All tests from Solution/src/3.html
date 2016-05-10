@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdktests\response.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Windows.Data.Json;
+using Windows.Storage;
+using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using SensorbergSDK;
+using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Services;
+using SensorbergSDKTests.Mocks;
+
+namespace SensorbergSDKTests
+{
+    [TestClass]
+    public class UnitTestResponse
+    {
+        [TestInitialize]
+        public void TestSetup()
+        {
+            ServiceManager.ReadOnlyForTests = false;
+            ServiceManager.Clear();
+            ServiceManager.StorageService = new StorageService() {Storage = new MockStorage()};
+            ServiceManager.ReadOnlyForTests = true;
+        }
+
+        [TestMethod]
+        public async Task Response_latest_response()
+        {
+            var uri = new Uri(&quot;ms-appx:///Assets/raw/latest_response.json&quot;);
+            var file = await StorageFile.GetFileFromApplicationUriAsync(uri);
+            string text = await FileIO.ReadTextAsync(file);
+            var val = JsonValue.Parse(text);
+
+            Layout resp = Layout.FromJson(null, val.GetObject(), DateTimeOffset.Now);
+
+            Assert.IsNotNull(resp);
+            Assert.AreEqual(2, resp.AccountBeaconId1s.Count);
+            Assert.AreEqual(5, resp.ResolvedActions.Count);
+
+            IList&lt;ResolvedAction&gt; list = resp.GetResolvedActionsForPidAndEvent(&quot;7367672374000000ffff0000ffff13370133701337&quot;, BeaconEventType.Enter);
+            Assert.IsNotNull(list);
+            Assert.AreEqual(3, list.Count);
+        }
+
+        [TestMethod]
+        public async Task Response_reportImmediately_false()
+        {
+            var uri = new Uri(&quot;ms-appx:///Assets/raw/reportImmediately_false.json&quot;);
+            var file = await StorageFile.GetFileFromApplicationUriAsync(uri);
+            string text = await FileIO.ReadTextAsync(file);
+            var val = JsonValue.Parse(text);
+
+            Layout resp = Layout.FromJson(null, val.GetObject(), DateTimeOffset.Now);
+
+            Assert.IsNotNull(resp);
+            Assert.AreEqual(1, resp.AccountBeaconId1s.Count);
+            Assert.AreEqual(1, resp.ResolvedActions.Count);
+
+            IList&lt;ResolvedAction&gt; list = resp.GetResolvedActionsForPidAndEvent(&quot;7367672374000000ffff0000ffff00070800800005&quot;, BeaconEventType.Exit);
+            Assert.IsNotNull(list);
+            Assert.AreEqual(1, list.Count);
+
+            foreach (var item in list)
+            {
+                Assert.IsFalse(item.ReportImmediately);
+            }
+        }
+
+        [TestMethod]
+        public async Task Response_reportImmediately_true()
+        {
+            var uri = new Uri(&quot;ms-appx:///Assets/raw/reportImmediately_true.json&quot;);
+            var file = await StorageFile.GetFileFromApplicationUriAsync(uri);
+            string text = await FileIO.ReadTextAsync(file);
+            var val = JsonValue.Parse(text);
+
+            Layout resp = Layout.FromJson(null, val.GetObject(), DateTimeOffset.Now);
+
+            Assert.IsNotNull(resp);
+            Assert.AreEqual(1, resp.AccountBeaconId1s.Count);
+            Assert.AreEqual(1, resp.ResolvedActions.Count);
+
+            IList&lt;ResolvedAction&gt; list = resp.GetResolvedActionsForPidAndEvent(&quot;7367672374000000ffff0000ffff00070800800005&quot;, BeaconEventType.Exit);
+            Assert.IsNotNull(list);
+            Assert.AreEqual(1, list.Count);
+
+            foreach (var item in list)
+            {
+                Assert.IsTrue(item.ReportImmediately);
+            }
+        }
+
+        [TestMethod]
+        public async Task Response_reportImmediately_not_set()
+        {
+            var uri = new Uri(&quot;ms-appx:///Assets/raw/reportImmediately_not_set.json&quot;);
+            var file = await StorageFile.GetFileFromApplicationUriAsync(uri);
+            string text = await FileIO.ReadTextAsync(file);
+            var val = JsonValue.Parse(text);
+
+            Layout resp = Layout.FromJson(null, val.GetObject(), DateTimeOffset.Now);
+
+            Assert.IsNotNull(resp);
+            Assert.AreEqual(1, resp.AccountBeaconId1s.Count);
+            Assert.AreEqual(1, resp.ResolvedActions.Count);
+
+            IList&lt;ResolvedAction&gt; list = resp.GetResolvedActionsForPidAndEvent(&quot;7367672374000000ffff0000ffff00070800800005&quot;, BeaconEventType.Exit);
+            Assert.IsNotNull(list);
+            Assert.AreEqual(1, list.Count);
+
+            foreach (var item in list)
+            {
+                Assert.IsFalse(item.ReportImmediately);
+            }
+        }
+
+        [TestMethod]
+        public async Task Response_sendOnlyOnce_set()
+        {
+            var uri = new Uri(&quot;ms-appx:///Assets/raw/response_sendOnlyOnce_true.json&quot;);
+            var file = await StorageFile.GetFileFromApplicationUriAsync(uri);
+            string text = await FileIO.ReadTextAsync(file);
+            var val = JsonValue.Parse(text);
+
+            Layout resp = Layout.FromJson(null, val.GetObject(), DateTimeOffset.Now);
+
+            Assert.IsNotNull(resp);
+            Assert.AreEqual(1, resp.AccountBeaconId1s.Count);
+            Assert.AreEqual(1, resp.ResolvedActions.Count);
+
+            IList&lt;ResolvedAction&gt; list = resp.GetResolvedActionsForPidAndEvent(&quot;7367672374000000ffff0000ffff00070800800005&quot;, BeaconEventType.Exit);
+            Assert.IsNotNull(list);
+            Assert.AreEqual(1, list.Count);
+
+            foreach (var item in list)
+            {
+                Assert.IsTrue(item.SendOnlyOnce);
+            }
+        }
+
+        [TestMethod]
+        public async Task Response_supressionTime()
+        {
+            var uri = new Uri(&quot;ms-appx:///Assets/raw/response_supressionTime.json&quot;);
+            var file = await StorageFile.GetFileFromApplicationUriAsync(uri);
+            string text = await FileIO.ReadTextAsync(file);
+            var val = JsonValue.Parse(text);
+
+            Layout resp = Layout.FromJson(null, val.GetObject(), DateTimeOffset.Now);
+
+            Assert.IsNotNull(resp);
+            Assert.AreEqual(1, resp.AccountBeaconId1s.Count);
+            Assert.AreEqual(1, resp.ResolvedActions.Count);
+
+            IList&lt;ResolvedAction&gt; list = resp.GetResolvedActionsForPidAndEvent(&quot;7367672374000000ffff0000ffff00070800800005&quot;, BeaconEventType.Exit);
+            Assert.IsNotNull(list);
+            Assert.AreEqual(1, list.Count);
+
+            foreach (var item in list)
+            {
+                Assert.IsTrue(item.SupressionTime == 30);
+            }
+        }
+
+        [TestMethod]
+        public async Task Response_ResolvedAction_serialization()
+        {
+            var uri = new Uri(&quot;ms-appx:///Assets/raw/response_sendOnlyOnce_true.json&quot;);
+            var file = await StorageFile.GetFileFromApplicationUriAsync(uri);
+            string text = await FileIO.ReadTextAsync(file);
+            var val = JsonValue.Parse(text);
+
+            Layout resp = Layout.FromJson(null, val.GetObject(), DateTimeOffset.Now);
+
+            Assert.IsNotNull(resp);
+            Assert.AreEqual(1, resp.AccountBeaconId1s.Count);
+            Assert.AreEqual(1, resp.ResolvedActions.Count);
+
+            IList&lt;ResolvedAction&gt; list = resp.GetResolvedActionsForPidAndEvent(&quot;7367672374000000ffff0000ffff00070800800005&quot;, BeaconEventType.Exit);
+
+            foreach (var item in list)
+            {
+                string strObj = ResolvedAction.Serialize(item);
+
+                ResolvedAction obj = ResolvedAction.Deserialize(strObj);
+
+                Assert.AreEqual(obj.BeaconAction.Url, item.BeaconAction.Url);
+                Assert.AreEqual(obj.BeaconAction.Subject, item.BeaconAction.Subject);
+                Assert.AreEqual(obj.ReportImmediately, item.ReportImmediately);
+            }
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[19,9,19,10,1],[20,13,20,53,1],[21,13,21,36,1],[22,13,22,96,1],[23,13,23,52,1],[24,9,24,10,1],[28,9,28,10,1],[29,13,29,77,1],[30,13,30,78,1],[31,13,31,60,1],[32,13,32,45,1],[34,13,34,86,1],[36,13,36,36,1],[37,13,37,62,1],[38,13,38,60,1],[40,13,40,149,1],[41,13,41,36,1],[42,13,42,44,1],[43,9,43,10,1],[47,9,47,10,1],[48,13,48,85,1],[49,13,49,78,1],[50,13,50,60,1],[51,13,51,45,1],[53,13,53,86,1],[55,13,55,36,1],[56,13,56,62,1],[57,13,57,60,1],[59,13,59,148,1],[60,13,60,36,1],[61,13,61,44,1],[63,13,63,20,1],[63,34,63,38,1],[63,22,63,30,1],[64,13,64,14,1],[65,17,65,56,1],[66,13,66,14,1],[63,31,63,33,1],[67,9,67,10,1],[71,9,71,10,1],[72,13,72,84,1],[73,13,73,78,1],[74,13,74,60,1],[75,13,75,45,1],[77,13,77,86,1],[79,13,79,36,1],[80,13,80,62,1],[81,13,81,60,1],[83,13,83,148,1],[84,13,84,36,1],[85,13,85,44,1],[87,13,87,20,1],[87,34,87,38,1],[87,22,87,30,1],[88,13,88,14,1],[89,17,89,55,1],[90,13,90,14,1],[87,31,87,33,1],[91,9,91,10,1],[95,9,95,10,1],[96,13,96,87,1],[97,13,97,78,1],[98,13,98,60,1],[99,13,99,45,1],[101,13,101,86,1],[103,13,103,36,1],[104,13,104,62,1],[105,13,105,60,1],[107,13,107,148,1],[108,13,108,36,1],[109,13,109,44,1],[111,13,111,20,1],[111,34,111,38,1],[111,22,111,30,1],[112,13,112,14,1],[113,17,113,56,1],[114,13,114,14,1],[111,31,111,33,1],[115,9,115,10,1],[119,9,119,10,1],[120,13,120,88,1],[121,13,121,78,1],[122,13,122,60,1],[123,13,123,45,1],[125,13,125,86,1],[127,13,127,36,1],[128,13,128,62,1],[129,13,129,60,1],[131,13,131,148,1],[132,13,132,36,1],[133,13,133,44,1],[135,13,135,20,1],[135,34,135,38,1],[135,22,135,30,1],[136,13,136,14,1],[137,17,137,50,1],[138,13,138,14,1],[135,31,135,33,1],[139,9,139,10,1],[143,9,143,10,1],[144,13,144,85,1],[145,13,145,78,1],[146,13,146,60,1],[147,13,147,45,1],[149,13,149,86,1],[151,13,151,36,1],[152,13,152,62,1],[153,13,153,60,1],[155,13,155,148,1],[156,13,156,36,1],[157,13,157,44,1],[159,13,159,20,1],[159,34,159,38,1],[159,22,159,30,1],[160,13,160,14,1],[161,17,161,58,1],[162,13,162,14,1],[159,31,159,33,1],[163,9,163,10,1],[167,9,167,10,1],[168,13,168,88,1],[169,13,169,78,1],[170,13,170,60,1],[171,13,171,45,1],[173,13,173,86,1],[175,13,175,36,1],[176,13,176,62,1],[177,13,177,60,1],[179,13,179,148,1],[181,13,181,20,1],[181,34,181,38,1],[181,22,181,30,1],[182,13,182,14,1],[183,17,183,64,1],[185,17,185,73,1],[187,17,187,78,1],[188,17,188,86,1],[189,17,189,80,1],[190,13,190,14,1],[181,31,181,33,1],[191,9,191,10,1]]);
+    </script>
+  </body>
+</html>

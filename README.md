@@ -10,9 +10,9 @@ Check the list of [issues](https://github.com/sensorberg-dev/windows10-sdk/issue
 
 Sensorberg SDK for Windows is supported on Windows 10.
 
-Sensorberg SDK has a dependency to SQLite library, which does not support
+~~Sensorberg SDK has a dependency to SQLite library, which does not support
 "Any CPU" configuration. Thus, your Sensorberg application will only support
-x86, x64 and ARM builds.
+x86, x64 and ARM builds.~~
 
 
 ## Taking Sensorberg SDK into use ##
@@ -20,8 +20,8 @@ x86, x64 and ARM builds.
 ### Prerequisites ###
 
 VSIX package "Universal App Platform development using Visual Studio 2015 CTP"
-needs to be installed to Visual Studio 2015. Package is available at
-http://www.sqlite.org/download.html
+needs to be installed to Visual Studio 2015. ~~Package is available at
+http://www.sqlite.org/download.html~~
 
 
 ### 1. Add Sensorberg SDK projects into your solution ###
@@ -228,29 +228,15 @@ You can register and unregister the background task using `SDKManager` methods
 | UnregisterBackgroundTask | - | - | Unregisters the background tasks. |
 | StartScanner | - | - | Starts the scanner. It is not necessary to use the scanner, if the background task is registered as the background task will receive beacon actions even when the application is on foreground. The resolved actions are delivered to the application by the background task. |
 | StopScanner | - | - | Stops the scanner. |
-| ClearPendingActions | - | - | Clears all pending actions (resolved by the background task) from the database. |
 | InvalidateCacheAsync | - | - | Invalidates the cache including layout. |
 | OnApplicationVisibilityChanged | object, VisibilityChangedEventArgs | - | Event handler for `Window.Current.VisibilityChanged`. Sets the SDK state based on the application visibility. |
 
 ## Working with the database ##
 
-Sensorberg SDK stores data in SQLite database. Physical database file locates in application's home folder. When working on the desktop, the file locates in following place: 
-C:\Users\<username>\AppData\Local\Packages\<AppID>\LocalState\sensorberg.db
-Tools like DB Browser for SQLite can provide interesting insight on how the SDK works. You can for instance observe incoming beacon events that the background agent stores by looking in DBBackgroundEventsHistory table.
+Sensorberg SDK stores data in folders. File locates in application's home folder. When working on the desktop, the file locates in following place: 
+C:\Users\<username>\AppData\Local\Packages\<AppID>\LocalState\sensorberg-storage
+You can for instance observe incoming beacon events that the background agent stores by looking in background/events folder.
 
-### Database structure ###
-
-| Name | Description | 
-| ---- | --------- | 
-| DBBackgroundEventsHistory | Background agent stores all raw beacon events that it receives from the bluetooth device in this table. When new beacon is seen for the first time, it is stored in the table and this will cause beacon enter event. When the same beacon is seen again only EventTime is updated. And finally when beacon is not seen in 9 seconds it will trigger exit event for the beacon and it will be deleted from the database. |
-| DBBEaconActionFromBackground | This table is a communication channel between background task and UI application. When the background agent has recognized new action it stores it here and foreground application reads it and processes them. |
-| DBDelayedAction |  All delayed actions are stored here. Both background task and foreground UI regularly check if there are delayed actions that should be executed.  |
-| DBHistoryAction |  Stores all actions that have been executed. The table data is used to ensure that same action is not shown twice if there are suppression rules that prohibit it. Content is regularly send to the cloud service |
-| DBHistoryEvent |  Event history that is regularly send to the cloud service |
-
-DB Browser for SQLite shows an event in DBBackgroundEventsHistory table
-
-![Adding Sensorberg SDK projects](/Doc/Images/DBBrowserforSQLite.png)
 
 ## Sample applications ##
 

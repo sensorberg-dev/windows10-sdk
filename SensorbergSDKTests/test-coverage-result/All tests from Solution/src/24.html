@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\backgroundtaskmanager.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 05.04.2016
+// 
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Threading.Tasks;
+using Windows.ApplicationModel.Background;
+using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Services;
+using System.Collections.Generic;
+using MetroLog;
+
+namespace SensorbergSDK
+{
+    public struct BackgroundTaskRegistrationResult
+    {
+        public bool Success { get; set; }
+        public Exception Exception { get; set; }
+    }
+    public class BackgroundTaskManager
+    {
+        private static ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger&lt;BackgroundTaskManager&gt;();
+        private const int TIME_TRIGGER_INTERVAL_IN_MINUTES = 15;
+        private const int SIGNAL_STRENGTH_FILTER_OUT_OF_RANGE_THRESHOLD_IN_D_BM = -127;
+
+        private const string TIMER_CLASS = &quot;SENSORBERG_TIMER_CLASS&quot;;
+        private const string ADVERTISEMENT_CLASS = &quot;SENSORBERG_ADVERTISEMENT_CLASS&quot;;
+        public event EventHandler BackgroundFiltersUpdated;
+        public event EventHandler&lt;BeaconAction&gt; BackgroundBeaconActionResolved;
+        public bool IsBackgroundTaskRegistered { get { return BackgroundTaskRegistered(TIMER_CLASS) &amp;&amp; BackgroundTaskRegistered(ADVERTISEMENT_CLASS); } }
+        public AppSettings AppSettings { get; set; }
+
+        public void UnregisterBackgroundTask()
+        {
+            foreach (var taskValue in BackgroundTaskRegistration.AllTasks.Values)
+            {
+                if (taskValue.Name.Equals(ADVERTISEMENT_CLASS) || taskValue.Name.Equals(TIMER_CLASS))
+                {
+                    taskValue.Unregister(true);
+                    logger.Debug(&quot;BackgroundTaskManager.UnregisterBackgroundTask(): Unregistered task: &quot; + taskValue.Name);
+                }
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Will remove OnProgress event handlers from advertisement background task
+        /// OnProgress events are used to indicate UI tasks on beacon actions resolved in background
+        /// &lt;/summary&gt;
+        public void UnRegisterOnProgressEventHandler()
+        {
+            logger.Debug(&quot;UnRegisterOnProgressEventHandler&quot;);
+
+            foreach (var taskValue in BackgroundTaskRegistration.AllTasks.Values)
+            {
+                if (taskValue.Name.Equals(ADVERTISEMENT_CLASS))
+                {
+                    taskValue.Progress -= OnAdvertisementWatcherBackgroundTaskProgress;
+                }
+            }
+        }
+        /// &lt;summary&gt;
+        /// Will remove OnProgress event handlers from advertisement background task
+        /// OnProgress events are used to indicate UI tasks on beacon actions resolved in background
+        /// &lt;/summary&gt;
+        public void RegisterOnProgressEventHandler()
+        {
+            logger.Debug(&quot;RegisterOnProgressEventHandler&quot;);
+
+            foreach (var taskValue in BackgroundTaskRegistration.AllTasks.Values)
+            {
+                if (taskValue.Name.Equals(ADVERTISEMENT_CLASS))
+                {
+                    taskValue.Progress += OnAdvertisementWatcherBackgroundTaskProgress;
+                }
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Checks if the background filters are up-to-date or not. To update the filters,
+        /// unregister and register background task again
+        /// (call BackgroundTaskManager.UpdateBackgroundTaskAsync()).
+        /// &lt;/summary&gt;
+        /// &lt;returns&gt;True, if an update is required. False otherwise.&lt;/returns&gt;
+        public static bool CheckIfBackgroundFilterUpdateIsRequired()
+        {
+            SDKData sdkData = SDKData.Instance;
+            bool isRequired = sdkData.BackgroundFilterUpdateRequired;
+
+            if (!isRequired &amp;&amp; !string.IsNullOrEmpty(sdkData.LayoutBeaconId1Hash))
+            {
+                string upToDateHash = LayoutManager.CreateHashOfBeaconId1sInLayout(ServiceManager.LayoutManager.Layout);
+
+                if (!string.IsNullOrEmpty(upToDateHash)
+                    &amp;&amp; !sdkData.LayoutBeaconId1Hash.Equals(upToDateHash))
+                {
+                    sdkData.LayoutBeaconId1Hash = upToDateHash;
+                    sdkData.BackgroundFilterUpdateRequired = true;
+                    isRequired = true;
+                }
+            }
+
+            return isRequired;
+        }
+
+        public async Task&lt;BackgroundTaskRegistrationResult&gt; UpdateBackgroundTaskAsync(string timerClassName, string advertisementClassName, ushort manufacturerId, ushort beaconCode)
+        {
+            UnregisterBackgroundTask();
+            return await RegisterBackgroundTaskAsync(timerClassName, advertisementClassName, manufacturerId, beaconCode);
+        }
+
+        public async Task&lt;BackgroundTaskRegistrationResult&gt; RegisterBackgroundTaskAsync(string timerClassName, string advertisementClassName, ushort manufacturerId, ushort beaconCode)
+        {
+            BackgroundTaskRegistrationResult result = new BackgroundTaskRegistrationResult()
+            {
+                Success = IsBackgroundTaskRegistered,
+                Exception = null
+            };
+
+            if (!result.Success)
+            {
+                // Prompt user to accept the request
+                BackgroundAccessStatus backgroundAccessStatus = await BackgroundExecutionManager.RequestAccessAsync();
+                if (backgroundAccessStatus == BackgroundAccessStatus.AllowedMayUseActiveRealTimeConnectivity
+                    || backgroundAccessStatus == BackgroundAccessStatus.AllowedWithAlwaysOnRealTimeConnectivity)
+                {
+                    result = RegisterTimedBackgroundTask(timerClassName);
+
+                    if (result.Success)
+                    {
+                        result = await RegisterAdvertisementWatcherBackgroundTaskAsync(advertisementClassName, manufacturerId, beaconCode);
+                    }
+                }
+
+                if (result.Success)
+                {
+                    logger.Debug(&quot;BackgroundTaskManager.RegisterBackgroundTask(): Registration successful&quot;);
+                }
+            }
+            else
+            {
+                logger.Debug(&quot;BackgroundTaskManager.RegisterBackgroundTask(): Already registered&quot;);
+            }
+
+            return result;
+        }
+
+        /// &lt;summary&gt;
+        /// Registers the BLE advertisement watcher background task.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;advertisementClassName&quot;&gt;Full class name of the advertisment background task&lt;/param&gt;
+        /// &lt;param name=&quot;manufacturerId&quot;&gt;The manufacturer ID of beacons to watch.&lt;/param&gt;
+        /// &lt;param name=&quot;beaconCode&quot;&gt;The beacon code of beacons to watch.&lt;/param&gt;
+        /// &lt;returns&gt;The registration result.&lt;/returns&gt;
+        private async Task&lt;BackgroundTaskRegistrationResult&gt; RegisterAdvertisementWatcherBackgroundTaskAsync(string advertisementClassName, ushort manufacturerId, ushort beaconCode)
+        {
+            BackgroundTaskRegistrationResult result = new BackgroundTaskRegistrationResult()
+            {
+                Success = false,
+                Exception = null
+            };
+
+            if (BackgroundTaskRegistered(ADVERTISEMENT_CLASS))
+            {
+                // Already registered
+                logger.Debug(&quot;BackgroundTaskManager.RegisterAdvertisementWatcherBackgroundTask(): Already registered&quot;);
+                result.Success = true;
+            }
+            else
+            {
+                BackgroundTaskBuilder backgroundTaskBuilder = new BackgroundTaskBuilder();
+
+                backgroundTaskBuilder.Name = ADVERTISEMENT_CLASS;
+                backgroundTaskBuilder.TaskEntryPoint = advertisementClassName;
+
+                BluetoothLEAdvertisementWatcherTrigger advertisementWatcherTrigger = new BluetoothLEAdvertisementWatcherTrigger();
+
+                // This filter includes all Sensorberg beacons 
+                var pattern = BeaconFactory.UUIDToAdvertisementBytePattern(Constants.SensorbergUuidSpace, manufacturerId, beaconCode);
+                advertisementWatcherTrigger.AdvertisementFilter.BytePatterns.Add(pattern);
+
+                ILayoutManager layoutManager = ServiceManager.LayoutManager;
+
+#if FILTER_SUPPORTS_MORE_UUIDS
+                // Only UUIDs that are registered to the app will be added into filter                      
+                if (await layoutManager.VerifyLayoutAsync(false)
+                    &amp;&amp; layoutManager.Layout.ContainsOtherThanSensorbergBeaconId1s())
+                {
+                    int counter = 0;
+
+                    foreach (string beaconId1 in LayoutManager.Instance.Layout.AccountBeaconId1s)
+                    {
+                        if (beaconId1.Length == Constants.BeaconId1LengthWithoutDashes &amp;&amp; counter &lt; MaxBeaconId1FilterCount)
+                        {
+                            if (!beaconId1.StartsWith(Constants.SensorbergUuidSpace, StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                pattern = BeaconFactory.UUIDToAdvertisementBytePattern(beaconId1);
+                                advertisementWatcherTrigger.AdvertisementFilter.BytePatterns.Add(pattern);
+                                counter++;
+                            }
+                        }
+                    }
+                }
+#endif
+
+                AppSettings = await ServiceManager.SettingsManager.GetSettings();
+
+                // Using MaxSamplingInterval as SamplingInterval ensures that we get an event only
+                // when entering or exiting from the range of the beacon
+                advertisementWatcherTrigger.SignalStrengthFilter.SamplingInterval = advertisementWatcherTrigger.MaxSamplingInterval;
+                if (AppSettings.RssiEnterThreshold != null &amp;&amp; AppSettings.RssiEnterThreshold.Value &gt;= -128 &amp;&amp;
+                    AppSettings.RssiEnterThreshold.Value &lt;= 127)
+                {
+                    advertisementWatcherTrigger.SignalStrengthFilter.InRangeThresholdInDBm = AppSettings.RssiEnterThreshold;
+                }
+                else
+                {
+                    advertisementWatcherTrigger.SignalStrengthFilter.InRangeThresholdInDBm = Constants.DefaultBackgroundScannerEnterThreshold;
+                }
+
+                advertisementWatcherTrigger.SignalStrengthFilter.OutOfRangeThresholdInDBm = SIGNAL_STRENGTH_FILTER_OUT_OF_RANGE_THRESHOLD_IN_D_BM;
+                advertisementWatcherTrigger.SignalStrengthFilter.OutOfRangeTimeout = TimeSpan.FromMilliseconds(AppSettings.BeaconExitTimeout);
+
+                IBackgroundTrigger trigger = advertisementWatcherTrigger;
+
+                backgroundTaskBuilder.SetTrigger(trigger);
+
+                try
+                {
+                    BackgroundTaskRegistration backgroundTaskRegistration = backgroundTaskBuilder.Register();
+                    backgroundTaskRegistration.Completed += OnAdvertisementWatcherBackgroundTaskCompleted;
+                    backgroundTaskRegistration.Progress += OnAdvertisementWatcherBackgroundTaskProgress;
+
+                    result.Success = true;
+                }
+                catch (Exception ex)
+                {
+                    result.Exception = ex;
+                    logger.Error(&quot;BackgroundTaskManager.RegisterAdvertisementWatcherBackgroundTask(): Failed to register: &quot;, ex);
+                }
+
+                if (result.Success)
+                {
+                    SDKData sdkData = SDKData.Instance;
+
+                    // Check if there was a pending filter update
+                    if (sdkData.BackgroundFilterUpdateRequired)
+                    {
+                        string upToDateHash = LayoutManager.CreateHashOfBeaconId1sInLayout(layoutManager.Layout);
+
+                        if (!string.IsNullOrEmpty(upToDateHash) &amp;&amp; sdkData.LayoutBeaconId1Hash.Equals(upToDateHash))
+                        {
+                            // Background filter updated successfully
+                            sdkData.BackgroundFilterUpdateRequired = false;
+
+                            BackgroundFiltersUpdated?.Invoke(this, null);
+                        }
+                    }
+                    else if (string.IsNullOrEmpty(sdkData.LayoutBeaconId1Hash))
+                    {
+                        // This is the first time the background task is registered with valid layout =&gt;
+                        // set the hash
+                        string upToDateHash = LayoutManager.CreateHashOfBeaconId1sInLayout(layoutManager.Layout);
+
+                        if (!string.IsNullOrEmpty(upToDateHash))
+                        {
+                            sdkData.LayoutBeaconId1Hash = upToDateHash;
+                        }
+                    }
+                }
+            }
+
+            //Load last events from background
+            await LoadBackgroundActions();
+
+            return result;
+        }
+
+
+        /// &lt;summary&gt;
+        /// Registers the timed background task.
+        /// &lt;/summary&gt;
+        /// &lt;returns&gt;The registration result.&lt;/returns&gt;
+        public BackgroundTaskRegistrationResult RegisterTimedBackgroundTask(string timerClassName)
+        {
+            BackgroundTaskRegistrationResult result = new BackgroundTaskRegistrationResult()
+            {
+                Success = false,
+                Exception = null
+            };
+
+            if (BackgroundTaskRegistered(TIMER_CLASS))
+            {
+                // Already registered
+                result.Success = true;
+            }
+            else
+            {
+                BackgroundTaskBuilder backgroundTaskBuilder = new BackgroundTaskBuilder();
+                backgroundTaskBuilder.Name = TIMER_CLASS;
+                backgroundTaskBuilder.TaskEntryPoint = timerClassName;
+                TimeTrigger timeTrigger = new TimeTrigger(TIME_TRIGGER_INTERVAL_IN_MINUTES, false);
+                backgroundTaskBuilder.SetTrigger(timeTrigger);
+
+                try
+                {
+                    BackgroundTaskRegistration backgroundTaskRegistration = backgroundTaskBuilder.Register();
+                    backgroundTaskRegistration.Completed += OnTimedBackgroundTaskCompleted;
+                    result.Success = true;
+                }
+                catch (Exception ex)
+                {
+                    result.Exception = ex;
+                    logger.Error(&quot;BackgroundTaskManager.RegisterTimedBackgroundTask(): Failed to register: &quot; , ex);
+                }
+            }
+
+            return result;
+        }
+
+
+        /// &lt;summary&gt;
+        /// Checks if a background task with the given name is registered.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;taskName&quot;&gt;The name of the background task.&lt;/param&gt;
+        /// &lt;returns&gt;True, if registered. False otherwise.&lt;/returns&gt;
+        private bool BackgroundTaskRegistered(string taskName)
+        {
+
+            foreach (var taskValue in BackgroundTaskRegistration.AllTasks.Values)
+            {
+                if (taskValue.Name.Equals(taskName))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        /// &lt;summary&gt;
+        /// Note: This handler is called only if the task completed while the application was in the foreground. 
+        /// &lt;/summary&gt;
+        private void OnTimedBackgroundTaskCompleted(IBackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
+        {
+            logger.Debug(&quot;BackgroundTaskManager.OnTimedBackgroundTaskCompleted()&quot;);
+        }
+
+        /// &lt;summary&gt;
+        /// Note: This handler is called only if the task completed while the application was in the foreground. 
+        /// &lt;/summary&gt;
+        private void OnAdvertisementWatcherBackgroundTaskCompleted(IBackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
+        {
+            logger.Debug(&quot;BackgroundTaskManager.OnAdvertisementWatcherBackgroundTaskCompleted()&quot;);
+        }
+
+        private async void OnAdvertisementWatcherBackgroundTaskProgress(BackgroundTaskRegistration sender, BackgroundTaskProgressEventArgs args)
+        {
+            await LoadBackgroundActions();
+        }
+
+        private async Task LoadBackgroundActions()
+        {
+            logger.Debug(&quot;BackgroundTaskManager.OnAdvertisementWatcherBackgroundTaskProgress()&quot;);
+
+            List&lt;BeaconAction&gt; beaconActions = await ServiceManager.StorageService.GetActionsForForeground();
+            foreach (var beaconAction in beaconActions)
+            {
+                BackgroundBeaconActionResolved?.Invoke(this, beaconAction);
+            }
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[20,31,20,35,0],[20,36,20,40,0],[21,38,21,42,0],[21,43,21,47,0],[34,42,34,46,0],[34,47,34,51,0],[38,22,38,35,0],[39,13,39,14,0],[40,17,40,102,0],[41,17,41,18,0],[42,21,42,48,0],[43,21,43,124,0],[44,17,44,18,0],[45,13,45,14,0],[53,9,53,10,0],[54,13,54,62,0],[56,13,56,20,0],[56,39,56,81,0],[56,22,56,35,0],[57,13,57,14,0],[58,17,58,64,0],[59,17,59,18,0],[60,21,60,88,0],[61,17,61,18,0],[62,13,62,14,0],[56,36,56,38,0],[63,9,63,10,0],[72,22,72,35,0],[73,13,73,14,0],[74,17,74,64,0],[75,17,75,18,0],[76,21,76,88,0],[77,17,77,18,0],[78,13,78,14,0],[93,13,93,14,0],[94,17,94,121,0],[96,17,97,74,0],[98,17,98,18,0],[99,21,99,64,0],[100,21,100,67,0],[101,21,101,39,0],[102,17,102,18,0],[103,13,103,14,0],[287,9,287,10,0],[288,13,292,15,0],[294,13,294,55,0],[295,13,295,14,0],[297,17,297,39,0],[298,13,298,14,0],[300,13,300,14,0],[301,17,301,91,0],[302,17,302,58,0],[303,17,303,71,0],[304,17,304,100,0],[305,17,305,63,0],[308,17,308,18,0],[309,21,309,110,0],[310,21,310,92,0],[311,21,311,43,0],[312,17,312,18,0],[313,17,313,37,0],[314,17,314,18,0],[315,21,315,43,0],[316,21,316,116,0],[317,17,317,18,0],[318,13,318,14,0],[320,13,320,27,0],[321,9,321,10,0],[332,22,332,35,0],[333,13,333,14,0],[334,17,334,53,0],[335,17,335,18,0],[336,21,336,33,0],[338,13,338,14,0],[346,9,346,10,0],[347,13,347,84,0],[348,9,348,10,0],[354,9,354,10,0],[355,13,355,99,0],[356,9,356,10,0],[109,9,109,10,0],[110,13,110,40,0],[111,13,111,122,0],[112,9,112,10,0],[115,9,115,10,0],[116,13,120,15,0],[122,13,122,33,0],[123,13,123,14,0],[125,17,125,119,0],[126,17,127,113,0],[128,17,128,18,0],[129,21,129,74,0],[131,21,131,40,0],[132,21,132,22,0],[133,25,133,140,0],[134,21,134,22,0],[135,17,135,18,0],[137,17,137,36,0],[138,17,138,18,0],[139,21,139,109,0],[140,17,140,18,0],[141,13,141,14,0],[143,13,143,14,0],[144,17,144,100,0],[145,13,145,14,0],[147,13,147,27,0],[148,9,148,10,0],[158,9,158,10,0],[159,13,163,15,0],[165,13,165,63,0],[166,13,166,14,0],[168,17,168,120,0],[169,17,169,39,0],[170,13,170,14,0],[172,13,172,14,0],[173,17,173,91,0],[175,17,175,66,0],[176,17,176,79,0],[178,17,178,131,0],[181,17,181,135,0],[182,17,182,91,0],[184,17,184,77,0],[208,17,208,82,0],[212,17,212,133,0],[213,17,214,65,0],[215,17,215,18,0],[216,21,216,125,0],[217,17,217,18,0],[219,17,219,18,0],[220,21,220,143,0],[221,17,221,18,0],[223,17,223,147,0],[224,17,224,143,0],[226,17,226,74,0],[228,17,228,59,0],[231,17,231,18,0],[232,21,232,110,0],[233,21,233,107,0],[234,21,234,105,0],[236,21,236,43,0],[237,17,237,18,0],[238,17,238,37,0],[239,17,239,18,0],[240,21,240,43,0],[241,21,241,130,0],[242,17,242,18,0],[244,17,244,36,0],[245,17,245,18,0],[246,21,246,56,0],[249,21,249,64,0],[250,21,250,22,0],[251,25,251,114,0],[253,25,253,117,0],[254,25,254,26,0],[256,29,256,76,0],[258,29,258,74,0],[259,25,259,26,0],[260,21,260,22,0],[261,26,261,80,0],[262,21,262,22,0],[265,25,265,114,0],[267,25,267,65,0],[268,25,268,26,0],[269,29,269,72,0],[270,25,270,26,0],[271,21,271,22,0],[272,17,272,18,0],[273,13,273,14,0],[276,13,276,43,0],[278,13,278,27,0],[279,9,279,10,0],[359,9,359,10,0],[360,13,360,43,0],[361,9,361,10,0],[364,9,364,10,0],[365,13,365,98,0],[367,13,367,110,0],[368,13,368,20,0],[368,42,368,55,0],[368,22,368,38,0],[369,13,369,14,0],[370,17,370,76,0],[371,13,371,14,0],[368,39,368,41,0],[372,9,372,10,0],[33,54,33,55,1],[33,56,33,150,1],[33,151,33,152,1],[37,9,37,10,1],[38,13,38,20,1],[38,39,38,81,1],[38,36,38,38,1],[46,9,46,10,1],[69,9,69,10,1],[70,13,70,60,1],[72,13,72,20,1],[72,39,72,81,1],[72,36,72,38,1],[79,9,79,10,1],[88,9,88,10,1],[89,13,89,48,1],[90,13,90,70,1],[92,13,92,83,1],[105,13,105,31,1],[106,9,106,10,1],[330,9,330,10,1],[332,13,332,20,1],[332,39,332,81,1],[332,36,332,38,1],[340,13,340,26,1],[341,9,341,10,1],[25,9,25,112,1]]);
+    </script>
+  </body>
+</html>

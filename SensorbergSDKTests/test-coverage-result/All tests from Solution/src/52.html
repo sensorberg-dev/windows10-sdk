@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\utils\systeminfohelper.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Reflection;
+using Windows.ApplicationModel;
+using Windows.Security.ExchangeActiveSyncProvisioning;
+using Windows.System.Profile;
+
+namespace SensorbergSDK.Internal.Utils
+{
+    internal static class SystemInfoHelper
+    {
+        public static string SystemFamily { get; }
+        public static string SystemVersion { get; }
+        public static string SystemArchitecture { get; }
+        public static string ApplicationName { get; }
+        public static string ApplicationVersion { get; }
+        public static string DeviceManufacturer { get; }
+        public static string DeviceModel { get; }
+        public static string SystemName { get; }
+        public static string SdkVersion { get; }
+        public static string PackageName { get; }
+
+        static SystemInfoHelper()
+        {
+            AnalyticsVersionInfo ai = AnalyticsInfo.VersionInfo;
+            SystemFamily = ai.DeviceFamily;
+
+            string sv = AnalyticsInfo.VersionInfo.DeviceFamilyVersion;
+            ulong v = ulong.Parse(sv);
+            ulong v1 = (v &amp; 0xFFFF000000000000L) &gt;&gt; 48;
+            ulong v2 = (v &amp; 0x0000FFFF00000000L) &gt;&gt; 32;
+            ulong v3 = (v &amp; 0x00000000FFFF0000L) &gt;&gt; 16;
+            ulong v4 = (v &amp; 0x000000000000FFFFL);
+            SystemVersion = $&quot;{v1}.{v2}.{v3}.{v4}&quot;;
+
+            Package package = Package.Current;
+            SystemArchitecture = package.Id.Architecture.ToString();
+            Assembly sdkAssembly = Assembly.Load(new AssemblyName(&quot;SensorbergSDK&quot;));
+            var version  = sdkAssembly.GetName().Version;
+            SdkVersion = $&quot;{version.Major}.{version.Minor}.{version.Build}.{version.Revision}&quot;;
+            ApplicationName = package.DisplayName;
+            PackageName = package.Id.Name;
+            PackageVersion pv = package.Id.Version;
+            ApplicationVersion = $&quot;{pv.Major}.{pv.Minor}.{pv.Build}.{pv.Revision}&quot;;
+
+            EasClientDeviceInformation eas = new EasClientDeviceInformation();
+            DeviceManufacturer = eas.SystemManufacturer;
+            DeviceModel = eas.SystemProductName;
+            SystemName = eas.OperatingSystem;
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[10,45,10,49,0],[11,46,11,50,0],[12,51,12,55,0],[13,48,13,52,0],[14,51,14,55,0],[15,51,15,55,0],[16,44,16,48,0],[17,43,17,47,0],[18,43,18,47,0],[19,44,19,48,0],[22,9,22,10,0],[23,13,23,65,0],[24,13,24,44,0],[26,13,26,71,0],[27,13,27,39,0],[28,13,28,56,0],[29,13,29,56,0],[30,13,30,56,0],[31,13,31,50,0],[32,13,32,52,0],[34,13,34,47,0],[35,13,35,69,0],[36,13,36,85,0],[37,13,37,58,0],[38,13,38,96,0],[39,13,39,51,0],[40,13,40,43,0],[41,13,41,52,0],[42,13,42,84,0],[44,13,44,79,0],[45,13,45,57,0],[46,13,46,49,0],[47,13,47,46,0],[48,9,48,10,0]]);
+    </script>
+  </body>
+</html>

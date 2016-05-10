@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdktests\resolvertest.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 19.04.2016
+// 
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Windows.Storage;
+using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using SensorbergSDK;
+using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Services;
+using SensorbergSDKTests.Mocks;
+
+namespace SensorbergSDKTests
+{
+    [TestClass]
+    public class ResolverTest
+    {
+        [TestInitialize]
+        public async Task Setup()
+        {
+            await TestHelper.ClearFiles(&quot;sensorberg-storage&quot;);
+            ServiceManager.ReadOnlyForTests = false;
+            ServiceManager.Clear();
+            ServiceManager.ApiConnction = new MockApiConnection();
+            ServiceManager.LayoutManager = new LayoutManager();
+            ServiceManager.SettingsManager = new SettingsManager();
+            ServiceManager.StorageService = new StorageService() {Storage = new MockStorage()};
+            ServiceManager.ReadOnlyForTests = true;
+        }
+
+        [TestMethod]
+        [Timeout(1000)]
+        public async Task ResolveSingleAction()
+        {
+            IResolver resolver = new SyncResolver();
+            TaskCompletionSource&lt;IList&lt;ResolvedAction&gt;&gt; action = new TaskCompletionSource&lt;IList&lt;ResolvedAction&gt;&gt;();
+            resolver.ActionsResolved += (sender, args) =&gt;
+            {
+                action.SetResult(args.ResolvedActions);
+            };
+            await
+                resolver.CreateRequest(new BeaconEventArgs()
+                {
+                    Beacon = new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff0004&quot;, Id2 = 39178, Id3 = 30929},
+                    EventType = BeaconEventType.Enter
+                });
+
+            IList&lt;ResolvedAction&gt; result = await action.Task;
+
+            Assert.AreEqual(1, result.Count, &quot;Not 1 action found&quot;);
+        }
+
+        [TestMethod]
+        [Timeout(1000)]
+        public async Task ResolveMultipleAction()
+        {
+            IResolver resolver = new SyncResolver();
+            TaskCompletionSource&lt;IList&lt;ResolvedAction&gt;&gt; action = new TaskCompletionSource&lt;IList&lt;ResolvedAction&gt;&gt;();
+            resolver.ActionsResolved += (sender, args) =&gt;
+            {
+                action.SetResult(args.ResolvedActions);
+            };
+            await
+                resolver.CreateRequest(new BeaconEventArgs()
+                {
+                    Beacon = new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff0003&quot;, Id2 = 48869, Id3 = 21321},
+                    EventType = BeaconEventType.Enter
+                });
+
+            IList&lt;ResolvedAction&gt; result = await action.Task;
+
+            Assert.AreEqual(4, result.Count, &quot;Not 4 action found&quot;);
+        }
+
+        [TestMethod]
+        [Timeout(1000)]
+        public async Task ResolveSingleActionNoResult()
+        {
+            IResolver resolver = new SyncResolver();
+            TaskCompletionSource&lt;IList&lt;ResolvedAction&gt;&gt; action = new TaskCompletionSource&lt;IList&lt;ResolvedAction&gt;&gt;();
+            resolver.ActionsResolved += (sender, args) =&gt;
+            {
+                action.SetResult(args.ResolvedActions);
+            };
+            await
+                resolver.CreateRequest(new BeaconEventArgs()
+                {
+                    Beacon = new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff1234&quot;, Id2 = 39178, Id3 = 30929},
+                    EventType = BeaconEventType.Enter
+                });
+
+            IList&lt;ResolvedAction&gt; result = await action.Task;
+
+            Assert.AreEqual(0, result.Count, &quot;Not 0 action found&quot;);
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[25,9,25,10,1],[26,13,26,63,1],[27,13,27,53,1],[28,13,28,36,1],[29,13,29,67,1],[30,13,30,64,1],[31,13,31,68,1],[32,13,32,96,1],[33,13,33,52,1],[34,9,34,10,1],[43,13,43,14,1],[44,17,44,56,1],[45,13,45,14,1],[39,9,39,10,1],[40,13,40,53,1],[41,13,41,116,1],[42,13,43,13,1],[43,14,44,17,1],[44,56,45,13,1],[45,14,45,15,1],[46,13,51,20,1],[53,13,53,62,1],[55,13,55,68,1],[56,9,56,10,1],[65,13,65,14,1],[66,17,66,56,1],[67,13,67,14,1],[61,9,61,10,1],[62,13,62,53,1],[63,13,63,116,1],[64,13,65,13,1],[65,14,66,17,1],[66,56,67,13,1],[67,14,67,15,1],[68,13,73,20,1],[75,13,75,62,1],[77,13,77,68,1],[78,9,78,10,1],[87,13,87,14,1],[88,17,88,56,1],[89,13,89,14,1],[83,9,83,10,1],[84,13,84,53,1],[85,13,85,116,1],[86,13,87,13,1],[87,14,88,17,1],[88,56,89,13,1],[89,14,89,15,1],[90,13,95,20,1],[97,13,97,62,1],[99,13,99,68,1],[100,9,100,10,1]]);
+    </script>
+  </body>
+</html>

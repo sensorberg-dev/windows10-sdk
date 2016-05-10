@@ -1,11 +1,15 @@
-﻿using System;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
 using System.Collections.Generic;
 using Windows.Web.Http.Headers;
 using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
-using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Services;
 
 namespace SensorbergSDK
 {
@@ -15,9 +19,9 @@ namespace SensorbergSDK
         Invalid,
         NetworkError,
         UnknownError
-    };
+    }
 
-    public enum FetchApiKeyResult
+    public enum NetworkResult
     {
         Success,
         NetworkError,
@@ -25,7 +29,7 @@ namespace SensorbergSDK
         ParsingError,
         NoWindowsCampains,
         UnknownError
-    };
+    }
 
     public class ApiKeyHelper
     {
@@ -59,25 +63,7 @@ namespace SensorbergSDK
         /// <returns>The validation result.</returns>
         public async Task<ApiKeyValidationResult> ValidateApiKey(string apiKey)
         {
-            ApiKeyValidationResult result = ApiKeyValidationResult.UnknownError;
-            HttpResponseMessage responseMessage = await LayoutManager.Instance.RetrieveLayoutResponseAsync(apiKey);
-
-            if (responseMessage != null && responseMessage.IsSuccessStatusCode)
-            {
-                ulong responseMessageContentLength = 0;
-
-                if (responseMessage.Content.TryComputeLength(out responseMessageContentLength))
-                {
-                    result = (responseMessageContentLength > Constants.MinimumLayoutContentLength) ?
-                        ApiKeyValidationResult.Valid : ApiKeyValidationResult.Invalid;
-                }
-            }
-            else
-            {
-                result = ApiKeyValidationResult.NetworkError;
-            }
-
-            return result;
+            return await ServiceManager.StorageService.ValidateApiKey(apiKey);
         }
 
         /// <summary>
@@ -86,9 +72,9 @@ namespace SensorbergSDK
         /// <param name="email"></param>
         /// <param name="password"></param>
         /// <returns>The fetching operation result. If successful, the API key is placed in the ApiKey property of this class.</returns>
-        public async Task<FetchApiKeyResult> FetchApiKeyAsync(string email, string password)
+        public async Task<NetworkResult> FetchApiKeyAsync(string email, string password)
         {
-            FetchApiKeyResult result = FetchApiKeyResult.UnknownError;
+            NetworkResult result;
 
             HttpBaseProtocolFilter httpBaseProtocolFilter = new HttpBaseProtocolFilter();
             httpBaseProtocolFilter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
@@ -101,7 +87,7 @@ namespace SensorbergSDK
             HttpFormUrlEncodedContent formContent = new HttpFormUrlEncodedContent(keyValues);
 
             Uri uri = new Uri(LoginUrl);
-            HttpResponseMessage response = null;
+            HttpResponseMessage response;
 
             try
             {
@@ -110,12 +96,12 @@ namespace SensorbergSDK
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("ApiKeyHelper.FetchApiKeyAsync(): Network error: " + ex.Message);
-                return FetchApiKeyResult.NetworkError;
+                return NetworkResult.NetworkError;
             }
 
             if (response.StatusCode == HttpStatusCode.Ok)
             {
-                string responseAsString = string.Empty;
+                string responseAsString;
 
                 try
                 {
@@ -124,16 +110,15 @@ namespace SensorbergSDK
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine("ApiKeyHelper.FetchApiKeyAsync(): Network error: " + ex.Message);
-                    return FetchApiKeyResult.NetworkError;
+                    return NetworkResult.NetworkError;
                 }
 
-                JsonValue responseAsJsonValue = null;
+                JsonValue responseAsJsonValue;
                 string authToken = string.Empty;
 
                 try
                 {
                     responseAsJsonValue = JsonValue.Parse(responseAsString);
-                    authToken = string.Empty;
 
                     if (responseAsJsonValue.ValueType == JsonValueType.Object)
                     {
@@ -145,7 +130,7 @@ namespace SensorbergSDK
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine("ApiKeyHelper.FetchApiKeyAsync(): Parsing error: " + ex.Message);
-                    return FetchApiKeyResult.ParsingError;
+                    return NetworkResult.ParsingError;
                 }
 
                 if (!string.IsNullOrEmpty(authToken))
@@ -154,8 +139,6 @@ namespace SensorbergSDK
                     uri = new Uri(ApplicationsUrl);
                     client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue(authToken);
 
-                    responseAsString = string.Empty;
-
                     try
                     {
                         responseAsString = await client.GetStringAsync(uri);
@@ -163,23 +146,31 @@ namespace SensorbergSDK
                     catch (Exception ex)
                     {
                         System.Diagnostics.Debug.WriteLine("ApiKeyHelper.FetchApiKeyAsync(): Network error: " + ex.Message);
-                        return FetchApiKeyResult.NetworkError;
+                        return NetworkResult.NetworkError;
                     }
 
                     responseAsJsonValue = JsonValue.Parse(responseAsString);
-                    result = FetchApiKeyResult.NoWindowsCampains;
+                    result = NetworkResult.NoWindowsCampains;
 
                     if (responseAsJsonValue.ValueType == JsonValueType.Array)
                     {
                         var applicationsArray = responseAsJsonValue.GetArray();
 
                         // We take the first Windows application from the list
-                        foreach (JsonValue applicationValue in applicationsArray)
+                        foreach (IJsonValue applicationValue in applicationsArray)
                         {
                             if (applicationValue.ValueType == JsonValueType.Object)
                             {
                                 JsonObject applicationObject = applicationValue.GetObject();
-                                string apiKey = applicationObject.GetNamedString(KeyApiKey);
+
+                                var apiKeyValue = applicationObject[KeyApiKey];
+                                if (apiKeyValue.ValueType == JsonValueType.Null)
+                                {
+                                    continue;
+                                }
+
+                                var apiKey = applicationObject.GetNamedString(KeyApiKey);
+
                                 string applicationName = applicationObject.GetNamedString(KeyName);
                                 string platform = applicationObject.GetNamedString(KeyPlatform);
 
@@ -187,25 +178,25 @@ namespace SensorbergSDK
                                 {
                                     ApiKey = apiKey;
                                     ApplicationName = applicationName;
-                                    result = FetchApiKeyResult.Success;
+                                    result = NetworkResult.Success;
                                     break;
                                 }
                             }
                         }
                     }
                 }
-                else // if (!string.IsNullOrEmpty(authToken)) - else
+                else
                 {
-                    result = FetchApiKeyResult.AuthenticationFailed;
+                    result = NetworkResult.AuthenticationFailed;
                 }
             }
             else if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
-                result = FetchApiKeyResult.AuthenticationFailed;
+                result = NetworkResult.AuthenticationFailed;
             }
             else
             {
-                result = FetchApiKeyResult.NetworkError;
+                result = NetworkResult.NetworkError;
             }
 
             return result;
