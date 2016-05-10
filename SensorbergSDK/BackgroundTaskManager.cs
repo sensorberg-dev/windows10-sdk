@@ -12,6 +12,7 @@ using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
 using System.Collections.Generic;
 using MetroLog;
+using SensorbergSDK.Internal.Utils;
 
 namespace SensorbergSDK
 {

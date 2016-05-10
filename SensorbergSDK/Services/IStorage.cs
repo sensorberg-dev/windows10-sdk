@@ -30,9 +30,8 @@ namespace SensorbergSDK.Services
         Task<HistoryAction> GetAction(string uuid);
 
         /// <summary>
-        /// Cleans old entries from the database
+        /// Cleans old entries from the database.
         /// </summary>
-        /// <returns></returns>
         Task CleanDatabase();
 
         /// <summary>

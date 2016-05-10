@@ -34,7 +34,7 @@ namespace SensorbergSDKTests.Mocks
             {
                 throw new Exception("ups");
             }
-            var uri = new System.Uri("ms-appx:///Assets/raw/" + file, UriKind.RelativeOrAbsolute);
+            var uri = new Uri("ms-appx:///Assets/raw/" + file, UriKind.RelativeOrAbsolute);
             return await Windows.Storage.FileIO.ReadTextAsync(await Windows.Storage.StorageFile.GetFileFromApplicationUriAsync(uri));
         }
 

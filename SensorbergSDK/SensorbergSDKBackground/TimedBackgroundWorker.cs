@@ -1,4 +1,8 @@
-﻿using Windows.ApplicationModel.Background;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using Windows.ApplicationModel.Background;
 using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDKBackground

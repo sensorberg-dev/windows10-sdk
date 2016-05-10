@@ -5,6 +5,7 @@
 using System.Diagnostics;
 using Windows.Devices.Bluetooth.Advertisement;
 using MetroLog;
+using SensorbergSDK.Internal.Utils;
 
 namespace SensorbergSDK
 {

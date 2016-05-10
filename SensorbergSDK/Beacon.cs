@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Text;
+using SensorbergSDK.Internal.Utils;
 
 namespace SensorbergSDK
 {
@@ -208,7 +209,7 @@ namespace SensorbergSDK
             string beaconId3 = Id3.ToString();
             beaconId2 = template.Substring(beaconId2.Length) + beaconId2;
             beaconId3 = template.Substring(beaconId3.Length) + beaconId3;
-            string pid = Id1.Replace(HexStringSeparator.ToString(), String.Empty) + beaconId2 + beaconId3;
+            string pid = Id1.Replace(HexStringSeparator.ToString(), string.Empty) + beaconId2 + beaconId3;
             Pid = pid.ToLower();
         }
 

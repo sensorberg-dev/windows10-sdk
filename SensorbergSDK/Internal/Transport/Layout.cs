@@ -52,7 +52,6 @@ namespace SensorbergSDK.Internal
         /// </summary>
         /// <param name="headers">String repersentation of the header fields.</param>
         /// <param name="layoutRetrievedTime">Timestamp of receiving the layout.</param>
-        /// <returns></returns>
         public void FromJson(string headers, DateTimeOffset layoutRetrievedTime)
         {
 

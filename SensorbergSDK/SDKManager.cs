@@ -52,14 +52,8 @@ namespace SensorbergSDK
         /// </summary>
         public event EventHandler<string> FailedToResolveBeaconAction
         {
-            add
-            {
-                SdkEngine.FailedToResolveBeaconAction += value;
-            }
-            remove
-            {
-                SdkEngine.FailedToResolveBeaconAction -= value;
-            }
+            add { SdkEngine.FailedToResolveBeaconAction += value; }
+            remove { SdkEngine.FailedToResolveBeaconAction -= value; }
         }
 
         /// <summary>
@@ -67,14 +61,8 @@ namespace SensorbergSDK
         /// </summary>
         public event EventHandler<bool> LayoutValidityChanged
         {
-            add
-            {
-                SdkEngine.LayoutValidityChanged += value;
-            }
-            remove
-            {
-                SdkEngine.LayoutValidityChanged -= value;
-            }
+            add { SdkEngine.LayoutValidityChanged += value; }
+            remove { SdkEngine.LayoutValidityChanged -= value; }
         }
 
         /// <summary>
@@ -83,46 +71,27 @@ namespace SensorbergSDK
         /// </summary>
         public event EventHandler<ScannerStatus> ScannerStatusChanged
         {
-            add
-            {
-                Scanner.StatusChanged += value;
-            }
-            remove
-            {
-                Scanner.StatusChanged -= value;
-            }
+            add { Scanner.StatusChanged += value; }
+            remove { Scanner.StatusChanged -= value; }
         }
 
         public event EventHandler BackgroundFiltersUpdated
         {
-            add
-            {
-                _backgroundTaskManager.BackgroundFiltersUpdated += value;
-            }
-            remove
-            {
-                _backgroundTaskManager.BackgroundFiltersUpdated -= value;
-            }
+            add { _backgroundTaskManager.BackgroundFiltersUpdated += value; }
+            remove { _backgroundTaskManager.BackgroundFiltersUpdated -= value; }
         }
 
         /// <summary>
         /// Instance of the SDKEngine.
         /// </summary>
-        public SdkEngine SdkEngine
-        {
-            [DebuggerStepThrough]
-            get;
-        }
+        public SdkEngine SdkEngine { [DebuggerStepThrough] get; }
+
         /// <summary>
         /// The scanner instance.
         /// </summary>
         public IBeaconScanner Scanner
         {
-            [DebuggerStepThrough]
-            get
-            {
-                return ServiceManager.BeaconScanner;
-            }
+            [DebuggerStepThrough] get { return ServiceManager.BeaconScanner; }
         }
 
         /// <summary>
@@ -132,19 +101,13 @@ namespace SensorbergSDK
 
         /// <summary>
         /// Indicates whether the SDK is initialized and ready to function or not.
-        /// 
         /// The scanner will work even if the SDK has not been initialized. However, the resolver
         /// requires a valid API key to generate proper requests to server.
-        /// 
         /// Sensorberg SDK is initialized by calling the Initialize method with a valid API key.
         /// </summary>
-		public bool IsInitialized
+        public bool IsInitialized
         {
-            [DebuggerStepThrough]
-            get
-            {
-                return SdkEngine.IsInitialized;
-            }
+            [DebuggerStepThrough] get { return SdkEngine.IsInitialized; }
         }
 
         /// <summary>
@@ -153,11 +116,7 @@ namespace SensorbergSDK
         /// </summary>
         public bool IsBackgroundTaskEnabled
         {
-            [DebuggerStepThrough]
-            get
-            {
-                return SdkData.Instance.BackgroundTaskEnabled;
-            }
+            [DebuggerStepThrough] get { return SdkData.Instance.BackgroundTaskEnabled; }
         }
 
         /// <summary>
@@ -165,23 +124,15 @@ namespace SensorbergSDK
         /// </summary>
         public bool IsBackgroundTaskRegistered
         {
-            [DebuggerStepThrough]
-            get
-            {
-                return (_backgroundTaskManager != null && _backgroundTaskManager.IsBackgroundTaskRegistered);
-            }
+            [DebuggerStepThrough] get { return _backgroundTaskManager != null && _backgroundTaskManager.IsBackgroundTaskRegistered; }
         }
 
         /// <summary>
         /// True, if the scanner is running. False otherwise.
         /// </summary>
-		public bool IsScannerStarted
+        public bool IsScannerStarted
         {
-            [DebuggerStepThrough]
-            get
-            {
-                return (Scanner.Status == ScannerStatus.Started);
-            }
+            [DebuggerStepThrough] get { return Scanner.Status == ScannerStatus.Started; }
         }
 
         /// <summary>
@@ -189,19 +140,13 @@ namespace SensorbergSDK
         /// </summary>
         public bool IsLayoutValid
         {
-            [DebuggerStepThrough]
-            get
-            {
-                return ServiceManager.LayoutManager.IsLayoutValid;
-            }
+            [DebuggerStepThrough] get { return ServiceManager.LayoutManager.IsLayoutValid; }
         }
 
         public AppSettings DefaultAppSettings
         {
-            [DebuggerStepThrough]
-            get { return SdkEngine.DefaultAppSettings; }
-            [DebuggerStepThrough]
-            set { SdkEngine.DefaultAppSettings = value; }
+            [DebuggerStepThrough] get { return SdkEngine.DefaultAppSettings; }
+            [DebuggerStepThrough] set { SdkEngine.DefaultAppSettings = value; }
         }
 
         public static string UserId
@@ -227,7 +172,7 @@ namespace SensorbergSDK
         /// <param name="beaconCode">The beacon code of beacons to watch.</param>
         /// <returns>The singleton instance of this class.</returns>
         [Obsolete("Use new version without parameters")]
-		public static SdkManager Instance(UInt16 manufacturerId, UInt16 beaconCode)
+        public static SdkManager Instance(ushort manufacturerId, ushort beaconCode)
         {
             Instance();
             _instance.Configuration.ManufacturerId = manufacturerId;
@@ -239,8 +184,6 @@ namespace SensorbergSDK
         /// <summary>
         /// Returns the singleton instance of this class.
         /// </summary>
-        /// <param name="manufacturerId">The manufacturer ID of beacons to watch.</param>
-        /// <param name="beaconCode">The beacon code of beacons to watch.</param>
         /// <returns>The singleton instance of this class.</returns>
         public static SdkManager Instance()
         {
@@ -437,9 +380,9 @@ namespace SensorbergSDK
             {
                 Scanner.BeaconEvent += OnBeaconEventAsync;
                 InitializeSettingsAsync().ContinueWith(task =>
-                    {
-                        Scanner.StartWatcher(Configuration.ManufacturerId, Configuration.BeaconCode, _appSettings.BeaconExitTimeout, _appSettings.RssiEnterThreshold, _appSettings.EnterDistanceThreshold);
-                    });
+                {
+                    Scanner.StartWatcher(Configuration.ManufacturerId, Configuration.BeaconCode, _appSettings.BeaconExitTimeout, _appSettings.RssiEnterThreshold, _appSettings.EnterDistanceThreshold);
+                });
             }
         }
 
@@ -474,8 +417,8 @@ namespace SensorbergSDK
         /// <param name="e"></param>
         public void OnApplicationVisibilityChanged(object sender, VisibilityChangedEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("SDKManager.OnApplicationVisibilityChanged(): "
-                + (e.Visible ? "To visible" : "To not visible"));
+            Debug.WriteLine("SDKManager.OnApplicationVisibilityChanged(): "
+                            + (e.Visible ? "To visible" : "To not visible"));
             SdkData.Instance.AppIsVisible = e.Visible;
         }
 
@@ -534,6 +477,7 @@ namespace SensorbergSDK
                 ServiceManager.SettingsManager.SettingsUpdated += OnSettingsUpdated;
             }
         }
+
         /// <summary>
         /// Sends all pending history elements.
         /// </summary>

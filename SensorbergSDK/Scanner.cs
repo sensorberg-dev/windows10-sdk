@@ -5,6 +5,7 @@ using System.Threading;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
 using MetroLog;
+using SensorbergSDK.Internal.Utils;
 using SensorbergSDK.Services;
 
 namespace SensorbergSDK
@@ -42,8 +43,8 @@ namespace SensorbergSDK
         private Timer _beaconListRefreshTimer;
         private Timer _notifyStartedDelayTimer;
 
-        private UInt64 _beaconExitTimeout;
-        private UInt64? _enterDistanceThreshold;
+        private ulong _beaconExitTimeout;
+        private ulong? _enterDistanceThreshold;
 
         private ScannerStatus _status;
 
@@ -92,7 +93,7 @@ namespace SensorbergSDK
         }
 
         /// <summary>
-        /// Constructor
+        /// Create new Scanner Object.
         /// </summary>
         public Scanner()
         {
@@ -108,8 +109,8 @@ namespace SensorbergSDK
         /// <param name="beaconExitTimeoutInMiliseconds">Time in miliseconds after beacon will be trated as lost</param>
         /// <param name="rssiEnterThreshold">Optional rssi threshold which will trigger beacon discover event. Value must be between -128 and 127</param>
         /// <param name="enterDistanceThreshold">Optional minimal distance in meters that will trigger beacon discover event</param>
-        public void StartWatcher(UInt16 manufacturerId, UInt16 beaconCode, UInt64 beaconExitTimeoutInMiliseconds, Int16? rssiEnterThreshold = null,
-            UInt64? enterDistanceThreshold = null)
+        public void StartWatcher(ushort manufacturerId, ushort beaconCode, ulong beaconExitTimeoutInMiliseconds, short? rssiEnterThreshold = null,
+            ulong? enterDistanceThreshold = null)
         {
             _beaconExitTimeout = beaconExitTimeoutInMiliseconds;
             _enterDistanceThreshold = enterDistanceThreshold;
@@ -199,7 +200,6 @@ namespace SensorbergSDK
 
         /// <summary>
         /// Triggered when the watcher receives an advertisement.
-        /// 
         /// If the advertisement came from a beacon, a Beacon instance is created based on the
         /// received data. A new beacon is added to the list and an existing one is only updated.
         /// </summary>
@@ -238,14 +238,7 @@ namespace SensorbergSDK
             {
                 Logger.Debug("Scanner: .OnWatcherStopped(): Status: " + _bluetoothLeAdvertisementWatcher.Status);
 
-                if (_bluetoothLeAdvertisementWatcher.Status == BluetoothLEAdvertisementWatcherStatus.Aborted)
-                {
-                    Status = ScannerStatus.Aborted;
-                }
-                else
-                {
-                    Status = ScannerStatus.Stopped;
-                }
+                Status = _bluetoothLeAdvertisementWatcher.Status == BluetoothLEAdvertisementWatcherStatus.Aborted ? ScannerStatus.Aborted : ScannerStatus.Stopped;
 
                 _bluetoothLeAdvertisementWatcher.Received -= OnAdvertisementReceived;
                 _bluetoothLeAdvertisementWatcher.Stopped -= OnWatcherStopped;

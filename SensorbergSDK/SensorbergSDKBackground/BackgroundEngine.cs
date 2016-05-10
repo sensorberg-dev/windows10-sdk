@@ -1,4 +1,8 @@
-﻿using SensorbergSDK;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using SensorbergSDK;
 using SensorbergSDK.Internal;
 using System;
 using System.Collections.Generic;
@@ -52,7 +56,7 @@ namespace SensorbergSDKBackground
         }
 
         /// <summary>
-        /// Initializes BackgroundEngine
+        /// Initializes BackgroundEngine.
         /// </summary>
         public async Task InitializeAsync()
         {
@@ -156,9 +160,8 @@ namespace SensorbergSDKBackground
         }
 
         /// <summary>
-        /// Finishes background processing and releases all resources
+        /// Finishes background processing and releases all resources.
         /// </summary>
-
         public void Dispose()
         {
             try

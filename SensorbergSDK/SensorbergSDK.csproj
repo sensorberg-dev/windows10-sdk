@@ -153,7 +153,6 @@
     <Compile Include="Internal\Data\StorageClasses.cs" />
     <Compile Include="Internal\Utils\BeaconFactory.cs" />
     <Compile Include="Internal\Utils\Helper.cs" />
-    <Compile Include="Internal\Utils\JsonHelper.cs" />
     <Compile Include="Internal\Transport\Request.cs" />
     <Compile Include="Internal\Transport\RequestQueue.cs" />
     <Compile Include="Internal\Transport\ResolvedAction.cs" />

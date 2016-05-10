@@ -48,7 +48,7 @@ namespace SensorbergSDK.Internal
         /// </summary>
         /// <param name="forceUpdate">If true, will update the layout even if valid.</param>
         /// <returns>True, if layout is valid (or was updated), false otherwise.</returns>
-        public async Task<bool> VerifyLayoutAsync(bool forceUpdate)
+        public async Task<bool> VerifyLayoutAsync(bool forceUpdate = false)
         {
             if (forceUpdate || !IsLayoutValid)
             {
@@ -63,7 +63,6 @@ namespace SensorbergSDK.Internal
                     // Make sure that the existing layout (even if old) is not set to null in case
                     // we fail to load the fresh one from the web.
                     LayoutResult freshLayout = await ServiceManager.StorageService.RetrieveLayout();
-
                     if (freshLayout != null && freshLayout.Result == NetworkResult.Success)
                     {
                         Layout = freshLayout.Layout;
@@ -73,6 +72,7 @@ namespace SensorbergSDK.Internal
                     {
                         //TODO some thing should happen
                     }
+                    LayoutValidityChanged?.Invoke(this, Layout != null);
                 }
             }
 
@@ -149,7 +149,7 @@ namespace SensorbergSDK.Internal
                             }
                             else
                             {
-                                char combinationChar = (char) (((int) hash[j] + (int) currentUuid[j])/2 + 1);
+                                char combinationChar = (char) ((hash[j] + currentUuid[j])/2 + 1);
 
                                 string hashToString = hash.ToString();
                                 if (j == 0)

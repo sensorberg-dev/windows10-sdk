@@ -14,7 +14,7 @@ namespace SensorbergSDK.Internal
     /// <summary>
     /// Simple queue for requests. When a request is added, it is handled automatically in due time.
     /// </summary>
-    public sealed class RequestQueue:IDisposable
+    public sealed class RequestQueue : IDisposable
     {
         private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<RequestQueue>();
         public event EventHandler<int> QueueCountChanged;
@@ -90,7 +90,7 @@ namespace SensorbergSDK.Internal
                     {
                         Logger.Trace("RequestQueue: take next request " + currentRequest.RequestId);
                         currentRequest.TryCount++;
-                        RequestResultState requestResult = RequestResultState.None;
+                        RequestResultState requestResult;
 
                         try
                         {
@@ -145,12 +145,6 @@ namespace SensorbergSDK.Internal
             }
         }
 
-        /// <summary>
-        /// Sets the request result and removes it from the queue.
-        /// </summary>
-        /// <param name="request"></param>
-        /// <param name="resultState"></param>
-        /// <returns>True, if the request was successfully removed from the queue.</returns>
         private void OnRequestServed(Request request, RequestResultState resultState)
         {
             if (request != null)

@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
 using System.IO;
 using System.Runtime.Serialization.Json;
 using SensorbergSDK.Internal.Data;
@@ -24,7 +28,7 @@ namespace SensorbergSDK.Internal.Utils
                 var filtered= content.Replace("\\/","/");
                 return filtered;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return string.Empty;
             }

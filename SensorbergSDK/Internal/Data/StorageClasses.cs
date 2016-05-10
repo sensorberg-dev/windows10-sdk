@@ -24,8 +24,9 @@ namespace SensorbergSDK.Internal
     public class History
     {
         public const string Timeformat = "yyyy-MM-dd'T'HH:mm:ss.fffzzz";
-        [DataMember(Name="deviceTimestamp")]
-        public string DeviceTimestamp { get; set; }
+
+        [DataMember(Name = "deviceTimestamp")]
+        public string DeviceTimestamp { get; set; } = DateTime.UtcNow.ToString(Timeformat);
         [DataMember(Name= "events")]
         public IList<HistoryEvent> Events { get; set; } = new List<HistoryEvent>();
         [DataMember(Name= "actions")]

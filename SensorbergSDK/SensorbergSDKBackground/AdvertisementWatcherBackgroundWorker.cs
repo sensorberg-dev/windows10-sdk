@@ -10,6 +10,7 @@ using Windows.ApplicationModel.Background;
 using Windows.Devices.Bluetooth.Background;
 using SensorbergSDK;
 using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Utils;
 
 namespace SensorbergSDKBackground
 {
@@ -61,9 +62,8 @@ namespace SensorbergSDKBackground
         }
 
         /// <summary>
-        /// Constructs Beacon instances from the trigger data and adds recognized beacons to the _beacons list
+        /// Constructs Beacon instances from the trigger data and adds recognized beacons to the _beacons list.
         /// </summary>
-        /// <param name="triggerDetails"></param>
         private List<Beacon> TriggerDetailsToBeacons(BluetoothLEAdvertisementWatcherTriggerDetails triggerDetails)
         {
             List<Beacon> beacons = new List<Beacon>(); 

@@ -156,9 +156,6 @@ namespace SensorbergSDK.Internal.Services
         /// <summary>
         /// Saves the strings that make up a layout.
         /// </summary>
-        /// <param name="headers"></param>
-        /// <param name="content"></param>
-        /// <param name="layoutRetrievedTime"></param>
         private async Task SaveLayoutToLocalStorage(string headers, string content, DateTimeOffset layoutRetrievedTime)
         {
             if (await StoreData(KeyLayoutContent, content))

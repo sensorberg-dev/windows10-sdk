@@ -21,8 +21,8 @@ namespace SensorbergSDKTests
     public class FullSDKTest
     {
         private const string ApiKey = "af24473d3ccb1d7a34307747531f06c25f08de361a5349389bbbe39274bf08cd";
-        private const UInt16 ManufacturerId = 0x004c;
-        private const UInt16 BeaconCode = 0x0215;
+        private const ushort ManufacturerId = 0x004c;
+        private const ushort BeaconCode = 0x0215;
 
         [TestInitialize]
         public void Setup()

@@ -15,8 +15,8 @@ namespace SensorbergSDK.Services
         /// <summary>
         /// Sends a layout request to server and returns the HTTP response, if any.
         /// </summary>
-        /// <param name="data">api key and device id for the request</param>
-        /// <param name="apiId">optional api id, overrides the given id by SDKData</param>
+        /// <param name="data">api key and device id for the request.</param>
+        /// <param name="apiId">optional api id, overrides the given id by SDKData.</param>
         /// <returns>A HttpResponseMessage containing the server response or null in case of an error.</returns>
         Task<ResponseMessage> RetrieveLayoutResponse(SdkData data, string apiId = null);
 
@@ -25,7 +25,7 @@ namespace SensorbergSDK.Services
         /// <summary>
         /// Sends History object to the api.
         /// </summary>
-        /// <param name="history">Object to send</param>
+        /// <param name="history">Object to send.</param>
         /// <returns></returns>
         Task<ResponseMessage> SendHistory(History history);
     }
