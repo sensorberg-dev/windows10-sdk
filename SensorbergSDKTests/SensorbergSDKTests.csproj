@@ -104,6 +104,7 @@
     <Content Include="Assets\raw\mock\layout_request_header.txt" />
     <Content Include="Assets\raw\mock\mock_layout.json" />
     <None Include=".runsettings" />
+    <Content Include="Assets\raw\mock\datetime_layout.json" />
     <None Include="project.json" />
     <SDKReference Include="MSTestFramework.Universal, Version=$(UnitTestPlatformVersion)" />
     <SDKReference Include="TestPlatform.Universal, Version=$(UnitTestPlatformVersion)" />

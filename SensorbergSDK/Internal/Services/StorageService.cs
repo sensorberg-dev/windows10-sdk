@@ -83,10 +83,7 @@ namespace SensorbergSDK.Internal.Services
                 {
                     try
                     {
-                        layout = JsonConvert.DeserializeObject<Layout>(contentAsString, new JsonSerializerSettings
-                        {
-                            DateTimeZoneHandling = DateTimeZoneHandling.Utc
-                        });
+                        layout = JsonConvert.DeserializeObject<Layout>(contentAsString);
                         layout?.FromJson(headersAsString, layoutRetrievedTime);
                         Logger.Debug("LayoutManager: new Layout received: Beacons: " + layout?.AccountBeaconId1S.Count + " Actions :" + layout?.ResolvedActions.Count);
                     }
@@ -230,10 +227,7 @@ namespace SensorbergSDK.Internal.Services
                 content = Helper.EnsureEncodingIsUtf8(content);
                 try
                 {
-                    layout = JsonConvert.DeserializeObject<Layout>(content, new JsonSerializerSettings
-                    {
-                        DateTimeZoneHandling = DateTimeZoneHandling.Utc
-                    });
+                    layout = JsonConvert.DeserializeObject<Layout>(content);
                     layout?.FromJson(headers, layoutRetrievedTime);
                 }
                 catch (Exception ex)
