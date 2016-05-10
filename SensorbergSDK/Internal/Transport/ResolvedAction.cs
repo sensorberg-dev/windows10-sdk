@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 
-namespace SensorbergSDK.Internal
+namespace SensorbergSDK.Internal.Transport
 {
     public sealed class Timeframe
     {

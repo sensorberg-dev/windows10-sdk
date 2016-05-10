@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Transport;
 using SensorbergSDKTests.Mocks;
 
 namespace SensorbergSDKTests

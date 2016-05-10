@@ -11,6 +11,7 @@ using Windows.Data.Json;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Transport;
 using SensorbergSDK.Services;
 using SensorbergSDKTests.Mocks;
 

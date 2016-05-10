@@ -15,6 +15,7 @@ using Windows.Storage;
 using MetroLog;
 using Newtonsoft.Json;
 using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Transport;
 using SensorbergSDK.Internal.Utils;
 using SensorbergSDK.Services;
 

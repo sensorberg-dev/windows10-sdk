@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
 using Newtonsoft.Json;
+using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Utils;
 using SensorbergSDK.Services;
 using HttpClient = Windows.Web.Http.HttpClient;

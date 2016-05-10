@@ -7,6 +7,7 @@
 using System;
 using System.Threading.Tasks;
 using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK.Services
 {

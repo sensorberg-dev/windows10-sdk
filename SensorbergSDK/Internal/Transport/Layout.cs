@@ -9,7 +9,7 @@ using MetroLog;
 using Newtonsoft.Json;
 using SensorbergSDK.Internal.Transport.Converter;
 
-namespace SensorbergSDK.Internal
+namespace SensorbergSDK.Internal.Transport
 {
     /// <summary>
     /// Represents a layout with beacons and actions associated with them.

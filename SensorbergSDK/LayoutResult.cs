@@ -6,6 +6,7 @@
 
 using System.Diagnostics;
 using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK
 {

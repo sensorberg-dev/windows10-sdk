@@ -12,6 +12,7 @@ using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
 using System.Collections.Generic;
+using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDKTests.Mocks
 {

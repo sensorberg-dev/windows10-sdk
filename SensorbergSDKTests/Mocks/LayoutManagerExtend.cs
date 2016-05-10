@@ -5,6 +5,7 @@
 // All rights reserved.
 
 using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDKTests.Mocks
 {

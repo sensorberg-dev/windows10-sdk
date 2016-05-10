@@ -11,7 +11,7 @@ using MetroLog;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
 
-namespace SensorbergSDK.Internal
+namespace SensorbergSDK.Internal.Transport
 {
     /// <summary>
     /// Manages the layouts and encapsulates both retrieving fresh layouts from the web and

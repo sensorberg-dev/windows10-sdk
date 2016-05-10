@@ -122,8 +122,11 @@
     <Compile Include="Internal\Data\BackgroundEvent.cs" />
     <Compile Include="Internal\Data\BackgroundWorkerType.cs" />
     <Compile Include="Internal\Data\BeaconContainer.cs" />
+    <Compile Include="Internal\Data\DelayedActionData.cs" />
     <Compile Include="Internal\Data\FileStorage.cs" />
     <Compile Include="Internal\Data\FileStorageHelper.cs" />
+    <Compile Include="Internal\Data\History.cs" />
+    <Compile Include="Internal\Data\HistoryEvent.cs" />
     <Compile Include="Internal\Data\IResolver.cs" />
     <Compile Include="Internal\Data\UserAgentModel.cs" />
     <Compile Include="Internal\SDKEngine.cs" />
@@ -150,7 +153,7 @@
     <Compile Include="Beacon.cs" />
     <Compile Include="Internal\Data\SDKData.cs" />
     <Compile Include="Internal\Data\EventHistory.cs" />
-    <Compile Include="Internal\Data\StorageClasses.cs" />
+    <Compile Include="Internal\Data\HistoryAction.cs" />
     <Compile Include="Internal\Utils\BeaconFactory.cs" />
     <Compile Include="Internal\Utils\Helper.cs" />
     <Compile Include="Internal\Transport\Request.cs" />

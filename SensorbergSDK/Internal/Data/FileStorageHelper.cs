@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Text;
 using Windows.Data.Json;
 using Newtonsoft.Json;
+using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK.Internal.Data
 {

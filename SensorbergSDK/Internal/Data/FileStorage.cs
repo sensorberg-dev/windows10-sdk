@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 using MetroLog;
+using SensorbergSDK.Internal.Transport;
 using SensorbergSDK.Services;
 
 namespace SensorbergSDK.Internal.Data

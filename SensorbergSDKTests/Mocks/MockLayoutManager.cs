@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Transport;
 using SensorbergSDK.Services;
 
 namespace SensorbergSDKTests.Mocks

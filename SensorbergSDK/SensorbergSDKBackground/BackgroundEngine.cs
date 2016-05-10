@@ -2,17 +2,17 @@
 // 
 // All rights reserved.
 
-using SensorbergSDK;
-using SensorbergSDK.Internal;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.UI.Notifications;
 using MetroLog;
+using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Utils;
 
-namespace SensorbergSDKBackground
+namespace SensorbergSDK.SensorbergSDKBackground
 {
     /// <summary>
     /// BackgroundEngine resolves actions from BluetoothLEAdvertisementWatcherTriggerDetails object

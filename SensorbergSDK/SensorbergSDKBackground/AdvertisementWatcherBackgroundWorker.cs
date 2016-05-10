@@ -8,11 +8,10 @@ using System;
 using System.Collections.Generic;
 using Windows.ApplicationModel.Background;
 using Windows.Devices.Bluetooth.Background;
-using SensorbergSDK;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Utils;
 
-namespace SensorbergSDKBackground
+namespace SensorbergSDK.SensorbergSDKBackground
 {
     public class AdvertisementWatcherBackgroundWorker
     {
