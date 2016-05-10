@@ -150,22 +150,6 @@ namespace SensorbergSDK
             [DebuggerStepThrough] set { SdkEngine.DefaultAppSettings = value; }
         }
 
-        public static string UserId
-        {
-            [DebuggerStepThrough]
-            get
-            {
-                Instance();
-                return _instance.SdkEngine.UserId;
-            }
-            [DebuggerStepThrough]
-            set
-            {
-                Instance();
-                _instance.SdkEngine.UserId = value;
-            }
-        }
-
         /// <summary>
         /// Returns the singleton instance of this class.
         /// </summary>
