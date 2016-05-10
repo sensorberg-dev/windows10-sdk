@@ -18,13 +18,13 @@ namespace SensorbergSDK
     /// <summary>
     /// The main interface of Sensorberg SDK.
     /// </summary>
-    public sealed class SdkManager
+    public sealed class SDKManager
     {
-        private static ILogger _logger = LogManagerFactory.DefaultLogManager.GetLogger<SdkManager>();
+        private static ILogger _logger = LogManagerFactory.DefaultLogManager.GetLogger<SDKManager>();
         public static readonly string DemoApiKey = Constants.DemoApiKey;
         private readonly int _startScannerIntervalInMilliseconds = 2000;
         private AppSettings _appSettings;
-        private static SdkManager _instance;
+        private static SDKManager _instance;
 
         private readonly BackgroundTaskManager _backgroundTaskManager;
         private Timer _startScannerTimer;
@@ -173,7 +173,7 @@ namespace SensorbergSDK
         /// <param name="beaconCode">The beacon code of beacons to watch.</param>
         /// <returns>The singleton instance of this class.</returns>
         [Obsolete("Use new version without parameters")]
-        public static SdkManager Instance(ushort manufacturerId, ushort beaconCode)
+        public static SDKManager Instance(ushort manufacturerId, ushort beaconCode)
         {
             Instance();
             _instance.Configuration.ManufacturerId = manufacturerId;
@@ -186,12 +186,12 @@ namespace SensorbergSDK
         /// Returns the singleton instance of this class.
         /// </summary>
         /// <returns>The singleton instance of this class.</returns>
-        public static SdkManager Instance()
+        public static SDKManager Instance()
         {
             _logger.Debug("Instance");
             if (_instance == null)
             {
-                _instance = new SdkManager();
+                _instance = new SDKManager();
             }
             if (_instance.Configuration == null)
             {
@@ -214,7 +214,7 @@ namespace SensorbergSDK
         /// <summary>
         /// Constructor.
         /// </summary>
-        private SdkManager()
+        private SDKManager()
         {
             SdkEngine = new SdkEngine(true);
             _backgroundTaskManager = new BackgroundTaskManager();

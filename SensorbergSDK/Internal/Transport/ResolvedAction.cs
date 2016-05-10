@@ -7,53 +7,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
+using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDK.Internal.Transport
 {
-    public sealed class Timeframe
-    {
-        public DateTimeOffset? Start
-        {
-            get;
-            set;
-        }
-        public DateTimeOffset? End
-        {
-            get;
-            set;
-        }
-
-        private bool Equals(Timeframe other)
-        {
-            return Start.Equals(other.Start) && End.Equals(other.End);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj is Timeframe && Equals((Timeframe) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (Start.GetHashCode()*397) ^ End.GetHashCode();
-            }
-        }
-
-        public static bool operator ==(Timeframe left, Timeframe right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(Timeframe left, Timeframe right)
-        {
-            return !Equals(left, right);
-        }
-    }
-
     /// <summary>
     /// Internal class that represents a single action coming from the server. 
     /// Class holds a BeaconAction object which exposes public API for the application. 

@@ -133,6 +133,7 @@
     <Compile Include="Internal\Services\ApiConnection.cs" />
     <Compile Include="Internal\Services\Resolver.cs" />
     <Compile Include="Internal\Transport\Converter\ResolvedActionConverter.cs" />
+    <Compile Include="Internal\Data\Timeframe.cs" />
     <Compile Include="SdkConfiguration.cs" />
     <Compile Include="SensorbergSDKBackground\BackgroundEngine.cs" />
     <Compile Include="SensorbergSDKBackground\AdvertisementWatcherBackgroundWorker.cs" />
@@ -159,7 +160,7 @@
     <Compile Include="Internal\Transport\Request.cs" />
     <Compile Include="Internal\Transport\RequestQueue.cs" />
     <Compile Include="Internal\Transport\ResolvedAction.cs" />
-    <Compile Include="Internal\Transport\Layout.cs" />
+    <Compile Include="Internal\Data\Layout.cs" />
     <Compile Include="Internal\Transport\LayoutManager.cs" />
     <Compile Include="Internal\Utils\NotificationUtils.cs" />
     <Compile Include="Internal\Utils\SystemInfoHelper.cs" />

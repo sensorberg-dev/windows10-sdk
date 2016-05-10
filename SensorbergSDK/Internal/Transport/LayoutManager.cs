@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MetroLog;
+using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
 
