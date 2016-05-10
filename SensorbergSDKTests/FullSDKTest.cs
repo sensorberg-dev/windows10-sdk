@@ -40,7 +40,7 @@ namespace SensorbergSDKTests
         [TestCleanup]
         public void Teardown()
         {
-            SdkManager sdkManager = SdkManager.Instance();
+            SDKManager sdkManager = SDKManager.Instance();
             sdkManager.Deinitialize(true);
         }
 
@@ -52,7 +52,7 @@ namespace SensorbergSDKTests
                 MockBeaconScanner scanner = (MockBeaconScanner) ServiceManager.BeaconScanner;
                 SdkData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
 
-                SdkManager sdkManager = SdkManager.Instance();
+                SDKManager sdkManager = SDKManager.Instance();
                 sdkManager.ScannerStatusChanged += (sender, status) => { };
                 TaskCompletionSource<BeaconAction> actionResolved = new TaskCompletionSource<BeaconAction>();
                 sdkManager.BeaconActionResolved += (sender, action) =>
@@ -95,7 +95,7 @@ namespace SensorbergSDKTests
             MockBeaconScanner scanner = (MockBeaconScanner) ServiceManager.BeaconScanner;
             SdkData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
 
-            SdkManager sdkManager = SdkManager.Instance();
+            SDKManager sdkManager = SDKManager.Instance();
             sdkManager.ScannerStatusChanged += (sender, status) => { };
             TaskCompletionSource<BeaconAction> actionResolved = new TaskCompletionSource<BeaconAction>();
             List<BeaconAction> actions = new List<BeaconAction>();
@@ -139,7 +139,7 @@ namespace SensorbergSDKTests
             MockBeaconScanner scanner = (MockBeaconScanner) ServiceManager.BeaconScanner;
             SdkData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
 
-            SdkManager sdkManager = SdkManager.Instance();
+            SDKManager sdkManager = SDKManager.Instance();
             sdkManager.ScannerStatusChanged += (sender, status) => { };
             TaskCompletionSource<BeaconAction> actionResolved = new TaskCompletionSource<BeaconAction>();
             List<BeaconAction> actions = new List<BeaconAction>();
@@ -183,7 +183,7 @@ namespace SensorbergSDKTests
         [Timeout(10000)]
         public async Task MultipleEventsFired()
         {
-            SdkManager sdkManager = SdkManager.Instance();
+            SDKManager sdkManager = SDKManager.Instance();
             int resolvedAction = 0;
             sdkManager.BeaconActionResolved += (sender, action) => resolvedAction++;
             await sdkManager.InitializeAsync(new SdkConfiguration() {ApiKey = ApiKey, ManufacturerId = ManufacturerId, BeaconCode = BeaconCode});
