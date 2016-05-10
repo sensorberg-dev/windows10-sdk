@@ -2,15 +2,15 @@
 // 
 // All rights reserved.
 
-using SensorbergSDK.Internal;
 using System.Collections.Generic;
 using System.Diagnostics;
+using SensorbergSDK.Internal.Transport;
 
-namespace SensorbergSDK
+namespace SensorbergSDK.Internal
 {
     public sealed class ResolvedActionsEventArgs
     {
-        public int RequestID
+        public int RequestId
         {
             [DebuggerStepThrough]
             get;

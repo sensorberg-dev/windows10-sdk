@@ -4,20 +4,16 @@
 // 
 // All rights reserved.
 
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.Devices.Bluetooth;
-using Windows.Storage;
 using MetroLog;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
-using SensorbergSDKBackground;
+using SensorbergSDK.Internal.Transport;
+using SensorbergSDK.SensorbergSDKBackground;
 using SensorbergSDKTests.Mocks;
 
 namespace SensorbergSDKTests

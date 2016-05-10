@@ -9,10 +9,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Data.Json;
-using Windows.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDKTests.Mocks;
 
@@ -22,11 +22,11 @@ namespace SensorbergSDKTests
     public class FullSDKTest
     {
         private const string ApiKey = "af24473d3ccb1d7a34307747531f06c25f08de361a5349389bbbe39274bf08cd";
-        private const UInt16 ManufacturerId = 0x004c;
-        private const UInt16 BeaconCode = 0x0215;
+        private const ushort ManufacturerId = 0x004c;
+        private const ushort BeaconCode = 0x0215;
 
         [TestInitialize]
-        public async Task Setup()
+        public void Setup()
         {
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
@@ -40,7 +40,7 @@ namespace SensorbergSDKTests
         [TestCleanup]
         public void Teardown()
         {
-            SDKManager sdkManager = SDKManager.Instance(ManufacturerId, BeaconCode);
+            SDKManager sdkManager = SDKManager.Instance();
             sdkManager.Deinitialize(true);
         }
 
@@ -50,9 +50,9 @@ namespace SensorbergSDKTests
             try
             {
                 MockBeaconScanner scanner = (MockBeaconScanner) ServiceManager.BeaconScanner;
-                SDKData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
+                SdkData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
 
-                SDKManager sdkManager = SDKManager.Instance(ManufacturerId, BeaconCode);
+                SDKManager sdkManager = SDKManager.Instance();
                 sdkManager.ScannerStatusChanged += (sender, status) => { };
                 TaskCompletionSource<BeaconAction> actionResolved = new TaskCompletionSource<BeaconAction>();
                 sdkManager.BeaconActionResolved += (sender, action) =>
@@ -61,7 +61,7 @@ namespace SensorbergSDKTests
                 };
 
 
-                await sdkManager.InitializeAsync(ApiKey);
+                await sdkManager.InitializeAsync(new SdkConfiguration() {ApiKey = ApiKey, ManufacturerId = ManufacturerId, BeaconCode = BeaconCode});
 
                 // Listening to the following events is not necessary, but provides interesting data for our log
                 sdkManager.Scanner.BeaconEvent += (sender, args) => { };
@@ -93,9 +93,9 @@ namespace SensorbergSDKTests
         public async Task BeaconMultipleEntered()
         {
             MockBeaconScanner scanner = (MockBeaconScanner) ServiceManager.BeaconScanner;
-            SDKData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
+            SdkData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
 
-            SDKManager sdkManager = SDKManager.Instance(ManufacturerId, BeaconCode);
+            SDKManager sdkManager = SDKManager.Instance();
             sdkManager.ScannerStatusChanged += (sender, status) => { };
             TaskCompletionSource<BeaconAction> actionResolved = new TaskCompletionSource<BeaconAction>();
             List<BeaconAction> actions = new List<BeaconAction>();
@@ -106,7 +106,7 @@ namespace SensorbergSDKTests
             };
 
 
-            await sdkManager.InitializeAsync(ApiKey);
+            await sdkManager.InitializeAsync(new SdkConfiguration() {ApiKey = ApiKey, ManufacturerId = ManufacturerId, BeaconCode = BeaconCode});
 
             // Listening to the following events is not necessary, but provides interesting data for our log
             sdkManager.Scanner.BeaconEvent += (sender, args) => { };
@@ -137,9 +137,9 @@ namespace SensorbergSDKTests
         public async Task BeaconMultipleEnteredOneFired()
         {
             MockBeaconScanner scanner = (MockBeaconScanner) ServiceManager.BeaconScanner;
-            SDKData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
+            SdkData.Instance.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
 
-            SDKManager sdkManager = SDKManager.Instance(ManufacturerId, BeaconCode);
+            SDKManager sdkManager = SDKManager.Instance();
             sdkManager.ScannerStatusChanged += (sender, status) => { };
             TaskCompletionSource<BeaconAction> actionResolved = new TaskCompletionSource<BeaconAction>();
             List<BeaconAction> actions = new List<BeaconAction>();
@@ -150,7 +150,7 @@ namespace SensorbergSDKTests
             };
 
 
-            await sdkManager.InitializeAsync(ApiKey);
+            await sdkManager.InitializeAsync(new SdkConfiguration() {ApiKey = ApiKey, ManufacturerId = ManufacturerId, BeaconCode = BeaconCode});
 
             // Listening to the following events is not necessary, but provides interesting data for our log
             sdkManager.Scanner.BeaconEvent += (sender, args) => { };
@@ -175,6 +175,45 @@ namespace SensorbergSDKTests
             await Task.Delay(2000);
             Debug.WriteLine("Waiting done");
             Assert.AreEqual(1, actions.Count, "Action missing or to many");
+        }
+
+
+
+        [TestMethod]
+        [Timeout(10000)]
+        public async Task MultipleEventsFired()
+        {
+            SDKManager sdkManager = SDKManager.Instance();
+            int resolvedAction = 0;
+            sdkManager.BeaconActionResolved += (sender, action) => resolvedAction++;
+            await sdkManager.InitializeAsync(new SdkConfiguration() {ApiKey = ApiKey, ManufacturerId = ManufacturerId, BeaconCode = BeaconCode});
+
+            TaskCompletionSource<bool> actionResolved = new TaskCompletionSource<bool>();
+            int requestCount = 0;
+            int REQUEST_COUNT = 1000;
+            ((Resolver) sdkManager.SdkEngine.Resolver).Finished += () =>
+            {
+                if (requestCount >= REQUEST_COUNT)
+                {
+                    actionResolved.SetResult(true);
+                }
+            };
+
+            MockBeaconScanner scanner = (MockBeaconScanner) ServiceManager.BeaconScanner;
+            for (; requestCount < REQUEST_COUNT; requestCount++)
+            {
+                scanner.NotifyBeaconEvent(new Beacon() {Id1 = "7367672374000000ffff0000ffff0006", Id2 = 23430, Id3 = 28018},
+                    requestCount%2 == 0 ? BeaconEventType.Enter : BeaconEventType.Exit);
+            }
+
+            bool result = await actionResolved.Task;
+
+            await ServiceManager.StorageService.FlushHistory();
+
+            MockApiConnection connection = (MockApiConnection) ServiceManager.ApiConnction;
+            Assert.AreEqual(REQUEST_COUNT, requestCount);
+            Assert.AreEqual(REQUEST_COUNT, connection.HistoryEvents.Count);
+            Assert.AreEqual(REQUEST_COUNT/2, connection.HistoryActions.Count);
         }
     }
 }

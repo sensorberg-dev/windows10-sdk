@@ -10,12 +10,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using MetroLog;
 using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK.Internal.Services
 {
     public class Resolver : IResolver
     {
-        private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<Resolver>();
+        private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<Resolver>();
         public event EventHandler<ResolvedActionsEventArgs> ActionsResolved;
         public event EventHandler<string> FailedToResolveActions;
         public event Action Finished;
@@ -41,8 +42,8 @@ namespace SensorbergSDK.Internal.Services
 
         public async Task<int> CreateRequest(BeaconEventArgs beaconEventArgs)
         {
-            int requestId = SDKData.Instance.NextId();
-            logger.Debug("Resolver: Beacon " + beaconEventArgs.Beacon.Id1 + " " + beaconEventArgs.Beacon.Id2 + " " + beaconEventArgs.Beacon.Id3 + " ---> Request: " + requestId);
+            int requestId = SdkData.Instance.NextId();
+            Logger.Debug("Resolver: Beacon " + beaconEventArgs.Beacon.Id1 + " " + beaconEventArgs.Beacon.Id2 + " " + beaconEventArgs.Beacon.Id3 + " ---> Request: " + requestId);
             Request request = new Request(beaconEventArgs, requestId);
             if (SynchronResolver)
             {
@@ -59,7 +60,7 @@ namespace SensorbergSDK.Internal.Services
         private void AddAsynchronRequest(Request request)
         {
             RequestQueue.Enqueue(request);
-            logger.Trace("Add new request {0}", request.RequestId);
+            Logger.Trace("Add new request {0}", request.RequestId);
             if (RequestQueue.Count > 0 &&
                 (WorkerTask == null || WorkerTask.Status == TaskStatus.Canceled || WorkerTask.Status == TaskStatus.Faulted || WorkerTask.Status == TaskStatus.RanToCompletion))
             {
@@ -98,7 +99,7 @@ namespace SensorbergSDK.Internal.Services
 
         private async Task Resolve(Request request)
         {
-            logger.Trace("take next request " + request.RequestId);
+            Logger.Trace("take next request " + request.RequestId);
             request.TryCount++;
             RequestResultState requestResult;
 
@@ -116,7 +117,7 @@ namespace SensorbergSDK.Internal.Services
                 request.ErrorMessage = ex.Message;
                 requestResult = RequestResultState.Failed;
             }
-            logger.Debug("request result " + request.RequestId + " " + requestResult);
+            Logger.Debug("request result " + request.RequestId + " " + requestResult);
 
             switch (requestResult)
             {
@@ -131,7 +132,7 @@ namespace SensorbergSDK.Internal.Services
                     {
                         int numberOfTriesLeft = request.MaxNumberOfRetries - request.TryCount;
 
-                        logger.Debug("RequestQueue.ServeNextRequestAsync(): Request with ID "
+                        Logger.Debug("RequestQueue.ServeNextRequestAsync(): Request with ID "
                                      + request.RequestId + " failed, will try "
                                      + numberOfTriesLeft + " more " + (numberOfTriesLeft > 1 ? "times" : "time"));
 
@@ -154,7 +155,7 @@ namespace SensorbergSDK.Internal.Services
 
             if (request != null)
             {
-                logger.Debug("OnRequestServed: Request with ID " + request.RequestId + " was " + e);
+                Logger.Debug("OnRequestServed: Request with ID " + request.RequestId + " was " + e);
                 if (e == RequestResultState.Success)
                 {
 
@@ -162,7 +163,7 @@ namespace SensorbergSDK.Internal.Services
                     {
                         ResolvedActionsEventArgs eventArgs = new ResolvedActionsEventArgs();
                         eventArgs.ResolvedActions = request.ResolvedActions;
-                        eventArgs.RequestID = request.RequestId;
+                        eventArgs.RequestId = request.RequestId;
                         eventArgs.BeaconEventType = request.BeaconEventArgs.EventType;
 
                         if (request.BeaconEventArgs != null && request.BeaconEventArgs.Beacon != null)
@@ -175,7 +176,7 @@ namespace SensorbergSDK.Internal.Services
                 }
                 else if (e == RequestResultState.Failed)
                 {
-                    logger.Info("OnRequestServed: Request with ID " + request.RequestId + " failed");
+                    Logger.Info("OnRequestServed: Request with ID " + request.RequestId + " failed");
 
                     FailedToResolveActions?.Invoke(this, request.ErrorMessage);
                 }

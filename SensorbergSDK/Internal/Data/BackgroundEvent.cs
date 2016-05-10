@@ -13,7 +13,7 @@ namespace SensorbergSDK.Internal.Data
     /// </summary>
     public class BackgroundEvent
     {
-        public string BeaconID { get; set; }
+        public string BeaconId { get; set; }
         public BeaconEventType LastEvent { get; set; }
         public DateTimeOffset EventTime { get; set; }
     }

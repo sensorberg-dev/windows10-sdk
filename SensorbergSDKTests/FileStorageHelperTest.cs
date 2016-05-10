@@ -11,6 +11,7 @@ using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDKTests
 {
@@ -41,9 +42,9 @@ namespace SensorbergSDKTests
                 return;
             }
 
-            Assert.AreEqual(beaconId, e.pid);
-            Assert.AreEqual(eventTime, e.dt);
-            Assert.AreEqual((int) beaconEventType, e.trigger);
+            Assert.AreEqual(beaconId, e.BeaconId);
+            Assert.AreEqual(eventTime, e.EventTime);
+            Assert.AreEqual((int) beaconEventType, e.Trigger);
         }
 
         [TestMethod]
@@ -51,9 +52,9 @@ namespace SensorbergSDKTests
         {
             string s = FileStorageHelper.EventToString(new HistoryEvent()
             {
-                pid = "1",
-                dt = DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000").ToString(History.TIMEFORMAT),
-                trigger = (int) BeaconEventType.Enter
+                BeaconId = "1",
+                EventTime = DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000").ToString(History.Timeformat),
+                Trigger = (int) BeaconEventType.Enter
             });
             Assert.AreEqual("1,1429192800000,1,False\n", s);
         }
@@ -63,7 +64,7 @@ namespace SensorbergSDKTests
         {
             string s = FileStorageHelper.ActionToString("1", "1", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.Enter);
             Assert.AreEqual("1,1,1429192800000,1,False,False\n", s);
-            s = FileStorageHelper.ActionToString(new HistoryAction() { eid = "1", pid = "1", dt = DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000").ToString(History.TIMEFORMAT), trigger =  (int)BeaconEventType.Enter, Delivered = false});
+            s = FileStorageHelper.ActionToString(new HistoryAction() { EventId = "1", BeaconId = "1", ActionTime = DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000").ToString(History.Timeformat), Trigger =  (int)BeaconEventType.Enter, Delivered = false});
             Assert.AreEqual("1,1,1429192800000,1,False,False\n", s);
         }
 
@@ -91,10 +92,10 @@ namespace SensorbergSDKTests
                 return;
             }
 
-            Assert.AreEqual(beaconId, a.pid);
-            Assert.AreEqual(eventTime, a.dt);
-            Assert.AreEqual(uuid, a.eid);
-            Assert.AreEqual((int)beaconEventType, a.trigger);
+            Assert.AreEqual(beaconId, a.BeaconId);
+            Assert.AreEqual(eventTime, a.ActionTime);
+            Assert.AreEqual(uuid, a.EventId);
+            Assert.AreEqual((int)beaconEventType, a.Trigger);
         }
 
         [TestMethod]
@@ -171,11 +172,11 @@ namespace SensorbergSDKTests
                 new Timeframe() {End = DateTimeOffset.Parse("2015-04-16T12:00:00.000+0000"), Start = DateTimeOffset.Parse("2015-04-15T12:00:00.000+0000")}
             };
             DelayedActionData data = FileStorageHelper.DelayedActionFromHelper(simpleDelayedActionFromString);
-            Assert.AreEqual("123", data.beaconPid, "Wrong beacon pid");
-            Assert.AreEqual(BeaconEventType.Enter, data.eventTypeDetectedByDevice, "Wrong event type");
-            Assert.AreEqual(DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), data.dueTime, "Wrong time");
+            Assert.AreEqual("123", data.BeaconPid, "Wrong beacon pid");
+            Assert.AreEqual(BeaconEventType.Enter, data.EventTypeDetectedByDevice, "Wrong event type");
+            Assert.AreEqual(DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), data.DueTime, "Wrong time");
             Assert.AreEqual(guid.ToString(), data.Id, "ID isnt set");
-            Assert.AreEqual(action, data.resolvedAction);
+            Assert.AreEqual(action, data.ResolvedAction);
 
             Assert.IsNull(FileStorageHelper.SimpleDelayedActionFromString(""));
             Assert.IsNull(FileStorageHelper.SimpleDelayedActionFromString(null));
@@ -226,7 +227,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual("1,1,1429192800000",s);
 
             BackgroundEvent be = FileStorageHelper.BeaconEventStateFromString(s);
-            Assert.AreEqual("1",be.BeaconID);
+            Assert.AreEqual("1",be.BeaconId);
             Assert.AreEqual(DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), be.EventTime);
             Assert.AreEqual(BeaconEventType.Enter,be.LastEvent);
             Assert.IsNull(FileStorageHelper.BeaconEventStateFromString(""));

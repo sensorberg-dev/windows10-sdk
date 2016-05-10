@@ -4,15 +4,14 @@
 // 
 // All rights reserved.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Transport;
 using SensorbergSDKTests.Mocks;
 
 namespace SensorbergSDKTests
@@ -38,7 +37,7 @@ namespace SensorbergSDKTests
         {
             LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
             await layoutManager.VerifyLayoutAsync(true);
-            SDKEngine engine = new SDKEngine(false);
+            SdkEngine engine = new SdkEngine(false);
             await engine.InitializeAsync();
 
             BeaconAction orgAction = layoutManager.Layout.ResolvedActions.FirstOrDefault(ra => ra.BeaconAction.Uuid == "9ded63644e424d758b0218f7c70f2473").BeaconAction;
@@ -66,7 +65,7 @@ namespace SensorbergSDKTests
         {
             LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
             await layoutManager.VerifyLayoutAsync(true);
-            SDKEngine engine = new SDKEngine(false);
+            SdkEngine engine = new SdkEngine(false);
             await engine.InitializeAsync();
 
             TaskCompletionSource<IList<BeaconAction>> action = new TaskCompletionSource<IList<BeaconAction>>();
@@ -97,7 +96,7 @@ namespace SensorbergSDKTests
         {
             LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
             await layoutManager.VerifyLayoutAsync(true);
-            SDKEngine engine = new SDKEngine(false);
+            SdkEngine engine = new SdkEngine(false);
             await engine.InitializeAsync();
 
             TaskCompletionSource<IList<BeaconAction>> action = new TaskCompletionSource<IList<BeaconAction>>();

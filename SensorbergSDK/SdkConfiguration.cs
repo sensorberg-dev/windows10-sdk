@@ -4,7 +4,6 @@
 // 
 // All rights reserved.
 
-using System;
 using System.Diagnostics;
 using SensorbergSDK.Internal;
 
@@ -20,7 +19,7 @@ namespace SensorbergSDK
         /// <summary>
         /// The manufacturer ID to filter beacons that are being watched.
         /// </summary>
-        public UInt16 ManufacturerId
+        public ushort ManufacturerId
         {
             [DebuggerStepThrough]
             get;
@@ -31,7 +30,7 @@ namespace SensorbergSDK
         /// <summary>
         /// The beacon code to filter beacons that are being watched.
         /// </summary>
-        public UInt16 BeaconCode
+        public ushort BeaconCode
         {
             [DebuggerStepThrough]
             get;

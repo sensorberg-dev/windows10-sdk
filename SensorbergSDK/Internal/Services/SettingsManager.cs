@@ -3,11 +3,10 @@
 // All rights reserved.
 
 using System;
-using System.Diagnostics;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
+using MetroLog;
 using Newtonsoft.Json;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Services;
@@ -16,9 +15,10 @@ namespace SensorbergSDK.Internal.Services
 {
     public sealed class SettingsManager: ISettingsManager, IDisposable
     {
-        private const string STORAGE_KEY = "app_settings";
+        private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<SettingsManager>();
+        private const string StorageKey = "app_settings";
         private readonly ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
-        private readonly SDKData _sdkData;
+        private readonly SdkData _sdkData;
         private Timer _updateSettingsTimer;
         private AppSettings _lastSettings;
 
@@ -28,14 +28,14 @@ namespace SensorbergSDK.Internal.Services
 
         public SettingsManager()
         {
-            _sdkData = SDKData.Instance;
+            _sdkData = SdkData.Instance;
         }
 
         public async Task<AppSettings> GetSettings(bool forceUpdate = false)
         {
-            if (_lastSettings != null && forceUpdate == false)
+            if (_lastSettings != null && !forceUpdate)
             {
-                Debug.WriteLine("SettingsManager returned settings from cache." + _lastSettings);
+                Logger.Debug("SettingsManager returned settings from cache." + _lastSettings);
                 return _lastSettings;
             }
 
@@ -47,7 +47,7 @@ namespace SensorbergSDK.Internal.Services
             return settings;
         }
 
-        private void InitTimer(UInt64 miliseconds)
+        private void InitTimer(ulong miliseconds)
         {
             TimeSpan interval = TimeSpan.FromMilliseconds(miliseconds);
             if (_updateSettingsTimer != null)
@@ -83,33 +83,31 @@ namespace SensorbergSDK.Internal.Services
 
                 SaveSettingsToStorage(settings.Settings);
 
-                Debug.WriteLine("Got settings from api. " + settings.Settings);
+                Logger.Debug("Got settings from api. " + settings.Settings);
 
                 return settings.Settings;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("SettingsManager.GetSettingsFromApiAsync(): Failed to send HTTP request: " + ex.Message);
+                Logger.Debug("SettingsManager.GetSettingsFromApiAsync(): Failed to send HTTP request: " + ex.Message);
                 return null;
             }
         }
 
         private AppSettings CreateDefaultSettings()
         {
-            Debug.WriteLine("SettingsManager used default settings values.");
-            return DefaultAppSettings != null
-                ? DefaultAppSettings
-                : new AppSettings();
+            Logger.Debug("SettingsManager used default settings values.");
+            return DefaultAppSettings != null ? DefaultAppSettings : new AppSettings();
         }
 
         private void SaveSettingsToStorage(AppSettings settings)
         {
-            _localSettings.Values[STORAGE_KEY] = JsonConvert.SerializeObject(settings);
+            _localSettings.Values[StorageKey] = JsonConvert.SerializeObject(settings);
         }
 
         private AppSettings GetSettingsFromStorage()
         {
-            var storageValue = _localSettings.Values[STORAGE_KEY];
+            var storageValue = _localSettings.Values[StorageKey];
 
             var storageString = storageValue?.ToString();
 

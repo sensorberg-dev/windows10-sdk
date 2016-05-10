@@ -3,30 +3,29 @@
 // All rights reserved.
 
 using System.Runtime.Serialization;
-using SensorbergSDK.Internal;
 
-namespace SensorbergSDK
+namespace SensorbergSDK.Internal
 {
     [DataContract]
     public sealed class AppSettings
     {
         [DataMember(Name = "scanner.exitTimeoutMillis")]
-        public ulong BeaconExitTimeout { get; }
+        public ulong BeaconExitTimeout { get; set; }
 
         [DataMember(Name = "network.historyUploadInterval")]
-        public ulong HistoryUploadInterval { get; }
+        public ulong HistoryUploadInterval { get; set; }
 
         [DataMember(Name = "scanner.enterRssiThreshold")]
-        public short? RssiEnterThreshold { get; }
+        public short? RssiEnterThreshold { get; set; }
 
         [DataMember(Name = "scanner.enterDistanceThreshold")]
-        public ulong? EnterDistanceThreshold { get; }
+        public ulong? EnterDistanceThreshold { get; set; }
 
         [DataMember(Name = "network.beaconLayoutUpdateInterval")]
-        public ulong LayoutUpdateInterval { get; }
+        public ulong LayoutUpdateInterval { get; set; }
 
         [DataMember(Name = "settings.updateTime")]
-        public ulong SettingsUpdateInterval { get; }
+        public ulong SettingsUpdateInterval { get; set; }
 
         /// <summary>
         /// Creates an appsettings object, including the basic setup.

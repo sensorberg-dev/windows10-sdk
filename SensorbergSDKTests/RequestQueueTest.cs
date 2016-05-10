@@ -4,15 +4,14 @@
 // 
 // All rights reserved.
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Windows.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Transport;
 using SensorbergSDKTests.Mocks;
 
 namespace SensorbergSDKTests

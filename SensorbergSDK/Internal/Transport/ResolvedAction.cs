@@ -1,77 +1,24 @@
-﻿using System;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using SensorbergSDK.Internal.Data;
 
-namespace SensorbergSDK.Internal
+namespace SensorbergSDK.Internal.Transport
 {
-    public sealed class Timeframe
-    {
-        public DateTimeOffset ?Start
-        {
-            get;
-            set;
-        }
-        public DateTimeOffset ?End
-        {
-            get;
-            set;
-        }
-
-        private bool Equals(Timeframe other)
-        {
-            return Start.Equals(other.Start) && End.Equals(other.End);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj is Timeframe && Equals((Timeframe) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (Start.GetHashCode()*397) ^ End.GetHashCode();
-            }
-        }
-
-        public static bool operator ==(Timeframe left, Timeframe right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(Timeframe left, Timeframe right)
-        {
-            return !Equals(left, right);
-        }
-    }
-
     /// <summary>
     /// Internal class that represents a single action coming from the server. 
     /// Class holds a BeaconAction object which exposes public API for the application. 
     /// </summary>
-    /// 
     [DataContract]
     public sealed class ResolvedAction
     {
-        private static readonly string KeyActionUuid = "eid";
-        private static readonly string KeyBeacons = "beacons";
-        private static readonly string KeyContent = "content";
-        private static readonly string KeyDelayTime = "delay";
-        private static readonly string KeyTrigger = "trigger";
-        private static readonly string KeyType = "type";
-        private static readonly string KeySendOnlyOnce = "sendOnlyOnce";
-        private static readonly string KeysupressionTime = "suppressionTime";
-        private static readonly string KeyReportImmediately = "reportImmediately";
-        private static readonly string KeyTimeframes = "timeframes";
-        private static readonly string KeyStart = "start";
-        private static readonly string KeyEnd = "end";
-        private ICollection<string> beaconPids;
+        private ICollection<string> _beaconPids;
 
         [DataMember]
         public BeaconAction BeaconAction
@@ -86,9 +33,9 @@ namespace SensorbergSDK.Internal
         public ICollection<string> BeaconPids
         {
             [DebuggerStepThrough]
-            get { return beaconPids; }
+            get { return _beaconPids; }
             [DebuggerStepThrough]
-            set { beaconPids = value; }
+            set { _beaconPids = value; }
         }
 
         [DataMember(Name = "trigger")]
@@ -151,12 +98,6 @@ namespace SensorbergSDK.Internal
             Timeframes = new List<Timeframe>();
         }
 
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="time"></param>
-        /// <returns></returns>
         public bool IsInsideTimeframes(DateTimeOffset time)
         {
             if (Timeframes.Count == 0)
@@ -207,9 +148,9 @@ namespace SensorbergSDK.Internal
 
         private bool Equals(ResolvedAction other)
         {
-            return /*Equals(beaconPids, other.beaconPids)*/ (!beaconPids?.Except(other.beaconPids).GetEnumerator().MoveNext()).Value && Equals(BeaconAction.ToString(), other.BeaconAction.ToString()) && EventTypeDetectedByDevice == other.EventTypeDetectedByDevice &&
+            return (!_beaconPids?.Except(other._beaconPids).GetEnumerator().MoveNext()).Value && Equals(BeaconAction.ToString(), other.BeaconAction.ToString()) && EventTypeDetectedByDevice == other.EventTypeDetectedByDevice &&
                    Delay == other.Delay && SendOnlyOnce == other.SendOnlyOnce && SuppressionTime == other.SuppressionTime && ReportImmediately == other.ReportImmediately &&
-                   /*Equals(Timeframes, other.Timeframes)*/ (!Timeframes?.Except(other.Timeframes).GetEnumerator().MoveNext()).Value;
+                   (!Timeframes?.Except(other.Timeframes).GetEnumerator().MoveNext()).Value;
         }
 
         public override bool Equals(object obj)
@@ -223,7 +164,7 @@ namespace SensorbergSDK.Internal
         {
             unchecked
             {
-                var hashCode = (beaconPids != null ? beaconPids.GetHashCode() : 0);
+                var hashCode = _beaconPids != null ? _beaconPids.GetHashCode() : 0;
                 hashCode = (hashCode*397) ^ (BeaconAction != null ? BeaconAction.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (int) EventTypeDetectedByDevice;
                 hashCode = (hashCode*397) ^ Delay.GetHashCode();

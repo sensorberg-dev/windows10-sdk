@@ -23,7 +23,7 @@ namespace SensorbergSDKTests
             await TestHelper.ClearFiles("sensorberg-storage");
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
-            ServiceManager.ApiConnction = new MockApiConnection() {MockSettings = "{\"revision\":0,\"settings\":{\"scanner.backgroundWaitTime\":120000}}"};
+            ServiceManager.ApiConnction = new MockApiConnection() {MockSettings = "{\"revision\":0,\"settings\":{\"scanner.backgroundWaitTime\":120000, \"scanner.exitTimeoutMillis\":123, \"network.historyUploadInterval\":321}}" };
             ServiceManager.SettingsManager = new SettingsManager();
             ServiceManager.ReadOnlyForTests = true;
         }
@@ -33,7 +33,8 @@ namespace SensorbergSDKTests
         {
             AppSettings appSettings = await ServiceManager.SettingsManager.GetSettings(true);
 
-
+            Assert.AreEqual((ulong)123, appSettings.BeaconExitTimeout);
+            Assert.AreEqual((ulong)321, appSettings.HistoryUploadInterval);
         }
     }
 }

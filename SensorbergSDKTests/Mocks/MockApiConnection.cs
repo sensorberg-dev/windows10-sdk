@@ -11,11 +11,16 @@ using Windows.Web.Http;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
+using System.Collections.Generic;
+using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDKTests.Mocks
 {
     public class MockApiConnection : IApiConnection
     {
+        public List<HistoryAction> HistoryActions { get; } = new List<HistoryAction>();
+        public List<HistoryEvent> HistoryEvents { get; }= new List<HistoryEvent>();
+
         private async Task<string> Load(string file)
         {
             if (APIInvalid)
@@ -30,12 +35,12 @@ namespace SensorbergSDKTests.Mocks
             {
                 throw new Exception("ups");
             }
-            var uri = new System.Uri("ms-appx:///Assets/raw/" + file, UriKind.RelativeOrAbsolute);
+            var uri = new Uri("ms-appx:///Assets/raw/" + file, UriKind.RelativeOrAbsolute);
             return await Windows.Storage.FileIO.ReadTextAsync(await Windows.Storage.StorageFile.GetFileFromApplicationUriAsync(uri));
         }
 
 
-        public async Task<ResponseMessage> RetrieveLayoutResponse(SDKData data, string apiId = null)
+        public async Task<ResponseMessage> RetrieveLayoutResponse(SdkData data, string apiId = null)
         {
             return new ResponseMessage()
             {
@@ -43,7 +48,7 @@ namespace SensorbergSDKTests.Mocks
             };
         }
 
-        public async Task<string> LoadSettings(SDKData sdkData)
+        public async Task<string> LoadSettings(SdkData sdkData)
         {
             return MockSettings;
         }
@@ -61,6 +66,11 @@ namespace SensorbergSDKTests.Mocks
             if (UnknownError)
             {
                 throw new Exception("ups");
+            }
+            if (history != null)
+            {
+                HistoryEvents.AddRange(history.Events);
+                HistoryActions.AddRange(history.Actions);
             }
             return Task.FromResult(new ResponseMessage() {IsSuccess = true});
         }

@@ -1,14 +1,18 @@
-﻿using SensorbergSDK;
-using SensorbergSDK.Internal;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.UI.Notifications;
 using MetroLog;
+using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Utils;
 
-namespace SensorbergSDKBackground
+namespace SensorbergSDK.SensorbergSDKBackground
 {
     /// <summary>
     /// BackgroundEngine resolves actions from BluetoothLEAdvertisementWatcherTriggerDetails object
@@ -17,11 +21,11 @@ namespace SensorbergSDKBackground
     /// </summary>
     public class BackgroundEngine : IDisposable
     {
-        private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<BackgroundEngine>();
+        private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<BackgroundEngine>();
 
         public event EventHandler<BackgroundWorkerType> Finished;
 
-        private SDKEngine SdkEngine { get; }
+        private SdkEngine SdkEngine { get; }
         private IList<Beacon> Beacons { get; set; }
         private readonly IList<BeaconEventArgs> _beaconArgs;
         private AppSettings AppSettings { get; set; }
@@ -46,13 +50,13 @@ namespace SensorbergSDKBackground
 
         public BackgroundEngine()
         {
-            SdkEngine = new SDKEngine(false);
+            SdkEngine = new SdkEngine(false);
             _beaconArgs = new List<BeaconEventArgs>();
             SdkEngine.BeaconActionResolved += OnBeaconActionResolvedAsync;
         }
 
         /// <summary>
-        /// Initializes BackgroundEngine
+        /// Initializes BackgroundEngine.
         /// </summary>
         public async Task InitializeAsync()
         {
@@ -72,7 +76,7 @@ namespace SensorbergSDKBackground
         /// </summary>
         public async Task ResolveBeaconActionsAsync(List<Beacon> beacons, int outOfRangeDb)
         {
-            logger.Trace("ResolveBeaconActionsAsync");
+            Logger.Trace("ResolveBeaconActionsAsync");
 
             Beacons = beacons;
             if (Beacons.Count > 0)
@@ -88,7 +92,7 @@ namespace SensorbergSDKBackground
                     await SdkEngine.ResolveBeaconAction(beaconArg);
                 }
             }
-            Finished?.Invoke(this, BackgroundWorkerType.ADVERTISEMENT_WORKER);
+            Finished?.Invoke(this, BackgroundWorkerType.AdvertisementWorker);
         }
 
         /// <summary>
@@ -98,17 +102,17 @@ namespace SensorbergSDKBackground
         {
             await SdkEngine.ProcessDelayedActionsAsync();
             await SdkEngine.FlushHistory();
-            Finished?.Invoke(this, BackgroundWorkerType.TIMED_WORKER);
+            Finished?.Invoke(this, BackgroundWorkerType.TimedWorker);
         }
 
 
         /// <summary>
         /// Generates BeaconArgs from beacon events.
-        /// For instance if a beacon is seen for the first time, BeaconArgs with enter type is generated
+        /// For instance if a beacon is seen for the first time, BeaconArgs with enter type is generated.
         /// </summary>
         private async Task AddBeaconsToBeaconArgsAsync(int outOfRangeDb)
         {
-            logger.Trace("AddBeaconsToBeaconArgsAsync");
+            Logger.Trace("AddBeaconsToBeaconArgsAsync");
             foreach (var beacon in Beacons)
             {
                 BackgroundEvent history = await ServiceManager.StorageService.GetLastEventStateForBeacon(beacon.Pid);
@@ -152,13 +156,12 @@ namespace SensorbergSDKBackground
         /// </summary>
         private void OnBeaconActionResolvedAsync(object sender, BeaconAction beaconAction)
         {
-            logger.Trace("BackgroundEngine.OnBeaconActionResolvedAsync()");
+            Logger.Trace("BackgroundEngine.OnBeaconActionResolvedAsync()");
         }
 
         /// <summary>
-        /// Finishes background processing and releases all resources
+        /// Finishes background processing and releases all resources.
         /// </summary>
-
         public void Dispose()
         {
             try

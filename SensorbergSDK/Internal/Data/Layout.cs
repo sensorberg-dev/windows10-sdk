@@ -1,10 +1,16 @@
-﻿using System;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using MetroLog;
 using Newtonsoft.Json;
+using SensorbergSDK.Internal.Transport;
 using SensorbergSDK.Internal.Transport.Converter;
 
-namespace SensorbergSDK.Internal
+namespace SensorbergSDK.Internal.Data
 {
     /// <summary>
     /// Represents a layout with beacons and actions associated with them.
@@ -12,12 +18,11 @@ namespace SensorbergSDK.Internal
     [DataContract]
     public sealed class Layout
     {
-        private const string KeyAccountBeaconId1s = "accountProximityUUIDs";
-        private const string KeyActions = "actions";
+        private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<Layout>();
         private const string KeyMaxAge = "max-age";
 
         [DataMember(Name = "accountProximityUUIDs")]
-        public IList<string> AccountBeaconId1s
+        public IList<string> AccountBeaconId1S
         {
             get;
             private set;
@@ -37,12 +42,6 @@ namespace SensorbergSDK.Internal
             set;
         }
 
-        public DateTimeOffset LastUpdated
-        {
-            get;
-            private set;
-        }
-
         public DateTimeOffset ValidTill
         {
             get;
@@ -52,11 +51,9 @@ namespace SensorbergSDK.Internal
         /// <summary>
         /// Constructs a Layout instance from the given JSON data.
         /// </summary>
-        /// <param name="headers"></param>
-        /// <param name="content"></param>
-        /// <param name="layoutRetrievedTime"></param>
-        /// <returns></returns>
-        public void FromJson(string headers/*, JsonObject content*/, DateTimeOffset layoutRetrievedTime)
+        /// <param name="headers">String repersentation of the header fields.</param>
+        /// <param name="layoutRetrievedTime">Timestamp of receiving the layout.</param>
+        public void FromJson(string headers, DateTimeOffset layoutRetrievedTime)
         {
 
             try
@@ -78,18 +75,16 @@ namespace SensorbergSDK.Internal
                     ValidTill = DateTimeOffset.MaxValue;
                 }
 
-//                layout.ResolveAccountBeaconId1s(content);
-//                layout.ResolveActions(content);
             } 
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("Layout.FromJson(): Failed to parse: " + ex.ToString());
+                Logger.Error("Layout.FromJson(): Failed to parse: " + ex, ex);
             }
         }
 
         public Layout()
         {
-            AccountBeaconId1s = new List<string>();
+            AccountBeaconId1S = new List<string>();
             ResolvedActions = new List<ResolvedAction>();
         }
 
@@ -120,64 +115,29 @@ namespace SensorbergSDK.Internal
         /// beacons.
         /// </summary>
         /// <returns>True, if the beacon ID1s are not limited to Sensorberg beacons.</returns>
-        public bool ContainsOtherThanSensorbergBeaconId1s()
+        public bool ContainsOtherThanSensorbergBeaconId1S()
         {
-            bool containsOtherThanSensorbergBeaconId1s = false;
+            bool containsOtherThanSensorbergBeaconId1S = false;
 
-            foreach (string beaconId1 in AccountBeaconId1s)
+            foreach (string beaconId1 in AccountBeaconId1S)
             {
                 if (!beaconId1.StartsWith(Constants.SensorbergUuidSpace, StringComparison.CurrentCultureIgnoreCase))
                 {
-                     containsOtherThanSensorbergBeaconId1s = true;
+                     containsOtherThanSensorbergBeaconId1S = true;
                 }
             }
 
-            return containsOtherThanSensorbergBeaconId1s;
+            return containsOtherThanSensorbergBeaconId1S;
         }
 
         private void ResolveMaxAge(string headers, DateTimeOffset layoutRetrievedTime)
         {
-            int startIndex = headers.IndexOf(KeyMaxAge, 0, headers.Length) + KeyMaxAge.Length + 1;
+            int startIndex = headers.IndexOf(KeyMaxAge, 0, headers.Length, StringComparison.Ordinal) + KeyMaxAge.Length + 1;
             int endIndex = headers.IndexOf(';', startIndex, headers.Length - startIndex);
             string maxAgeAsString = headers.Substring(startIndex, endIndex - startIndex);
             double maxAgeAsDouble = double.Parse(maxAgeAsString);
             ValidTill = layoutRetrievedTime + TimeSpan.FromSeconds(maxAgeAsDouble);
         }
 
-       /* private void ResolveAccountBeaconId1s(JsonObject content)
-        {
-            AccountBeaconId1s.Clear();
-            if (!content.ContainsKey(KeyAccountBeaconId1s))
-            {
-                return;
-            }
-            JsonArray responses = content.GetNamedArray(KeyAccountBeaconId1s);
-
-            foreach (JsonValue resp in responses)
-            {
-                if (resp.ValueType == JsonValueType.String)
-                {
-                    AccountBeaconId1s.Add(resp.GetString());
-                }
-            }
-        }
-
-        private void ResolveActions(JsonObject content)
-        {
-            ResolvedActions.Clear();
-            if (!content.ContainsKey(KeyActions))
-            {
-                return;
-            }
-            var actions = content.GetNamedArray(KeyActions);
-
-            foreach (JsonValue resp in actions)
-            {
-                if (resp.ValueType == JsonValueType.Object)
-                {
-                    ResolvedActions.Add(ResolvedAction.ResolvedActionFromJsonObject(resp.GetObject()));
-                }
-            }
-        }*/
     }
 }

@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
@@ -14,6 +13,7 @@ using SensorbergSDK;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Transport;
 using SensorbergSDKTests.Mocks;
 
 namespace SensorbergSDKTests
@@ -32,7 +32,7 @@ namespace SensorbergSDKTests
             ServiceManager.SettingsManager = new SettingsManager();
             ServiceManager.StorageService = new StorageService() {Storage = new MockStorage()};
             ServiceManager.ReadOnlyForTests = true;
-            ApplicationData.Current.LocalSettings.Values.Remove(SDKData.KeyIncrementalId);
+            ApplicationData.Current.LocalSettings.Values.Remove(SdkData.KeyIncrementalId);
         }
 
         [TestMethod]

@@ -7,15 +7,16 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Windows.Foundation;
 using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Transport;
 using SensorbergSDK.Services;
 
 namespace SensorbergSDKTests.Mocks
 {
     public class MockLayoutManager:ILayoutManager
     {
-        public IAsyncOperation<RequestResultState> ExecuteRequestAsync(Request currentRequest)
+        public async Task<RequestResultState> ExecuteRequestAsync(Request currentRequest)
         {
             FailToken token = new FailToken();
             ShouldFail?.Invoke(currentRequest, token);
@@ -23,7 +24,7 @@ namespace SensorbergSDKTests.Mocks
             {
                 currentRequest.ResolvedActions = new List<ResolvedAction>() { new ResolvedAction() };
             }
-            return Task.FromResult<RequestResultState>(token.Fail ? RequestResultState.Failed : RequestResultState.Success).AsAsyncOperation();
+            return token.Fail ? RequestResultState.Failed : RequestResultState.Success;
         }
 
         public async Task InvalidateLayout()
@@ -34,9 +35,9 @@ namespace SensorbergSDKTests.Mocks
         public Layout Layout { get; set; }
         public bool FindOneAction { get; set; }
 
-        public IAsyncOperation<bool> VerifyLayoutAsync(bool b = false)
+        public async Task<bool> VerifyLayoutAsync(bool b = false)
         {
-            return Task.FromResult<bool>(true).AsAsyncOperation();
+            return true;
         }
 
         public event EventHandler<bool> LayoutValidityChanged;

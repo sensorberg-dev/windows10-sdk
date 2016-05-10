@@ -1,15 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using Windows.Foundation.Metadata;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
 
-namespace SensorbergSDK.Internal
+using System;
+using System.Collections.Generic;
+
+namespace SensorbergSDK.Internal.Transport
 {
     public enum RequestResultState
     {
         None,
         Failed,
         Success
-    };
+    }
 
     public sealed class Request
     {
@@ -53,13 +56,6 @@ namespace SensorbergSDK.Internal
             private set;
         }
 
-        [Obsolete]
-        public bool IsBeingProcessed
-        {
-            get;
-            set;
-        }
-
         public int TryCount
         {
             get;
@@ -75,7 +71,7 @@ namespace SensorbergSDK.Internal
         }
 
         /// <summary>
-        /// Constructor.
+        /// Creates an new Request object.
         /// </summary>
         /// <param name="beaconEventArgs">The beacon event details.</param>
         /// <param name="requestId">The request ID (can be arbitrary).</param>
@@ -84,10 +80,6 @@ namespace SensorbergSDK.Internal
             BeaconEventArgs = beaconEventArgs;
             RequestId = requestId;
             ResultState = RequestResultState.None;
-        }
-         
-        private Request()
-        {
         }
 
         /// <summary>

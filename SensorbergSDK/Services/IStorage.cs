@@ -7,8 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK.Services
 {
@@ -30,9 +30,8 @@ namespace SensorbergSDK.Services
         Task<HistoryAction> GetAction(string uuid);
 
         /// <summary>
-        /// Cleans old entries from the database
+        /// Cleans old entries from the database.
         /// </summary>
-        /// <returns></returns>
         Task CleanDatabase();
 
         /// <summary>

@@ -6,12 +6,12 @@ using System;
 using System.Diagnostics;
 using Windows.Storage;
 
-namespace SensorbergSDK.Internal
+namespace SensorbergSDK.Internal.Data
 {
     /// <summary>
     /// Contains the global SDK data.
     /// </summary>
-    public sealed class SDKData
+    public sealed class SdkData
     {
         private const string KeySensorbergSdkApiKey = "sensorberg_sdk_api_key";
         private const string KeySensorbergSdkGuid = "sensorberg_sdk_guid";
@@ -23,19 +23,18 @@ namespace SensorbergSDK.Internal
         private const string KeyAppIsVisible = "sensorberg_sdk_app_visibility";
         private const string KeyVisibilityLastUpdated = "sensorberg_sdk_visibility_last_updated";
 
-        private const int AppVisibilityFallbackDelayInSeconds = 60;
-        private const string USERID = "userid";
+        private const string Userid = "userid";
 
         private readonly ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
 
-        private static SDKData _instance;
-        public static SDKData Instance
+        private static SdkData _instance;
+        public static SdkData Instance
         {
             get
             {
                 if (_instance == null)
                 {
-                    _instance = new SDKData();
+                    _instance = new SdkData();
                 }
 
                 return _instance;
@@ -48,7 +47,7 @@ namespace SensorbergSDK.Internal
             get
             {
                 object id;
-                ApplicationData.Current.LocalSettings.Values.TryGetValue(USERID, out id);
+                ApplicationData.Current.LocalSettings.Values.TryGetValue(Userid, out id);
                 string s = id as string;
                 if (s == null)
                 {
@@ -60,7 +59,7 @@ namespace SensorbergSDK.Internal
             {
                 string id = value;
                 id = !string.IsNullOrEmpty(id) ? Uri.EscapeDataString(id) : string.Empty;
-                ApplicationData.Current.LocalSettings.Values[USERID] = id;
+                ApplicationData.Current.LocalSettings.Values[Userid] = id;
             }
         }
 

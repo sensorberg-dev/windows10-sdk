@@ -11,7 +11,7 @@ namespace SensorbergSDK.Internal.Utils
 {
     public static class Helper
     {
-        public static string EnsureEncodingIsUTF8(string str)
+        public static string EnsureEncodingIsUtf8(string str)
         {
             byte[] bytes = Encoding.UTF8.GetBytes(str);
             return Encoding.UTF8.GetString(bytes, 0, bytes.Length);

@@ -8,10 +8,10 @@ using System;
 using System.Collections.Generic;
 using Windows.ApplicationModel.Background;
 using Windows.Devices.Bluetooth.Background;
-using SensorbergSDK;
 using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Utils;
 
-namespace SensorbergSDKBackground
+namespace SensorbergSDK.SensorbergSDKBackground
 {
     public class AdvertisementWatcherBackgroundWorker
     {
@@ -61,9 +61,8 @@ namespace SensorbergSDKBackground
         }
 
         /// <summary>
-        /// Constructs Beacon instances from the trigger data and adds recognized beacons to the _beacons list
+        /// Constructs Beacon instances from the trigger data and adds recognized beacons to the _beacons list.
         /// </summary>
-        /// <param name="triggerDetails"></param>
         private List<Beacon> TriggerDetailsToBeacons(BluetoothLEAdvertisementWatcherTriggerDetails triggerDetails)
         {
             List<Beacon> beacons = new List<Beacon>(); 
@@ -71,7 +70,7 @@ namespace SensorbergSDKBackground
             {
                 foreach (var bleAdvertisementReceivedEventArgs in triggerDetails.Advertisements)
                 {
-                    Beacon beacon = BeaconFactory.BeaconFromBluetoothLEAdvertisementReceivedEventArgs(bleAdvertisementReceivedEventArgs);
+                    Beacon beacon = BeaconFactory.BeaconFromBluetoothLeAdvertisementReceivedEventArgs(bleAdvertisementReceivedEventArgs);
                     beacons.Add(beacon);
                 }
             }
@@ -80,7 +79,7 @@ namespace SensorbergSDKBackground
 
         private void OnFinished(object sender, BackgroundWorkerType type)
         {
-            if (type == BackgroundWorkerType.ADVERTISEMENT_WORKER)
+            if (type == BackgroundWorkerType.AdvertisementWorker)
             {
                 BackgroundEngine.ProcessDelayedActionsAsync().ConfigureAwait(false);
             }

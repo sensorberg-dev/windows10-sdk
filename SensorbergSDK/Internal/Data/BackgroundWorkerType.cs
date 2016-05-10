@@ -7,7 +7,7 @@ namespace SensorbergSDK.Internal.Data
 {
     public enum BackgroundWorkerType
     {
-        ADVERTISEMENT_WORKER,
-        TIMED_WORKER
+        AdvertisementWorker,
+        TimedWorker
     }
 }

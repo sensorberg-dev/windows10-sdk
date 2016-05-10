@@ -13,7 +13,7 @@ namespace SensorbergSDKTests.Mocks
 {
     public class TestHelper
     {
-        public static async Task ClearFiles(String folder)
+        public static async Task ClearFiles(string folder)
         {
             try
             {

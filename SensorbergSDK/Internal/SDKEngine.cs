@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
@@ -6,12 +10,13 @@ using System.Threading.Tasks;
 using MetroLog;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK.Internal
 {
-    public class SDKEngine : IDisposable
+    public class SdkEngine : IDisposable
     {
-        private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger<SDKEngine>();
+        private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<SdkEngine>();
         private const int DelayedActionExecutionTimeframeInSeconds = 60;
         private const int UpdateVisibilityTimerIntervalInMilliseconds = 60000;
         private const int DatabaseExpirationInHours = 1;
@@ -37,7 +42,6 @@ namespace SensorbergSDK.Internal
         private Timer _flushHistoryTimer;
         private Timer _updateVisibilityTimer;
         private Timer _getLayoutTimer;
-//        private Timer _fetchActionsResolvedByBackgroundTimer;
         private DateTimeOffset _nextTimeToProcessDelayedActions;
         private readonly bool _appIsOnForeground;
         public AppSettings AppSettings { get; set; }
@@ -56,24 +60,24 @@ namespace SensorbergSDK.Internal
         /// <summary>
         /// The Resolver instance.
         /// </summary>
-        public IResolver Resolver { [DebuggerStepThrough] get; [DebuggerStepThrough] private set; }
+        public IResolver Resolver { [DebuggerStepThrough] get; }
 
         /// <summary>
-        /// Current count of unresolved actions
+        /// Current count of unresolved actions.
         /// </summary>
         public int UnresolvedActionCount { [DebuggerStepThrough] get; [DebuggerStepThrough] private set; }
 
         public string UserId
         {
-            [DebuggerStepThrough] get { return SDKData.Instance.UserId; }
-            [DebuggerStepThrough] set { SDKData.Instance.UserId = value; }
+            [DebuggerStepThrough] get { return SdkData.Instance.UserId; }
+            [DebuggerStepThrough] set { SdkData.Instance.UserId = value; }
         }
 
         /// <summary>
-        /// Constructor.
+        /// Creates a new Engine object.
         /// </summary>
-        /// <param name="createdOnForeground"></param>
-        public SDKEngine(bool createdOnForeground)
+        /// <param name="createdOnForeground">bool for indication if the engine works on foreground.</param>
+        public SdkEngine(bool createdOnForeground)
         {
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new ApiConnection();
@@ -94,7 +98,7 @@ namespace SensorbergSDK.Internal
         /// </summary>
         public async Task InitializeAsync()
         {
-            logger.Debug("InitializeAsync");
+            Logger.Debug("InitializeAsync");
             if (!IsInitialized)
             {
                 await ServiceManager.StorageService.InitStorage();
@@ -111,7 +115,7 @@ namespace SensorbergSDK.Internal
 
                 if (_appIsOnForeground)
                 {
-                    logger.Debug("InitializeAsync#Foreground");
+                    Logger.Debug("InitializeAsync#Foreground");
                     AppSettings = await ServiceManager.SettingsManager.GetSettings();
                     ServiceManager.SettingsManager.SettingsUpdated += OnSettingsUpdated;
 
@@ -131,7 +135,6 @@ namespace SensorbergSDK.Internal
                     // Check for possible delayed actions
                     await ProcessDelayedActionsAsync();
                     await CleanDatabaseAsync();
-//                    await _eventHistory.FlushHistoryAsync();
                 }
 
                 IsInitialized = true;
@@ -168,7 +171,7 @@ namespace SensorbergSDK.Internal
             {
                 return;
             }
-            logger.Debug("SDKEngine: resolve beacon " + eventArgs.Beacon.Id1 + " " + eventArgs.Beacon.Id2 + " " + eventArgs.Beacon.Id3 + " " + eventArgs.EventType);
+            Logger.Debug("SDKEngine: resolve beacon " + eventArgs.Beacon.Id1 + " " + eventArgs.Beacon.Id2 + " " + eventArgs.Beacon.Id3 + " " + eventArgs.EventType);
             if (IsInitialized && eventArgs.EventType != BeaconEventType.None)
             {
                 UnresolvedActionCount++;
@@ -188,15 +191,15 @@ namespace SensorbergSDK.Internal
 
             foreach (DelayedActionData delayedActionData in delayedActionDataList)
             {
-                if (delayedActionData.dueTime < DateTimeOffset.Now.AddSeconds(DelayedActionExecutionTimeframeInSeconds))
+                if (delayedActionData.DueTime < DateTimeOffset.Now.AddSeconds(DelayedActionExecutionTimeframeInSeconds))
                 {
                     // Time to execute
-                    await ExecuteActionAsync(delayedActionData.resolvedAction, delayedActionData.beaconPid, delayedActionData.eventTypeDetectedByDevice);
+                    await ExecuteActionAsync(delayedActionData.ResolvedAction, delayedActionData.BeaconPid, delayedActionData.EventTypeDetectedByDevice);
                     await ServiceManager.StorageService.SetDelayedActionAsExecuted(delayedActionData.Id);
                 }
-                else if (delayedActionData.dueTime < nearestDueTime)
+                else if (delayedActionData.DueTime < nearestDueTime)
                 {
-                    nearestDueTime = delayedActionData.dueTime;
+                    nearestDueTime = delayedActionData.DueTime;
                 }
             }
             if (_appIsOnForeground)
@@ -223,26 +226,26 @@ namespace SensorbergSDK.Internal
         {
             try
             {
-                logger.Debug("SDKEngine: ExecuteActionAsync " + beaconPid + " BeaconEventType: " + beaconEventType);
+                Logger.Debug("SDKEngine: ExecuteActionAsync " + beaconPid + " BeaconEventType: " + beaconEventType);
                 bool checkOnlyOnce = await _eventHistory.CheckSendOnlyOnceAsync(resolvedAction);
                 bool shouldSupress = await _eventHistory.ShouldSupressAsync(resolvedAction);
 
-                logger.Trace("SDKEngine: ExecuteActionAsync " + beaconPid + " checkOnlyOnce: " + checkOnlyOnce + " shouldSupress:" + shouldSupress);
+                Logger.Trace("SDKEngine: ExecuteActionAsync " + beaconPid + " checkOnlyOnce: " + checkOnlyOnce + " shouldSupress:" + shouldSupress);
                 if (!shouldSupress && !checkOnlyOnce && resolvedAction.IsInsideTimeframes(DateTimeOffset.Now))
                 {
-                    logger.Trace("SDKEngine: ExecuteActionAsync " + beaconPid + " action resolved");
+                    Logger.Trace("SDKEngine: ExecuteActionAsync " + beaconPid + " action resolved");
                     await _eventHistory.SaveExecutedResolvedActionAsync(resolvedAction.BeaconAction, beaconPid, beaconEventType);
 
                     BeaconActionResolved?.Invoke(this, resolvedAction.BeaconAction);
                 }
                 else
                 {
-                    logger.Trace("SDKEngine: ExecuteActionAsync " + beaconPid + " action not resolved");
+                    Logger.Trace("SDKEngine: ExecuteActionAsync " + beaconPid + " action not resolved");
                 }
             }
             catch (Exception e)
             {
-                logger.Error("Error during ExecuteActionAsync", e);
+                Logger.Error("Error during ExecuteActionAsync", e);
             }
         }
 
@@ -256,7 +259,7 @@ namespace SensorbergSDK.Internal
 
             int millisecondsToNextProcessingOfDelayedActions = (int) nextDueTime.Subtract(DateTimeOffset.Now).TotalMilliseconds;
 
-            logger.Debug("SDKManager.ResetProcessDelayedActionsTimer(): "
+            Logger.Debug("SDKManager.ResetProcessDelayedActionsTimer(): "
                                                + Math.Round((double) millisecondsToNextProcessingOfDelayedActions/1000, 0)
                                                + " second(s) to next processing of delayed actions");
 
@@ -270,9 +273,9 @@ namespace SensorbergSDK.Internal
         /// </summary>
         private async Task CleanDatabaseAsync()
         {
-            if (SDKData.Instance.DatabaseCleaningTime < DateTimeOffset.Now.AddHours(-DatabaseExpirationInHours))
+            if (SdkData.Instance.DatabaseCleaningTime < DateTimeOffset.Now.AddHours(-DatabaseExpirationInHours))
             {
-                SDKData.Instance.DatabaseCleaningTime = DateTimeOffset.Now;
+                SdkData.Instance.DatabaseCleaningTime = DateTimeOffset.Now;
                 await ServiceManager.StorageService.CleanDatabase();
             }
         }
@@ -286,12 +289,12 @@ namespace SensorbergSDK.Internal
             {
                 return;
             }
-            logger.Debug("SDKEngine: OnBeaconActionResolvedAsync " + e.RequestID + " BeaconEventType:" + e.BeaconEventType);
+            Logger.Debug("SDKEngine: OnBeaconActionResolvedAsync " + e.RequestId + " BeaconEventType:" + e.BeaconEventType);
             foreach (ResolvedAction action in e.ResolvedActions)
             {
-                if (action.Delay > 0 && action.ReportImmediately == false)
+                if (action.Delay > 0 && !action.ReportImmediately)
                 {
-                    logger.Debug("SDKEngine: OnBeaconActionResolvedAsync " + e.RequestID + " delay");
+                    Logger.Debug("SDKEngine: OnBeaconActionResolvedAsync " + e.RequestId + " delay");
                     // Delay action execution
                     DateTimeOffset dueTime = DateTimeOffset.Now.AddSeconds((int) action.Delay);
 
@@ -309,7 +312,7 @@ namespace SensorbergSDK.Internal
                 }
                 else
                 {
-                    logger.Debug("SDKEngine: OnBeaconActionResolvedAsync/ExecuteActionAsync " + e.RequestID + " -> Beacon Pid " + e.BeaconPid);
+                    Logger.Debug("SDKEngine: OnBeaconActionResolvedAsync/ExecuteActionAsync " + e.RequestId + " -> Beacon Pid " + e.BeaconPid);
                     // Execute action immediately
                     await ExecuteActionAsync(action, e.BeaconPid, e.BeaconEventType);
                 }
@@ -329,30 +332,6 @@ namespace SensorbergSDK.Internal
         #endregion
 
         #region Timer callbacks
-
-
-        /* /// <summary>
-        /// Checks, if there are pending beacon actions resolved by the background task.
-        /// This callback is called only when the application is on foreground.
-        /// </summary>
-        /// <param name="state"></param>
-        public async void OnCheckActionsResolvedByBackground(object state)
-        {
-            if (SDKData.Instance.NewActionsFromBackground)
-            {
-                SDKData.Instance.NewActionsFromBackground = false;
-                IList<BeaconAction> list = await ServiceManager.StorageService.GetBeaconActionsFromBackground();
-
-                foreach (var beaconAction in list)
-                {
-                    if (BeaconActionResolved != null)
-                    {
-                        BeaconActionResolved(this, beaconAction);
-                    }
-                }
-            }
-        }*/
-
         private async void OnProcessDelayedActionsTimerTimeoutAsync(object state)
         {
             await ProcessDelayedActionsAsync();
@@ -360,7 +339,7 @@ namespace SensorbergSDK.Internal
 
         private async void OnFlushHistoryTimerTimeoutAsync(object state)
         {
-            logger.Debug("History flushed.");
+            Logger.Debug("History flushed.");
             await _eventHistory.FlushHistoryAsync();
         }
 
@@ -371,7 +350,7 @@ namespace SensorbergSDK.Internal
 
         private void OnUpdateVisibilityTimerTimeout(object state)
         {
-            SDKData.Instance.AppIsVisible = SDKData.Instance.AppIsVisible;
+            SdkData.Instance.AppIsVisible = SdkData.Instance.AppIsVisible;
         }
 
         #endregion

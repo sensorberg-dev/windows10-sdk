@@ -1,6 +1,6 @@
 ﻿// Created by Kay Czarnotta on 04.03.2016
 // 
-// Copyright (c) 2016,  EagleEye .
+// Copyright (c) 2016,  Sensorberg
 // 
 // All rights reserved.
 
@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
 using Newtonsoft.Json;
+using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Utils;
 using SensorbergSDK.Services;
 using HttpClient = Windows.Web.Http.HttpClient;
@@ -25,10 +26,10 @@ namespace SensorbergSDK.Internal.Services
         /// <summary>
         /// Sends a layout request to server and returns the HTTP response, if any.
         /// </summary>
-        /// <param name="data">api key and device id for the request</param>
-        /// <param name="apiId">optional api id, overrides the given id by SDKData</param>
+        /// <param name="data">api key and device id for the request.</param>
+        /// <param name="apiId">optional api id, overrides the given id by SDKData.</param>
         /// <returns>A HttpResponseMessage containing the server response or null in case of an error.</returns>
-        public async Task<ResponseMessage> RetrieveLayoutResponse(SDKData data, string apiId = null)
+        public async Task<ResponseMessage> RetrieveLayoutResponse(SdkData data, string apiId = null)
         {
             HttpRequestMessage requestMessage = new HttpRequestMessage();
             HttpBaseProtocolFilter baseProtocolFilter = new HttpBaseProtocolFilter();
@@ -42,9 +43,9 @@ namespace SensorbergSDK.Internal.Services
             HttpClient apiConnection = new HttpClient(baseProtocolFilter);
             apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, string.IsNullOrEmpty(apiId) ? data.ApiKey : apiId);
             apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, data.DeviceId);
-            apiConnection.DefaultRequestHeaders.Add(Constants.ADVERTISEMENT_IDENTIFIER_HEADER, Windows.System.UserProfile.AdvertisingManager.AdvertisingId);
-            apiConnection.DefaultRequestHeaders.Add(Constants.USER_IDENTIFIER_HEADER, data.UserId);
-            HttpResponseMessage responseMessage = null;
+            apiConnection.DefaultRequestHeaders.Add(Constants.AdvertisementIdentifierHeader, Windows.System.UserProfile.AdvertisingManager.AdvertisingId);
+            apiConnection.DefaultRequestHeaders.Add(Constants.UserIdentifierHeader, data.UserId);
+            HttpResponseMessage responseMessage;
 
             try
             {
@@ -64,7 +65,7 @@ namespace SensorbergSDK.Internal.Services
         }
 
 
-        public async Task<string> LoadSettings(SDKData sdkData)
+        public async Task<string> LoadSettings(SdkData sdkData)
         {
             HttpRequestMessage requestMessage = new HttpRequestMessage();
             HttpBaseProtocolFilter baseProtocolFilter = new HttpBaseProtocolFilter();
@@ -79,22 +80,16 @@ namespace SensorbergSDK.Internal.Services
 
 
             var responseMessage = await httpClient.SendRequestAsync(requestMessage);
-
-
-            if (responseMessage == null || !responseMessage.IsSuccessStatusCode )
-            {
-            }
-
-            return responseMessage.Content.ToString();
+            return responseMessage?.Content.ToString();
         }
 
         public async Task<ResponseMessage> SendHistory(History history)
         {
             System.Net.Http.HttpClient apiConnection = new System.Net.Http.HttpClient();
-            apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, SDKData.Instance.ApiKey);
-            apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, SDKData.Instance.DeviceId);
-            apiConnection.DefaultRequestHeaders.Add(Constants.ADVERTISEMENT_IDENTIFIER_HEADER, Windows.System.UserProfile.AdvertisingManager.AdvertisingId);
-            apiConnection.DefaultRequestHeaders.Add(Constants.USER_IDENTIFIER_HEADER, SDKData.Instance.UserId);
+            apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, SdkData.Instance.ApiKey);
+            apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, SdkData.Instance.DeviceId);
+            apiConnection.DefaultRequestHeaders.Add(Constants.AdvertisementIdentifierHeader, Windows.System.UserProfile.AdvertisingManager.AdvertisingId);
+            apiConnection.DefaultRequestHeaders.Add(Constants.UserIdentifierHeader, SdkData.Instance.UserId);
             apiConnection.DefaultRequestHeaders.TryAddWithoutValidation(Constants.XUserAgent, UserAgentBuilder.BuildUserAgentJson());
             string serializeObject = JsonConvert.SerializeObject(history);
             var content = new StringContent(serializeObject, Encoding.UTF8, "application/json");
@@ -114,8 +109,6 @@ namespace SensorbergSDK.Internal.Services
             {
                 case System.Net.HttpStatusCode.Accepted:
                     return HttpStatusCode.Accepted;
-//                case System.Net.HttpStatusCode.Ambiguous:
-//                    return HttpStatusCode.Ambiguous;
                 case System.Net.HttpStatusCode.BadGateway:
                     return HttpStatusCode.BadGateway;
                 case System.Net.HttpStatusCode.BadRequest:
@@ -190,8 +183,6 @@ namespace SensorbergSDK.Internal.Services
                     return HttpStatusCode.Unauthorized;
                 case System.Net.HttpStatusCode.UnsupportedMediaType:
                     return HttpStatusCode.UnsupportedMediaType;
-//                case System.Net.HttpStatusCode.Unused:
-//                    return HttpStatusCode.Unused;
                 case System.Net.HttpStatusCode.UpgradeRequired:
                     return HttpStatusCode.UpgradeRequired;
                 case System.Net.HttpStatusCode.UseProxy:

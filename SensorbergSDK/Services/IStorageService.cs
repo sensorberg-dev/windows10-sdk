@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK.Services
 {
@@ -57,12 +58,6 @@ namespace SensorbergSDK.Services
         /// <summary>
         /// Stores a resolved and executed action to the database.
         /// </summary>
-        /// <param name="uuid"></param>
-        /// <param name="beaconPid"></param>
-        /// <param name="now"></param>
-        /// <param name="beaconEventType"></param>
-        /// <param name="eventArgs"></param>
-        /// <param name="beaconAction"></param>
         Task<bool> SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType);
 
         /// <summary>
@@ -75,7 +70,7 @@ namespace SensorbergSDK.Services
         /// </summary>
         /// <param name="uuid">uuid from the action to search.</param>
         /// <param name="forceUpdate">Force to ignore any cache.</param>
-        /// <returns>List of found actions</returns>
+        /// <returns>List of found actions.</returns>
         Task<IList<HistoryAction>> GetActions(string uuid, bool forceUpdate = false);
 
         /// <summary>
@@ -83,7 +78,7 @@ namespace SensorbergSDK.Services
         /// </summary>
         /// <param name="uuid">uuid from the action to search.</param>
         /// <param name="forceUpdate">Force to ignore any cache.</param>
-        /// <returns>The first found action or null</returns>
+        /// <returns>The first found action or null.</returns>
         Task<HistoryAction> GetAction(string uuid, bool forceUpdate = false);
         Task CleanDatabase();
         Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds = 1000);
@@ -92,7 +87,6 @@ namespace SensorbergSDK.Services
         /// <summary>
         /// Initializes the StorageService, e.g. creates database.
         /// </summary>
-        /// <returns></returns>
         Task InitStorage();
 
         Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice);

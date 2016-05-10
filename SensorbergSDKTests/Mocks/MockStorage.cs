@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Transport;
 using SensorbergSDK.Services;
 
 namespace SensorbergSDKTests.Mocks
@@ -60,12 +61,12 @@ namespace SensorbergSDKTests.Mocks
 
         public async Task<IList<HistoryAction>> GetActions(string uuid)
         {
-            return UndeliveredActions.Where(a => a.eid == uuid).ToList();
+            return UndeliveredActions.Where(a => a.EventId == uuid).ToList();
         }
 
         public async Task<HistoryAction> GetAction(string uuid)
         {
-            return UndeliveredActions.FirstOrDefault(a => a.eid == uuid);
+            return UndeliveredActions.FirstOrDefault(a => a.EventId == uuid);
         }
 
         public Task CleanDatabase()
@@ -76,7 +77,7 @@ namespace SensorbergSDKTests.Mocks
         public async Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds)
         {
             DateTimeOffset maxDelayfromNow = DateTimeOffset.Now.AddSeconds(maxDelayFromNowInSeconds);
-            return DelayedActions.Where(da => da.dueTime < maxDelayfromNow).ToList();
+            return DelayedActions.Where(da => da.DueTime < maxDelayfromNow).ToList();
         }
 
         public async Task SetDelayedActionAsExecuted(string id)
@@ -86,7 +87,7 @@ namespace SensorbergSDKTests.Mocks
 
         public async Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice)
         {
-            DelayedActions.Add(new DelayedActionData() {beaconPid = beaconPid,dueTime = dueTime, eventTypeDetectedByDevice =  eventTypeDetectedByDevice, Id = Guid.NewGuid().ToString(), resolvedAction = action});
+            DelayedActions.Add(new DelayedActionData() {BeaconPid = beaconPid,DueTime = dueTime, EventTypeDetectedByDevice =  eventTypeDetectedByDevice, Id = Guid.NewGuid().ToString(), ResolvedAction = action});
             return true;
         }
 
@@ -97,7 +98,7 @@ namespace SensorbergSDKTests.Mocks
 
         public async Task<bool> SaveBeaconEventState(string pid, BeaconEventType enter)
         {
-            LastEventState[pid] = new BackgroundEvent() {BeaconID = pid, EventTime = DateTimeOffset.Now, LastEvent = enter};
+            LastEventState[pid] = new BackgroundEvent() {BeaconId = pid, EventTime = DateTimeOffset.Now, LastEvent = enter};
             return true;
         }
 
