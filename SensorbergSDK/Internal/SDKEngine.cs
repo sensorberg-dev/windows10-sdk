@@ -74,7 +74,7 @@ namespace SensorbergSDK.Internal
         }
 
         /// <summary>
-        /// Constructor.
+        /// Creates a new Engine object.
         /// </summary>
         /// <param name="createdOnForeground">bool for indication if the engine works on foreground.</param>
         public SdkEngine(bool createdOnForeground)

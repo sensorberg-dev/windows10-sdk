@@ -6,7 +6,6 @@
 
 using System;
 using System.Threading.Tasks;
-using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Transport;
 

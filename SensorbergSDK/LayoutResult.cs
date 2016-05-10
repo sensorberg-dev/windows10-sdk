@@ -5,9 +5,7 @@
 // All rights reserved.
 
 using System.Diagnostics;
-using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
-using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK
 {

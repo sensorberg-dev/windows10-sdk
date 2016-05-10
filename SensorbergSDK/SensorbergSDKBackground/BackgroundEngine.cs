@@ -108,7 +108,7 @@ namespace SensorbergSDK.SensorbergSDKBackground
 
         /// <summary>
         /// Generates BeaconArgs from beacon events.
-        /// For instance if a beacon is seen for the first time, BeaconArgs with enter type is generated
+        /// For instance if a beacon is seen for the first time, BeaconArgs with enter type is generated.
         /// </summary>
         private async Task AddBeaconsToBeaconArgsAsync(int outOfRangeDb)
         {

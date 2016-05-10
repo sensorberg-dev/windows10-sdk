@@ -70,7 +70,7 @@ namespace SensorbergSDK.Services
         /// </summary>
         /// <param name="uuid">uuid from the action to search.</param>
         /// <param name="forceUpdate">Force to ignore any cache.</param>
-        /// <returns>List of found actions</returns>
+        /// <returns>List of found actions.</returns>
         Task<IList<HistoryAction>> GetActions(string uuid, bool forceUpdate = false);
 
         /// <summary>

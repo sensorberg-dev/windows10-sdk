@@ -16,7 +16,7 @@ namespace SensorbergSDK.Internal.Utils
     /// Creates beacon instances from received advertisement data.
     /// Can also turn beacon instances back to advertisement data.
     /// </summary>
-    public sealed class BeaconFactory
+    public static class BeaconFactory
     {
         private const char HexStringSeparator = '-';
         private const byte FirstBeaconDataSectionDataType = 0x01;
@@ -59,12 +59,9 @@ namespace SensorbergSDK.Internal.Utils
             {
                 foreach (BluetoothLEAdvertisementDataSection dataSection in dataSections)
                 {
-                    if (dataSection != null)
+                    if (dataSection?.DataType == SecondBeaconDataSectionDataType)
                     {
-                        if (dataSection.DataType == SecondBeaconDataSectionDataType)
-                        {
-                            beacon = BeaconFromDataSection(dataSection);
-                        }
+                        beacon = BeaconFromDataSection(dataSection);
                     }
                 }
             }
@@ -95,9 +92,7 @@ namespace SensorbergSDK.Internal.Utils
 
         /// <summary>
         /// Constructs a Beacon instance and sets the properties based on the given data.
-        /// 
         /// The expected specification of the data is as follows:
-        /// 
         /// Byte(s)     Name
         /// --------------------------
         /// 0-1         Manufacturer ID (16-bit unsigned integer, big endian)

@@ -251,7 +251,7 @@ namespace SensorbergSDK
         /// <param name="timerClassName">Full class name of the timer background process, if needed.</param>
         /// <param name="advertisementClassName">Full class name of the advertisement background process, if needed.</param>
         /// <param name="uuidSpace">UUID space for the background task, default value is Constants.SensorbergUuidSpace.</param>
-        /// <param name="startScanning">Start the background scanner</param>
+        /// <param name="startScanning">Start the background scanner.</param>
         [Obsolete("The new method should be used")]
         public async Task InitializeAsync(string apiKey, string timerClassName = null, string advertisementClassName = null, string uuidSpace = Constants.SensorbergUuidSpace,
             bool startScanning = true)
