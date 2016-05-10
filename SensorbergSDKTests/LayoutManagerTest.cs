@@ -57,6 +57,40 @@ namespace SensorbergSDKTests
             ValidateMockLayout(layout);
         }
 
+        [TestMethod]
+        public async Task TimeZoneTest()
+        {
+            var dateTimeOffset = new DateTimeOffset(2015, 04, 16, 12, 34, 22, 627, new TimeSpan());
+
+            ((MockApiConnection) ServiceManager.ApiConnction).LayoutFile = "mock/datetime_layout.json";
+            ILayoutManager manager = ServiceManager.LayoutManager;
+            Assert.IsTrue(await manager.VerifyLayoutAsync(true), "Verification failed");
+            Layout layout = manager.Layout;
+            ResolvedAction action = layout.ResolvedActions.FirstOrDefault(a => a.BeaconAction.Uuid == "9ded63644e424d758b0218f7c70f2473");
+            //"2015-04-16T12:34:22.627+0000"
+            Assert.AreEqual(dateTimeOffset, action.Timeframes[0].Start.Value, "1 timeslot not correct");
+
+
+            action = layout.ResolvedActions.FirstOrDefault(a => a.BeaconAction.Uuid == "3f30be2605524f82a9bf0ccb4a81618f");
+            //"2015-04-16T14:34:22.627+0200"
+            Assert.AreEqual(dateTimeOffset, action.Timeframes[0].Start.Value, "2 timeslot not correct");
+
+
+            action = layout.ResolvedActions.FirstOrDefault(a => a.BeaconAction.Uuid == "312a8594e07542bd814ecdd17f76538e");
+            //"2015-04-16T14:34:22.627"
+            Assert.AreEqual(dateTimeOffset, action.Timeframes[0].Start.Value, "3 timeslot not correct");
+
+
+            action = layout.ResolvedActions.FirstOrDefault(a => a.BeaconAction.Uuid == "312a8594e07542bd814ecsdd17f76538e");
+            //"2015-04-16T14:34:22"
+            Assert.AreEqual(new DateTimeOffset(2015, 04, 16, 12, 34, 22, new TimeSpan()), action.Timeframes[0].Start.Value, "4 timeslot not correct");
+
+
+            action = layout.ResolvedActions.FirstOrDefault(a => a.BeaconAction.Uuid == "312a8594e0754asd2bd814ecsdd17f76538e");
+            //"14:34:22"
+            Assert.AreEqual(new DateTimeOffset(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 12, 34, 22, new TimeSpan()), action.Timeframes[0].Start.Value, "5 timeslot not correct");
+        }
+
         public static void ValidateMockLayout(Layout layout)
         {
             Assert.IsNotNull(layout, "No Layout avialable");
@@ -81,7 +115,7 @@ namespace SensorbergSDKTests
             Assert.IsNull(a.BeaconAction.Payload, "beacon 1 - Payload is not null");
 
             Assert.AreEqual(1, a.Timeframes.Count, "beacon 1 - More timeframes are set");
-            Assert.AreEqual(new DateTime(2015, 04, 16, 12, 46, 19, 627), a.Timeframes[0].Start.Value.DateTime, "beacon 1 - Different timesetting");
+            Assert.AreEqual(new DateTimeOffset(2015, 04, 16, 12, 46, 19, 627, new TimeSpan()), a.Timeframes[0].Start.Value.DateTime, "beacon 1 - Different timesetting");
 
             Assert.AreEqual(3, (int) a.BeaconAction.Type, "beacon 1 - Different type");
             Assert.IsFalse(a.SendOnlyOnce, "beacon 1 - Send only once is set");
@@ -101,7 +135,7 @@ namespace SensorbergSDKTests
             Assert.IsNull(a.BeaconAction.Payload, "beacon 2 - Payload is not null");
 
             Assert.AreEqual(1, a.Timeframes.Count, "beacon 2 - More timeframes are set");
-            Assert.AreEqual(new DateTime(2015, 04, 16, 12, 33, 48, 627), a.Timeframes[0].Start.Value.DateTime, "beacon 2 - Different timesetting");
+            Assert.AreEqual(new DateTimeOffset(2015, 04, 16, 12, 33, 48, 627, new TimeSpan()), a.Timeframes[0].Start.Value.DateTime, "beacon 2 - Different timesetting");
 
             Assert.AreEqual(3, (int) a.BeaconAction.Type, "beacon 2 - Different type");
             Assert.IsFalse(a.SendOnlyOnce, "beacon 2 - Send only once is set");
@@ -121,7 +155,7 @@ namespace SensorbergSDKTests
             Assert.IsNull(a.BeaconAction.Payload, "beacon 3 - Payload is not null");
 
             Assert.AreEqual(1, a.Timeframes.Count, "beacon 3 - More timeframes are set");
-            Assert.AreEqual(new DateTime(2015, 04, 16, 12, 34, 22, 596), a.Timeframes[0].Start.Value.DateTime, "beacon 3 - Different timesetting");
+            Assert.AreEqual(new DateTimeOffset(2015, 04, 16, 12, 34, 22, 596, new TimeSpan()), a.Timeframes[0].Start.Value.DateTime, "beacon 3 - Different timesetting");
 
             Assert.AreEqual(3, (int) a.BeaconAction.Type, "beacon 3 - Different type");
             Assert.IsFalse(a.SendOnlyOnce, "beacon 3 - Send only once is set");
@@ -141,7 +175,7 @@ namespace SensorbergSDKTests
             Assert.IsNull(a.BeaconAction.Payload, "beacon 4 - Payload is not null");
 
             Assert.AreEqual(1, a.Timeframes.Count, "beacon 4 - More timeframes are set");
-            Assert.AreEqual(new DateTime(2015, 04, 30, 08, 05, 54, 432), a.Timeframes[0].Start.Value.DateTime, "beacon 4 - Different timesetting");
+            Assert.AreEqual(new DateTimeOffset(2015, 04, 30, 08, 05, 54, 432, new TimeSpan()), a.Timeframes[0].Start.Value.DateTime, "beacon 4 - Different timesetting");
 
             Assert.AreEqual(1, (int) a.BeaconAction.Type, "beacon 4 - Different type");
             Assert.IsFalse(a.SendOnlyOnce, "beacon 4 - Send only once is set");
@@ -161,7 +195,7 @@ namespace SensorbergSDKTests
             Assert.IsNull(a.BeaconAction.Payload, "beacon 5 - Payload is not null");
 
             Assert.AreEqual(1, a.Timeframes.Count, "beacon 5 - More timeframes are set");
-            Assert.AreEqual(new DateTime(2015, 04, 16, 12, 33, 28, 264), a.Timeframes[0].Start.Value.DateTime, "beacon 5 - Different timesetting");
+            Assert.AreEqual(new DateTimeOffset(2015, 04, 16, 12, 33, 28, 264, new TimeSpan()), a.Timeframes[0].Start.Value.DateTime, "beacon 5 - Different timesetting");
 
             Assert.AreEqual(3, (int) a.BeaconAction.Type, "beacon 5 - Different type");
             Assert.IsFalse(a.SendOnlyOnce, "beacon 5 - Send only once is set");
@@ -181,8 +215,8 @@ namespace SensorbergSDKTests
             Assert.IsNull(a.BeaconAction.Payload, "beacon 7 - Payload is not null");
 
             Assert.AreEqual(1, a.Timeframes.Count, "beacon 7 - More timeframes are set");
-            Assert.AreEqual(new DateTime(2016, 12, 31, 11, 00, 00, 00), a.Timeframes[0].Start.Value.DateTime, "beacon 7 - Different timesetting");
-            Assert.AreEqual(new DateTime(2017, 12, 31, 11, 00, 00, 00), a.Timeframes[0].End.Value.DateTime, "beacon 7 - Different timesetting");
+            Assert.AreEqual(new DateTimeOffset(2016, 12, 31, 11, 00, 00, 00, new TimeSpan()), a.Timeframes[0].Start.Value.DateTime, "beacon 7 - Different timesetting");
+            Assert.AreEqual(new DateTimeOffset(2017, 12, 31, 11, 00, 00, 00, new TimeSpan()), a.Timeframes[0].End.Value.DateTime, "beacon 7 - Different timesetting");
 
             Assert.AreEqual(1, (int) a.BeaconAction.Type, "beacon 7 - Different type");
             Assert.IsFalse(a.SendOnlyOnce, "beacon 7 - Send only once is set");
@@ -203,10 +237,11 @@ namespace SensorbergSDKTests
             Assert.AreEqual(a.BeaconAction.Payload.ToString(), JsonObject.Parse("{\"payload\":\"is\",\"awesome\":true}").ToString());
 
             Assert.AreEqual(1, a.Timeframes.Count, "beacon 8 - More timeframes are set");
-            Assert.AreEqual(new DateTime(2015, 04, 16, 12, 48, 51, 828), a.Timeframes[0].Start.Value.DateTime, "beacon 8 - Different timesetting");
+            Assert.AreEqual(new DateTimeOffset(2015, 04, 16, 12, 48, 51, 828, new TimeSpan()), a.Timeframes[0].Start.Value.DateTime, "beacon 8 - Different timesetting");
 
             Assert.AreEqual(3, (int) a.BeaconAction.Type, "beacon 8 - Different type");
             Assert.IsFalse(a.SendOnlyOnce, "beacon 8 - Send only once is set");
         }
+
     }
 }

@@ -18,6 +18,7 @@ namespace SensorbergSDKTests.Mocks
 {
     public class MockApiConnection : IApiConnection
     {
+        public string LayoutFile { get; set; } = "mock/layout_request.json";
         public List<HistoryAction> HistoryActions { get; } = new List<HistoryAction>();
         public List<HistoryEvent> HistoryEvents { get; }= new List<HistoryEvent>();
 
@@ -44,7 +45,7 @@ namespace SensorbergSDKTests.Mocks
         {
             return new ResponseMessage()
             {
-                StatusCode = HttpStatusCode.Ok, Content = await Load("mock/layout_request.json"), Header = await Load("mock/layout_request_header.txt"), IsSuccess = true
+                StatusCode = HttpStatusCode.Ok, Content = await Load(LayoutFile), Header = await Load("mock/layout_request_header.txt"), IsSuccess = true
             };
         }
 
