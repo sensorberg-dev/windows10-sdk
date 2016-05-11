@@ -1,11 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
     <metadata>
         <id>SensorbergSDK</id>
-        <version>0.6.6</version>
-        <authors>Sensorberg</authors>
+        <version>0.6.7-alpha</version>
+        <authors>Sensorberg GmbH</authors>
+        <licenseUrl>https://github.com/sensorberg-dev/windows10-sdk/blob/master/LICENSE</licenseUrl>
+        <iconUrl>https://www.sensorberg.com/wp-content/uploads/2016/05/Sensorberg_Logo_64x64.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>My package description.</description>
+        <description>The Sensorberg SDK allows you app to detect beacons and use the sensorberg API to enable proximity responses in your Windows10 application.</description>
+        <copyright>Sensorberg 2016</copyright>
+        <tags>iBeacon, beacon, bluetooth, btle, offline, sensorberg, iot</tags>
         <dependencies>
             <dependency id="Newtonsoft.Json" version="8.0.3" />
             <dependency id="MetroLog" version="1.0.1" />
