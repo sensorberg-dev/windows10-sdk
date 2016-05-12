@@ -14,12 +14,11 @@ try {
 	def msbuild = tool 'Main';
 	stage 'build' {
 		parallel 'build arm' : {
-				bat "\"${msbuild}\" /t:Clean,Build /p:Platform=ARM SensorbergSDKTests.sln"
-			}, 'build x64' : {
-				bat "\"${msbuild}\" /t:Clean,Build /p:Platform=x64 SensorbergSDKTests.sln"
-			}, 'build x86' : {
-				bat "\"${msbuild}\" /t:Clean,Build /p:Platform=x86 SensorbergSDKTests.sln"
-			}
+			bat "\"${msbuild}\" /t:Clean,Build /p:Platform=ARM SensorbergSDKTests.sln"
+		}, 'build x64' : {
+			bat "\"${msbuild}\" /t:Clean,Build /p:Platform=x64 SensorbergSDKTests.sln"
+		}, 'build x86' : {
+			bat "\"${msbuild}\" /t:Clean,Build /p:Platform=x86 SensorbergSDKTests.sln"
 		}
 	}
     stage 'assemble appx'
