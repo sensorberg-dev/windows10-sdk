@@ -13,7 +13,7 @@ For Integration instructions please visit our developer hub Windows SDK page and
 # Dependencies
 * Visual Studio 2015
 * MetroLog
-* Newsoft.JSON
+* Newtonsoft.JSON
 
 #License
 -------
