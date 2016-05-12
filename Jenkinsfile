@@ -12,14 +12,14 @@ try {
     bat '"C:\\Program Files (x86)\\NuGet\\Visual Studio 2015\\nuget.exe" restore SensorbergAll.sln'
 
 	def msbuild = tool 'Main';
-	parallel
-		'build arm' {
+	parallel 
+		'build arm' : {
 			bat "\"${msbuild}\" /t:Clean,Build /p:Platform=ARM SensorbergSDKTests.sln"
 		},
-		'build x64' {
+		'build x64' : {
 			bat "\"${msbuild}\" /t:Clean,Build /p:Platform=x64 SensorbergSDKTests.sln"
 		},
-		'build x86' {
+		'build x86' : {
 			bat "\"${msbuild}\" /t:Clean,Build /p:Platform=x86 SensorbergSDKTests.sln"
 		}
 	}
