@@ -1,3 +1,4 @@
+#!groovy
 def version = "0.7.0."+env.BUILD_NUMBER;
 
 node ('Windows') {
