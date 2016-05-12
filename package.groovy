@@ -4,8 +4,6 @@ def versionVSIX = "1.0." + env.BUILD_NUMBER // + env.BRANCH_NAME=="develop"?"-be
 node ('Windows') {
     
 try {
-    stage 'checkout'
-    checkout scm: [$class: 'GitSCM', branches: [[name: 'develop'], [name: 'master']], userRemoteConfigs: [[url: 'https://github.com/sensorberg-dev/windows10-sdk.git']], clean: true]
 
     stage 'nuget restore'
     bat '"C:\\Program Files (x86)\\NuGet\\Visual Studio 2015\\nuget.exe" restore SensorbergAll.sln'
