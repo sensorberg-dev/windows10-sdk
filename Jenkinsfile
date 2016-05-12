@@ -4,10 +4,6 @@ def version = "0.7.0."+env.BUILD_NUMBER;
 node ('Windows') {
 
 try {
-    stage 'checkout' {
-    //checkout scm: [$class: 'GitSCM', branches: [[name: '*']], userRemoteConfigs: [[url: 'https://github.com/sensorberg-dev/windows10-sdk.git']], clean: true]
-	//checkout scm
-	}
     stage 'nuget restore'
     bat '"C:\\Program Files (x86)\\NuGet\\Visual Studio 2015\\nuget.exe" restore SensorbergAll.sln'
 
