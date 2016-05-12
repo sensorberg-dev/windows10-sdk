@@ -6,21 +6,26 @@ node ('Windows') {
 try {
     stage 'checkout'
     //checkout scm: [$class: 'GitSCM', branches: [[name: '*']], userRemoteConfigs: [[url: 'https://github.com/sensorberg-dev/windows10-sdk.git']], clean: true]
-	checkout scm
+	//checkout scm
 
     stage 'nuget restore'
     bat '"C:\\Program Files (x86)\\NuGet\\Visual Studio 2015\\nuget.exe" restore SensorbergAll.sln'
 
-    stage 'build arm'
-    def msbuild = tool 'Main';
-    bat "\"${msbuild}\" /t:Clean,Build /p:Platform=ARM SensorbergSDKTests.sln"
-
-    stage 'build x64'
-    bat "\"${msbuild}\" /t:Clean,Build /p:Platform=x64 SensorbergSDKTests.sln"
-
-    stage 'build x86'
-    bat "\"${msbuild}\" /t:Clean,Build /p:Platform=x86 SensorbergSDKTests.sln"
-
+	def msbuild = tool 'Main';
+	parallel {
+		{
+			stage 'build arm'
+			bat "\"${msbuild}\" /t:Clean,Build /p:Platform=ARM SensorbergSDKTests.sln"
+		}
+		{
+			stage 'build x64'
+			bat "\"${msbuild}\" /t:Clean,Build /p:Platform=x64 SensorbergSDKTests.sln"
+		}
+		{
+			stage 'build x86'
+			bat "\"${msbuild}\" /t:Clean,Build /p:Platform=x86 SensorbergSDKTests.sln"
+		}
+	}
     stage 'assemble appx'
     bat "\"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\x64\\MakeAppx.exe\"  pack /l /h sha256 /f SensorbergSDKTests\\obj\\x86\\Debug\\package.map.txt /o /p TestProject.appx"
 
