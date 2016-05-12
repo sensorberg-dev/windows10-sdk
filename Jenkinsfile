@@ -8,16 +8,17 @@ try {
     bat '"C:\\Program Files (x86)\\NuGet\\Visual Studio 2015\\nuget.exe" restore SensorbergAll.sln'
 
 	def msbuild = tool 'Main';
-	stage 'build' {
-		parallel 'build arm' : {
-			bat "\"${msbuild}\" /t:Clean,Build /p:Platform=ARM SensorbergSDKTests.sln"
-		}, 'build x64' : {
-			bat "\"${msbuild}\" /t:Clean,Build /p:Platform=x64 SensorbergSDKTests.sln"
-		}, 'build x86' : {
-			bat "\"${msbuild}\" /t:Clean,Build /p:Platform=x86 SensorbergSDKTests.sln"
-		}
-	}
-    stage 'assemble appx'
+	
+	stage 'build arm' 
+	bat "\"${msbuild}\" /t:Clean,Build /p:Platform=ARM SensorbergSDKTests.sln"
+	
+	stage 'build x64'
+	bat "\"${msbuild}\" /t:Clean,Build /p:Platform=x64 SensorbergSDKTests.sln"
+	
+	stage 'build x86'
+	bat "\"${msbuild}\" /t:Clean,Build /p:Platform=x86 SensorbergSDKTests.sln"
+	
+	stage 'assemble appx'
     bat "\"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\x64\\MakeAppx.exe\"  pack /l /h sha256 /f SensorbergSDKTests\\obj\\x86\\Debug\\package.map.txt /o /p TestProject.appx"
 
     bat "\"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\x64\\signtool.exe\" sign /fd sha256 /f SensorbergSDKTests\\SensorbergSDKTests_TemporaryKey.pfx TestProject.appx"
