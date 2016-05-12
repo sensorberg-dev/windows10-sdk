@@ -1,4 +1,5 @@
-def version = "1.0." + env.BUILD_NUMBER //+ env.BRANCH_NAME=="develop"?"-beta" : "-RC1";
+def version = "1.0." + env.BUILD_NUMBER + env.BRANCH_NAME=="develop"?"-beta" : "-RC1";
+def versionVSIX = "1.0." + env.BUILD_NUMBER // + env.BRANCH_NAME=="develop"?"-beta" : "-RC1";
 
 node ('Windows') {
     
@@ -31,7 +32,7 @@ try {
     
     
     def sdkMani = readFile encoding: 'UTF-8', file: 'VSIX_Packaging/SDKManifest.xml'
-    sdkMani = sdkMani.replaceAll('0\\.5', version);
+    sdkMani = sdkMani.replaceAll('0\\.5', versionVSIX);
     println(sdkMani)
     writeFile encoding: 'UTF-8', file: 'VSIX_Packaging/SDKManifest.xml', text: sdkMani
     
@@ -41,10 +42,10 @@ try {
     println(releaseNotes)
     writeFile encoding: 'UTF-8', file: 'VSIX_Packaging/ReleaseNotes.txt', text: releaseNotes
     
-    def nugetPackage = readFile encoding: 'UTF-8', file: 'SensorbergSDK/nuget/SensorbergSDK.nuspec'
-    nugetPackage = nugetPackage.replaceAll('0\\.6\\.7-alpha', version)
-    println(nugetPackage)
-    writeFile encoding: 'UTF-8', file: 'SensorbergSDK/nuget/SensorbergSDK.nuspec', text: nugetPackage
+    def nugetPackageText = readFile encoding: 'UTF-8', file: 'SensorbergSDK/nuget/SensorbergSDK.nuspec.tmpl'
+    nugetPackageText = nugetPackageText.replaceAll('0\\.6\\.7-alpha', version)
+    println(nugetPackageText)
+    writeFile encoding: 'UTF-8', file: 'SensorbergSDK/nuget/SensorbergSDK.nuspec', text: nugetPackageText
 
     stage 'package vsix'
     bat "\"${msbuild}\" VSIX_Packaging.sln"
