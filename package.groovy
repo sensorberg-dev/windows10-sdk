@@ -22,13 +22,13 @@ try {
     
     stage 'patch files'
     def mani = readFile encoding: 'UTF-8', file: 'VSIX_Packaging/source.extension.vsixmanifest'
-    mani = mani.replaceAll('0\\.5', version);
+    mani = mani.replaceAll('0\\.5', versionVSIX);
     println(mani)
     writeFile encoding: 'UTF-8', file: 'VSIX_Packaging/source.extension.vsixmanifest', text: mani
     
     
     def sdkMani = readFile encoding: 'UTF-8', file: 'VSIX_Packaging/SDKManifest.xml'
-    sdkMani = sdkMani.replaceAll('0\\.5', versionVSIX);
+    sdkMani = sdkMani.replaceAll('0\\.5', version);
     println(sdkMani)
     writeFile encoding: 'UTF-8', file: 'VSIX_Packaging/SDKManifest.xml', text: sdkMani
     
