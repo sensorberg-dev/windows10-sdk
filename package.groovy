@@ -1,7 +1,5 @@
 def version = "1.0." + env.BUILD_NUMBER + env.BRANCH_NAME=="develop"?"-beta" : "-RC1";
 def versionVSIX = "1.0." + env.BUILD_NUMBER // + env.BRANCH_NAME=="develop"?"-beta" : "-RC1";
-
-node ('Windows') {
     
 try {
 
@@ -64,6 +62,4 @@ catch(e) {
         emailext body: '$DEFAULT_CONTENT', subject: 'fail $DEFAULT_SUBJECT', to: '$DEFAULT_RECIPIENTS'
     }
     throw e
-}
-
 }
