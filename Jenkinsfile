@@ -33,8 +33,7 @@ try {
         bat "\"${vstest}\" /Settings:SensorbergSDKTests\\.runsettings TestProject.appx"
     }
     catch(e) {
-		emailError(@Whitelisted e.getMessage())
-        mail subject: "${env.JOB_NAME} Test failed with ${@Whitelisted e.message}", to: 'eagleeye@byte-welt.net', body: "${env.JOB_NAME} - ${env.BRANCH_NAME}\nTest Failed: ${e}"
+        mail subject: "${env.JOB_NAME} Test failed with ${e.message}", to: 'eagleeye@byte-welt.net', body: "${env.JOB_NAME} - ${env.BRANCH_NAME}\nTest Failed: ${e}"
         currentBuild.result = 'UNSTABLE'
     }
 
