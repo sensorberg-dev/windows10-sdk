@@ -4,7 +4,7 @@ using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
-using HockeyApp;
+using Microsoft.HockeyApp;
 
 // The Blank Application template is documented at http://go.microsoft.com/fwlink/?LinkId=402347&clcid=0x409
 
@@ -69,7 +69,6 @@ namespace SensorbergSimpleApp
                 rootFrame.Navigate(typeof(MainPage), e.Arguments);
             }
 
-            await HockeyClient.Current.SendCrashesAsync();
             // Ensure the current window is active
             Window.Current.Activate();
         }
