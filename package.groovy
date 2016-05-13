@@ -1,6 +1,9 @@
 def version = "1.0." + env.BUILD_NUMBER + env.BRANCH_NAME=="master"?"":"-beta";
 def versionVSIX = "1.0." + env.BUILD_NUMBER // + env.BRANCH_NAME=="master"?"":"-beta";
-    
+
+echo "version-"+version
+echo "VSIX Version-"+versionVSIX
+
 try {
 
     stage 'nuget restore'
