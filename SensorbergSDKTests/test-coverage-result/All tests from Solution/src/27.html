@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\beaconeventargs.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Diagnostics;
+
+namespace SensorbergSDK
+{
+    /// &lt;summary&gt;
+    /// Beacon event type.
+    /// &lt;/summary&gt;
+    public enum BeaconEventType
+    {
+        None,
+        Enter, // Entered to range of beacon event
+        Exit, // Exit from beacon range event
+        EnterExit // This we get from the server when the trigger can be both
+    };
+
+    public sealed class BeaconEventArgs
+    {
+        public BeaconEventType EventType
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        public Beacon Beacon
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        /// &lt;summary&gt;
+        /// For convenience.
+        /// &lt;/summary&gt;
+        public DateTimeOffset Timestamp
+        {
+            get
+            {
+                if (Beacon != null)
+                {
+                    return Beacon.Timestamp;
+                }
+                return DateTimeOffset.MinValue;
+            }
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[46,17,46,48,0],[21,13,22,17,1],[23,13,24,17,1],[29,13,30,17,1],[31,13,32,17,1],[41,13,41,14,1],[42,17,42,36,1],[43,17,43,18,1],[44,21,44,45,1],[47,13,47,14,1]]);
+    </script>
+  </body>
+</html>

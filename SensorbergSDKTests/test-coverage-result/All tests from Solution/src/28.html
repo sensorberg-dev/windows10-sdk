@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\beacon.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Diagnostics;
+using System.Runtime.Serialization;
+using System.Text;
+
+namespace SensorbergSDK
+{
+    [DataContract]
+    public sealed class Beacon
+    {
+        private const char HexStringSeparator = &#39;-&#39;; // For UpdatePid()
+
+        [DataMember]
+        public UInt16 ManufacturerId
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        [DataMember]
+        public UInt16 Code
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        private string _id1;
+        [DataMember]
+        public string Id1
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                return _id1;
+            }
+            [DebuggerStepThrough]
+            set
+            {
+                if (_id1 != value)
+                {
+                    _id1 = value;
+                    UpdatePid();
+                }
+            }
+        }
+
+        private UInt16 _id2;
+        [DataMember]
+        public UInt16 Id2
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                return _id2;
+            }
+            [DebuggerStepThrough]
+            set
+            {
+                if (_id2 != value)
+                {
+                    _id2 = value;
+                    UpdatePid();
+                }
+            }
+        }
+
+        private UInt16 _id3;
+        [DataMember]
+        public UInt16 Id3
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                return _id3;
+            }
+            [DebuggerStepThrough]
+            set
+            {
+                if (_id3 != value)
+                {
+                    _id3 = value;
+                    UpdatePid();
+                }
+            }
+        }
+
+        public byte Aux
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+            
+        /// &lt;summary&gt;
+        /// PID is a unique string consisting of IDs 1, 2 and 3 this beacon.
+        /// The length of the PID is always the same.
+        /// &lt;/summary&gt;
+        [DataMember]
+        public string Pid
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            private set;
+        }
+
+        [DataMember]
+        public double Distance
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            private set;
+        }
+
+        private int _rawSignalStrengthInDBm;
+        [DataMember]
+        public int RawSignalStrengthInDBm
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                return _rawSignalStrengthInDBm;
+            }
+            [DebuggerStepThrough]
+            set
+            {
+                if (_rawSignalStrengthInDBm != value)
+                {
+                    _rawSignalStrengthInDBm = value;
+                    CalculateDistance(_rawSignalStrengthInDBm, MeasuredPower);
+                }
+            }
+        }
+
+        private int _measuredPower;
+        [DataMember]
+        public int MeasuredPower
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                return _measuredPower;
+            }
+            [DebuggerStepThrough]
+            set
+            {
+                if (_measuredPower != value)
+                {
+                    _measuredPower = value;
+                    CalculateDistance(RawSignalStrengthInDBm, _measuredPower);
+                }
+            }
+        }
+
+        [DataMember]
+        public DateTimeOffset Timestamp
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        /// &lt;summary&gt;
+        /// Compares the given beacon to this.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;beacon&quot;&gt;The beacon to compare to.&lt;/param&gt;
+        /// &lt;returns&gt;True, if the beacons match.&lt;/returns&gt;
+        public bool Matches(Beacon beacon)
+        {
+            return beacon.Id1==Id1
+                &amp;&amp; beacon.Id2 == Id2
+                &amp;&amp; beacon.Id3 == Id3;
+        }
+
+        /// &lt;summary&gt;
+        /// Creates a string representation of this instance consisting of ID1,
+        /// ID2, ID3 and measured power.
+        /// &lt;/summary&gt;
+        /// &lt;returns&gt;A string representation of this instance.&lt;/returns&gt;
+        public override string ToString()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append(&quot;[&quot;);
+            stringBuilder.Append(string.Join(&quot;; &quot;, Id1, Id2, Id3, MeasuredPower));
+            stringBuilder.Append(&quot;]&quot;);
+            return stringBuilder.ToString();
+        }
+
+        /// &lt;summary&gt;
+        /// Updated the beacon PID; The ID 1 (without dashes) + 5 digits ID 2
+        /// (padded with zeros) + 5 digits ID 3 (padded with zeros)
+        /// &lt;/summary&gt;
+        private void UpdatePid()
+        {
+            string template = &quot;00000&quot;;
+            string beaconId2 = Id2.ToString();
+            string beaconId3 = Id3.ToString();
+            beaconId2 = template.Substring(beaconId2.Length) + beaconId2;
+            beaconId3 = template.Substring(beaconId3.Length) + beaconId3;
+            string pid = Id1.Replace(HexStringSeparator.ToString(), &quot;&quot;) + beaconId2 + beaconId3;
+            Pid = pid.ToLower();
+        }
+
+        private void CalculateDistance(int rawSignalStrengthInDBm, int measuredPower)
+        {
+            if (rawSignalStrengthInDBm != 0 &amp;&amp; measuredPower != 0)
+            {
+                Distance = BeaconFactory.CalculateDistanceFromRssi(rawSignalStrengthInDBm, measuredPower);
+            }
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[16,13,17,17,0],[18,13,19,17,0],[25,13,26,17,0],[27,13,28,17,0],[93,13,94,17,0],[95,13,96,17,0],[115,13,116,17,0],[117,13,118,25,0],[132,13,132,14,0],[133,17,133,54,0],[134,17,134,18,0],[135,21,135,53,0],[136,21,136,79,0],[137,17,137,18,0],[138,13,138,14,0],[147,13,147,14,0],[148,17,148,39,0],[149,13,149,14,0],[152,13,152,14,0],[153,17,153,45,0],[154,17,154,18,0],[155,21,155,44,0],[156,21,156,79,0],[157,17,157,18,0],[158,13,158,14,0],[176,9,176,10,0],[177,13,179,38,0],[180,9,180,10,0],[188,9,188,10,0],[189,13,189,63,0],[190,13,190,39,0],[191,13,191,83,0],[192,13,192,39,0],[193,13,193,45,0],[194,9,194,10,0],[212,9,212,10,0],[213,13,213,67,0],[214,13,214,14,0],[215,17,215,107,0],[216,13,216,14,0],[217,9,217,10,0],[37,13,37,14,1],[38,17,38,29,1],[39,13,39,14,1],[42,13,42,14,1],[43,17,43,35,1],[44,17,44,18,1],[45,21,45,34,1],[46,21,46,33,1],[47,17,47,18,1],[48,13,48,14,1],[57,13,57,14,1],[58,17,58,29,1],[59,13,59,14,1],[62,13,62,14,1],[63,17,63,35,1],[64,17,64,18,1],[65,21,65,34,1],[66,21,66,33,1],[67,17,67,18,1],[68,13,68,14,1],[77,13,77,14,1],[78,17,78,29,1],[79,13,79,14,1],[82,13,82,14,1],[83,17,83,35,1],[84,17,84,18,1],[85,21,85,34,1],[86,21,86,33,1],[87,17,87,18,1],[88,13,88,14,1],[106,13,107,17,1],[108,13,109,25,1],[127,13,127,14,1],[128,17,128,48,1],[129,13,129,14,1],[164,13,165,17,1],[166,13,167,17,1],[201,9,201,10,1],[202,13,202,39,1],[203,13,203,47,1],[204,13,204,47,1],[205,13,205,74,1],[206,13,206,74,1],[207,13,207,97,1],[208,13,208,33,1],[209,9,209,10,1]]);
+    </script>
+  </body>
+</html>

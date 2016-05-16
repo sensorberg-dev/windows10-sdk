@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\data\storageclasses.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+
+namespace SensorbergSDK.Internal
+{
+    public class DelayedActionData
+    {
+        public string Id;
+        public ResolvedAction resolvedAction;
+        public DateTimeOffset dueTime;
+        public string beaconPid;
+        public BeaconEventType eventTypeDetectedByDevice;
+    }
+
+    /// &lt;summary&gt;
+    /// History, HistoryEvent,HistoryAction are internal classes that used to construct json structure for an HTTP post
+    /// &lt;/summary&gt;
+    /// 
+    [DataContract]
+    public class History
+    {
+        public const string TIMEFORMAT = &quot;yyyy-MM-dd&#39;T&#39;HH:mm:ss.fffzzz&quot;;
+        [DataMember]
+        // ReSharper disable once InconsistentNaming
+        public string deviceTimestamp { get; set; }
+        [DataMember]
+        // ReSharper disable once InconsistentNaming
+        public IList&lt;HistoryEvent&gt; events { get; set; } = new List&lt;HistoryEvent&gt;();
+        [DataMember]
+        // ReSharper disable once InconsistentNaming
+        public IList&lt;HistoryAction&gt; actions { get; set; } = new List&lt;HistoryAction&gt;();
+    }
+
+    [DataContract]
+    public class HistoryEvent
+    {
+
+        public HistoryEvent()
+        {
+        }
+
+        public HistoryEvent(DBHistoryEvent dbEvent)
+        {
+            pid = dbEvent.pid;
+            dt = dbEvent.dt.ToString(History.TIMEFORMAT);
+//            dt = dbEvent.dt.ToString(History.Formater.FormatProvider);
+            trigger = dbEvent.trigger;
+        }
+        [DataMember]
+        // ReSharper disable once InconsistentNaming
+        public string pid { get; set; } //beaconId
+        [DataMember]
+        // ReSharper disable once InconsistentNaming
+        public string dt { get; set; } //eventDate
+        [DataMember]
+        // ReSharper disable once InconsistentNaming
+        public int trigger { get; set; }
+
+        public bool Delivered { get; set; }
+    }
+
+    [DataContract]
+    public class HistoryAction
+    {
+        public HistoryAction()
+        {
+        }
+        public HistoryAction(DBHistoryAction dbAction)
+        {
+            eid = dbAction.eid;
+            pid = dbAction.pid;
+            dt = dbAction.dt.ToString(History.TIMEFORMAT);
+            //            dt = dbAction.dt.ToString(History.Formater.FormatProvider);
+            trigger = dbAction.trigger;
+        }
+        [DataMember]
+        public string eid { get; set; } //eventId
+        [DataMember]
+        public string pid { get; set; } //beaconId
+        [DataMember]
+        public string dt { get; set; } //eventDate
+        [DataMember]
+        public int trigger { get; set; }
+        public bool Delivered { get; set; }
+        public bool Background { get; set; }
+    }
+
+    /// &lt;summary&gt;
+    /// DBHistoryEvent is an internal class that is used to store event into sqlite
+    /// &lt;/summary&gt;
+    public class DBHistoryEvent
+    {
+        public string pid { get; set; }//beaconId
+        public DateTimeOffset dt { get; set; } //eventDate
+        public int trigger { get; set; }
+        public bool delivered { get; set; } //true, if event is sent to the server
+
+    }
+    /// &lt;summary&gt;
+    /// DBHistoryAction is an internal class that is used to store action history into sqlite
+    /// &lt;/summary&gt;
+    public class DBHistoryAction
+    {
+        public string eid { get; set; } //eventId
+        public string pid { get; set; } //beaconId
+        public DateTimeOffset dt { get; set; } //eventDate
+        public int trigger { get; set; }
+        public bool delivered { get; set; } //true, if event is sent to the server
+    }
+
+    /// &lt;summary&gt;
+    /// DBDelayedAction is an internal class that is used for storing delayed actions to be
+    /// processed later.
+    /// &lt;/summary&gt;
+    public class DBDelayedAction
+    {
+        public int Id { get; set; }
+        public DateTimeOffset DueTime { get; set; } // Time when this action should be executed
+        public string ResolvedAction { get; set; }
+        public string BeaconPid { get; set; }
+        public int EventTypeDetectedByDevice { get; set; } // Event detected by the device that caused the action
+        public bool Executed { get; set; }
+    }
+
+    /// &lt;summary&gt;
+    /// DBBackgroundEventsHistory is an internal class that is used to filter and regocnize beacon events on background
+    /// task.
+    /// &lt;/summary&gt;
+    public class DBBackgroundEventsHistory
+    {
+        public string BeaconPid { get; set; }
+
+        public DateTimeOffset EventTime { get; set; } // Time when this action should be executed
+        
+        public int EventType { get; set; }
+
+    }
+
+    //These actions are solved on background. Foreground app should deliver them to the listener app
+    public class DBBeaconActionFromBackground
+    {
+        public int Id { get; set; }
+        public string BeaconAction { get; set; }
+        public string Payload { get; set; }
+
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[26,41,26,45,0],[26,46,26,50,0],[94,34,94,38,0],[95,41,95,45,0],[96,35,96,39,0],[97,33,97,37,0],[97,38,97,42,0],[105,34,105,38,0],[106,34,106,38,0],[107,41,107,45,0],[108,35,108,39,0],[109,33,109,37,0],[109,38,109,42,0],[118,25,118,29,0],[118,30,118,34,0],[119,41,119,45,0],[119,46,119,50,0],[120,40,120,44,0],[120,45,120,49,0],[121,35,121,39,0],[121,40,121,44,0],[122,48,122,52,0],[122,53,122,57,0],[123,32,123,36,0],[123,37,123,41,0],[132,35,132,39,0],[132,40,132,44,0],[134,43,134,47,0],[134,48,134,52,0],[136,32,136,36,0],[136,37,136,41,0],[143,25,143,29,0],[143,30,143,34,0],[144,38,144,42,0],[144,43,144,47,0],[145,33,145,37,0],[145,38,145,42,0],[29,45,29,49,1],[29,50,29,54,1],[32,47,32,51,1],[32,52,32,56,1],[29,59,29,83,1],[32,61,32,86,1],[39,9,39,30,1],[40,9,40,10,1],[41,9,41,10,1],[43,9,43,52,1],[44,9,44,10,1],[45,13,45,31,1],[46,13,46,58,1],[48,13,48,39,1],[49,9,49,10,1],[52,29,52,33,1],[52,34,52,38,1],[55,28,55,32,1],[55,33,55,37,1],[58,30,58,34,1],[58,35,58,39,1],[60,33,60,37,1],[60,38,60,42,1],[66,9,66,31,1],[67,9,67,10,1],[68,9,68,10,1],[69,9,69,55,1],[70,9,70,10,1],[71,13,71,32,1],[72,13,72,32,1],[73,13,73,59,1],[75,13,75,40,1],[76,9,76,10,1],[78,29,78,33,1],[78,34,78,38,1],[80,29,80,33,1],[80,34,80,38,1],[82,28,82,32,1],[82,33,82,37,1],[84,30,84,34,1],[84,35,84,39,1],[85,33,85,37,1],[85,38,85,42,1],[86,34,86,38,1],[86,39,86,43,1],[94,29,94,33,1],[95,36,95,40,1],[96,30,96,34,1],[105,29,105,33,1],[106,29,106,33,1],[107,36,107,40,1],[108,30,108,34,1]]);
+    </script>
+  </body>
+</html>

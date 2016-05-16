@@ -1,4 +1,9 @@
-﻿using System;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Diagnostics;
 
 namespace SensorbergSDK
 {
@@ -11,21 +16,25 @@ namespace SensorbergSDK
         Enter, // Entered to range of beacon event
         Exit, // Exit from beacon range event
         EnterExit // This we get from the server when the trigger can be both
-    };
+    }
 
     public sealed class BeaconEventArgs
-	{
+    {
         public BeaconEventType EventType
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         public Beacon Beacon
-		{
-			get;
-			set;
-		}
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
 
         /// <summary>
         /// For convenience.
@@ -38,7 +47,6 @@ namespace SensorbergSDK
                 {
                     return Beacon.Timestamp;
                 }
-
                 return DateTimeOffset.MinValue;
             }
         }

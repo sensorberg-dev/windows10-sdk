@@ -11,7 +11,7 @@
             "beacons": [
                 "7367672374000000ffff0000ffff13370133701337"
             ],
-            "supressionTime": -1,
+            "suppressionTime": -1,
             "content": {
                 "body": "with delay",
                 "payload": {},
@@ -33,7 +33,7 @@
             "beacons": [
                 "7367672374000000ffff0000ffff13370133701337"
             ],
-            "supressionTime": -1,
+            "suppressionTime": -1,
             "content": {
                 "body": "leet",
                 "payload": {
@@ -57,7 +57,7 @@
             "beacons": [
                 "7367672374000000ffff0000ffff00011007413474"
             ],
-            "supressionTime": -1,
+            "suppressionTime": -1,
             "content": {
                 "body": "Show the coupon to the cashier and save big time!",
                 "payload": {
@@ -90,7 +90,7 @@
             "beacons": [
                 "7367672374000000ffff0000ffff13370133701337"
             ],
-            "supressionTime": -1,
+            "suppressionTime": -1,
             "content": {
                 "body": "delay 5 minutes",
                 "payload": {},

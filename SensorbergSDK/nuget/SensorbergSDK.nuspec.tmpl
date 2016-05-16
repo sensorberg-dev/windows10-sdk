@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+  <metadata>
+    <id>SensorbergSDK</id>
+    <version>0.6.7-alpha</version>
+    <authors>Sensorberg GmbH</authors>
+    <licenseUrl>https://github.com/sensorberg-dev/windows10-sdk/blob/master/LICENSE</licenseUrl>
+    <iconUrl>https://www.sensorberg.com/wp-content/uploads/2016/05/Sensorberg_Logo_64x64.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>The Sensorberg SDK allows you app to detect beacons and use the sensorberg API to enable proximity responses in your Windows10 application.</description>
+    <copyright>Sensorberg 2016</copyright>
+    <tags>iBeacon, beacon, bluetooth, btle, offline, sensorberg, iot</tags>
+	<summary>The Sensorberg SDK allows you app to detect beacons and use the sensorberg API to enable proximity responses in your Windows10 application.</summary>
+    <dependencies>
+      <group targetFramework="uap10.0">
+        <dependency id="MetroLog" version="1.0.1" />
+        <dependency id="Newtonsoft.Json" version="8.0.3" />
+        <dependency id="System.Collections" version="4.0.10" />
+        <dependency id="System.Diagnostics.Debug" version="4.0.10" />
+        <dependency id="System.IO" version="4.0.10" />
+        <dependency id="System.Linq" version="4.0.0" />
+        <dependency id="System.Net.Http" version="4.0.0" />
+        <dependency id="System.Net.Primitives" version="4.0.10" />
+        <dependency id="System.Reflection" version="4.0.10" />
+        <dependency id="System.Runtime" version="4.0.20" />
+        <dependency id="System.Runtime.Extensions" version="4.0.10" />
+        <dependency id="System.Runtime.InteropServices" version="4.0.20" />
+        <dependency id="System.Runtime.InteropServices.WindowsRuntime" version="4.0.0" />
+        <dependency id="System.Runtime.Serialization.Json" version="4.0.1" />
+        <dependency id="System.Runtime.Serialization.Primitives" version="4.1.0" />
+        <dependency id="System.Runtime.WindowsRuntime" version="4.0.10" />
+        <dependency id="System.Text.Encoding" version="4.0.10" />
+        <dependency id="System.Text.RegularExpressions" version="4.0.10" />
+        <dependency id="System.Threading" version="4.0.10" />
+        <dependency id="System.Threading.Tasks" version="4.0.10" />
+        <dependency id="System.Threading.Timer" version="4.0.0" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\bin\Release\SensorbergSDK.dll" target="ref\UAP10.0\SensorbergSDK.dll" />
+    <file src="..\bin\Release\SensorbergSDK.pdb" target="ref\UAP10.0\SensorbergSDK.pdb" />
+    <file src="..\bin\Release\SensorbergSDK.pri" target="ref\UAP10.0\SensorbergSDK.pri" />
+	
+    <file src="..\bin\ARM\Release\SensorbergSDK.dll" target="runtimes\win10-arm\lib\UAP10.0\SensorbergSDK.dll" />
+    <file src="..\bin\ARM\Release\SensorbergSDK.pdb" target="runtimes\win10-arm\lib\UAP10\SensorbergSDK.pdb" />
+    <file src="..\bin\ARM\Release\SensorbergSDK.pri" target="runtimes\win10-arm\lib\UAP10\SensorbergSDK.pri" />
+	
+    <file src="..\bin\x64\Release\SensorbergSDK.dll" target="runtimes\win10-x64\lib\UAP10\SensorbergSDK.dll" />
+    <file src="..\bin\x64\Release\SensorbergSDK.pdb" target="runtimes\win10-x64\lib\UAP10\SensorbergSDK.pdb" />
+    <file src="..\bin\x64\Release\SensorbergSDK.pri" target="runtimes\win10-x64\lib\UAP10\SensorbergSDK.pri" />
+	
+    <file src="..\bin\x86\Release\SensorbergSDK.dll" target="runtimes\win10-x86\lib\UAP10\SensorbergSDK.dll" />
+    <file src="..\bin\x86\Release\SensorbergSDK.pdb" target="runtimes\win10-x86\lib\UAP10\SensorbergSDK.pdb" />
+    <file src="..\bin\x86\Release\SensorbergSDK.pri" target="runtimes\win10-x86\lib\UAP10\SensorbergSDK.pri" />
+  </files>
+</package>

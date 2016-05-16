@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\services\apiconnection.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 04.03.2016
+// 
+// Copyright (c) 2016,  EagleEye .
+// 
+// All rights reserved.
+
+using System;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using Windows.Web.Http;
+using Windows.Web.Http.Filters;
+using Newtonsoft.Json;
+using SensorbergSDK.Internal.Utils;
+using SensorbergSDK.Services;
+using HttpClient = Windows.Web.Http.HttpClient;
+using HttpMethod = Windows.Web.Http.HttpMethod;
+using HttpRequestMessage = Windows.Web.Http.HttpRequestMessage;
+using HttpResponseMessage = Windows.Web.Http.HttpResponseMessage;
+
+namespace SensorbergSDK.Internal.Services
+{
+    public class ApiConnection : IApiConnection
+    {
+        /// &lt;summary&gt;
+        /// Sends a layout request to server and returns the HTTP response, if any.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;data&quot;&gt;api key and device id for the request&lt;/param&gt;
+        /// &lt;param name=&quot;apiId&quot;&gt;optional api id, overrides the given id by SDKData&lt;/param&gt;
+        /// &lt;returns&gt;A HttpResponseMessage containing the server response or null in case of an error.&lt;/returns&gt;
+        public async Task&lt;ResponseMessage&gt; RetrieveLayoutResponse(SDKData data, string apiId = null)
+        {
+            HttpRequestMessage requestMessage = new HttpRequestMessage();
+            HttpBaseProtocolFilter baseProtocolFilter = new HttpBaseProtocolFilter();
+
+            baseProtocolFilter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
+            baseProtocolFilter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
+
+            requestMessage.Method = HttpMethod.Get;
+            requestMessage.RequestUri = new Uri(Constants.LayoutApiUriAsString);
+
+            HttpClient apiConnection = new HttpClient(baseProtocolFilter);
+            apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, string.IsNullOrEmpty(apiId) ? data.ApiKey : apiId);
+            apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, data.DeviceId);
+            apiConnection.DefaultRequestHeaders.Add(Constants.ADVERTISEMENT_IDENTIFIER_HEADER, Windows.System.UserProfile.AdvertisingManager.AdvertisingId);
+            apiConnection.DefaultRequestHeaders.Add(Constants.USER_IDENTIFIER_HEADER, data.UserId);
+            HttpResponseMessage responseMessage = null;
+
+            try
+            {
+                responseMessage = await apiConnection.SendRequestAsync(requestMessage);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(&quot;LayoutManager.RetrieveLayoutResponseAsync(): Failed to send HTTP request: &quot; + ex.Message);
+                return new ResponseMessage() {IsSuccess = false };
+            }
+
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                return new ResponseMessage() {Content = responseMessage.Content.ToString(), Header = responseMessage.Headers.ToString(), StatusCode = responseMessage.StatusCode, IsSuccess = responseMessage.IsSuccessStatusCode};
+            }
+            return new ResponseMessage() { StatusCode = responseMessage.StatusCode, IsSuccess = responseMessage.IsSuccessStatusCode };
+        }
+
+
+        public async Task&lt;string&gt; LoadSettings(SDKData sdkData)
+        {
+            HttpRequestMessage requestMessage = new HttpRequestMessage();
+            HttpBaseProtocolFilter baseProtocolFilter = new HttpBaseProtocolFilter();
+
+            baseProtocolFilter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
+            baseProtocolFilter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
+
+            requestMessage.Method = HttpMethod.Get;
+            requestMessage.RequestUri = new Uri(string.Format(Constants.SettingsUri, sdkData.ApiKey));
+
+            HttpClient httpClient = new HttpClient(baseProtocolFilter);
+
+
+            var responseMessage = await httpClient.SendRequestAsync(requestMessage);
+
+
+            if (responseMessage == null || !responseMessage.IsSuccessStatusCode )
+            {
+            }
+
+            return responseMessage.Content.ToString();
+        }
+
+        public async Task&lt;ResponseMessage&gt; SendHistory(History history)
+        {
+            System.Net.Http.HttpClient apiConnection = new System.Net.Http.HttpClient();
+            apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, SDKData.Instance.ApiKey);
+            apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, SDKData.Instance.DeviceId);
+            apiConnection.DefaultRequestHeaders.Add(Constants.ADVERTISEMENT_IDENTIFIER_HEADER, Windows.System.UserProfile.AdvertisingManager.AdvertisingId);
+            apiConnection.DefaultRequestHeaders.Add(Constants.USER_IDENTIFIER_HEADER, SDKData.Instance.UserId);
+            apiConnection.DefaultRequestHeaders.TryAddWithoutValidation(Constants.XUserAgent, UserAgentBuilder.BuildUserAgentJson());
+            string serializeObject = JsonConvert.SerializeObject(history);
+            var content = new StringContent(serializeObject, Encoding.UTF8, &quot;application/json&quot;);
+
+            System.Net.Http.HttpResponseMessage responseMessage = await apiConnection.PostAsync(new Uri(Constants.LayoutApiUriAsString), content);
+
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                return new ResponseMessage() { Content = responseMessage.Content.ToString(), Header = responseMessage.Headers.ToString(), StatusCode = Convert(responseMessage.StatusCode), IsSuccess = responseMessage.IsSuccessStatusCode };
+            }
+            return new ResponseMessage() { StatusCode = Convert(responseMessage.StatusCode), IsSuccess = responseMessage.IsSuccessStatusCode };
+        }
+
+        public static HttpStatusCode Convert(System.Net.HttpStatusCode code)
+        {
+            switch (code)
+            {
+                case System.Net.HttpStatusCode.Accepted:
+                    return HttpStatusCode.Accepted;
+//                case System.Net.HttpStatusCode.Ambiguous:
+//                    return HttpStatusCode.Ambiguous;
+                case System.Net.HttpStatusCode.BadGateway:
+                    return HttpStatusCode.BadGateway;
+                case System.Net.HttpStatusCode.BadRequest:
+                    return HttpStatusCode.BadRequest;
+                case System.Net.HttpStatusCode.Conflict:
+                    return HttpStatusCode.Conflict;
+                case System.Net.HttpStatusCode.Continue:
+                    return HttpStatusCode.Continue;
+                case System.Net.HttpStatusCode.Created:
+                    return HttpStatusCode.Created;
+                case System.Net.HttpStatusCode.ExpectationFailed:
+                    return HttpStatusCode.ExpectationFailed;
+                case System.Net.HttpStatusCode.Forbidden:
+                    return HttpStatusCode.Forbidden;
+                case System.Net.HttpStatusCode.Found:
+                    return HttpStatusCode.Found;
+                case System.Net.HttpStatusCode.GatewayTimeout:
+                    return HttpStatusCode.GatewayTimeout;
+                case System.Net.HttpStatusCode.Gone:
+                    return HttpStatusCode.Gone;
+                case System.Net.HttpStatusCode.HttpVersionNotSupported:
+                    return HttpStatusCode.HttpVersionNotSupported;
+                case System.Net.HttpStatusCode.InternalServerError:
+                    return HttpStatusCode.InternalServerError;
+                case System.Net.HttpStatusCode.LengthRequired:
+                    return HttpStatusCode.LengthRequired;
+                case System.Net.HttpStatusCode.MethodNotAllowed:
+                    return HttpStatusCode.MethodNotAllowed;
+                case System.Net.HttpStatusCode.Moved:
+                    return HttpStatusCode.MovedPermanently;
+                case System.Net.HttpStatusCode.NoContent:
+                    return HttpStatusCode.NoContent;
+                case System.Net.HttpStatusCode.NonAuthoritativeInformation:
+                    return HttpStatusCode.NonAuthoritativeInformation;
+                case System.Net.HttpStatusCode.NotAcceptable:
+                    return HttpStatusCode.NotAcceptable;
+                case System.Net.HttpStatusCode.NotFound:
+                    return HttpStatusCode.NotFound;
+                case System.Net.HttpStatusCode.NotImplemented:
+                    return HttpStatusCode.NotImplemented;
+                case System.Net.HttpStatusCode.NotModified:
+                    return HttpStatusCode.NotModified;
+                case System.Net.HttpStatusCode.OK:
+                    return HttpStatusCode.Ok;
+                case System.Net.HttpStatusCode.PartialContent:
+                    return HttpStatusCode.PartialContent;
+                case System.Net.HttpStatusCode.PaymentRequired:
+                    return HttpStatusCode.PaymentRequired;
+                case System.Net.HttpStatusCode.PreconditionFailed:
+                    return HttpStatusCode.PreconditionFailed;
+                case System.Net.HttpStatusCode.ProxyAuthenticationRequired:
+                    return HttpStatusCode.ProxyAuthenticationRequired;
+                case System.Net.HttpStatusCode.RedirectKeepVerb:
+                    return HttpStatusCode.TemporaryRedirect;
+                case System.Net.HttpStatusCode.RedirectMethod:
+                    return HttpStatusCode.PermanentRedirect;
+                case System.Net.HttpStatusCode.RequestedRangeNotSatisfiable:
+                    return HttpStatusCode.RequestedRangeNotSatisfiable;
+                case System.Net.HttpStatusCode.RequestEntityTooLarge:
+                    return HttpStatusCode.RequestEntityTooLarge;
+                case System.Net.HttpStatusCode.RequestTimeout:
+                    return HttpStatusCode.RequestTimeout;
+                case System.Net.HttpStatusCode.RequestUriTooLong:
+                    return HttpStatusCode.RequestUriTooLong;
+                case System.Net.HttpStatusCode.ResetContent:
+                    return HttpStatusCode.ResetContent;
+                case System.Net.HttpStatusCode.ServiceUnavailable:
+                    return HttpStatusCode.ServiceUnavailable;
+                case System.Net.HttpStatusCode.SwitchingProtocols:
+                    return HttpStatusCode.SwitchingProtocols;
+                case System.Net.HttpStatusCode.Unauthorized:
+                    return HttpStatusCode.Unauthorized;
+                case System.Net.HttpStatusCode.UnsupportedMediaType:
+                    return HttpStatusCode.UnsupportedMediaType;
+//                case System.Net.HttpStatusCode.Unused:
+//                    return HttpStatusCode.Unused;
+                case System.Net.HttpStatusCode.UpgradeRequired:
+                    return HttpStatusCode.UpgradeRequired;
+                case System.Net.HttpStatusCode.UseProxy:
+                    return HttpStatusCode.UseProxy;
+                default:
+                    return HttpStatusCode.BadRequest;
+            }
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[112,9,112,10,0],[113,13,113,26,0],[116,21,116,52,0],[120,21,120,54,0],[122,21,122,54,0],[124,21,124,52,0],[126,21,126,52,0],[128,21,128,51,0],[130,21,130,61,0],[132,21,132,53,0],[134,21,134,49,0],[136,21,136,58,0],[138,21,138,48,0],[140,21,140,67,0],[142,21,142,63,0],[144,21,144,58,0],[146,21,146,60,0],[148,21,148,60,0],[150,21,150,53,0],[152,21,152,71,0],[154,21,154,57,0],[156,21,156,52,0],[158,21,158,58,0],[160,21,160,55,0],[162,21,162,46,0],[164,21,164,58,0],[166,21,166,59,0],[168,21,168,62,0],[170,21,170,71,0],[172,21,172,61,0],[174,21,174,61,0],[176,21,176,72,0],[178,21,178,65,0],[180,21,180,58,0],[182,21,182,61,0],[184,21,184,56,0],[186,21,186,62,0],[188,21,188,62,0],[190,21,190,56,0],[192,21,192,64,0],[196,21,196,59,0],[198,21,198,52,0],[200,21,200,54,0],[202,9,202,10,0],[32,9,32,10,0],[33,13,33,74,0],[34,13,34,86,0],[36,13,36,93,0],[37,13,37,92,0],[39,13,39,52,0],[40,13,40,81,0],[42,13,42,75,0],[43,13,43,123,0],[44,13,44,84,0],[45,13,45,157,0],[46,13,46,100,0],[47,13,47,56,0],[50,13,50,14,0],[51,17,51,88,0],[52,13,52,14,0],[53,13,53,33,0],[54,13,54,14,0],[55,17,55,143,0],[56,17,56,67,0],[59,13,59,53,0],[60,13,60,14,0],[61,17,61,228,0],[63,13,63,135,0],[64,9,64,10,0],[68,9,68,10,0],[69,13,69,74,0],[70,13,70,86,0],[72,13,72,93,0],[73,13,73,92,0],[75,13,75,52,0],[76,13,76,103,0],[78,13,78,72,0],[81,13,81,85,0],[84,13,84,82,0],[85,13,85,14,0],[86,13,86,14,0],[88,13,88,55,0],[89,9,89,10,0],[92,9,92,10,0],[93,13,93,89,0],[94,13,94,97,0],[95,13,95,96,0],[96,13,96,157,0],[97,13,97,112,0],[98,13,98,134,0],[99,13,99,75,0],[100,13,100,97,0],[102,13,102,147,0],[104,13,104,53,0],[105,13,105,14,0],[106,17,106,239,0],[108,13,108,144,0],[109,9,109,10,0]]);
+    </script>
+  </body>
+</html>

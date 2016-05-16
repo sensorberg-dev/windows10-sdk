@@ -1,13 +1,20 @@
-﻿using SensorbergSDK.Internal;
-using System.Collections.Generic;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
 
-namespace SensorbergSDK
+using System.Collections.Generic;
+using System.Diagnostics;
+using SensorbergSDK.Internal.Transport;
+
+namespace SensorbergSDK.Internal
 {
     public sealed class ResolvedActionsEventArgs
     {
-        public int RequestID
+        public int RequestId
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
@@ -16,7 +23,9 @@ namespace SensorbergSDK
         /// </summary>
         public BeaconEventType BeaconEventType
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
@@ -26,13 +35,17 @@ namespace SensorbergSDK
         /// </summary>
         public string BeaconPid
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         public IList<ResolvedAction> ResolvedActions
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
     }

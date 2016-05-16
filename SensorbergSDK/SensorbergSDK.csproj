@@ -3,7 +3,7 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProjectGuid>{BFFEC28E-CDD9-45E7-9D77-171836818596}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -11,12 +11,13 @@
     <AssemblyName>SensorbergSDK</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion>10.0.10069.0</TargetPlatformVersion>
-    <TargetPlatformMinVersion>10.0.10069.0</TargetPlatformMinVersion>
+    <TargetPlatformVersion>10.0.10586.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion>10.0.10240.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <NuGetPackageImportStamp>08391e76</NuGetPackageImportStamp>
+    <EnableDotNetNativeCompatibleProfile>true</EnableDotNetNativeCompatibleProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -24,7 +25,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UAP</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -33,7 +34,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UAP</DefineConstants>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -84,6 +85,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <PlatformTarget>x86</PlatformTarget>
@@ -108,43 +110,64 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
   </PropertyGroup>
   <ItemGroup>
-    <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
-    <SDKReference Include="Microsoft.VCLibs.AppLocal, version=14.0">
-      <Name>Microsoft Visual C++ 14 AppLocal Runtime Package for Windows UAP</Name>
-    </SDKReference>
-    <SDKReference Include="SQLite.UAP.2015, Version=3.8.10">
-      <Name>SQLite for Universal App Platform</Name>
-    </SDKReference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="ApiKeyHelper.cs" />
-    <Compile Include="BeaconAction.cs" />
     <Compile Include="BackgroundTaskManager.cs" />
+    <Compile Include="BeaconAction.cs" />
+    <Compile Include="Internal\Constants.cs" />
+    <Compile Include="Internal\AppSettings.cs" />
+    <Compile Include="Internal\Data\AppSettingsResponse.cs" />
+    <Compile Include="Internal\Data\BackgroundEvent.cs" />
+    <Compile Include="Internal\Data\BackgroundWorkerType.cs" />
     <Compile Include="Internal\Data\BeaconContainer.cs" />
+    <Compile Include="Internal\Data\DelayedActionData.cs" />
+    <Compile Include="Internal\Data\FileStorage.cs" />
+    <Compile Include="Internal\Data\FileStorageHelper.cs" />
+    <Compile Include="Internal\Data\History.cs" />
+    <Compile Include="Internal\Data\HistoryEvent.cs" />
+    <Compile Include="Internal\Data\IResolver.cs" />
+    <Compile Include="Internal\Data\UserAgentModel.cs" />
     <Compile Include="Internal\SDKEngine.cs" />
-    <Compile Include="Internal\Utils\ActionFactory.cs" />
+    <Compile Include="Internal\Services\ApiConnection.cs" />
+    <Compile Include="Internal\Services\Resolver.cs" />
+    <Compile Include="Internal\Transport\Converter\ResolvedActionConverter.cs" />
+    <Compile Include="Internal\Data\Timeframe.cs" />
+    <Compile Include="SdkConfiguration.cs" />
+    <Compile Include="SensorbergSDKBackground\BackgroundEngine.cs" />
+    <Compile Include="SensorbergSDKBackground\AdvertisementWatcherBackgroundWorker.cs" />
+    <Compile Include="SensorbergSDKBackground\TimedBackgroundWorker.cs" />
+    <Compile Include="Services\IApiConnection.cs" />
+    <Compile Include="Services\IBeaconScanner.cs" />
+    <Compile Include="Services\ILayoutManager.cs" />
+    <Compile Include="Services\ISettingsManager.cs" />
+    <Compile Include="Services\IStorage.cs" />
+    <Compile Include="Services\IStorageService.cs" />
+    <Compile Include="Internal\Services\ResponseMessage.cs" />
+    <Compile Include="Internal\Services\ServiceManager.cs" />
+    <Compile Include="Internal\Services\StorageService.cs" />
+    <Compile Include="Internal\SettingsEventArgs.cs" />
+    <Compile Include="Internal\Services\SettingsManager.cs" />
     <Compile Include="Advertiser.cs" />
     <Compile Include="BeaconEventArgs.cs" />
     <Compile Include="Beacon.cs" />
     <Compile Include="Internal\Data\SDKData.cs" />
     <Compile Include="Internal\Data\EventHistory.cs" />
-    <Compile Include="Internal\Data\StorageClasses.cs" />
+    <Compile Include="Internal\Data\HistoryAction.cs" />
     <Compile Include="Internal\Utils\BeaconFactory.cs" />
-    <Compile Include="Internal\Utils\JsonHelper.cs" />
-    <Compile Include="Internal\SQLite\SQLite.cs" />
-    <Compile Include="Internal\SQLite\SQLiteAsync.cs" />
-    <Compile Include="Internal\Data\Storage.cs" />
+    <Compile Include="Internal\Utils\Helper.cs" />
     <Compile Include="Internal\Transport\Request.cs" />
     <Compile Include="Internal\Transport\RequestQueue.cs" />
     <Compile Include="Internal\Transport\ResolvedAction.cs" />
-    <Compile Include="Internal\Transport\Layout.cs" />
+    <Compile Include="Internal\Data\Layout.cs" />
     <Compile Include="Internal\Transport\LayoutManager.cs" />
     <Compile Include="Internal\Utils\NotificationUtils.cs" />
+    <Compile Include="Internal\Utils\SystemInfoHelper.cs" />
+    <Compile Include="Internal\Utils\UserAgentBuilder.cs" />
+    <Compile Include="LayoutResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Internal\ResolvedActionsEventArgs.cs" />
-    <Compile Include="Internal\Resolver.cs" />
     <Compile Include="Scanner.cs" />
     <Compile Include="SDKManager.cs" />
   </ItemGroup>
