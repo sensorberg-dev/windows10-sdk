@@ -4,6 +4,7 @@
 // 
 // All rights reserved.
 
+using System.Diagnostics;
 using Windows.ApplicationModel.Background;
 using SensorbergSDK.SensorbergSDKBackground;
 
@@ -16,7 +17,9 @@ namespace SimpleAppBackgroundTask
         public SimpleAppTimerBackgroundTask()
         {
             worker = new TimedBackgroundWorker();
+            worker.BeaconActionResolved += (sender, action) => { Debug.Write("Action resolved: " + action.PayloadString); };
         }
+
         public void Run(IBackgroundTaskInstance taskInstance)
         {
             worker.Run(taskInstance);
