@@ -44,13 +44,14 @@ are checked and click **OK**.
 
 ### 3. Create BackgroundTasks (optional) ###
 
-If your app needs to be running in as a BackgroundTask, you have to create a special project for the backgroundTasks.
+If your app need to be running in as a BackgroundTask, you have to create a special project for the backgroundTasks.
 
 #### 3.1 Create Project ####
 
 Create a new project **Windows Runtime Component (Universal Windows)**.
 For the full support of the SDK are two BackgroundTasks needed.
 
+![Add BackgroundTask project](images/site/add_background_task_project.png)
 
 ##### 3.2 TimedBackgroundTask #####
 
@@ -103,7 +104,10 @@ The BeaconActionResolved is fired for every Event and will notify your app about
 
 Edit the `Package.appxmanifest` file, create two new `Background Task` declarations.
 * Triggered by Timer and enter as entry point your  TimedBackgroundTask `<Namespace>.<TimerClassName>`
+![Add timer BackgroundTask declaration configuration](images/site/add_background_task_declaration_timed.png)
+
 * Triggered by Bluetooth and enter as entry point your AdvertisementWatcherBackgroundTask '<Namespace>.<AdvertisementClassName>`
+![Add advertisement BackgroundTask declaration configuration](images/site/add_background_task_declaration_advertisement.png)
 
 ### 4. Declare capabilities in manifest file ###
 
@@ -121,6 +125,7 @@ declared in your `Package.appxmanifest` file:
   </Capabilities>
 </Package>
 ```
+![capabilities](images/site/capabilities.png)
 
 
 ### 5. Take SDKManager into use ###
