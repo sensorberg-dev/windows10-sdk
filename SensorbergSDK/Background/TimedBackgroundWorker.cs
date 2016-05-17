@@ -5,7 +5,7 @@
 using Windows.ApplicationModel.Background;
 using SensorbergSDK.Internal.Data;
 
-namespace SensorbergSDK.SensorbergSDKBackground
+namespace SensorbergSDK.Background
 {
     /// <summary>
     /// Timer triggered background task for processing pending delayed actions.

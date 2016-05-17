@@ -31,6 +31,9 @@ namespace SensorbergSDK
         UnknownError
     }
 
+    /// <summary>
+    /// Helper class to receive the api key from the sensorberg plattform or validate it.
+    /// </summary>
     public class ApiKeyHelper
     {
         private const string LoginUrl = "https://connect.sensorberg.com/api/user/login";
@@ -44,12 +47,18 @@ namespace SensorbergSDK
         private const string KeyPlatform = "platform";
         private const string PlatformValueWindows = "windows";
 
+        /// <summary>
+        /// Received ApiKey.
+        /// </summary>
         public string ApiKey
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Application Name.
+        /// </summary>
         public string ApplicationName
         {
             get;

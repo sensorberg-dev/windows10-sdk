@@ -2,7 +2,6 @@
 // 
 // All rights reserved.
 
-using SensorbergSDK.Internal;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -13,7 +12,7 @@ using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Utils;
 using SensorbergSDK.Services;
 
-namespace SensorbergSDK
+namespace SensorbergSDK.Internal
 {
     public enum ScannerStatus
     {

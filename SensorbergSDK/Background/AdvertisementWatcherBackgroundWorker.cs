@@ -11,7 +11,7 @@ using Windows.Devices.Bluetooth.Background;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Utils;
 
-namespace SensorbergSDK.SensorbergSDKBackground
+namespace SensorbergSDK.Background
 {
     public class AdvertisementWatcherBackgroundWorker
     {

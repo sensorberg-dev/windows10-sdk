@@ -135,9 +135,9 @@
     <Compile Include="Internal\Transport\Converter\ResolvedActionConverter.cs" />
     <Compile Include="Internal\Data\Timeframe.cs" />
     <Compile Include="SdkConfiguration.cs" />
-    <Compile Include="SensorbergSDKBackground\BackgroundEngine.cs" />
-    <Compile Include="SensorbergSDKBackground\AdvertisementWatcherBackgroundWorker.cs" />
-    <Compile Include="SensorbergSDKBackground\TimedBackgroundWorker.cs" />
+    <Compile Include="Background\BackgroundEngine.cs" />
+    <Compile Include="Background\AdvertisementWatcherBackgroundWorker.cs" />
+    <Compile Include="Background\TimedBackgroundWorker.cs" />
     <Compile Include="Services\IApiConnection.cs" />
     <Compile Include="Services\IBeaconScanner.cs" />
     <Compile Include="Services\ILayoutManager.cs" />
@@ -165,10 +165,10 @@
     <Compile Include="Internal\Utils\NotificationUtils.cs" />
     <Compile Include="Internal\Utils\SystemInfoHelper.cs" />
     <Compile Include="Internal\Utils\UserAgentBuilder.cs" />
-    <Compile Include="LayoutResult.cs" />
+    <Compile Include="Internal\Data\LayoutResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Internal\ResolvedActionsEventArgs.cs" />
-    <Compile Include="Scanner.cs" />
+    <Compile Include="Internal\Scanner.cs" />
     <Compile Include="SDKManager.cs" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

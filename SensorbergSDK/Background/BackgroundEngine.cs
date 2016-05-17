@@ -12,7 +12,7 @@ using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Internal.Utils;
 
-namespace SensorbergSDK.SensorbergSDKBackground
+namespace SensorbergSDK.Background
 {
     /// <summary>
     /// BackgroundEngine resolves actions from BluetoothLEAdvertisementWatcherTriggerDetails object

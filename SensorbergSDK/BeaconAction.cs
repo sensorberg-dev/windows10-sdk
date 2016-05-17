@@ -13,6 +13,9 @@ using Windows.UI.Popups;
 
 namespace SensorbergSDK
 {
+    /// <summary>
+    /// Type of BeaconAction.
+    /// </summary>
     [DataContract]
     public enum BeaconActionType
     {
@@ -35,22 +38,40 @@ namespace SensorbergSDK
             Payload = null;
         }
 
+        /// <summary>
+        /// Id of action.
+        /// </summary>
         [DataMember]
         public int Id { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
-        [DataMember/*(Name = "type")*/]
+        /// <summary>
+        /// Type of action.
+        /// </summary>
+        [DataMember]
         public BeaconActionType Type { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
+        /// <summary>
+        /// UUID of action. This is received from the receiver.
+        /// </summary>
         [DataMember(Name = "eid")]
         public string Uuid { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
-        [DataMember/*(Name = "subject")*/]
+        /// <summary>
+        /// Subject for the action.
+        /// </summary>
+        [DataMember]
         public string Subject { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
-        [DataMember/*(Name ="body")*/]
+        /// <summary>
+        /// Body of the action.
+        /// </summary>
+        [DataMember]
         public string Body { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
-        [DataMember/*(Name = "url")*/]
+        /// <summary>
+        /// URL to open for the action.
+        /// </summary>
+        [DataMember]
         public string Url { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
         /// <summary>

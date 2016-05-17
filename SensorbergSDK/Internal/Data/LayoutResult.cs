@@ -5,9 +5,8 @@
 // All rights reserved.
 
 using System.Diagnostics;
-using SensorbergSDK.Internal.Data;
 
-namespace SensorbergSDK
+namespace SensorbergSDK.Internal.Data
 {
     /// <summary>
     /// Class provides the result for requests to the storage.

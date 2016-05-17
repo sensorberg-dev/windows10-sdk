@@ -5,7 +5,7 @@
 > Windows 10 SDK for handling iBeacon technology via the Sensorberg Beacon Management Platform. [http://www.sensorberg.com](http://www.sensorberg.com)
 
 
-#Integration
+# Integration
 
 For Integration instructions please visit our developer hub Windows SDK page and [developer.sensorberg.com/windows10](https://developer.sensorberg.com/windows10/)
 
@@ -15,7 +15,7 @@ For Integration instructions please visit our developer hub Windows SDK page and
 * MetroLog
 * Newsoft.JSON
 
-#License
+# License
 -------
 
 	The MIT License (MIT)
