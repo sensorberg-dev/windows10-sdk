@@ -4,6 +4,7 @@ title: Windows10 SDK Integration
 permalink: /windows10/
 additionalNavigation : [
 { "title" : "Win10 SDK",                "link" : "https://github.com/sensorberg-dev/windows10-sdk" },
+{ "title" : "Win10 Documentation",         "link" : "windows10-sdk/documentation" },
 { "title" : "Win10 Bugtracker",         "link" : "https://github.com/sensorberg-dev/windows10-sdk/issues" },
 { "title" : "Edit this page",           "link" : "https://github.com/sensorberg-dev/sensorberg-dev.github.io/edit/master/windows10.md" }
 ]
@@ -20,7 +21,6 @@ Sensorberg SDK for Windows is supported on Windows 10, this include Desktop, Mob
 
 ### 1. Add Sensorberg SDK projects into your solution ###
 
-#### 1.1 Nuget ####
 
 You can download the latest nuget package from https://github.com/sensorberg-dev/windows10-sdk/releases or the nuget repository.
 
@@ -28,33 +28,18 @@ Add the SDK to your application project:
 
 ![Add nuget package](images/site/add_nuget_package.png)
 
-#### 1.2 VSIX ####
-
-You can download the latest VSIX package from https://github.com/sensorberg-dev/windows10-sdk/releases and install it.
-
-Add the SDK to your application project as references. Right click
-**References** under your application project and select **Add Reference...**
-
-![Add vsix package](images/site/add_vsix_package.png)
-
-Locate the SDK project and make sure that the check boxes in front of them
-are checked and click **OK**.
- 
-![Add vsix reference](images/site/add_vsix_reference.png)
-
-
-### 3. Create BackgroundTasks (optional) ###
+### 2. Create BackgroundTasks (optional) ###
 
 If your app need to be running in as a BackgroundTask, you have to create a special project for the backgroundTasks.
 
-#### 3.1 Create Project ####
+#### 2.1 Create Project ####
 
 Create a new project **Windows Runtime Component (Universal Windows)**.
 For the full support of the SDK are two BackgroundTasks needed.
 
 ![Add BackgroundTask project](images/site/add_background_task_project.png)
 
-##### 3.2 TimedBackgroundTask #####
+##### 2.2 TimedBackgroundTask #####
 
 This BackgroundTask is triggered by a Timer, so the SDK can handles delayed notifications. Due the limitation of the system it is only fired every 15min.
 Create a new class for this:
@@ -78,7 +63,7 @@ Create a new class for this:
 The BeaconActionResolved is fired for every Event and will notify your app about the new Action.
 
 
-##### 3.3 AdvertisementWatcherBackgroundTask #####
+##### 2.3 AdvertisementWatcherBackgroundTask #####
 
 To receive the Beacons, the AdvertisementWatcherBackgroundTask needs to be created.
 Create a new class for this:
@@ -101,7 +86,7 @@ Create a new class for this:
 ```
 The BeaconActionResolved is fired for every Event and will notify your app about the new Action.
 
-#### 3.4 Configure app for BackgroundTasks ####
+#### 2.4 Configure app for BackgroundTasks ####
 
 Edit the `Package.appxmanifest` file, create two new `Background Task` declarations.
 * Triggered by Timer and enter as entry point your  TimedBackgroundTask `<Namespace>.<TimerClassName>`
@@ -110,7 +95,7 @@ Edit the `Package.appxmanifest` file, create two new `Background Task` declarati
 * Triggered by Bluetooth and enter as entry point your AdvertisementWatcherBackgroundTask `<Namespace>.<AdvertisementClassName>`
 ![Add advertisement BackgroundTask declaration configuration](images/site/add_background_task_declaration_advertisement.png)
 
-### 4. Declare capabilities in manifest file ###
+### 3. Declare capabilities in manifest file ###
 
 Make sure that you have at least `internetClient` and `bluetooth` capabilities
 declared in your `Package.appxmanifest` file:
@@ -129,7 +114,7 @@ declared in your `Package.appxmanifest` file:
 ![capabilities](images/site/capabilities.png)
 
 
-### 5. Take SDKManager into use ###
+### 4. Take SDKManager into use ###
 
 The following snippet demonstrates how to integrate the Sensorberg SDK
 functionality to the main page of your application:
@@ -198,9 +183,4 @@ message dialog with the action content.
 
 It is also highly recommended to ask the user for the permission to enable the
 background task. You can register and unregister the background task using `SDKManager` methods
-`RegisterBackgroundTaskAsync` and `UnregisterBackgroundTask`.#
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
+`RegisterBackgroundTaskAsync` and `UnregisterBackgroundTask`.
