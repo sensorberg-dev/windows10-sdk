@@ -25,6 +25,7 @@ Sensorberg SDK for Windows is supported on Windows 10, this include Desktop, Mob
 You can download the latest nuget package from https://github.com/sensorberg-dev/windows10-sdk/releases or the nuget repository.
 
 Add the SDK to your application project:
+
 ![Add nuget package](images/site/add_nuget_package.png)
 
 #### 1.2 VSIX ####
