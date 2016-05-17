@@ -44,7 +44,6 @@ namespace SensorbergSDK.SensorbergSDKBackground
 
         public async void Run(IBackgroundTaskInstance taskInstance)
         {
-            System.Diagnostics.Debug.WriteLine("AdvertisementWatcherBackgroundTask.Run()");
             Deferral = taskInstance.GetDeferral();
 
             await BackgroundEngine.InitializeAsync();
@@ -85,7 +84,6 @@ namespace SensorbergSDK.SensorbergSDKBackground
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("AdvertisementWatcherBackgroundTask.OnFinished()");
                 Deferral?.Complete();
                 BackgroundEngine.Finished -= OnFinished;
                 BackgroundEngine?.Dispose();

@@ -107,7 +107,7 @@ Edit the `Package.appxmanifest` file, create two new `Background Task` declarati
 * Triggered by Timer and enter as entry point your  TimedBackgroundTask `<Namespace>.<TimerClassName>`
 ![Add timer BackgroundTask declaration configuration](images/site/add_background_task_declaration_timed.png)
 
-* Triggered by Bluetooth and enter as entry point your AdvertisementWatcherBackgroundTask '<Namespace>.<AdvertisementClassName>`
+* Triggered by Bluetooth and enter as entry point your AdvertisementWatcherBackgroundTask `<Namespace>.<AdvertisementClassName>`
 ![Add advertisement BackgroundTask declaration configuration](images/site/add_background_task_declaration_advertisement.png)
 
 ### 4. Declare capabilities in manifest file ###
