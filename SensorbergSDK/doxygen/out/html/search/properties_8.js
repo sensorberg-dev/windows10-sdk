@@ -1,0 +1,8 @@
+var searchData=
+[
+  ['lastevent',['LastEvent',['../class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_background_event.html#af39b362f1d0e1c5d4ce5bcd52a88c86a',1,'SensorbergSDK::Internal::Data::BackgroundEvent']]],
+  ['layout',['Layout',['../class_sensorberg_s_d_k_1_1_internal_1_1_transport_1_1_layout_manager.html#ab371ddb6f81c6c191336a328c0209dc0',1,'SensorbergSDK.Internal.Transport.LayoutManager.Layout()'],['../class_sensorberg_s_d_k_1_1_layout_result.html#a76290f45efe5290b6b4cb86a5df23d39',1,'SensorbergSDK.LayoutResult.Layout()'],['../interface_sensorberg_s_d_k_1_1_services_1_1_i_layout_manager.html#a7f673c8a26d04c185fa37af1aa73c21e',1,'SensorbergSDK.Services.ILayoutManager.Layout()']]],
+  ['layoutbeaconid1hash',['LayoutBeaconId1Hash',['../class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_sdk_data.html#a56f4201c1ee966d1acf58834dff9d527',1,'SensorbergSDK::Internal::Data::SdkData']]],
+  ['layoutupdateinterval',['LayoutUpdateInterval',['../class_sensorberg_s_d_k_1_1_internal_1_1_app_settings.html#aab04ebacee11005fb2b06fe7e27d71c4',1,'SensorbergSDK::Internal::AppSettings']]],
+  ['layoutvaliditychanged',['LayoutValidityChanged',['../class_sensorberg_s_d_k_1_1_s_d_k_manager.html#ae21ad4ce84ba6eaa12600e6ca509f813',1,'SensorbergSDK.SDKManager.LayoutValidityChanged()'],['../class_sensorberg_s_d_k_1_1_sensorberg_s_d_k_background_1_1_advertisement_watcher_background_worker.html#a2ddb03827a5bb242940472229fa6e523',1,'SensorbergSDK.SensorbergSDKBackground.AdvertisementWatcherBackgroundWorker.LayoutValidityChanged()'],['../class_sensorberg_s_d_k_1_1_sensorberg_s_d_k_background_1_1_background_engine.html#a12c3e32807e6246da7de255f6cf80718',1,'SensorbergSDK.SensorbergSDKBackground.BackgroundEngine.LayoutValidityChanged()']]]
+];
