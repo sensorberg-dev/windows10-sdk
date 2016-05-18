@@ -51,7 +51,7 @@ namespace SensorbergSimpleApp
 
             LogEntryItemCollection = new ObservableCollection<LogEntryItem>();
 
-            _sdkManager = SDKManager.Instance(ManufacturerId, BeaconCode);
+            _sdkManager = SDKManager.Instance();
             _sdkManager.ScannerStatusChanged += OnScannerStatusChangedAsync;
             _sdkManager.BeaconActionResolved += OnBeaconActionResolvedAsync;
 
@@ -66,21 +66,14 @@ namespace SensorbergSimpleApp
         {
             base.OnNavigatedTo(e);
 
-            BeaconAction pendingBeaconAction = BeaconAction.FromNavigationEventArgs(e);
-
-            if (pendingBeaconAction != null)
-            {
-                if (await pendingBeaconAction.LaunchWebBrowserAsync())
+            await _sdkManager.InitializeAsync(new SdkConfiguration()
                 {
-                    Application.Current.Exit();
-                }
-                else
-                {
-                    OnBeaconActionResolvedAsync(this, pendingBeaconAction);
-                }
-            }
-
-            _sdkManager.InitializeAsync(ApiKey);
+                    ApiKey = ApiKey,
+                    ManufacturerId = ManufacturerId,
+                    BeaconCode = BeaconCode,
+                    BackgroundTimerClassName = "SimpleAppBackgroundTask.SimpleAppTimerBackgroundTask",
+                    BackgroundAdvertisementClassName = "SimpleAppBackgroundTask.AdvertisementBackgroundTask"
+                });
 
             bool backgroundTaskEnabledAndRegistered =
                 (_sdkManager.IsBackgroundTaskEnabled && _sdkManager.IsBackgroundTaskRegistered);
