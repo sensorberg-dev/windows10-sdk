@@ -97,6 +97,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">SensorbergSDK.Services.ISettingsManager Interface Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Abstraction for the settings manager. The manager handles the receiving of the appsettings from the backend.  
+ <a href="interface_sensorberg_s_d_k_1_1_services_1_1_i_settings_manager.html#details">More...</a></p>
 <div class="dynheader">
 Inheritance diagram for SensorbergSDK.Services.ISettingsManager:</div>
 <div class="dyncontent">
@@ -110,19 +113,24 @@ Inheritance diagram for SensorbergSDK.Services.ISettingsManager:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a5d8016a001dc900852338413e32fbc39"><td class="memItemLeft" align="right" valign="top">Task&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_app_settings.html">AppSettings</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_settings_manager.html#a5d8016a001dc900852338413e32fbc39">GetSettings</a> (bool forceUpdate=false)</td></tr>
+<tr class="memdesc:a5d8016a001dc900852338413e32fbc39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the settings of the app. If needed they will received from the backend.  <a href="#a5d8016a001dc900852338413e32fbc39">More...</a><br /></td></tr>
 <tr class="separator:a5d8016a001dc900852338413e32fbc39"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="properties"></a>
 Properties</h2></td></tr>
 <tr class="memitem:a138df727fff9be079fb3ea88fda8ed0e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_app_settings.html">AppSettings</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_settings_manager.html#a138df727fff9be079fb3ea88fda8ed0e">DefaultAppSettings</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a138df727fff9be079fb3ea88fda8ed0e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the default settings for the app.  <a href="#a138df727fff9be079fb3ea88fda8ed0e">More...</a><br /></td></tr>
 <tr class="separator:a138df727fff9be079fb3ea88fda8ed0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="events"></a>
 Events</h2></td></tr>
 <tr class="memitem:a8587a5ecaa1ee29f4aea81a2fdb156c5"><td class="memItemLeft" align="right" valign="top">EventHandler&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_settings_event_args.html">SettingsEventArgs</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_settings_manager.html#a8587a5ecaa1ee29f4aea81a2fdb156c5">SettingsUpdated</a></td></tr>
+<tr class="memdesc:a8587a5ecaa1ee29f4aea81a2fdb156c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Event for changes on the app settings.  <a href="#a8587a5ecaa1ee29f4aea81a2fdb156c5">More...</a><br /></td></tr>
 <tr class="separator:a8587a5ecaa1ee29f4aea81a2fdb156c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Abstraction for the settings manager. The manager handles the receiving of the appsettings from the backend. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="a5d8016a001dc900852338413e32fbc39"></a>
 <div class="memitem">
 <div class="memproto">
@@ -136,6 +144,15 @@ Events</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Returns the settings of the app. If needed they will received from the backend. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">forceUpdate</td><td>forces the manager to update the current settings.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 <p>Implemented in <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_services_1_1_settings_manager.html#aceb16d7442312dee9ca99c8fd2765d10">SensorbergSDK.Internal.Services.SettingsManager</a>.</p>
 
@@ -160,6 +177,8 @@ Events</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Returns the default settings for the app. </p>
+
 </div>
 </div>
 <h2 class="groupheader">Event Documentation</h2>
@@ -172,6 +191,8 @@ Events</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Event for changes on the app settings. </p>
 
 </div>
 </div>

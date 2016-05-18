@@ -77,7 +77,7 @@ namespace SensorbergSDKTests
 
             Assert.IsTrue(await storage.SaveDelayedAction(action, DateTimeOffset.Parse("2015-04-16T12:00:00.000+0000"), "1", BeaconEventType.Enter));
 
-            IList<DelayedActionData> delayedActions = await storage.GetDelayedActions(int.MaxValue);
+            IList<DelayedActionData> delayedActions = await storage.GetDelayedActions();
             Assert.AreEqual(1, delayedActions.Count, "to many actions found");
 
             DelayedActionData delayAction = delayedActions[0];
@@ -130,7 +130,7 @@ namespace SensorbergSDKTests
             Assert.IsTrue(await storage.SaveDelayedAction(action, DateTimeOffset.Parse("2015-05-16T12:00:00.000+0000"), "2", BeaconEventType.EnterExit));
 
 
-            delayedActions = await storage.GetDelayedActions(int.MaxValue);
+            delayedActions = await storage.GetDelayedActions();
             Assert.AreEqual(2, delayedActions.Count, "to many actions found");
 
             delayAction = delayedActions.FirstOrDefault(d => d.BeaconPid == "1");
@@ -189,7 +189,7 @@ namespace SensorbergSDKTests
 
             await storage.SetDelayedActionAsExecuted(idToDelete);
 
-            delayedActions = await storage.GetDelayedActions(int.MaxValue);
+            delayedActions = await storage.GetDelayedActions();
             Assert.AreEqual(1, delayedActions.Count, "to many actions found after executing action");
 
             Assert.AreEqual("2", delayedActions[0].BeaconPid, "Not same beacon id");
@@ -677,7 +677,7 @@ namespace SensorbergSDKTests
             await storage.GetActionsForForeground();
             await storage.GetAction("1");
             await storage.GetActions("asd");
-            await storage.GetDelayedActions(123);
+            await storage.GetDelayedActions();
             await storage.GetLastEventStateForBeacon("123");
             await storage.GetUndeliveredActions();
             await storage.GetUndeliveredEvents();

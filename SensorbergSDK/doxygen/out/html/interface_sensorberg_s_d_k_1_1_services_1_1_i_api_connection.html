@@ -95,6 +95,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">SensorbergSDK.Services.IApiConnection Interface Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Abstraction for every connection to the Sensorberg backends.  
+ <a href="interface_sensorberg_s_d_k_1_1_services_1_1_i_api_connection.html#details">More...</a></p>
 <div class="dynheader">
 Inheritance diagram for SensorbergSDK.Services.IApiConnection:</div>
 <div class="dyncontent">
@@ -111,12 +114,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a31b05ec9492589600c5f20a87c8f875e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends a layout request to server and returns the HTTP response, if any.  <a href="#a31b05ec9492589600c5f20a87c8f875e">More...</a><br /></td></tr>
 <tr class="separator:a31b05ec9492589600c5f20a87c8f875e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6ebb9dc5cf4eb4c3baa46e10ba4918ef"><td class="memItemLeft" align="right" valign="top">Task&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_api_connection.html#a6ebb9dc5cf4eb4c3baa46e10ba4918ef">LoadSettings</a> (<a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_sdk_data.html">SdkData</a> sdkData)</td></tr>
+<tr class="memdesc:a6ebb9dc5cf4eb4c3baa46e10ba4918ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Receive the settings for the app.  <a href="#a6ebb9dc5cf4eb4c3baa46e10ba4918ef">More...</a><br /></td></tr>
 <tr class="separator:a6ebb9dc5cf4eb4c3baa46e10ba4918ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a804b2cd9467cd38434052ee38a292035"><td class="memItemLeft" align="right" valign="top">Task&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_services_1_1_response_message.html">ResponseMessage</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_api_connection.html#a804b2cd9467cd38434052ee38a292035">SendHistory</a> (<a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history.html">History</a> history)</td></tr>
 <tr class="memdesc:a804b2cd9467cd38434052ee38a292035"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends History object to the api.  <a href="#a804b2cd9467cd38434052ee38a292035">More...</a><br /></td></tr>
 <tr class="separator:a804b2cd9467cd38434052ee38a292035"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Abstraction for every connection to the Sensorberg backends. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="a6ebb9dc5cf4eb4c3baa46e10ba4918ef"></a>
 <div class="memitem">
 <div class="memproto">
@@ -130,6 +136,8 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Receive the settings for the app. </p>
 
 <p>Implemented in <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_services_1_1_api_connection.html#aeba1d671298ac05362fd426c5c9da3dc">SensorbergSDK.Internal.Services.ApiConnection</a>.</p>
 
@@ -194,7 +202,6 @@ Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 <p>Implemented in <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_services_1_1_api_connection.html#a8865e44bf1ee92ccf442422273a71385">SensorbergSDK.Internal.Services.ApiConnection</a>.</p>
 

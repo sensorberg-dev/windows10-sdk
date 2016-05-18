@@ -103,46 +103,59 @@ Inheritance diagram for SensorbergSDK.Internal.Data.FileStorage:</div>
  <div class="center">
   <img src="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.png" usemap="#SensorbergSDK.Internal.Data.FileStorage_map" alt=""/>
   <map id="SensorbergSDK.Internal.Data.FileStorage_map" name="SensorbergSDK.Internal.Data.FileStorage_map">
-<area href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html" alt="SensorbergSDK.Services.IStorage" shape="rect" coords="0,0,248,24"/>
+<area href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html" title="Abstraction for the storage of all SDK related data. " alt="SensorbergSDK.Services.IStorage" shape="rect" coords="0,0,248,24"/>
 </map>
  </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a61f74f7a56680e16c5ac44ee3cc737a6"><td class="memItemLeft" align="right" valign="top">async Task&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a61f74f7a56680e16c5ac44ee3cc737a6">InitStorage</a> ()</td></tr>
-<tr class="memdesc:a61f74f7a56680e16c5ac44ee3cc737a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the storage, e.g. create or folders.  <a href="#a61f74f7a56680e16c5ac44ee3cc737a6">More...</a><br /></td></tr>
+<tr class="memdesc:a61f74f7a56680e16c5ac44ee3cc737a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the storage, e.g. create folders or database. This depends on the implementation, but needs to be called during startup of the SDK.  <a href="#a61f74f7a56680e16c5ac44ee3cc737a6">More...</a><br /></td></tr>
 <tr class="separator:a61f74f7a56680e16c5ac44ee3cc737a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a016d62c594860ee7a471ae54e08b7bbd"><td class="memItemLeft" align="right" valign="top">async Task&lt; IList&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_event.html">HistoryEvent</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a016d62c594860ee7a471ae54e08b7bbd">GetUndeliveredEvents</a> ()</td></tr>
+<tr class="memdesc:a016d62c594860ee7a471ae54e08b7bbd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets all not delivered HistoryEvents.  <a href="#a016d62c594860ee7a471ae54e08b7bbd">More...</a><br /></td></tr>
 <tr class="separator:a016d62c594860ee7a471ae54e08b7bbd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9cd547c3be77237d13959d670f0320a6"><td class="memItemLeft" align="right" valign="top">async Task&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a9cd547c3be77237d13959d670f0320a6">SetEventsAsDelivered</a> ()</td></tr>
+<tr class="memdesc:a9cd547c3be77237d13959d670f0320a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Marks all delivered HistoryEvents as delivered.  <a href="#a9cd547c3be77237d13959d670f0320a6">More...</a><br /></td></tr>
 <tr class="separator:a9cd547c3be77237d13959d670f0320a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a41021dfe78bfc3fc79f16ba9c7f74bda"><td class="memItemLeft" align="right" valign="top">async Task&lt; IList&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_action.html">HistoryAction</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a41021dfe78bfc3fc79f16ba9c7f74bda">GetUndeliveredActions</a> ()</td></tr>
+<tr class="memdesc:a41021dfe78bfc3fc79f16ba9c7f74bda"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get all not delivered HistoryActions.  <a href="#a41021dfe78bfc3fc79f16ba9c7f74bda">More...</a><br /></td></tr>
 <tr class="separator:a41021dfe78bfc3fc79f16ba9c7f74bda"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a45c18aaf090d5823aea743cd6193869b"><td class="memItemLeft" align="right" valign="top">async Task&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a45c18aaf090d5823aea743cd6193869b">SetActionsAsDelivered</a> ()</td></tr>
+<tr class="memdesc:a45c18aaf090d5823aea743cd6193869b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Marks all delivered HistoryActions as delivered.  <a href="#a45c18aaf090d5823aea743cd6193869b">More...</a><br /></td></tr>
 <tr class="separator:a45c18aaf090d5823aea743cd6193869b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3bfb17206e6444f25c295dabe2d3c270"><td class="memItemLeft" align="right" valign="top">async Task&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a3bfb17206e6444f25c295dabe2d3c270">SaveHistoryAction</a> (<a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_action.html">HistoryAction</a> action)</td></tr>
+<tr class="memdesc:a3bfb17206e6444f25c295dabe2d3c270"><td class="mdescLeft">&#160;</td><td class="mdescRight">Store the given <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_action.html">HistoryAction</a>.  <a href="#a3bfb17206e6444f25c295dabe2d3c270">More...</a><br /></td></tr>
 <tr class="separator:a3bfb17206e6444f25c295dabe2d3c270"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac9f54bdcc77e6c16e321b59c828b73e4"><td class="memItemLeft" align="right" valign="top">async Task&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#ac9f54bdcc77e6c16e321b59c828b73e4">SaveHistoryEvents</a> (<a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_event.html">HistoryEvent</a> he)</td></tr>
+<tr class="memdesc:ac9f54bdcc77e6c16e321b59c828b73e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Store the given <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_event.html">HistoryEvent</a>.  <a href="#ac9f54bdcc77e6c16e321b59c828b73e4">More...</a><br /></td></tr>
 <tr class="separator:ac9f54bdcc77e6c16e321b59c828b73e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adf6637d0f7ac650355ac15ec32a553e5"><td class="memItemLeft" align="right" valign="top">async Task&lt; IList&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_action.html">HistoryAction</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#adf6637d0f7ac650355ac15ec32a553e5">GetActions</a> (string uuid)</td></tr>
+<tr class="memdesc:adf6637d0f7ac650355ac15ec32a553e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns all HistoryActions that are fired by that action UUID.  <a href="#adf6637d0f7ac650355ac15ec32a553e5">More...</a><br /></td></tr>
 <tr class="separator:adf6637d0f7ac650355ac15ec32a553e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afedc4062f41f8bf65a3b1a8292bc51cc"><td class="memItemLeft" align="right" valign="top">async Task&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_action.html">HistoryAction</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#afedc4062f41f8bf65a3b1a8292bc51cc">GetAction</a> (string uuid)</td></tr>
+<tr class="memdesc:afedc4062f41f8bf65a3b1a8292bc51cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_action.html">HistoryAction</a> that is fired by an action with that given UUID.  <a href="#afedc4062f41f8bf65a3b1a8292bc51cc">More...</a><br /></td></tr>
 <tr class="separator:afedc4062f41f8bf65a3b1a8292bc51cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6cd0653c7caa861579ebbb587e9e3151"><td class="memItemLeft" align="right" valign="top">async Task&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a6cd0653c7caa861579ebbb587e9e3151">CleanDatabase</a> ()</td></tr>
 <tr class="memdesc:a6cd0653c7caa861579ebbb587e9e3151"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cleans old entries from the database.  <a href="#a6cd0653c7caa861579ebbb587e9e3151">More...</a><br /></td></tr>
 <tr class="separator:a6cd0653c7caa861579ebbb587e9e3151"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:addaf8ae8b1c244b0fc8fbf7a1d195213"><td class="memItemLeft" align="right" valign="top">async Task&lt; IList&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_delayed_action_data.html">DelayedActionData</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#addaf8ae8b1c244b0fc8fbf7a1d195213">GetDelayedActions</a> (int maxDelayFromNowInSeconds)</td></tr>
-<tr class="memdesc:addaf8ae8b1c244b0fc8fbf7a1d195213"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns delayed actions which should be executed now or maxDelayFromNowInSeconds seconds in the future.  <a href="#addaf8ae8b1c244b0fc8fbf7a1d195213">More...</a><br /></td></tr>
-<tr class="separator:addaf8ae8b1c244b0fc8fbf7a1d195213"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acc0acb5e29591e6d6e46790eae491e34"><td class="memItemLeft" align="right" valign="top">async Task&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#acc0acb5e29591e6d6e46790eae491e34">SetDelayedActionAsExecuted</a> (string id)</td></tr>
-<tr class="separator:acc0acb5e29591e6d6e46790eae491e34"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af8661d344e495ced38007a141cd2a527"><td class="memItemLeft" align="right" valign="top">async Task&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#af8661d344e495ced38007a141cd2a527">SaveDelayedAction</a> (<a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_transport_1_1_resolved_action.html">ResolvedAction</a> action, DateTimeOffset dueTime, string beaconPid, <a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6d">BeaconEventType</a> beaconEventType)</td></tr>
-<tr class="separator:af8661d344e495ced38007a141cd2a527"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c462415098bc4b6b5876bebd54555cf"><td class="memItemLeft" align="right" valign="top">async Task&lt; IList&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_delayed_action_data.html">DelayedActionData</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a4c462415098bc4b6b5876bebd54555cf">GetDelayedActions</a> ()</td></tr>
+<tr class="memdesc:a4c462415098bc4b6b5876bebd54555cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns delayed actions which should be executed now.  <a href="#a4c462415098bc4b6b5876bebd54555cf">More...</a><br /></td></tr>
+<tr class="separator:a4c462415098bc4b6b5876bebd54555cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6aea48db5a84594f2d13faf5a5c3df8b"><td class="memItemLeft" align="right" valign="top">async Task&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a6aea48db5a84594f2d13faf5a5c3df8b">SetDelayedActionAsExecuted</a> (string uuid)</td></tr>
+<tr class="memdesc:a6aea48db5a84594f2d13faf5a5c3df8b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mark the action by the given uuid as executed.  <a href="#a6aea48db5a84594f2d13faf5a5c3df8b">More...</a><br /></td></tr>
+<tr class="separator:a6aea48db5a84594f2d13faf5a5c3df8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2c0b1d5106cf0f0037fc09908bdb101a"><td class="memItemLeft" align="right" valign="top">async Task&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a2c0b1d5106cf0f0037fc09908bdb101a">SaveDelayedAction</a> (<a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_transport_1_1_resolved_action.html">ResolvedAction</a> action, DateTimeOffset dueTime, string beaconPid, <a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6d">BeaconEventType</a> eventType)</td></tr>
+<tr class="memdesc:a2c0b1d5106cf0f0037fc09908bdb101a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Store a new delayed action.  <a href="#a2c0b1d5106cf0f0037fc09908bdb101a">More...</a><br /></td></tr>
+<tr class="separator:a2c0b1d5106cf0f0037fc09908bdb101a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2c49fc72dba4fa747efd87b0ae8c166d"><td class="memItemLeft" align="right" valign="top">async Task&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a2c49fc72dba4fa747efd87b0ae8c166d">SaveBeaconEventState</a> (string pid, <a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6d">BeaconEventType</a> type)</td></tr>
+<tr class="memdesc:a2c49fc72dba4fa747efd87b0ae8c166d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save the state of a beacon. This can be used by the background task to have the last state of a beacon. The method stores only the last state of a beacon.  <a href="#a2c49fc72dba4fa747efd87b0ae8c166d">More...</a><br /></td></tr>
 <tr class="separator:a2c49fc72dba4fa747efd87b0ae8c166d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6c26705243a779ed750d8d8b08f2ddfd"><td class="memItemLeft" align="right" valign="top">async Task&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_background_event.html">BackgroundEvent</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a6c26705243a779ed750d8d8b08f2ddfd">GetLastEventStateForBeacon</a> (string pid)</td></tr>
+<tr class="memdesc:a6c26705243a779ed750d8d8b08f2ddfd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the last state of the beacon.  <a href="#a6c26705243a779ed750d8d8b08f2ddfd">More...</a><br /></td></tr>
 <tr class="separator:a6c26705243a779ed750d8d8b08f2ddfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aee0d03a9eeee47ca6131221156d0574a"><td class="memItemLeft" align="right" valign="top">async Task&lt; List&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_action.html">HistoryAction</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#aee0d03a9eeee47ca6131221156d0574a">GetActionsForForeground</a> (bool doNotDelete=false)</td></tr>
+<tr class="memdesc:aee0d03a9eeee47ca6131221156d0574a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns all actions that are triggered by the background task.  <a href="#aee0d03a9eeee47ca6131221156d0574a">More...</a><br /></td></tr>
 <tr class="separator:aee0d03a9eeee47ca6131221156d0574a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2c00d5dbc44e084e2d5251dfeb546463"><td class="memItemLeft" align="right" valign="top">async Task&lt; StorageFolder &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a2c00d5dbc44e084e2d5251dfeb546463">GetFolder</a> (string path, bool parentOnly=false)</td></tr>
 <tr class="separator:a2c00d5dbc44e084e2d5251dfeb546463"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -195,6 +208,14 @@ Properties</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Returns a <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_action.html">HistoryAction</a> that is fired by an action with that given UUID. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">uuid</td><td>UUID of the action.</td></tr>
+  </table>
+  </dd>
+</dl>
+
 <p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#aa92472f707d77f3f14f4125d4d595849">SensorbergSDK.Services.IStorage</a>.</p>
 
 </div>
@@ -212,6 +233,15 @@ Properties</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Returns all HistoryActions that are fired by that action UUID. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">uuid</td><td>UUID of the Action.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>List of HistoryActions.</dd></dl>
 
 <p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#a7f0e1102d415457e420c46f58e28b9e8">SensorbergSDK.Services.IStorage</a>.</p>
 
@@ -231,34 +261,35 @@ Properties</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Returns all actions that are triggered by the background task. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">doNotDelete</td><td>Boolean to delete or not delete the returned actions</td></tr>
+  </table>
+  </dd>
+</dl>
+
 <p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#aaeaf504d5356acf26be08fd9acd99e6c">SensorbergSDK.Services.IStorage</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="addaf8ae8b1c244b0fc8fbf7a1d195213"></a>
+<a class="anchor" id="a4c462415098bc4b6b5876bebd54555cf"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">async Task&lt;IList&lt;<a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_delayed_action_data.html">DelayedActionData</a>&gt; &gt; SensorbergSDK.Internal.Data.FileStorage.GetDelayedActions </td>
           <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>maxDelayFromNowInSeconds</em></td><td>)</td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Returns delayed actions which should be executed now or maxDelayFromNowInSeconds seconds in the future. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">maxDelayFromNowInSeconds</td><td></td></tr>
-  </table>
-  </dd>
-</dl>
+<p>Returns delayed actions which should be executed now. </p>
 <dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
-<p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#aa23d61098360db5a9402d86520844ca5">SensorbergSDK.Services.IStorage</a>.</p>
+<p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#a6836081d65fbd3f550fc597b50288fb7">SensorbergSDK.Services.IStorage</a>.</p>
 
 </div>
 </div>
@@ -302,6 +333,14 @@ Properties</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Gets the last state of the beacon. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pid</td><td>ID of the beacon.</td></tr>
+  </table>
+  </dd>
+</dl>
+
 <p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#a090d325653a484cb00b7a829d582f7fa">SensorbergSDK.Services.IStorage</a>.</p>
 
 </div>
@@ -318,6 +357,8 @@ Properties</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Get all not delivered HistoryActions. </p>
 
 <p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#aeafe9e90336467147ed9ed5d9889d989">SensorbergSDK.Services.IStorage</a>.</p>
 
@@ -336,6 +377,8 @@ Properties</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Gets all not delivered HistoryEvents. </p>
+
 <p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#a47cb9037ddc16592c5966fadd1a55403">SensorbergSDK.Services.IStorage</a>.</p>
 
 </div>
@@ -353,7 +396,7 @@ Properties</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Initializes the storage, e.g. create or folders. </p>
+<p>Initializes the storage, e.g. create folders or database. This depends on the implementation, but needs to be called during startup of the SDK. </p>
 <dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 <p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#ae8845296a003d9c60de3282c26e14a07">SensorbergSDK.Services.IStorage</a>.</p>
@@ -374,7 +417,7 @@ Properties</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6d">BeaconEventType</a>&#160;</td>
-          <td class="paramname"><em>type</em>&#160;</td>
+          <td class="paramname"><em>enter</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -384,11 +427,21 @@ Properties</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Save the state of a beacon. This can be used by the background task to have the last state of a beacon. The method stores only the last state of a beacon. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pid</td><td>ID of the beacon.</td></tr>
+    <tr><td class="paramname">enter</td><td>Event type for that event.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
 <p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#ab1668adabf526d217765b4373184a6ec">SensorbergSDK.Services.IStorage</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="af8661d344e495ced38007a141cd2a527"></a>
+<a class="anchor" id="a2c0b1d5106cf0f0037fc09908bdb101a"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -414,7 +467,7 @@ Properties</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6d">BeaconEventType</a>&#160;</td>
-          <td class="paramname"><em>beaconEventType</em>&#160;</td>
+          <td class="paramname"><em>eventType</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -424,7 +477,18 @@ Properties</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#a63b6cde6095aa03c039e9dc3c7ec5a38">SensorbergSDK.Services.IStorage</a>.</p>
+<p>Store a new delayed action. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">action</td><td>Action that should be delayed.</td></tr>
+    <tr><td class="paramname">dueTime</td><td>Time of execution.</td></tr>
+    <tr><td class="paramname">beaconPid</td><td><a class="el" href="class_sensorberg_s_d_k_1_1_beacon.html" title="Representation of a beacon, incl. of there properties. ">Beacon</a> ID that the action triggered.</td></tr>
+    <tr><td class="paramname">eventType</td><td>Type of event.</td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#a9dba7ef7d3de510606a767b80417a6a7">SensorbergSDK.Services.IStorage</a>.</p>
 
 </div>
 </div>
@@ -441,6 +505,14 @@ Properties</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Store the given <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_action.html">HistoryAction</a>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">action</td><td>Action to store.</td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#ac90cbc63dc525727a0ebd86b36d454ac">SensorbergSDK.Services.IStorage</a>.</p>
 
@@ -460,6 +532,14 @@ Properties</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Store the given <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_event.html">HistoryEvent</a>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">he</td><td>Event to store.</td></tr>
+  </table>
+  </dd>
+</dl>
+
 <p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#a2faf1d99c5e9b91d69e2715d72390ae5">SensorbergSDK.Services.IStorage</a>.</p>
 
 </div>
@@ -477,11 +557,13 @@ Properties</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Marks all delivered HistoryActions as delivered. </p>
+
 <p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#a074c0299df935fc7e5ae56d2efc40e5e">SensorbergSDK.Services.IStorage</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="acc0acb5e29591e6d6e46790eae491e34"></a>
+<a class="anchor" id="a6aea48db5a84594f2d13faf5a5c3df8b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -489,13 +571,21 @@ Properties</h2></td></tr>
           <td class="memname">async Task SensorbergSDK.Internal.Data.FileStorage.SetDelayedActionAsExecuted </td>
           <td>(</td>
           <td class="paramtype">string&#160;</td>
-          <td class="paramname"><em>id</em></td><td>)</td>
+          <td class="paramname"><em>uuid</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#ad95f48c4528ff09486207debe9486e91">SensorbergSDK.Services.IStorage</a>.</p>
+<p>Mark the action by the given uuid as executed. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">uuid</td><td>UUID of the action.</td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#a06acd3e7f71132785f59b9150b18b4a8">SensorbergSDK.Services.IStorage</a>.</p>
 
 </div>
 </div>
@@ -511,6 +601,9 @@ Properties</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Marks all delivered HistoryEvents as delivered. </p>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 <p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#abf9de1dbe52aade8b9142e175af3cc89">SensorbergSDK.Services.IStorage</a>.</p>
 

@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['aborted',['Aborted',['../namespace_sensorberg_s_d_k.html#ab70ac9df668d3abd7af80a901212a39ea721c28f4c74928cc9e0bb3fef345e408',1,'SensorbergSDK']]],
+  ['aborted',['Aborted',['../namespace_sensorberg_s_d_k_1_1_internal.html#a2efdabed4358fe482558d3fa16a1e0caa721c28f4c74928cc9e0bb3fef345e408',1,'SensorbergSDK::Internal']]],
   ['accountbeaconid1s',['AccountBeaconId1S',['../class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_layout.html#a03ce5ff0eff359b4f39b9dde4bd8febd',1,'SensorbergSDK::Internal::Data::Layout']]],
   ['action',['Action',['../class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage_helper_1_1_serialized_action.html#a627b1c6a237625292d4741e29579f4dd',1,'SensorbergSDK::Internal::Data::FileStorageHelper::SerializedAction']]],
   ['actions',['Actions',['../class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history.html#afe14ceb38a7e22d8672da8bd3d4a7b1c',1,'SensorbergSDK::Internal::Data::History']]],
@@ -8,8 +8,8 @@ var searchData=
   ['actionsresolved',['ActionsResolved',['../interface_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_i_resolver.html#adaa2e0f0ce67a01bca39dbf31b7dee2f',1,'SensorbergSDK.Internal.Data.IResolver.ActionsResolved()'],['../class_sensorberg_s_d_k_1_1_internal_1_1_services_1_1_resolver.html#af9c426c0e270af2e4e3254e5bb34f1c7',1,'SensorbergSDK.Internal.Services.Resolver.ActionsResolved()']]],
   ['actiontime',['ActionTime',['../class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_action.html#a7f4fa465ec88b75d63d255cf392f9b01',1,'SensorbergSDK::Internal::Data::HistoryAction']]],
   ['add',['Add',['../class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_beacon_container.html#ad7ba8eb1b1b4951cd8d0ad11cb5731c6',1,'SensorbergSDK.Internal.Data.BeaconContainer.Add()'],['../class_sensorberg_s_d_k_1_1_internal_1_1_transport_1_1_request_queue.html#ad49a95a3f9e43f5701b0f9854cb025f4',1,'SensorbergSDK.Internal.Transport.RequestQueue.Add()']]],
-  ['advertisementwatcherbackgroundworker',['AdvertisementWatcherBackgroundWorker',['../class_sensorberg_s_d_k_1_1_sensorberg_s_d_k_background_1_1_advertisement_watcher_background_worker.html#a6fb28ee1720e8dc926c5609bf635514f',1,'SensorbergSDK::SensorbergSDKBackground::AdvertisementWatcherBackgroundWorker']]],
-  ['advertisementwatcherbackgroundworker',['AdvertisementWatcherBackgroundWorker',['../class_sensorberg_s_d_k_1_1_sensorberg_s_d_k_background_1_1_advertisement_watcher_background_worker.html',1,'SensorbergSDK::SensorbergSDKBackground']]],
+  ['advertisementwatcherbackgroundworker',['AdvertisementWatcherBackgroundWorker',['../class_sensorberg_s_d_k_1_1_background_1_1_advertisement_watcher_background_worker.html#a1e8e6b0bab011ab0630aec8e2c01490e',1,'SensorbergSDK::Background::AdvertisementWatcherBackgroundWorker']]],
+  ['advertisementwatcherbackgroundworker',['AdvertisementWatcherBackgroundWorker',['../class_sensorberg_s_d_k_1_1_background_1_1_advertisement_watcher_background_worker.html',1,'SensorbergSDK::Background']]],
   ['advertisementwatcherbackgroundworker_2ecs',['AdvertisementWatcherBackgroundWorker.cs',['../_advertisement_watcher_background_worker_8cs.html',1,'']]],
   ['advertisementworker',['AdvertisementWorker',['../namespace_sensorberg_s_d_k_1_1_internal_1_1_data.html#a685ae1aafd94a7e47975b9347bb66422a644d93122fdef05de5be82e14d3e916a',1,'SensorbergSDK::Internal::Data']]],
   ['advertiser',['Advertiser',['../class_sensorberg_s_d_k_1_1_advertiser.html',1,'SensorbergSDK']]],

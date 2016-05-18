@@ -98,7 +98,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
-<p>Interface for all beacon scanner.  
+<p>Abstraction for the beacon scanner.  
  <a href="interface_sensorberg_s_d_k_1_1_services_1_1_i_beacon_scanner.html#details">More...</a></p>
 <div class="dynheader">
 Inheritance diagram for SensorbergSDK.Services.IBeaconScanner:</div>
@@ -106,7 +106,7 @@ Inheritance diagram for SensorbergSDK.Services.IBeaconScanner:</div>
  <div class="center">
   <img src="interface_sensorberg_s_d_k_1_1_services_1_1_i_beacon_scanner.png" usemap="#SensorbergSDK.Services.IBeaconScanner_map" alt=""/>
   <map id="SensorbergSDK.Services.IBeaconScanner_map" name="SensorbergSDK.Services.IBeaconScanner_map">
-<area href="class_sensorberg_s_d_k_1_1_scanner.html" title="Bluetooth LE advertisement scanner helper class with beacon list management. " alt="SensorbergSDK.Scanner" shape="rect" coords="0,56,255,80"/>
+<area href="class_sensorberg_s_d_k_1_1_internal_1_1_scanner.html" title="Bluetooth LE advertisement scanner helper class with beacon list management. " alt="SensorbergSDK.Internal.Scanner" shape="rect" coords="0,56,255,80"/>
 </map>
  </div></div>
 <table class="memberdecls">
@@ -121,7 +121,7 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="properties"></a>
 Properties</h2></td></tr>
-<tr class="memitem:a2f06226ac22b00b3a36616321615584a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespace_sensorberg_s_d_k.html#ab70ac9df668d3abd7af80a901212a39e">ScannerStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_beacon_scanner.html#a2f06226ac22b00b3a36616321615584a">Status</a><code> [get]</code></td></tr>
+<tr class="memitem:a2f06226ac22b00b3a36616321615584a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespace_sensorberg_s_d_k_1_1_internal.html#a2efdabed4358fe482558d3fa16a1e0ca">ScannerStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_beacon_scanner.html#a2f06226ac22b00b3a36616321615584a">Status</a><code> [get]</code></td></tr>
 <tr class="memdesc:a2f06226ac22b00b3a36616321615584a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines whether the scanner (bluetooth advertisement watcher) has been started or not. When the watcher is started, the timer for checking up on the list of beacons is started as well.  <a href="#a2f06226ac22b00b3a36616321615584a">More...</a><br /></td></tr>
 <tr class="separator:a2f06226ac22b00b3a36616321615584a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -130,14 +130,14 @@ Events</h2></td></tr>
 <tr class="memitem:a7e04cfb103ce1843ac22d1c030e43091"><td class="memItemLeft" align="right" valign="top">EventHandler&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_beacon.html">Beacon</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_beacon_scanner.html#a7e04cfb103ce1843ac22d1c030e43091">BeaconNotSeenForAWhile</a></td></tr>
 <tr class="memdesc:a7e04cfb103ce1843ac22d1c030e43091"><td class="mdescLeft">&#160;</td><td class="mdescRight">Triggered when beacon hasn't been seen for a time defined in BeaconNotSeenDelayInMilliseconds.  <a href="#a7e04cfb103ce1843ac22d1c030e43091">More...</a><br /></td></tr>
 <tr class="separator:a7e04cfb103ce1843ac22d1c030e43091"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5810807b19cd80f65b8a84a96ade1b30"><td class="memItemLeft" align="right" valign="top">EventHandler&lt; <a class="el" href="namespace_sensorberg_s_d_k.html#ab70ac9df668d3abd7af80a901212a39e">ScannerStatus</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_beacon_scanner.html#a5810807b19cd80f65b8a84a96ade1b30">StatusChanged</a></td></tr>
+<tr class="memitem:a5810807b19cd80f65b8a84a96ade1b30"><td class="memItemLeft" align="right" valign="top">EventHandler&lt; <a class="el" href="namespace_sensorberg_s_d_k_1_1_internal.html#a2efdabed4358fe482558d3fa16a1e0ca">ScannerStatus</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_beacon_scanner.html#a5810807b19cd80f65b8a84a96ade1b30">StatusChanged</a></td></tr>
 <tr class="memdesc:a5810807b19cd80f65b8a84a96ade1b30"><td class="mdescLeft">&#160;</td><td class="mdescRight">Triggered when the scanner is either started, stopped or aborted. Aborted status may indicate that the bluetooth has not been turned on on the device.  <a href="#a5810807b19cd80f65b8a84a96ade1b30">More...</a><br /></td></tr>
 <tr class="separator:a5810807b19cd80f65b8a84a96ade1b30"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0ce1b716d80ec5f25d3f185c91095759"><td class="memItemLeft" align="right" valign="top">EventHandler&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_beacon_event_args.html">BeaconEventArgs</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_beacon_scanner.html#a0ce1b716d80ec5f25d3f185c91095759">BeaconEvent</a></td></tr>
 <tr class="separator:a0ce1b716d80ec5f25d3f185c91095759"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Interface for all beacon scanner. </p>
+<div class="textblock"><p>Abstraction for the beacon scanner. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="a04c9a016c7dfd01e9be9db094c58598a"></a>
 <div class="memitem">
@@ -193,7 +193,7 @@ Events</h2></td></tr>
   </dd>
 </dl>
 
-<p>Implemented in <a class="el" href="class_sensorberg_s_d_k_1_1_scanner.html#aa4851b0c32c273a6f6e08b4e74246fb4">SensorbergSDK.Scanner</a>.</p>
+<p>Implemented in <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_scanner.html#a55ccbeafea344493a68912c36af4c460">SensorbergSDK.Internal.Scanner</a>.</p>
 
 </div>
 </div>
@@ -212,7 +212,7 @@ Events</h2></td></tr>
 
 <p>Stops the watcher. The events are unhooked in the callback (OnWatcherStopped). </p>
 
-<p>Implemented in <a class="el" href="class_sensorberg_s_d_k_1_1_scanner.html#a5edae1a4ce3c7c55d01ff425dfe2a79b">SensorbergSDK.Scanner</a>.</p>
+<p>Implemented in <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_scanner.html#ae1a5186ef1e7d3a8cc81c0aa4b88bf5c">SensorbergSDK.Internal.Scanner</a>.</p>
 
 </div>
 </div>
@@ -225,7 +225,7 @@ Events</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespace_sensorberg_s_d_k.html#ab70ac9df668d3abd7af80a901212a39e">ScannerStatus</a> SensorbergSDK.Services.IBeaconScanner.Status</td>
+          <td class="memname"><a class="el" href="namespace_sensorberg_s_d_k_1_1_internal.html#a2efdabed4358fe482558d3fa16a1e0ca">ScannerStatus</a> SensorbergSDK.Services.IBeaconScanner.Status</td>
         </tr>
       </table>
   </td>
@@ -271,7 +271,7 @@ Events</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">EventHandler&lt;<a class="el" href="namespace_sensorberg_s_d_k.html#ab70ac9df668d3abd7af80a901212a39e">ScannerStatus</a>&gt; SensorbergSDK.Services.IBeaconScanner.StatusChanged</td>
+          <td class="memname">EventHandler&lt;<a class="el" href="namespace_sensorberg_s_d_k_1_1_internal.html#a2efdabed4358fe482558d3fa16a1e0ca">ScannerStatus</a>&gt; SensorbergSDK.Services.IBeaconScanner.StatusChanged</td>
         </tr>
       </table>
 </div><div class="memdoc">

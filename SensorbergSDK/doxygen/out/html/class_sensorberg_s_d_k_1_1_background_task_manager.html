@@ -98,10 +98,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">SensorbergSDK.BackgroundTaskManager Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Manager class for the <a class="el" href="namespace_sensorberg_s_d_k_1_1_background.html">Background</a> work.  
+ <a href="class_sensorberg_s_d_k_1_1_background_task_manager.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:abce70367222709957f45fb810071dadf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_background_task_manager.html#abce70367222709957f45fb810071dadf">UnregisterBackgroundTask</a> ()</td></tr>
+<tr class="memdesc:abce70367222709957f45fb810071dadf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unregister all backgroundtasks.  <a href="#abce70367222709957f45fb810071dadf">More...</a><br /></td></tr>
 <tr class="separator:abce70367222709957f45fb810071dadf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a697ce2ef35742d674f5c1431658f7128"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_background_task_manager.html#a697ce2ef35742d674f5c1431658f7128">UnRegisterOnProgressEventHandler</a> ()</td></tr>
 <tr class="memdesc:a697ce2ef35742d674f5c1431658f7128"><td class="mdescLeft">&#160;</td><td class="mdescRight">Will remove OnProgress event handlers from advertisement background task OnProgress events are used to indicate UI tasks on beacon actions resolved in background.  <a href="#a697ce2ef35742d674f5c1431658f7128">More...</a><br /></td></tr>
@@ -110,8 +114,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a726706b829892f1d93a93ed08baded59"><td class="mdescLeft">&#160;</td><td class="mdescRight">Will remove OnProgress event handlers from advertisement background task OnProgress events are used to indicate UI tasks on beacon actions resolved in background.  <a href="#a726706b829892f1d93a93ed08baded59">More...</a><br /></td></tr>
 <tr class="separator:a726706b829892f1d93a93ed08baded59"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a41ee43ea5b251f46b99125298e54b504"><td class="memItemLeft" align="right" valign="top">async Task&lt; <a class="el" href="struct_sensorberg_s_d_k_1_1_background_task_registration_result.html">BackgroundTaskRegistrationResult</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_background_task_manager.html#a41ee43ea5b251f46b99125298e54b504">UpdateBackgroundTaskAsync</a> (<a class="el" href="class_sensorberg_s_d_k_1_1_sdk_configuration.html">SdkConfiguration</a> configuration)</td></tr>
+<tr class="memdesc:a41ee43ea5b251f46b99125298e54b504"><td class="mdescLeft">&#160;</td><td class="mdescRight">Renew the registrations of the background taks.  <a href="#a41ee43ea5b251f46b99125298e54b504">More...</a><br /></td></tr>
 <tr class="separator:a41ee43ea5b251f46b99125298e54b504"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a38ec42ee09e72308050e97c0b5958370"><td class="memItemLeft" align="right" valign="top">async Task&lt; <a class="el" href="struct_sensorberg_s_d_k_1_1_background_task_registration_result.html">BackgroundTaskRegistrationResult</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_background_task_manager.html#a38ec42ee09e72308050e97c0b5958370">RegisterBackgroundTaskAsync</a> (<a class="el" href="class_sensorberg_s_d_k_1_1_sdk_configuration.html">SdkConfiguration</a> configuration)</td></tr>
+<tr class="memdesc:a38ec42ee09e72308050e97c0b5958370"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register background tasks, by the given configuration.  <a href="#a38ec42ee09e72308050e97c0b5958370">More...</a><br /></td></tr>
 <tr class="separator:a38ec42ee09e72308050e97c0b5958370"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af102cafc37b32540eaee552e251a6909"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct_sensorberg_s_d_k_1_1_background_task_registration_result.html">BackgroundTaskRegistrationResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_background_task_manager.html#af102cafc37b32540eaee552e251a6909">RegisterTimedBackgroundTask</a> (string timerClassName)</td></tr>
 <tr class="memdesc:af102cafc37b32540eaee552e251a6909"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers the timed background task.  <a href="#af102cafc37b32540eaee552e251a6909">More...</a><br /></td></tr>
@@ -120,7 +126,7 @@ Public Member Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:ae45d07ea7b5d2c93b8bcd0d5c7228848"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_background_task_manager.html#ae45d07ea7b5d2c93b8bcd0d5c7228848">CheckIfBackgroundFilterUpdateIsRequired</a> ()</td></tr>
-<tr class="memdesc:ae45d07ea7b5d2c93b8bcd0d5c7228848"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the background filters are up-to-date or not. To update the filters, unregister and register background task again (call <a class="el" href="class_sensorberg_s_d_k_1_1_background_task_manager.html#a41ee43ea5b251f46b99125298e54b504">BackgroundTaskManager.UpdateBackgroundTaskAsync()</a>).  <a href="#ae45d07ea7b5d2c93b8bcd0d5c7228848">More...</a><br /></td></tr>
+<tr class="memdesc:ae45d07ea7b5d2c93b8bcd0d5c7228848"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the background filters are up-to-date or not. To update the filters, unregister and register background task again (call <a class="el" href="class_sensorberg_s_d_k_1_1_background_task_manager.html#a41ee43ea5b251f46b99125298e54b504" title="Renew the registrations of the background taks. ">BackgroundTaskManager.UpdateBackgroundTaskAsync()</a>).  <a href="#ae45d07ea7b5d2c93b8bcd0d5c7228848">More...</a><br /></td></tr>
 <tr class="separator:ae45d07ea7b5d2c93b8bcd0d5c7228848"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="properties"></a>
@@ -137,7 +143,9 @@ Events</h2></td></tr>
 <tr class="memitem:aec19ff8ad36ed62fca8841ab7b80ed32"><td class="memItemLeft" align="right" valign="top">EventHandler&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_beacon_action.html">BeaconAction</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_background_task_manager.html#aec19ff8ad36ed62fca8841ab7b80ed32">BackgroundBeaconActionResolved</a></td></tr>
 <tr class="separator:aec19ff8ad36ed62fca8841ab7b80ed32"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Manager class for the <a class="el" href="namespace_sensorberg_s_d_k_1_1_background.html">Background</a> work. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="ae45d07ea7b5d2c93b8bcd0d5c7228848"></a>
 <div class="memitem">
 <div class="memproto">
@@ -159,7 +167,7 @@ Events</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Checks if the background filters are up-to-date or not. To update the filters, unregister and register background task again (call <a class="el" href="class_sensorberg_s_d_k_1_1_background_task_manager.html#a41ee43ea5b251f46b99125298e54b504">BackgroundTaskManager.UpdateBackgroundTaskAsync()</a>). </p>
+<p>Checks if the background filters are up-to-date or not. To update the filters, unregister and register background task again (call <a class="el" href="class_sensorberg_s_d_k_1_1_background_task_manager.html#a41ee43ea5b251f46b99125298e54b504" title="Renew the registrations of the background taks. ">BackgroundTaskManager.UpdateBackgroundTaskAsync()</a>). </p>
 <dl class="section return"><dt>Returns</dt><dd>True, if an update is required. False otherwise.</dd></dl>
 
 </div>
@@ -177,6 +185,14 @@ Events</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Register background tasks, by the given configuration. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">configuration</td><td>Configuration for the new registration.</td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -212,6 +228,12 @@ Events</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Registers the timed background task. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">timerClassName</td><td>Classname of the timer background service.</td></tr>
+  </table>
+  </dd>
+</dl>
 <dl class="section return"><dt>Returns</dt><dd>The registration result.</dd></dl>
 
 </div>
@@ -228,6 +250,8 @@ Events</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Unregister all backgroundtasks. </p>
 
 </div>
 </div>
@@ -261,6 +285,14 @@ Events</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Renew the registrations of the background taks. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">configuration</td><td>Configuration for the new registration.</td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

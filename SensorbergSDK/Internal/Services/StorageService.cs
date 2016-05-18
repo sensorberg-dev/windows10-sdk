@@ -110,11 +110,6 @@ namespace SensorbergSDK.Internal.Services
             return new LayoutResult() {Result = NetworkResult.UnknownError};
         }
 
-        public Task<AppSettings> RetrieveAppSettings()
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<bool> FlushHistory()
         {
             try
@@ -321,9 +316,9 @@ namespace SensorbergSDK.Internal.Services
             await Storage.CleanDatabase();
         }
 
-        public async Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds = 1000)
+        public async Task<IList<DelayedActionData>> GetDelayedActions()
         {
-            return await Storage.GetDelayedActions(maxDelayFromNowInSeconds);
+            return await Storage.GetDelayedActions();
         }
 
         public async Task SetDelayedActionAsExecuted(string id)
@@ -331,9 +326,9 @@ namespace SensorbergSDK.Internal.Services
             await Storage.SetDelayedActionAsExecuted(id);
         }
 
-        public async Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice)
+        public async Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventType)
         {
-            return await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventTypeDetectedByDevice,MaxRetries);
+            return await SaveDelayedActionsRetry(action, dueTime, beaconPid, eventType,MaxRetries);
         }
 
         private async Task<bool> SaveDelayedActionsRetry(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice, int retry)

@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['scanner',['Scanner',['../class_sensorberg_s_d_k_1_1_scanner.html',1,'SensorbergSDK']]],
+  ['scanner',['Scanner',['../class_sensorberg_s_d_k_1_1_internal_1_1_scanner.html',1,'SensorbergSDK::Internal']]],
   ['sdkconfiguration',['SdkConfiguration',['../class_sensorberg_s_d_k_1_1_sdk_configuration.html',1,'SensorbergSDK']]],
   ['sdkdata',['SdkData',['../class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_sdk_data.html',1,'SensorbergSDK::Internal::Data']]],
   ['sdkengine',['SdkEngine',['../class_sensorberg_s_d_k_1_1_internal_1_1_sdk_engine.html',1,'SensorbergSDK::Internal']]],

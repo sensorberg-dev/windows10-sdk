@@ -14,18 +14,25 @@ using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK.Services
 {
+    /// <summary>
+    /// Abstraction to handle all storage related actions.
+    /// </summary>
     public interface IStorageService
     {
         /// <summary>
-        /// Sets the Retrycount for API calls, default Value is 3
+        /// Sets the Retrycount for API calls, default Value is 3.
         /// </summary>
         int RetryCount { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
         /// <summary>
+        /// Initializes the StorageService, e.g. creates database.
+        /// </summary>
+        Task InitStorage();
+
+        /// <summary>
         /// Validates the given API key.
         /// </summary>
-        /// <param name="apiKey"></param>
-        /// <returns></returns>
+        /// <param name="apiKey">Api Key to validate.</param>
         Task<ApiKeyValidationResult> ValidateApiKey(string apiKey);
 
 
@@ -35,17 +42,9 @@ namespace SensorbergSDK.Services
         /// <returns></returns>
         Task<LayoutResult> RetrieveLayout();
 
-
-        /// <summary>
-        /// Loads the appsettings.
-        /// </summary>
-        /// <returns></returns>
-        Task<AppSettings> RetrieveAppSettings();
-
         /// <summary>
         /// Sends the full history in the cloud.
         /// </summary>
-        /// <returns></returns>
         Task<bool> FlushHistory();
 
         /// <summary>
@@ -53,6 +52,9 @@ namespace SensorbergSDK.Services
         /// </summary>
         Task InvalidateLayout();
 
+        /// <summary>
+        /// Loads the local stored Layout.
+        /// </summary>
         Task<Layout> LoadLayoutFromLocalStorage();
 
         /// <summary>
@@ -80,18 +82,49 @@ namespace SensorbergSDK.Services
         /// <param name="forceUpdate">Force to ignore any cache.</param>
         /// <returns>The first found action or null.</returns>
         Task<HistoryAction> GetAction(string uuid, bool forceUpdate = false);
+
+        /// <summary>
+        /// Cleans old entries from the database.
+        /// </summary>
         Task CleanDatabase();
-        Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds = 1000);
+
+        /// <summary>
+        /// Returns all deleayed Actions.
+        /// </summary>
+        Task<IList<DelayedActionData>> GetDelayedActions();
+
+        /// <summary>
+        /// Mark delayed action as executed.
+        /// </summary>
+        /// <param name="id">UUID of delayed action.</param>
         Task SetDelayedActionAsExecuted(string id);
 
         /// <summary>
-        /// Initializes the StorageService, e.g. creates database.
+        /// Store a new delayed action.
         /// </summary>
-        Task InitStorage();
+        /// <param name="action">Action that should be delayed.</param>
+        /// <param name="dueTime">Time of execution.</param>
+        /// <param name="beaconPid">Beacon ID that the action triggered.</param>
+        /// <param name="eventType">Type of event.</param>
+        Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventType);
 
-        Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice);
+        /// <summary>
+        /// Gets the last state of the beacon.
+        /// </summary>
+        /// <param name="pid">ID of the beacon.</param>
         Task<BackgroundEvent> GetLastEventStateForBeacon(string pid);
+
+        /// <summary>
+        /// Save the state of a beacon. This can be used by the background task to have the last state of a beacon. The method stores only the last state of a beacon.
+        /// </summary>
+        /// <param name="pid">ID of the beacon.</param>
+        /// <param name="enter">Event type for that event.</param>
         Task<bool> SaveBeaconEventState(string pid, BeaconEventType enter);
+
+        /// <summary>
+        /// Returns all actions that are triggered by the background task.
+        /// </summary>
+        /// <param name="doNotDelete">Boolean to delete or not delete the returned actions</param>
         Task<List<BeaconAction>> GetActionsForForeground(bool doNotDelete = false);
     }
 }

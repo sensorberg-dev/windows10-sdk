@@ -1,8 +1,8 @@
 var searchData=
 [
   ['time',['Time',['../class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage_helper_1_1_serialized_action.html#a827839c7589e6c1efeca8e43306adb5f',1,'SensorbergSDK::Internal::Data::FileStorageHelper::SerializedAction']]],
-  ['timedbackgroundworker',['TimedBackgroundWorker',['../class_sensorberg_s_d_k_1_1_sensorberg_s_d_k_background_1_1_timed_background_worker.html',1,'SensorbergSDK::SensorbergSDKBackground']]],
-  ['timedbackgroundworker',['TimedBackgroundWorker',['../class_sensorberg_s_d_k_1_1_sensorberg_s_d_k_background_1_1_timed_background_worker.html#a0e04185ce207f576fb28c8acd0f1a205',1,'SensorbergSDK::SensorbergSDKBackground::TimedBackgroundWorker']]],
+  ['timedbackgroundworker',['TimedBackgroundWorker',['../class_sensorberg_s_d_k_1_1_background_1_1_timed_background_worker.html',1,'SensorbergSDK::Background']]],
+  ['timedbackgroundworker',['TimedBackgroundWorker',['../class_sensorberg_s_d_k_1_1_background_1_1_timed_background_worker.html#a220d0352964e811cf594af65a536eb16',1,'SensorbergSDK::Background::TimedBackgroundWorker']]],
   ['timedbackgroundworker_2ecs',['TimedBackgroundWorker.cs',['../_timed_background_worker_8cs.html',1,'']]],
   ['timedworker',['TimedWorker',['../namespace_sensorberg_s_d_k_1_1_internal_1_1_data.html#a685ae1aafd94a7e47975b9347bb66422a2185f32b38f0ad63b40647aaa92ec5af',1,'SensorbergSDK::Internal::Data']]],
   ['timeformat',['Timeformat',['../class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history.html#a746be46722421a80becfbfd666cc592b',1,'SensorbergSDK::Internal::Data::History']]],
