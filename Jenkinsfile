@@ -45,6 +45,7 @@ try {
 	
 	dir('.sonarqube/out') {
 		for(File f : new File(".").listFiles()) {
+			print f
 			if(f.getName().toLowerCase().indexOf("sensorbergsdk_x") != -1) {
 				dir(f.getName()) {
 					deleteDir();
