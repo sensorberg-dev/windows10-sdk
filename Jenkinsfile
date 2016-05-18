@@ -42,17 +42,7 @@ try {
     bat "\"${sonarQubeRunner}\\MSBuild.SonarQube.Runner.exe\" begin /k:\"com.sensorberg:win10sdk\" /n:\"Windows10-SDK\" /v:\"${version}\" /d:sonar.resharper.solutionFile=SensorbergSDKTests.sln /d:sonar.resharper.cs.reportPath=ReSharperResult.xml /d:sonar.branch=${env.BRANCH_NAME}"
     bat "\"${msbuild}\" /t:Clean,Build /p:Platform=ARM SensorbergSDKTests.sln"
     bat "\"C:\\Program Files (x86)\\JetBrains\\jb-commandline\\inspectcode.exe\" SensorbergSDKTests.sln /o=ReSharperResult.xml"
-	
-	dir('.sonarqube/out') {
-		for(File f : new File(".").listFiles()) {
-			print f
-			if(f.getName().toLowerCase().indexOf("sensorbergsdk_x") != -1) {
-				dir(f.getName()) {
-					deleteDir();
-				}
-			}
-		}
-	}
+	bat "for /D \\%f in (.sonarqube\\out\\SensorbergSDK_x*) do rmdir \\%f /s /q"
     bat "\"${sonarQubeRunner}\\MSBuild.SonarQube.Runner.exe\" end"
 
     emailext body: '$DEFAULT_CONTENT', subject: '$DEFAULT_SUBJECT', to: '$DEFAULT_RECIPIENTS'
