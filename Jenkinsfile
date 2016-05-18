@@ -40,7 +40,7 @@ try {
 
     stage name: 'Analyse', concurrency: 1
 	dir('.sonarqube') {
-		deleteDir('.sonarqube')
+		deleteDir()
 	}
     def sonarQubeRunner = tool 'MSBuildSonarQubeRunner'
     bat "\"${sonarQubeRunner}\\MSBuild.SonarQube.Runner.exe\" begin /k:\"com.sensorberg:win10sdk\" /n:\"Windows10-SDK\" /v:\"${version}\" /d:sonar.resharper.solutionFile=SensorbergSDKTests.sln /d:sonar.resharper.cs.reportPath=ReSharperResult.xml /d:sonar.branch=${env.BRANCH_NAME}"
