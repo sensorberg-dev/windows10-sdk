@@ -41,7 +41,7 @@ try {
 
     def sonarQubeRunner = tool 'MSBuildSonarQubeRunner'
     bat "\"${sonarQubeRunner}\\MSBuild.SonarQube.Runner.exe\" begin /k:\"com.sensorberg:win10sdk\" /n:\"Windows10-SDK\" /v:\"${version}\" /d:sonar.resharper.solutionFile=SensorbergSDKTests.sln /d:sonar.resharper.cs.reportPath=ReSharperResult.xml /d:sonar.branch=${env.BRANCH_NAME}"
-    bat "\"${msbuild}\" /p:Platform=ARM SensorbergSDKTests.sln"
+    bat "\"${msbuild}\" /t:Clean,Build /p:Platform=ARM SensorbergSDKTests.sln"
     bat "\"C:\\Program Files (x86)\\JetBrains\\jb-commandline\\inspectcode.exe\" SensorbergSDKTests.sln /o=ReSharperResult.xml"
     bat "\"${sonarQubeRunner}\\MSBuild.SonarQube.Runner.exe\" end"
 
