@@ -5,6 +5,7 @@ node ('Windows') {
 
 try {
 	stage 'checkout'
+	deleteDir()
     checkout scm//: [$class: 'GitSCM', branches: [[name: '*']], userRemoteConfigs: [[url: 'https://github.com/sensorberg-dev/windows10-sdk.git']], clean: true]
 
     stage 'nuget restore'
