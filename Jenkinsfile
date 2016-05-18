@@ -5,7 +5,6 @@ node ('Windows') {
 
 try {
 	stage 'checkout'
-	deleteDir()
     checkout scm//: [$class: 'GitSCM', branches: [[name: '*']], userRemoteConfigs: [[url: 'https://github.com/sensorberg-dev/windows10-sdk.git']], clean: true]
 
     stage 'nuget restore'
@@ -44,7 +43,7 @@ try {
     bat "\"${msbuild}\" /t:Clean,Build /p:Platform=ARM SensorbergSDKTests.sln"
     bat "\"C:\\Program Files (x86)\\JetBrains\\jb-commandline\\inspectcode.exe\" SensorbergSDKTests.sln /o=ReSharperResult.xml"
 	
-	dir('.sonarqube') {
+	dir('.sonarqube/out') {
 		for(File f : new File(".").listFiles()) {
 			if(f.getName().toLowerCase().indexOf("sensorbergsdk_x") != -1) {
 				dir(f.getName()) {
