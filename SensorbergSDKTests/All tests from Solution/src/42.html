@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\resolvedactionseventargs.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System.Collections.Generic;
+using System.Diagnostics;
+using SensorbergSDK.Internal.Transport;
+
+namespace SensorbergSDK.Internal
+{
+    public sealed class ResolvedActionsEventArgs
+    {
+        public int RequestId
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        /// &lt;summary&gt;
+        /// The beacon event type associated with the resolved action(s).
+        /// &lt;/summary&gt;
+        public BeaconEventType BeaconEventType
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        /// &lt;summary&gt;
+        /// Beacon PID from the resolve action request.
+        /// Makes it easier to track complete requests and reporting the history to the server.
+        /// &lt;/summary&gt;
+        public string BeaconPid
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        public IList&lt;ResolvedAction&gt; ResolvedActions
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[15,13,16,17,1],[17,13,18,17,1],[26,13,27,17,1],[28,13,29,17,1],[38,13,39,17,1],[40,13,41,17,1],[46,13,47,17,1],[48,13,49,17,1]]);
+    </script>
+  </body>
+</html>

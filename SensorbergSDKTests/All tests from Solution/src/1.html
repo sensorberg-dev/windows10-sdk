@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdktests\backgroundenginetest.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 20.04.2016
+// 
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using MetroLog;
+using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using SensorbergSDK;
+using SensorbergSDK.Background;
+using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Transport;
+using SensorbergSDKTests.Mocks;
+
+namespace SensorbergSDKTests
+{
+    [TestClass]
+    public class BackgroundEngineTest
+    {
+        private static readonly ILogger logger = LogManagerFactory.DefaultLogManager.GetLogger&lt;BackgroundEngineTest&gt;();
+        private const int OUT_OF_RANGE_DB = -128;
+
+        [TestInitialize]
+        public void Setup()
+        {
+            ServiceManager.ReadOnlyForTests = false;
+            ServiceManager.Clear();
+            ServiceManager.ApiConnction = new MockApiConnection();
+            ServiceManager.LayoutManager = new LayoutManager();
+            ServiceManager.SettingsManager = new SettingsManager();
+            ServiceManager.StorageService = new StorageService() {Storage = new MockStorage()};
+            ServiceManager.ReadOnlyForTests = true;
+            logger.Debug(&quot;Setup - End&quot;);
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public async Task ResolveBackgroundEvent()
+        {
+            logger.Debug(&quot;ResolveBackgroundEvent - Start&quot;);
+            LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
+            await layoutManager.VerifyLayoutAsync(true);
+            BeaconAction orgAction = layoutManager.Layout.ResolvedActions.FirstOrDefault(ra =&gt; ra.BeaconAction.Uuid == &quot;9ded63644e424d758b0218f7c70f2473&quot;).BeaconAction;
+
+            List&lt;Beacon&gt; list = new List&lt;Beacon&gt;() {new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff0004&quot;, Id2 = 39178, Id3 = 30929}};
+            BackgroundEngine engine = new BackgroundEngine();
+            TaskCompletionSource&lt;BeaconAction&gt; action = new TaskCompletionSource&lt;BeaconAction&gt;();
+            engine.BeaconActionResolved += (sender, args) =&gt;
+            {
+                action.SetResult(args);
+            };
+            await engine.InitializeAsync();
+            await engine.ResolveBeaconActionsAsync(list, OUT_OF_RANGE_DB);
+
+
+            BeaconAction result = await action.Task;
+
+            Assert.AreEqual(orgAction, result, &quot;action not found&quot;);
+            logger.Debug(&quot;ResolveBackgroundEvent - End&quot;);
+        }
+
+        [TestMethod]
+        [Timeout(2000)]
+        public async Task ResolveBackgroundEventSingle()
+        {
+            logger.Debug(&quot;ResolveBackgroundEventSingle - Start&quot;);
+            LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
+            await layoutManager.VerifyLayoutAsync(true);
+            BeaconAction orgAction = layoutManager.Layout.ResolvedActions.FirstOrDefault(ra =&gt; ra.BeaconAction.Uuid == &quot;9ded63644e424d758b0218f7c70f2473&quot;).BeaconAction;
+
+            List&lt;Beacon&gt; list = new List&lt;Beacon&gt;()
+            {
+                new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff0004&quot;, Id2 = 39178, Id3 = 30929},
+                new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff0004&quot;, Id2 = 39178, Id3 = 30929}
+            };
+            BackgroundEngine engine = new BackgroundEngine();
+            TaskCompletionSource&lt;BeaconAction&gt; action = new TaskCompletionSource&lt;BeaconAction&gt;();
+            int resolveCount = 0;
+            engine.BeaconActionResolved += (sender, args) =&gt;
+            {
+                resolveCount++;
+                action.SetResult(args);
+            };
+            await engine.InitializeAsync();
+            await engine.ResolveBeaconActionsAsync(list, OUT_OF_RANGE_DB);
+
+
+            BeaconAction result = await action.Task;
+
+            Assert.AreEqual(orgAction, result, &quot;action not found&quot;);
+            Assert.AreEqual(1, resolveCount, &quot;More then onetime resolved&quot;);
+            logger.Debug(&quot;ResolveBackgroundEventSingle - End&quot;);
+        }
+
+        [TestMethod]
+        [Timeout(2000)]
+        public async Task ResolveBackgroundEventSupress()
+        {
+            logger.Debug(&quot;ResolveBackgroundEventSupress - Start&quot;);
+            LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
+            await layoutManager.VerifyLayoutAsync(true);
+            BeaconAction orgAction = layoutManager.Layout.ResolvedActions.FirstOrDefault(ra =&gt; ra.BeaconAction.Uuid == &quot;9ded63644e424d758b0218f7c70f2473&quot;).BeaconAction;
+
+            List&lt;Beacon&gt; list = new List&lt;Beacon&gt;()
+            {
+                new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff0004&quot;, Id2 = 39178, Id3 = 30929},
+                new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff0003&quot;, Id2 = 48869, Id3 = 21321},
+                new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff0004&quot;, Id2 = 39178, Id3 = 30929},
+                new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff0003&quot;, Id2 = 48869, Id3 = 21321}
+            };
+            BackgroundEngine engine = new BackgroundEngine();
+            TaskCompletionSource&lt;BeaconAction&gt; action = new TaskCompletionSource&lt;BeaconAction&gt;();
+            int resolveCount = 0;
+            engine.BeaconActionResolved += (sender, args) =&gt;
+            {
+                resolveCount++;
+                action.TrySetResult(args);
+            };
+            await engine.InitializeAsync();
+            await engine.ResolveBeaconActionsAsync(list, OUT_OF_RANGE_DB);
+
+
+            BeaconAction result = await action.Task;
+
+            Assert.AreEqual(orgAction, result, &quot;action not found&quot;);
+            Assert.AreEqual(4, resolveCount, &quot;More then 4 resolved&quot;);
+            logger.Debug(&quot;ResolveBackgroundEventSupress - End&quot;);
+        }
+
+        [TestMethod]
+        public async Task ResolveMultipleAction()
+        {
+            logger.Debug(&quot;ResolveMultipleAction - Start&quot;);
+            LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
+            await layoutManager.VerifyLayoutAsync(true);
+
+            BackgroundEngine engine = new BackgroundEngine();
+            IList&lt;BeaconAction&gt; actions = new List&lt;BeaconAction&gt;();
+            engine.BeaconActionResolved += (sender, args) =&gt;
+            {
+                actions.Add(args);
+            };
+            List&lt;Beacon&gt; list = new List&lt;Beacon&gt;() {new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff0003&quot;, Id2 = 48869, Id3 = 21321}};
+
+            await engine.InitializeAsync();
+            await engine.ResolveBeaconActionsAsync(list, OUT_OF_RANGE_DB);
+
+
+            Assert.AreEqual(4, actions.Count, &quot;Not 4 action found&quot;);
+            logger.Debug(&quot;ResolveMultipleAction - End&quot;);
+        }
+
+        [TestMethod]
+        public async Task ResolveSingleActionNoResult()
+        {
+            logger.Debug(&quot;ResolveSingleActionNoResult - Start&quot;);
+            LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
+            await layoutManager.VerifyLayoutAsync(true);
+
+            BackgroundEngine engine = new BackgroundEngine();
+            TaskCompletionSource&lt;IList&lt;BeaconAction&gt;&gt; action = new TaskCompletionSource&lt;IList&lt;BeaconAction&gt;&gt;();
+            IList&lt;BeaconAction&gt; actions = new List&lt;BeaconAction&gt;();
+            engine.BeaconActionResolved += (sender, args) =&gt;
+            {
+                actions.Add(args);
+                if (actions.Count &gt;= 3)
+                {
+                    action.SetResult(actions);
+                }
+            };
+            List&lt;Beacon&gt; list = new List&lt;Beacon&gt;() {new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff1234&quot;, Id2 = 39178, Id3 = 30929}};
+
+            if (await Task.WhenAny(action.Task, Task.Delay(500)) == action.Task)
+            {
+                Assert.AreEqual(0, action.Task.Result, &quot;Not 0 action found&quot;);
+            }
+            else
+            {
+                //timeout is fine
+            }
+            logger.Debug(&quot;ResolveSingleActionNoResult - End&quot;);
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[167,13,167,14,0],[168,17,168,35,0],[169,17,169,40,0],[170,17,170,18,0],[171,21,171,47,0],[172,17,172,18,0],[173,13,173,14,0],[177,13,177,14,0],[178,17,178,78,0],[179,13,179,14,0],[28,9,28,10,1],[29,13,29,53,1],[30,13,30,36,1],[31,13,31,67,1],[32,13,32,64,1],[33,13,33,68,1],[34,13,34,96,1],[35,13,35,52,1],[36,13,36,41,1],[37,9,37,10,1],[23,9,23,120,1],[52,13,52,14,1],[53,17,53,40,1],[54,13,54,14,1],[46,96,46,154,1],[72,96,72,154,1],[105,96,105,154,1],[42,9,42,10,1],[43,13,43,60,1],[44,13,44,88,1],[45,13,45,57,1],[46,13,46,96,1],[46,154,46,169,1],[48,13,48,136,1],[49,13,49,62,1],[50,13,50,98,1],[51,13,52,13,1],[52,14,53,17,1],[53,40,54,13,1],[54,14,54,15,1],[55,13,55,44,1],[56,13,56,75,1],[59,13,59,53,1],[61,13,61,68,1],[62,13,62,58,1],[63,9,63,10,1],[83,13,83,14,1],[84,17,84,32,1],[85,17,85,40,1],[86,13,86,14,1],[68,9,68,10,1],[69,13,69,66,1],[70,13,70,88,1],[71,13,71,57,1],[72,13,72,96,1],[72,154,72,169,1],[74,13,78,15,1],[79,13,79,62,1],[80,13,80,98,1],[81,13,81,34,1],[82,13,83,13,1],[83,14,84,17,1],[84,32,85,17,1],[85,40,86,13,1],[86,14,86,15,1],[87,13,87,44,1],[88,13,88,75,1],[91,13,91,53,1],[93,13,93,68,1],[94,13,94,76,1],[95,13,95,64,1],[96,9,96,10,1],[118,13,118,14,1],[119,17,119,32,1],[120,17,120,43,1],[121,13,121,14,1],[101,9,101,10,1],[102,13,102,67,1],[103,13,103,88,1],[104,13,104,57,1],[105,13,105,96,1],[105,154,105,169,1],[107,13,113,15,1],[114,13,114,62,1],[115,13,115,98,1],[116,13,116,34,1],[117,13,118,13,1],[118,14,119,17,1],[119,32,120,17,1],[120,43,121,13,1],[121,14,121,15,1],[122,13,122,44,1],[123,13,123,75,1],[126,13,126,53,1],[128,13,128,68,1],[129,13,129,70,1],[130,13,130,65,1],[131,9,131,10,1],[143,13,143,14,1],[144,17,144,35,1],[145,13,145,14,1],[135,9,135,10,1],[136,13,136,59,1],[137,13,137,88,1],[138,13,138,57,1],[140,13,140,62,1],[141,13,141,68,1],[142,13,143,13,1],[143,14,144,17,1],[144,35,145,13,1],[145,14,145,15,1],[146,13,146,136,1],[148,13,148,44,1],[149,13,149,75,1],[152,13,152,69,1],[153,13,153,57,1],[154,9,154,10,1],[158,9,158,10,1],[159,13,159,65,1],[160,13,160,88,1],[161,13,161,57,1],[163,13,163,62,1],[164,13,164,112,1],[165,13,165,68,1],[166,13,167,13,1],[167,14,168,17,1],[168,35,169,17,1],[169,40,170,17,1],[170,18,171,21,1],[171,47,172,17,1],[172,18,173,13,1],[173,14,173,15,1],[174,13,174,136,1],[176,13,176,81,1],[181,13,181,14,1],[183,13,183,14,1],[184,13,184,63,1],[185,9,185,10,1]]);
+    </script>
+  </body>
+</html>

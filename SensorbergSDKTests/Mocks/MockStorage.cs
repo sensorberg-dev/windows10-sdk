@@ -69,6 +69,11 @@ namespace SensorbergSDKTests.Mocks
             return UndeliveredActions.FirstOrDefault(a => a.EventId == uuid);
         }
 
+        public Task CleanupDatabase()
+        {
+            throw new NotImplementedException();
+        }
+
         public Task CleanDatabase()
         {
             throw new NotImplementedException();

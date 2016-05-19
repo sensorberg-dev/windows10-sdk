@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\sdkconfiguration.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 25.04.2016
+// 
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System.Diagnostics;
+using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
+
+namespace SensorbergSDK
+{
+    /// &lt;summary&gt;
+    /// Defines the configuration for the SDK.
+    /// &lt;/summary&gt;
+    public class SdkConfiguration
+    {
+        /// &lt;summary&gt;
+        /// ApiKey to connect to the Sensorberg Backend. See https://manage.sensorberg.com/#/applications for the key.
+        /// &lt;/summary&gt;
+        public string ApiKey { get; set; }
+
+        /// &lt;summary&gt;
+        /// Class name to register the background timer.
+        /// &lt;see cref=&quot;SDKManager.RegisterBackgroundTaskAsync&quot;/&gt;
+        /// &lt;/summary&gt;
+        public string BackgroundTimerClassName { get; set; }
+
+        /// &lt;summary&gt;
+        /// class name to register the advertismend task, this task receives the bluetooth events.
+        /// &lt;see cref=&quot;SDKManager.RegisterBackgroundTaskAsync&quot;/&gt;
+        /// &lt;/summary&gt;
+        public string BackgroundAdvertisementClassName { get; set; }
+
+        /// &lt;summary&gt;
+        /// Defines an differend background beacon uuid space.
+        /// See https://msdn.microsoft.com/de-de/library/windows/apps/windows.devices.bluetooth.advertisement.bluetoothleadvertisementfilter.bytepatterns.aspx for further information.
+        /// Without background usage this property isn&#39;t needet.
+        /// &lt;/summary&gt;
+        public string BackgroundBeaconUuidSpace { get; set; }
+
+        /// &lt;summary&gt;
+        /// Defines if the beacon scanner should automaticly start.
+        /// &lt;/summary&gt;
+        public bool AutoStartScanner { get; set; }
+
+        /// &lt;summary&gt;
+        /// Defines an user or advertisement id for collection all the events from a specific user or device.
+        /// &lt;/summary&gt;
+        public string UserId
+        {
+            get { return SdkData.Instance.UserId; }
+            set { SdkData.Instance.UserId = value; }
+        }
+
+        /// &lt;summary&gt;
+        /// The manufacturer ID to filter beacons that are being watched.
+        /// &lt;/summary&gt;
+        public ushort ManufacturerId { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
+
+        /// &lt;summary&gt;
+        /// The beacon code to filter beacons that are being watched.
+        /// &lt;/summary&gt;
+        public ushort BeaconCode { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
+
+        /// &lt;summary&gt;
+        /// Creates a new object that starts automatic the scanner and collect every beacon contains the sensorberg uuids.
+        /// &lt;/summary&gt;
+        public SdkConfiguration()
+        {
+            AutoStartScanner = true;
+            BackgroundBeaconUuidSpace = Constants.SensorbergUuidSpace;
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[27,50,27,54,0],[27,55,27,59,0],[33,58,33,62,0],[33,63,33,67,0],[40,51,40,55,0],[52,17,52,18,0],[52,19,52,50,0],[52,51,52,52,0],[53,17,53,18,0],[53,19,53,51,0],[53,52,53,53,0],[21,32,21,36,1],[21,37,21,41,1],[40,56,40,60,1],[45,40,45,44,1],[45,45,45,49,1],[59,40,59,66,1],[59,67,59,93,1],[64,36,64,62,1],[64,63,64,89,1],[69,9,69,34,1],[70,9,70,10,1],[71,13,71,37,1],[72,13,72,71,1],[73,9,73,10,1]]);
+    </script>
+  </body>
+</html>

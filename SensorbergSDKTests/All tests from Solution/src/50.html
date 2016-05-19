@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\transport\resolvedaction.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.Serialization;
+using SensorbergSDK.Internal.Data;
+
+namespace SensorbergSDK.Internal.Transport
+{
+    /// &lt;summary&gt;
+    /// Internal class that represents a single action coming from the server. 
+    /// Class holds a BeaconAction object which exposes public API for the application. 
+    /// &lt;/summary&gt;
+    [DataContract]
+    public sealed class ResolvedAction
+    {
+        private ICollection&lt;string&gt; _beaconPids;
+
+        [DataMember]
+        public BeaconAction BeaconAction
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        [DataMember(Name = &quot;beacons&quot;)]
+        public ICollection&lt;string&gt; BeaconPids
+        {
+            [DebuggerStepThrough]
+            get { return _beaconPids; }
+            [DebuggerStepThrough]
+            set { _beaconPids = value; }
+        }
+
+        [DataMember(Name = &quot;trigger&quot;)]
+        public BeaconEventType EventTypeDetectedByDevice
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        [DataMember]
+        public long Delay
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        [DataMember]
+        public bool SendOnlyOnce
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        [DataMember(Name = &quot;suppressionTime&quot;)]
+        public int SuppressionTime
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        [DataMember]
+        public bool ReportImmediately
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        [DataMember]
+        public IList&lt;Timeframe&gt; Timeframes
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        public ResolvedAction()
+        {
+            BeaconPids = new HashSet&lt;string&gt;();
+            Timeframes = new List&lt;Timeframe&gt;();
+        }
+
+        public bool IsInsideTimeframes(DateTimeOffset time)
+        {
+            if (Timeframes.Count == 0)
+            {
+                // No timeframes specified
+                return true;
+            }
+
+            foreach (var frame in Timeframes)
+            {
+                // If time is inside any Timeframes then we return true
+                bool start = false;
+                bool end = false;
+
+                if (frame.Start != null)
+                {
+                    if (frame.Start &lt; time)
+                    {
+                        start = true;
+                    }
+                }
+                else
+                {
+                    // No start set so we are in it
+                    start = true;
+                }
+
+                if (frame.End != null)
+                {
+                    if (frame.End &gt; time)
+                    {
+                        end = true;
+                    }
+                }
+                else
+                {
+                    end = true;
+                }
+
+                if (start &amp;&amp; end)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool Equals(ResolvedAction other)
+        {
+            return (!_beaconPids?.Except(other._beaconPids).GetEnumerator().MoveNext()).Value &amp;&amp; Equals(BeaconAction.ToString(), other.BeaconAction.ToString()) &amp;&amp; EventTypeDetectedByDevice == other.EventTypeDetectedByDevice &amp;&amp;
+                   Delay == other.Delay &amp;&amp; SendOnlyOnce == other.SendOnlyOnce &amp;&amp; SuppressionTime == other.SuppressionTime &amp;&amp; ReportImmediately == other.ReportImmediately &amp;&amp;
+                   (!Timeframes?.Except(other.Timeframes).GetEnumerator().MoveNext()).Value;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) { return false;}
+            if (ReferenceEquals(this, obj)) { return true;}
+            return obj is ResolvedAction &amp;&amp; Equals((ResolvedAction) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = _beaconPids != null ? _beaconPids.GetHashCode() : 0;
+                hashCode = (hashCode*397) ^ (BeaconAction != null ? BeaconAction.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (int) EventTypeDetectedByDevice;
+                hashCode = (hashCode*397) ^ Delay.GetHashCode();
+                hashCode = (hashCode*397) ^ SendOnlyOnce.GetHashCode();
+                hashCode = (hashCode*397) ^ SuppressionTime;
+                hashCode = (hashCode*397) ^ ReportImmediately.GetHashCode();
+                hashCode = (hashCode*397) ^ (Timeframes != null ? Timeframes.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(ResolvedAction left, ResolvedAction right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(ResolvedAction left, ResolvedAction right)
+        {
+            return !Equals(left, right);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[104,13,104,14,0],[106,17,106,29,0],[123,17,123,18,0],[125,21,125,34,0],[126,17,126,18,0],[158,45,158,46,0],[158,47,158,60,0],[159,45,159,46,0],[159,47,159,59,0],[164,9,164,10,0],[166,13,166,14,0],[167,17,167,84,0],[168,17,168,101,0],[169,17,169,77,0],[170,17,170,65,0],[171,17,171,72,0],[172,17,172,61,0],[173,17,173,77,0],[174,17,174,97,0],[175,17,175,33,0],[177,9,177,10,0],[180,9,180,10,0],[181,13,181,40,0],[182,9,182,10,0],[26,13,27,17,1],[28,13,29,17,1],[36,17,36,18,1],[36,19,36,38,1],[36,39,36,40,1],[38,17,38,18,1],[38,19,38,39,1],[38,40,38,41,1],[44,13,45,17,1],[46,13,47,17,1],[53,13,54,17,1],[55,13,56,17,1],[62,13,63,17,1],[64,13,65,17,1],[71,13,72,17,1],[73,13,74,17,1],[80,13,81,17,1],[82,13,83,17,1],[89,13,90,17,1],[91,13,92,17,1],[95,9,95,32,1],[96,9,96,10,1],[97,13,97,48,1],[98,13,98,48,1],[99,9,99,10,1],[102,9,102,10,1],[103,13,103,39,1],[109,13,109,20,1],[109,35,109,45,1],[109,22,109,31,1],[110,13,110,14,1],[112,17,112,36,1],[113,17,113,34,1],[115,17,115,41,1],[116,17,116,18,1],[117,21,117,44,1],[118,21,118,22,1],[119,25,119,38,1],[120,21,120,22,1],[121,17,121,18,1],[128,17,128,39,1],[129,17,129,18,1],[130,21,130,42,1],[131,21,131,22,1],[132,25,132,36,1],[133,21,133,22,1],[134,17,134,18,1],[136,17,136,18,1],[137,21,137,32,1],[138,17,138,18,1],[140,17,140,34,1],[141,17,141,18,1],[142,21,142,33,1],[144,13,144,14,1],[109,32,109,34,1],[146,13,146,26,1],[147,9,147,10,1],[150,9,150,10,1],[151,13,153,93,1],[154,9,154,10,1],[157,9,157,10,1],[158,13,158,44,1],[159,13,159,44,1],[160,13,160,74,1],[161,9,161,10,1],[185,9,185,10,1],[186,13,186,41,1],[187,9,187,10,1]]);
+    </script>
+  </body>
+</html>

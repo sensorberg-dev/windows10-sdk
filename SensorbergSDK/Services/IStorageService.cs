@@ -86,7 +86,7 @@ namespace SensorbergSDK.Services
         /// <summary>
         /// Cleans old entries from the database.
         /// </summary>
-        Task CleanDatabase();
+        Task CleanupDatabase();
 
         /// <summary>
         /// Returns all deleayed Actions.

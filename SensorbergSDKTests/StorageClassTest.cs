@@ -683,5 +683,39 @@ namespace SensorbergSDKTests
             await storage.GetUndeliveredEvents();
             await storage.CleanDatabase();
         }
+
+        [TestMethod]
+        public async Task CleanupActionDatabaseTest()
+        {
+            await storage.InitStorage();
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter)));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit)));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
+
+            await storage.GetUndeliveredActions();
+            await storage.SetActionsAsDelivered();
+
+            await storage.CleanupDatabase();
+
+            Assert.AreEqual(0, (await storage.GetActions("1")).Count, "Action found, not all actions where removed");
+
+
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter)));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit)));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "3",
+                DateTimeOffset.Parse(string.Format("{0}-{1}-{2}T14:00:00.000+0000", DateTime.Now.AddDays(-2).Year, DateTime.Now.AddDays(-2).Month, DateTime.Now.AddDays(-2).Day)),
+                BeaconEventType.EnterExit)));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "2",
+                DateTimeOffset.Parse(string.Format("{0}-{1}-{2}T14:00:00.000+0000", DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day)), BeaconEventType.EnterExit)));
+
+            await storage.GetUndeliveredActions();
+            await storage.SetActionsAsDelivered();
+
+            await storage.CleanupDatabase();
+
+            Assert.AreEqual(1, (await storage.GetActions("1")).Count, "Not 1 action found");
+
+        }
     }
 }

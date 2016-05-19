@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdktests\layoutmanagertest.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 04.03.2016
+// 
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Windows.Data.Json;
+using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Transport;
+using SensorbergSDK.Services;
+using SensorbergSDKTests.Mocks;
+
+namespace SensorbergSDKTests
+{
+    [TestClass]
+    public class LayoutManagerTest
+    {
+        [TestInitialize]
+        public async Task Setup()
+        {
+            ServiceManager.ReadOnlyForTests = false;
+            ServiceManager.Clear();
+            ServiceManager.ApiConnction = new MockApiConnection();
+            ServiceManager.LayoutManager = new LayoutManager();
+            ServiceManager.StorageService = new StorageService() {Storage = new MockStorage()};
+            ServiceManager.ReadOnlyForTests = true;
+        }
+
+        [TestMethod]
+        public async Task TestValidLayout()
+        {
+            await ValidateBaseMockLayout(ServiceManager.LayoutManager);
+        }
+
+        [TestMethod]
+        public async Task TestValidInvalidateLayout()
+        {
+            ILayoutManager manager = ServiceManager.LayoutManager;
+            await ValidateBaseMockLayout(manager);
+            await manager.InvalidateLayout();
+            Assert.IsFalse(manager.IsLayoutValid, &quot;Layout still valid&quot;);
+            Assert.IsNull(manager.Layout, &quot;Layout still exists&quot;);
+            Assert.IsTrue(await manager.VerifyLayoutAsync(true), &quot;Verification failed&quot;);
+            Assert.IsTrue(manager.IsLayoutValid, &quot;Layout still invalid&quot;);
+        }
+
+        private static async Task ValidateBaseMockLayout(ILayoutManager manager)
+        {
+            Assert.IsTrue(await manager.VerifyLayoutAsync(true), &quot;Verification failed&quot;);
+            Layout layout = manager.Layout;
+            ValidateMockLayout(layout);
+        }
+
+        [TestMethod]
+        public async Task TimeZoneTest()
+        {
+            var dateTimeOffset = new DateTimeOffset(2015, 04, 16, 12, 34, 22, 627, new TimeSpan());
+
+            ((MockApiConnection) ServiceManager.ApiConnction).LayoutFile = &quot;mock/datetime_layout.json&quot;;
+            ILayoutManager manager = ServiceManager.LayoutManager;
+            Assert.IsTrue(await manager.VerifyLayoutAsync(true), &quot;Verification failed&quot;);
+            Layout layout = manager.Layout;
+            ResolvedAction action = layout.ResolvedActions.FirstOrDefault(a =&gt; a.BeaconAction.Uuid == &quot;9ded63644e424d758b0218f7c70f2473&quot;);
+            //&quot;2015-04-16T12:34:22.627+0000&quot;
+            Assert.AreEqual(dateTimeOffset, action.Timeframes[0].Start.Value, &quot;1 timeslot not correct&quot;);
+
+
+            action = layout.ResolvedActions.FirstOrDefault(a =&gt; a.BeaconAction.Uuid == &quot;3f30be2605524f82a9bf0ccb4a81618f&quot;);
+            //&quot;2015-04-16T14:34:22.627+0200&quot;
+            Assert.AreEqual(dateTimeOffset, action.Timeframes[0].Start.Value, &quot;2 timeslot not correct&quot;);
+
+
+            action = layout.ResolvedActions.FirstOrDefault(a =&gt; a.BeaconAction.Uuid == &quot;312a8594e07542bd814ecdd17f76538e&quot;);
+            //&quot;2015-04-16T14:34:22.627&quot;
+            Assert.AreEqual(dateTimeOffset, action.Timeframes[0].Start.Value, &quot;3 timeslot not correct&quot;);
+
+
+            action = layout.ResolvedActions.FirstOrDefault(a =&gt; a.BeaconAction.Uuid == &quot;312a8594e07542bd814ecsdd17f76538e&quot;);
+            //&quot;2015-04-16T14:34:22&quot;
+            Assert.AreEqual(new DateTimeOffset(2015, 04, 16, 12, 34, 22, new TimeSpan()), action.Timeframes[0].Start.Value, &quot;4 timeslot not correct&quot;);
+
+
+            action = layout.ResolvedActions.FirstOrDefault(a =&gt; a.BeaconAction.Uuid == &quot;312a8594e0754asd2bd814ecsdd17f76538e&quot;);
+            //&quot;14:34:22&quot;
+            Assert.AreEqual(new DateTimeOffset(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 12, 34, 22, new TimeSpan()), action.Timeframes[0].Start.Value, &quot;5 timeslot not correct&quot;);
+        }
+
+        public static void ValidateMockLayout(Layout layout)
+        {
+            Assert.IsNotNull(layout, &quot;No Layout avialable&quot;);
+            Assert.AreEqual(5, layout.AccountBeaconId1S.Count, &quot;Number of proximity beacons not matching&quot;);
+            Assert.IsTrue(layout.AccountBeaconId1S.Contains(&quot;7367672374000000ffff0000ffff0003&quot;), &quot;Beacon 1 not found&quot;);
+            Assert.IsTrue(layout.AccountBeaconId1S.Contains(&quot;7367672374000000ffff0000ffff0006&quot;), &quot;Beacon 2 not found&quot;);
+            Assert.IsTrue(layout.AccountBeaconId1S.Contains(&quot;7367672374000000ffff0000ffff0004&quot;), &quot;Beacon 3 not found&quot;);
+            Assert.IsTrue(layout.AccountBeaconId1S.Contains(&quot;7367672374000000ffff0000ffff0007&quot;), &quot;Beacon 4 not found&quot;);
+            Assert.AreEqual(9, layout.ResolvedActions.Count, &quot;not 9 actions&quot;);
+
+            ResolvedAction a = layout.ResolvedActions.FirstOrDefault(t =&gt; t.BeaconAction.Uuid == &quot;9ded63644e424d758b0218f7c70f2473&quot;);
+            Assert.AreEqual(3, (int) a.EventTypeDetectedByDevice, &quot;beacon 1 - Wrong trigger type&quot;);
+            Assert.AreEqual(2, a.BeaconPids.Count, &quot;beacon 1 - Beacon count wrong&quot;);
+            Assert.IsTrue(a.BeaconPids.Contains(&quot;7367672374000000ffff0000ffff00043917830929&quot;), &quot;beacon 1 - No Beacon found!&quot;);
+
+            Assert.AreEqual(43200, a.SuppressionTime, &quot;beacon 1 - Wrong supression time!&quot;);
+            Assert.AreEqual(0, a.Delay, &quot;beacon 1 - Different delay is set&quot;);
+
+            Assert.AreEqual(string.Empty, a.BeaconAction.Subject, &quot;beacon 1 - Different action subject&quot;);
+            Assert.AreEqual(string.Empty, a.BeaconAction.Body, &quot;beacon 1 - Different action body&quot;);
+            Assert.AreEqual(&quot;http://www.visitfinland.com/&quot;, a.BeaconAction.Url, &quot;beacon 1 - wrong url is set&quot;);
+            Assert.IsNull(a.BeaconAction.Payload, &quot;beacon 1 - Payload is not null&quot;);
+
+            Assert.AreEqual(1, a.Timeframes.Count, &quot;beacon 1 - More timeframes are set&quot;);
+            Assert.AreEqual(new DateTimeOffset(2015, 04, 16, 12, 46, 19, 627, new TimeSpan()), a.Timeframes[0].Start.Value.DateTime, &quot;beacon 1 - Different timesetting&quot;);
+
+            Assert.AreEqual(3, (int) a.BeaconAction.Type, &quot;beacon 1 - Different type&quot;);
+            Assert.IsFalse(a.SendOnlyOnce, &quot;beacon 1 - Send only once is set&quot;);
+
+
+            a = layout.ResolvedActions.FirstOrDefault(t =&gt; t.BeaconAction.Uuid == &quot;3f30be2605524f82a9bf0ccb4a81618f&quot;);
+            Assert.AreEqual(1, (int) a.EventTypeDetectedByDevice, &quot;beacon 2 - Wrong trigger type&quot;);
+            Assert.AreEqual(1, a.BeaconPids.Count, &quot;beacon 2 - Beacon count wrong&quot;);
+            Assert.IsTrue(a.BeaconPids.Contains(&quot;7367672374000000ffff0000ffff00034886921321&quot;), &quot;beacon 2 - No Beacon found!&quot;);
+
+            Assert.AreEqual(900, a.SuppressionTime, &quot;beacon 2 - Wrong supression time!&quot;);
+            Assert.AreEqual(0, a.Delay, &quot;beacon 2 - Different delay is set&quot;);
+
+            Assert.AreEqual(string.Empty, a.BeaconAction.Subject, &quot;beacon 2 - Different action subject&quot;);
+            Assert.AreEqual(string.Empty, a.BeaconAction.Body, &quot;beacon 2 - Different action body&quot;);
+            Assert.AreEqual(&quot;http://www.visitfinland.com/&quot;, a.BeaconAction.Url, &quot;beacon 2 - wrong url is set&quot;);
+            Assert.IsNull(a.BeaconAction.Payload, &quot;beacon 2 - Payload is not null&quot;);
+
+            Assert.AreEqual(1, a.Timeframes.Count, &quot;beacon 2 - More timeframes are set&quot;);
+            Assert.AreEqual(new DateTimeOffset(2015, 04, 16, 12, 33, 48, 627, new TimeSpan()), a.Timeframes[0].Start.Value.DateTime, &quot;beacon 2 - Different timesetting&quot;);
+
+            Assert.AreEqual(3, (int) a.BeaconAction.Type, &quot;beacon 2 - Different type&quot;);
+            Assert.IsFalse(a.SendOnlyOnce, &quot;beacon 2 - Send only once is set&quot;);
+
+
+            a = layout.ResolvedActions.FirstOrDefault(t =&gt; t.BeaconAction.Uuid == &quot;312a8594e07542bd814ecdd17f76538e&quot;);
+            Assert.AreEqual(1, (int) a.EventTypeDetectedByDevice, &quot;beacon 3 - Wrong trigger type&quot;);
+            Assert.AreEqual(1, a.BeaconPids.Count, &quot;beacon 3 - Beacon count wrong&quot;);
+            Assert.IsTrue(a.BeaconPids.Contains(&quot;7367672374000000ffff0000ffff00034886921321&quot;), &quot;beacon 3 - No Beacon found!&quot;);
+
+            Assert.AreEqual(900, a.SuppressionTime, &quot;beacon 3 - Wrong supression time!&quot;);
+            Assert.AreEqual(0, a.Delay, &quot;beacon 3 - Different delay is set&quot;);
+
+            Assert.AreEqual(string.Empty, a.BeaconAction.Subject, &quot;beacon 3 - Different action subject&quot;);
+            Assert.AreEqual(string.Empty, a.BeaconAction.Body, &quot;beacon 3 - Different action body&quot;);
+            Assert.AreEqual(&quot;http://www.visitfinland.com/&quot;, a.BeaconAction.Url, &quot;beacon 3 - wrong url is set&quot;);
+            Assert.IsNull(a.BeaconAction.Payload, &quot;beacon 3 - Payload is not null&quot;);
+
+            Assert.AreEqual(1, a.Timeframes.Count, &quot;beacon 3 - More timeframes are set&quot;);
+            Assert.AreEqual(new DateTimeOffset(2015, 04, 16, 12, 34, 22, 596, new TimeSpan()), a.Timeframes[0].Start.Value.DateTime, &quot;beacon 3 - Different timesetting&quot;);
+
+            Assert.AreEqual(3, (int) a.BeaconAction.Type, &quot;beacon 3 - Different type&quot;);
+            Assert.IsFalse(a.SendOnlyOnce, &quot;beacon 3 - Send only once is set&quot;);
+
+
+            a = layout.ResolvedActions.FirstOrDefault(t =&gt; t.BeaconAction.Uuid == &quot;959ea393e3424ab7ad53584a8b789197&quot;);
+            Assert.AreEqual(1, (int) a.EventTypeDetectedByDevice, &quot;beacon 4 - Wrong trigger type&quot;);
+            Assert.AreEqual(1, a.BeaconPids.Count, &quot;beacon 4 - Beacon count wrong&quot;);
+            Assert.IsTrue(a.BeaconPids.Contains(&quot;7367672374000000ffff0000ffff00034895330988&quot;), &quot;beacon 4 - No Beacon found!&quot;);
+
+            Assert.AreEqual(900, a.SuppressionTime, &quot;beacon 4 - Wrong supression time!&quot;);
+            Assert.AreEqual(60, a.Delay, &quot;beacon 4 - Different delay is set&quot;);
+
+            Assert.AreEqual(&quot;Delay 1 minute&quot;, a.BeaconAction.Subject, &quot;beacon 4 - Different action subject&quot;);
+            Assert.AreEqual(&quot;Delay 1 minute&quot;, a.BeaconAction.Body, &quot;beacon 4 - Different action body&quot;);
+            Assert.AreEqual(&quot;http://www.microsoft.com&quot;, a.BeaconAction.Url, &quot;beacon 4 - wrong url is set&quot;);
+            Assert.IsNull(a.BeaconAction.Payload, &quot;beacon 4 - Payload is not null&quot;);
+
+            Assert.AreEqual(1, a.Timeframes.Count, &quot;beacon 4 - More timeframes are set&quot;);
+            Assert.AreEqual(new DateTimeOffset(2015, 04, 30, 08, 05, 54, 432, new TimeSpan()), a.Timeframes[0].Start.Value.DateTime, &quot;beacon 4 - Different timesetting&quot;);
+
+            Assert.AreEqual(1, (int) a.BeaconAction.Type, &quot;beacon 4 - Different type&quot;);
+            Assert.IsFalse(a.SendOnlyOnce, &quot;beacon 4 - Send only once is set&quot;);
+
+
+            a = layout.ResolvedActions.FirstOrDefault(t =&gt; t.BeaconAction.Uuid == &quot;351fd4b8b1c34da6b827e53acd79ff17&quot;);
+            Assert.AreEqual(1, (int) a.EventTypeDetectedByDevice, &quot;beacon 5 - Wrong trigger type&quot;);
+            Assert.AreEqual(1, a.BeaconPids.Count, &quot;beacon 5 - Beacon count wrong&quot;);
+            Assert.IsTrue(a.BeaconPids.Contains(&quot;7367672374000000ffff0000ffff00034886921321&quot;), &quot;beacon 5 - No Beacon found!&quot;);
+
+            Assert.AreEqual(900, a.SuppressionTime, &quot;beacon 5 - Wrong supression time!&quot;);
+            Assert.AreEqual(0, a.Delay, &quot;beacon 5 - Different delay is set&quot;);
+
+            Assert.AreEqual(string.Empty, a.BeaconAction.Subject, &quot;beacon 5 - Different action subject&quot;);
+            Assert.AreEqual(string.Empty, a.BeaconAction.Body, &quot;beacon 5 - Different action body&quot;);
+            Assert.AreEqual(&quot;http://www.visitfinland.com/&quot;, a.BeaconAction.Url, &quot;beacon 5 - wrong url is set&quot;);
+            Assert.IsNull(a.BeaconAction.Payload, &quot;beacon 5 - Payload is not null&quot;);
+
+            Assert.AreEqual(1, a.Timeframes.Count, &quot;beacon 5 - More timeframes are set&quot;);
+            Assert.AreEqual(new DateTimeOffset(2015, 04, 16, 12, 33, 28, 264, new TimeSpan()), a.Timeframes[0].Start.Value.DateTime, &quot;beacon 5 - Different timesetting&quot;);
+
+            Assert.AreEqual(3, (int) a.BeaconAction.Type, &quot;beacon 5 - Different type&quot;);
+            Assert.IsFalse(a.SendOnlyOnce, &quot;beacon 5 - Send only once is set&quot;);
+
+
+            a = layout.ResolvedActions.FirstOrDefault(t =&gt; t.BeaconAction.Uuid == &quot;a5009f851ded4ce68d9b1b4ff6db6137&quot;);
+            Assert.AreEqual(1, (int) a.EventTypeDetectedByDevice, &quot;beacon 7- Wrong trigger type&quot;);
+            Assert.AreEqual(1, a.BeaconPids.Count, &quot;beacon 7 - Beacon count wrong&quot;);
+            Assert.IsTrue(a.BeaconPids.Contains(&quot;7367672374000000ffff0000ffff00073918758763&quot;), &quot;beacon 7 - No Beacon found!&quot;);
+
+            Assert.AreEqual(31536000, a.SuppressionTime, &quot;beacon 7 - Wrong supression time!&quot;);
+            Assert.AreEqual(0, a.Delay, &quot;beacon 7 - Different delay is set&quot;);
+
+            Assert.AreEqual(&quot;You&#180;re in the year 2017!&quot;, a.BeaconAction.Subject, &quot;beacon 7 - Different action subject&quot;);
+            Assert.AreEqual(&quot;It&#180;s a great year&quot;, a.BeaconAction.Body, &quot;beacon 7 - Different action body&quot;);
+            Assert.AreEqual(&quot;http://www.visitfinland.com/&quot;, a.BeaconAction.Url, &quot;beacon 7 - wrong url is set&quot;);
+            Assert.IsNull(a.BeaconAction.Payload, &quot;beacon 7 - Payload is not null&quot;);
+
+            Assert.AreEqual(1, a.Timeframes.Count, &quot;beacon 7 - More timeframes are set&quot;);
+            Assert.AreEqual(new DateTimeOffset(2016, 12, 31, 11, 00, 00, 00, new TimeSpan()), a.Timeframes[0].Start.Value.DateTime, &quot;beacon 7 - Different timesetting&quot;);
+            Assert.AreEqual(new DateTimeOffset(2017, 12, 31, 11, 00, 00, 00, new TimeSpan()), a.Timeframes[0].End.Value.DateTime, &quot;beacon 7 - Different timesetting&quot;);
+
+            Assert.AreEqual(1, (int) a.BeaconAction.Type, &quot;beacon 7 - Different type&quot;);
+            Assert.IsFalse(a.SendOnlyOnce, &quot;beacon 7 - Send only once is set&quot;);
+
+
+            a = layout.ResolvedActions.FirstOrDefault(t =&gt; t.BeaconAction.Uuid == &quot;4224871362624826b510141da0d4fc5d&quot;);
+            Assert.AreEqual(1, (int) a.EventTypeDetectedByDevice, &quot;beacon 8- Wrong trigger type&quot;);
+            Assert.AreEqual(1, a.BeaconPids.Count, &quot;beacon 8 - Beacon count wrong&quot;);
+            Assert.IsTrue(a.BeaconPids.Contains(&quot;7367672374000000ffff0000ffff00062343028018&quot;), &quot;beacon 8 - No Beacon found!&quot;);
+
+            Assert.AreEqual(-1, a.SuppressionTime, &quot;beacon 8 - Wrong supression time!&quot;);
+            Assert.AreEqual(0, a.Delay, &quot;beacon 8 - Different delay is set&quot;);
+
+            Assert.AreEqual(string.Empty, a.BeaconAction.Subject, &quot;beacon 8 - Different action subject&quot;);
+            Assert.AreEqual(string.Empty, a.BeaconAction.Body, &quot;beacon 8 - Different action body&quot;);
+            Assert.AreEqual(&quot;payload://is.awesome&quot;, a.BeaconAction.Url, &quot;beacon 8 - wrong url is set&quot;);
+            Assert.IsNotNull(a.BeaconAction.Payload, &quot;beacon 8 - Payload is null&quot;);
+            Assert.AreEqual(a.BeaconAction.Payload.ToString(), JsonObject.Parse(&quot;{\&quot;payload\&quot;:\&quot;is\&quot;,\&quot;awesome\&quot;:true}&quot;).ToString());
+
+            Assert.AreEqual(1, a.Timeframes.Count, &quot;beacon 8 - More timeframes are set&quot;);
+            Assert.AreEqual(new DateTimeOffset(2015, 04, 16, 12, 48, 51, 828, new TimeSpan()), a.Timeframes[0].Start.Value.DateTime, &quot;beacon 8 - Different timesetting&quot;);
+
+            Assert.AreEqual(3, (int) a.BeaconAction.Type, &quot;beacon 8 - Different type&quot;);
+            Assert.IsFalse(a.SendOnlyOnce, &quot;beacon 8 - Send only once is set&quot;);
+        }
+
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[95,9,95,10,1],[96,13,96,61,1],[97,13,97,108,1],[98,13,98,120,1],[99,13,99,120,1],[100,13,100,120,1],[101,13,101,120,1],[102,13,102,79,1],[104,13,104,75,1],[104,132,104,134,1],[105,13,105,100,1],[106,13,106,85,1],[107,13,107,127,1],[109,13,109,92,1],[110,13,110,78,1],[112,13,112,106,1],[113,13,113,100,1],[114,13,114,112,1],[115,13,115,85,1],[117,13,117,90,1],[118,13,118,170,1],[120,13,120,88,1],[121,13,121,80,1],[124,13,124,60,1],[124,117,124,119,1],[125,13,125,100,1],[126,13,126,85,1],[127,13,127,127,1],[129,13,129,90,1],[130,13,130,78,1],[132,13,132,106,1],[133,13,133,100,1],[134,13,134,112,1],[135,13,135,85,1],[137,13,137,90,1],[138,13,138,170,1],[140,13,140,88,1],[141,13,141,80,1],[144,13,144,60,1],[144,117,144,119,1],[145,13,145,100,1],[146,13,146,85,1],[147,13,147,127,1],[149,13,149,90,1],[150,13,150,78,1],[152,13,152,106,1],[153,13,153,100,1],[154,13,154,112,1],[155,13,155,85,1],[157,13,157,90,1],[158,13,158,170,1],[160,13,160,88,1],[161,13,161,80,1],[164,13,164,60,1],[164,117,164,119,1],[165,13,165,100,1],[166,13,166,85,1],[167,13,167,127,1],[169,13,169,90,1],[170,13,170,79,1],[172,13,172,110,1],[173,13,173,104,1],[174,13,174,108,1],[175,13,175,85,1],[177,13,177,90,1],[178,13,178,170,1],[180,13,180,88,1],[181,13,181,80,1],[184,13,184,60,1],[184,117,184,119,1],[185,13,185,100,1],[186,13,186,85,1],[187,13,187,127,1],[189,13,189,90,1],[190,13,190,78,1],[192,13,192,106,1],[193,13,193,100,1],[194,13,194,112,1],[195,13,195,85,1],[197,13,197,90,1],[198,13,198,170,1],[200,13,200,88,1],[201,13,201,80,1],[204,13,204,60,1],[204,117,204,119,1],[205,13,205,99,1],[206,13,206,85,1],[207,13,207,127,1],[209,13,209,95,1],[210,13,210,78,1],[212,13,212,120,1],[213,13,213,107,1],[214,13,214,112,1],[215,13,215,85,1],[217,13,217,90,1],[218,13,218,169,1],[219,13,219,167,1],[221,13,221,88,1],[222,13,222,80,1],[225,13,225,60,1],[225,117,225,119,1],[226,13,226,99,1],[227,13,227,85,1],[228,13,228,127,1],[230,13,230,89,1],[231,13,231,78,1],[233,13,233,106,1],[234,13,234,100,1],[235,13,235,104,1],[236,13,236,84,1],[237,13,237,134,1],[239,13,239,90,1],[240,13,240,170,1],[242,13,242,88,1],[243,13,243,80,1],[244,9,244,10,1],[26,9,26,10,1],[27,13,27,53,1],[28,13,28,36,1],[29,13,29,67,1],[30,13,30,64,1],[31,13,31,96,1],[32,13,32,52,1],[33,9,33,10,1],[37,9,37,10,1],[38,13,38,72,1],[39,9,39,10,1],[43,9,43,10,1],[44,13,44,67,1],[45,13,45,51,1],[46,13,46,46,1],[47,13,47,73,1],[48,13,48,66,1],[49,13,49,89,1],[50,13,50,74,1],[51,9,51,10,1],[54,9,54,10,1],[55,13,55,89,1],[56,13,56,44,1],[57,13,57,40,1],[58,9,58,10,1],[69,80,69,137,1],[74,65,74,122,1],[79,65,79,122,1],[84,65,84,123,1],[89,65,89,126,1],[104,75,104,132,1],[124,60,124,117,1],[144,60,144,117,1],[164,60,164,117,1],[184,60,184,117,1],[204,60,204,117,1],[225,60,225,117,1],[62,9,62,10,1],[63,13,63,100,1],[65,13,65,104,1],[66,13,66,67,1],[67,13,67,89,1],[68,13,68,44,1],[69,13,69,80,1],[69,137,69,139,1],[71,13,71,105,1],[74,13,74,65,1],[74,122,74,124,1],[76,13,76,105,1],[79,13,79,65,1],[79,122,79,124,1],[81,13,81,105,1],[84,13,84,65,1],[84,123,84,125,1],[86,13,86,151,1],[89,13,89,65,1],[89,126,89,128,1],[91,13,91,194,1],[92,9,92,10,1]]);
+    </script>
+  </body>
+</html>

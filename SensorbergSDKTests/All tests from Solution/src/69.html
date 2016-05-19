@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\data\sdkdata.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Diagnostics;
+using Windows.Storage;
+
+namespace SensorbergSDK.Internal.Data
+{
+    /// &lt;summary&gt;
+    /// Contains the global SDK data.
+    /// &lt;/summary&gt;
+    public sealed class SdkData
+    {
+        private const string KeySensorbergSdkApiKey = &quot;sensorberg_sdk_api_key&quot;;
+        private const string KeySensorbergSdkGuid = &quot;sensorberg_sdk_guid&quot;;
+        private const string KeyLayoutBeaconId1Hash = &quot;sensorberg_sdk_layout_uuid_hash&quot;;
+        private const string KeyDatabaseCleaningTime = &quot;sensorberg_sdk_database_cleaning_time&quot;;
+        private const string KeyBackgroundTaskEnabled = &quot;sensorberg_sdk_background_task_enabled&quot;;
+        private const string KeyBackgroundFilterUpdateRequired = &quot;sensorberg_sdk_background_filter_update_required&quot;;
+        public const string KeyIncrementalId = &quot;sensorberg_sdk_incremental_id&quot;;
+        private const string KeyAppIsVisible = &quot;sensorberg_sdk_app_visibility&quot;;
+        private const string KeyVisibilityLastUpdated = &quot;sensorberg_sdk_visibility_last_updated&quot;;
+
+        private const string Userid = &quot;userid&quot;;
+
+        private readonly ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
+
+        private static SdkData _instance;
+        public static SdkData Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new SdkData();
+                }
+
+                return _instance;
+            }
+        }
+
+        public string UserId
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                object id;
+                ApplicationData.Current.LocalSettings.Values.TryGetValue(Userid, out id);
+                string s = id as string;
+                if (s == null)
+                {
+                    s = string.Empty;
+                }
+                return s;
+            }
+            [DebuggerStepThrough] set
+            {
+                string id = value;
+                id = !string.IsNullOrEmpty(id) ? Uri.EscapeDataString(id) : string.Empty;
+                ApplicationData.Current.LocalSettings.Values[Userid] = id;
+            }
+        }
+
+        public string ApiKey
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                string apiKey = string.Empty;
+
+                if (_localSettings.Values.ContainsKey(KeySensorbergSdkApiKey))
+                {
+                    apiKey = _localSettings.Values[KeySensorbergSdkApiKey].ToString();
+                }
+
+                return apiKey;
+            }
+            [DebuggerStepThrough]
+            set
+            {
+                if (!_localSettings.Values.ContainsKey(KeySensorbergSdkApiKey)
+                    || !_localSettings.Values[KeySensorbergSdkApiKey].Equals(value))
+                {
+                    _localSettings.Values[KeySensorbergSdkApiKey] = value;
+                }
+            }
+        }
+
+        public string DeviceId
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                if (!_localSettings.Values.ContainsKey(KeySensorbergSdkGuid))
+                {
+                    _localSettings.Values[KeySensorbergSdkGuid] = Guid.NewGuid().ToString();
+                }
+
+                return _localSettings.Values[KeySensorbergSdkGuid] + (string.IsNullOrEmpty(UserId) ? string.Empty : &quot;/&quot; + UserId);
+            }
+        }
+
+        public string LayoutBeaconId1Hash
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                string hash = string.Empty;
+
+                if (_localSettings.Values.ContainsKey(KeyLayoutBeaconId1Hash))
+                {
+                    hash = _localSettings.Values[KeyLayoutBeaconId1Hash].ToString();
+                }
+
+                return hash;
+            }
+            [DebuggerStepThrough]
+            set
+            {
+                if (!_localSettings.Values.ContainsKey(KeyLayoutBeaconId1Hash)
+                    || !_localSettings.Values[KeyLayoutBeaconId1Hash].Equals(value))
+                {
+                    _localSettings.Values[KeyLayoutBeaconId1Hash] = value;
+                }
+            }
+        }
+
+        public DateTimeOffset DatabaseCleaningTime
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                if (!_localSettings.Values.ContainsKey(KeyDatabaseCleaningTime))
+                {
+                    _localSettings.Values[KeyDatabaseCleaningTime] = DateTimeOffset.Now;
+                }
+
+                return (DateTimeOffset)_localSettings.Values[KeyDatabaseCleaningTime];
+            }
+            [DebuggerStepThrough]
+            set
+            {
+                _localSettings.Values[KeyDatabaseCleaningTime] = value;
+            }
+        }
+
+        public bool BackgroundTaskEnabled
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                if (!_localSettings.Values.ContainsKey(KeyBackgroundTaskEnabled))
+                {
+                    _localSettings.Values[KeyBackgroundTaskEnabled] = false;
+                }
+
+                return (bool)_localSettings.Values[KeyBackgroundTaskEnabled];
+            }
+            [DebuggerStepThrough]
+            set
+            {
+                if (!_localSettings.Values.ContainsKey(KeyBackgroundTaskEnabled)
+                    || !_localSettings.Values[KeyBackgroundTaskEnabled].Equals(value))
+                {
+                    _localSettings.Values[KeyBackgroundTaskEnabled] = value;
+                }
+            }
+        }
+
+        public bool BackgroundFilterUpdateRequired
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                if (!_localSettings.Values.ContainsKey(KeyBackgroundFilterUpdateRequired))
+                {
+                    _localSettings.Values[KeyBackgroundFilterUpdateRequired] = false;
+                }
+
+                return (bool)_localSettings.Values[KeyBackgroundFilterUpdateRequired];
+            }
+            [DebuggerStepThrough]
+            set
+            {
+                if (!_localSettings.Values.ContainsKey(KeyBackgroundFilterUpdateRequired)
+                    || !_localSettings.Values[KeyBackgroundFilterUpdateRequired].Equals(value))
+                {
+                    _localSettings.Values[KeyBackgroundFilterUpdateRequired] = value;
+                }
+            }
+        }
+
+        public bool AppIsVisible
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                if (_localSettings.Values.ContainsKey(KeyAppIsVisible))
+                {
+                    return (bool)_localSettings.Values[KeyAppIsVisible];
+                }
+
+                return false;
+            }
+            [DebuggerStepThrough]
+            set
+            {
+                _localSettings.Values[KeyAppIsVisible] = value;
+                _localSettings.Values[KeyVisibilityLastUpdated] = DateTimeOffset.Now;
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Returns next incremental ID. The ID is global to the application and the counter is not
+        /// reset, when the application is restarted.
+        /// &lt;/summary&gt;
+        /// &lt;returns&gt;The next incremental ID.&lt;/returns&gt;
+        public int NextId()
+        {
+            if (!_localSettings.Values.ContainsKey(KeyIncrementalId))
+            {
+                _localSettings.Values[KeyIncrementalId] = 0;
+            }
+
+            int id = (int)_localSettings.Values[KeyIncrementalId];
+
+            if (id &gt;= int.MaxValue || id &lt; 0)
+            {
+                // Start over
+                id = 0;
+            }
+
+            _localSettings.Values[KeyIncrementalId] = id + 1;
+            return id;
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[48,13,48,14,0],[50,17,50,90,0],[51,17,51,41,0],[52,17,52,31,0],[53,17,53,18,0],[54,21,54,38,0],[55,17,55,18,0],[56,17,56,26,0],[57,13,57,14,0],[59,13,59,14,0],[60,17,60,35,0],[61,17,61,90,0],[62,17,62,75,0],[63,13,63,14,0],[70,13,70,14,0],[71,17,71,46,0],[73,17,73,79,0],[74,17,74,18,0],[75,21,75,87,0],[76,17,76,18,0],[78,17,78,31,0],[79,13,79,14,0],[95,13,95,14,0],[96,17,96,78,0],[97,17,97,18,0],[98,21,98,93,0],[99,17,99,18,0],[101,17,101,131,0],[102,13,102,14,0],[113,17,113,18,0],[114,21,114,85,0],[115,17,115,18,0],[121,13,121,14,0],[122,17,123,85,0],[124,17,124,18,0],[125,21,125,75,0],[126,17,126,18,0],[127,13,127,14,0],[144,13,144,14,0],[145,17,145,72,0],[146,13,146,14,0],[166,17,166,18,0],[167,21,167,77,0],[168,17,168,18,0],[186,13,186,14,0],[187,17,188,96,0],[189,17,189,18,0],[190,21,190,86,0],[191,17,191,18,0],[192,13,192,14,0],[199,13,199,14,0],[200,17,200,72,0],[201,17,201,18,0],[202,21,202,73,0],[205,17,205,30,0],[206,13,206,14,0],[209,13,209,14,0],[210,17,210,64,0],[211,17,211,86,0],[212,13,212,14,0],[230,13,230,14,0],[232,17,232,24,0],[233,13,233,14,0],[34,13,34,14,1],[35,17,35,39,1],[36,17,36,18,1],[37,21,37,47,1],[38,17,38,18,1],[40,17,40,34,1],[41,13,41,14,1],[82,13,82,14,1],[83,17,84,85,1],[85,17,85,18,1],[86,21,86,75,1],[87,17,87,18,1],[88,13,88,14,1],[109,13,109,14,1],[110,17,110,44,1],[112,17,112,79,1],[117,17,117,29,1],[118,13,118,14,1],[134,13,134,14,1],[135,17,135,81,1],[136,17,136,18,1],[137,21,137,89,1],[138,17,138,18,1],[140,17,140,87,1],[141,13,141,14,1],[153,13,153,14,1],[154,17,154,82,1],[155,17,155,18,1],[156,21,156,77,1],[157,17,157,18,1],[159,17,159,78,1],[160,13,160,14,1],[163,13,163,14,1],[164,17,165,87,1],[169,13,169,14,1],[176,13,176,14,1],[177,17,177,91,1],[178,17,178,18,1],[179,21,179,86,1],[180,17,180,18,1],[182,17,182,87,1],[183,13,183,14,1],[221,9,221,10,1],[222,13,222,70,1],[223,13,223,14,1],[224,17,224,61,1],[225,13,225,14,1],[227,13,227,67,1],[229,13,229,46,1],[235,13,235,62,1],[236,13,236,23,1],[237,9,237,10,1],[28,9,28,106,1]]);
+    </script>
+  </body>
+</html>

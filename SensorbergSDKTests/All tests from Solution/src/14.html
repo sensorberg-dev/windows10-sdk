@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdktests\mocks\mockbeaconscanner.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 08.03.2016
+// 
+// Copyright (c) 2016,  EagleEye .
+// 
+// All rights reserved.
+
+using System;
+using SensorbergSDK;
+using SensorbergSDK.Internal;
+using SensorbergSDK.Services;
+
+namespace SensorbergSDKTests.Mocks
+{
+    public class MockBeaconScanner : IBeaconScanner
+    {
+        public event EventHandler&lt;Beacon&gt; BeaconNotSeenForAWhile;
+        public event EventHandler&lt;ScannerStatus&gt; StatusChanged;
+        public event EventHandler&lt;BeaconEventArgs&gt; BeaconEvent;
+        public ScannerStatus Status { get; }
+
+        public void StartWatcher(ushort manufacturerId, ushort beaconCode, ulong beaconExitTimeout, short? rssiEnterThreshold, ulong? enterDistanceThreshold)
+        {
+        }
+
+        public void StopWatcher()
+        {
+        }
+
+        public void FireBeaconEvent(Beacon beacon, BeaconEventType eventType)
+        {
+            BeaconEvent?.Invoke(this, new BeaconEventArgs() {Beacon = beacon, EventType = eventType});
+        }
+
+        public void NotifyBeaconEvent(Beacon beacon, BeaconEventType eventType)
+        {
+            BeaconEvent?.Invoke(this, new BeaconEventArgs() { Beacon = beacon, EventType = eventType });
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[19,39,19,43,1],[22,9,22,10,1],[23,9,23,10,1],[26,9,26,10,1],[27,9,27,10,1],[30,9,30,10,1],[31,13,31,103,1],[32,9,32,10,1],[35,9,35,10,1],[36,13,36,105,1],[37,9,37,10,1]]);
+    </script>
+  </body>
+</html>

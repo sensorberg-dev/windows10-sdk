@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\data\historyevent.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 10.05.2016
+// 
+// Copyright (c) 2016,  EagleEye
+// 
+// All rights reserved.
+
+using System.Runtime.Serialization;
+
+namespace SensorbergSDK.Internal.Data
+{
+    [DataContract]
+    public class HistoryEvent
+    {
+
+        [DataMember(Name = &quot;pid&quot;)]
+        public string BeaconId { get; set; }
+        [DataMember(Name = &quot;dt&quot;)]
+        public string EventTime { get; set; }
+        [DataMember(Name = &quot;trigger&quot;)]
+        public int Trigger { get; set; }
+
+        public bool Delivered { get; set; }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[16,34,16,38,1],[16,39,16,43,1],[18,35,18,39,1],[18,40,18,44,1],[20,30,20,34,1],[20,35,20,39,1],[22,33,22,37,1],[22,38,22,42,1]]);
+    </script>
+  </body>
+</html>
