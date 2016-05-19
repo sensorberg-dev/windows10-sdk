@@ -72,6 +72,12 @@ namespace SensorbergSDK.Services
         /// <summary>
         /// Cleans old entries from the database.
         /// </summary>
+        Task CleanupDatabase();
+
+        /// <summary>
+        /// Removes all from database.
+        /// </summary>
+        /// <returns></returns>
         Task CleanDatabase();
 
         /// <summary>
@@ -100,7 +106,6 @@ namespace SensorbergSDK.Services
         /// </summary>
         /// <param name="pid">ID of the beacon.</param>
         /// <param name="enter">Event type for that event.</param>
-        /// <returns></returns>
         Task<bool> SaveBeaconEventState(string pid, BeaconEventType enter);
 
         /// <summary>
@@ -114,5 +119,6 @@ namespace SensorbergSDK.Services
         /// </summary>
         /// <param name="doNotDelete">Boolean to delete or not delete the returned actions</param>
         Task<List<HistoryAction>> GetActionsForForeground(bool doNotDelete = false);
+
     }
 }

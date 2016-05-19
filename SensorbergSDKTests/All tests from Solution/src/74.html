@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\background\backgroundengine.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Windows.UI.Notifications;
+using MetroLog;
+using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Utils;
+
+namespace SensorbergSDK.Background
+{
+    /// &lt;summary&gt;
+    /// BackgroundEngine resolves actions from BluetoothLEAdvertisementWatcherTriggerDetails object
+    /// and resolves delayed actions. This is not part of the public API. Making modifications into
+    /// background tasks is not required in order to use the SDK.
+    /// &lt;/summary&gt;
+    public class BackgroundEngine : IDisposable
+    {
+        private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger&lt;BackgroundEngine&gt;();
+
+        public event EventHandler&lt;BackgroundWorkerType&gt; Finished;
+
+        private SdkEngine SdkEngine { get; }
+        private IList&lt;Beacon&gt; Beacons { get; set; }
+        private readonly IList&lt;BeaconEventArgs&gt; _beaconArgs;
+        private AppSettings AppSettings { get; set; }
+
+        public event EventHandler&lt;BeaconAction&gt; BeaconActionResolved
+        {
+            add { SdkEngine.BeaconActionResolved += value; }
+            remove { SdkEngine.BeaconActionResolved -= value; }
+        }
+
+        public event EventHandler&lt;string&gt; FailedToResolveBeaconAction
+        {
+            add { SdkEngine.FailedToResolveBeaconAction += value; }
+            remove { SdkEngine.FailedToResolveBeaconAction -= value; }
+        }
+
+        public event EventHandler&lt;bool&gt; LayoutValidityChanged
+        {
+            add { SdkEngine.LayoutValidityChanged += value; }
+            remove { SdkEngine.LayoutValidityChanged -= value; }
+        }
+
+        public BackgroundEngine()
+        {
+            SdkEngine = new SdkEngine(false);
+            _beaconArgs = new List&lt;BeaconEventArgs&gt;();
+            SdkEngine.BeaconActionResolved += OnBeaconActionResolvedAsync;
+        }
+
+        /// &lt;summary&gt;
+        /// Initializes BackgroundEngine.
+        /// &lt;/summary&gt;
+        public async Task InitializeAsync()
+        {
+            await SdkEngine.InitializeAsync();
+            AppSettings = await ServiceManager.SettingsManager.GetSettings();
+
+            //TODO verfiy
+            if (BackgroundTaskManager.CheckIfBackgroundFilterUpdateIsRequired())
+            {
+                ToastNotification toastNotification = NotificationUtils.CreateToastNotification(&quot;New beacon signature available&quot;, &quot;Launch the application to update&quot;);
+                NotificationUtils.ShowToastNotification(toastNotification);
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Resolves beacons, which triggered the background task.
+        /// &lt;/summary&gt;
+        public async Task ResolveBeaconActionsAsync(List&lt;Beacon&gt; beacons, int outOfRangeDb)
+        {
+            Logger.Trace(&quot;ResolveBeaconActionsAsync&quot;);
+
+            Beacons = beacons;
+            if (Beacons.Count &gt; 0)
+            {
+                await AddBeaconsToBeaconArgsAsync(outOfRangeDb);
+            }
+
+            if (_beaconArgs.Count &gt; 0)
+            {
+                // Resolve new events
+                foreach (var beaconArg in _beaconArgs)
+                {
+                    await SdkEngine.ResolveBeaconAction(beaconArg);
+                }
+            }
+            Finished?.Invoke(this, BackgroundWorkerType.AdvertisementWorker);
+        }
+
+        /// &lt;summary&gt;
+        /// Processes the delayed actions, executes them as necessary and sends history statistics.
+        /// &lt;/summary&gt;
+        public async Task ProcessDelayedActionsAsync()
+        {
+            await SdkEngine.ProcessDelayedActionsAsync();
+            await SdkEngine.FlushHistory();
+            Finished?.Invoke(this, BackgroundWorkerType.TimedWorker);
+        }
+
+
+        /// &lt;summary&gt;
+        /// Generates BeaconArgs from beacon events.
+        /// For instance if a beacon is seen for the first time, BeaconArgs with enter type is generated.
+        /// &lt;/summary&gt;
+        private async Task AddBeaconsToBeaconArgsAsync(int outOfRangeDb)
+        {
+            Logger.Trace(&quot;AddBeaconsToBeaconArgsAsync&quot;);
+            foreach (var beacon in Beacons)
+            {
+                BackgroundEvent history = await ServiceManager.StorageService.GetLastEventStateForBeacon(beacon.Pid);
+
+                if (history == null || history.LastEvent == BeaconEventType.Exit ||
+                    (!IsOutOfRange(outOfRangeDb, beacon) &amp;&amp; history.EventTime.AddMilliseconds(AppSettings.BeaconExitTimeout) &lt; DateTimeOffset.Now))
+                {
+                    // No history for this beacon. Let&#39;s save it and add it to event args array for solving.
+                    AddBeaconArgs(beacon, BeaconEventType.Enter);
+                    await ServiceManager.StorageService.SaveBeaconEventState(beacon.Pid, BeaconEventType.Enter);
+                }
+                else if (history.LastEvent == BeaconEventType.Enter)
+                {
+                    if (IsOutOfRange(outOfRangeDb, beacon))
+                    {
+                        // Exit event
+                        AddBeaconArgs(beacon, BeaconEventType.Exit);
+                        await ServiceManager.StorageService.SaveBeaconEventState(beacon.Pid, BeaconEventType.Exit);
+                    }
+                }
+            }
+        }
+
+        private static bool IsOutOfRange(int outOfRangeDb, Beacon beacon)
+        {
+            return beacon.RawSignalStrengthInDBm == outOfRangeDb;
+        }
+
+        private void AddBeaconArgs(Beacon beacon, BeaconEventType eventType)
+        {
+            var args = new BeaconEventArgs();
+            args.Beacon = beacon;
+            args.EventType = eventType;
+            _beaconArgs.Add(args);
+        }
+
+        /// &lt;summary&gt;
+        /// Handles BeaconActions that are resolved in the SDKEngine.
+        /// All resolved actions are stored into local database. And the UI app will show actions to the user.
+        /// When the UI app is not running, toast notification is shown for the user.
+        /// &lt;/summary&gt;
+        private void OnBeaconActionResolvedAsync(object sender, BeaconAction beaconAction)
+        {
+            Logger.Trace(&quot;BackgroundEngine.OnBeaconActionResolvedAsync()&quot;);
+        }
+
+        /// &lt;summary&gt;
+        /// Finishes background processing and releases all resources.
+        /// &lt;/summary&gt;
+        public void Dispose()
+        {
+            try
+            {
+                SdkEngine.BeaconActionResolved -= OnBeaconActionResolvedAsync;
+            }
+            finally
+            {
+                SdkEngine.Dispose();
+            }
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[36,20,36,21,0],[36,22,36,62,0],[36,63,36,64,0],[41,17,41,18,0],[41,19,41,66,0],[41,67,41,68,0],[42,20,42,21,0],[42,22,42,69,0],[42,70,42,71,0],[47,17,47,18,0],[47,19,47,60,0],[47,61,47,62,0],[48,20,48,21,0],[48,22,48,63,0],[48,64,48,65,0],[166,9,166,10,0],[168,13,168,14,0],[169,17,169,79,0],[170,13,170,14,0],[172,13,172,14,0],[173,17,173,37,0],[174,13,174,14,0],[175,9,175,10,0],[68,13,68,14,0],[69,17,69,167,0],[70,17,70,76,0],[102,9,102,10,0],[103,13,103,58,0],[104,13,104,44,0],[105,13,105,70,0],[106,9,106,10,0],[130,21,130,22,0],[132,25,132,69,0],[133,25,133,116,0],[134,21,134,22,0],[28,39,28,43,1],[29,41,29,45,1],[29,46,29,50,1],[31,43,31,47,1],[31,48,31,52,1],[35,17,35,18,1],[35,19,35,59,1],[35,60,35,61,1],[51,9,51,34,1],[52,9,52,10,1],[53,13,53,46,1],[54,13,54,55,1],[55,13,55,75,1],[56,9,56,10,1],[140,9,140,10,1],[141,13,141,66,1],[142,9,142,10,1],[145,9,145,10,1],[146,13,146,46,1],[147,13,147,34,1],[148,13,148,40,1],[149,13,149,35,1],[150,9,150,10,1],[158,9,158,10,1],[159,13,159,76,1],[160,9,160,10,1],[24,9,24,116,1],[62,9,62,10,1],[63,13,63,47,1],[64,13,64,78,1],[67,13,67,81,1],[71,13,71,14,1],[72,9,72,10,1],[78,9,78,10,1],[79,13,79,55,1],[81,13,81,31,1],[82,13,82,35,1],[83,13,83,14,1],[84,17,84,65,1],[85,13,85,14,1],[87,13,87,39,1],[88,13,88,14,1],[90,17,90,24,1],[90,43,90,54,1],[90,26,90,39,1],[91,17,91,18,1],[92,21,92,68,1],[93,17,93,18,1],[90,40,90,42,1],[94,13,94,14,1],[95,13,95,78,1],[96,9,96,10,1],[114,9,114,10,1],[115,13,115,57,1],[116,13,116,20,1],[116,36,116,43,1],[116,22,116,32,1],[117,13,117,14,1],[118,17,118,118,1],[120,17,121,148,1],[122,17,122,18,1],[124,21,124,66,1],[125,21,125,113,1],[126,17,126,18,1],[127,22,127,69,1],[128,17,128,18,1],[129,21,129,60,1],[135,17,135,18,1],[136,13,136,14,1],[116,33,116,35,1],[137,9,137,10,1]]);
+    </script>
+  </body>
+</html>

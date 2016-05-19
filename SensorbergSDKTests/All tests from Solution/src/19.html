@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdktests\requestqueuetest.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 09.03.2016
+// 
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using SensorbergSDK;
+using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Transport;
+using SensorbergSDKTests.Mocks;
+
+namespace SensorbergSDKTests
+{
+    [TestClass]
+    public class RequestQueueTest
+    {
+        [TestInitialize]
+        public async Task TestSetup()
+        {
+            ServiceManager.ReadOnlyForTests = false;
+            ServiceManager.Clear();
+            ServiceManager.LayoutManager = new MockLayoutManager();
+            ServiceManager.ReadOnlyForTests = true;
+        }
+
+        [TestMethod]
+        public async Task SimpleRequestQueueTest()
+        {
+            RequestQueue queue = new RequestQueue();
+            Request req = new Request(new BeaconEventArgs(), 1);
+            TaskCompletionSource&lt;RequestResultState&gt; requestReady = new TaskCompletionSource&lt;RequestResultState&gt;();
+            req.Result += (sender, state1) =&gt; { requestReady.SetResult(state1); };
+            queue.Add(req);
+
+            RequestResultState state = await requestReady.Task;
+            Assert.AreEqual(RequestResultState.Success, state, &quot;Request not successfull&quot;);
+        }
+
+        [TestMethod]
+        public async Task MultipleRequestQueueTest()
+        {
+            RequestQueue queue = new RequestQueue();
+            TaskCompletionSource&lt;RequestResultState&gt; requestReady = new TaskCompletionSource&lt;RequestResultState&gt;();
+            List&lt;RequestResultState&gt; requestsList = new List&lt;RequestResultState&gt;();
+            for (int i = 0; i &lt; 10; i++)
+            {
+                Request req = new Request(new BeaconEventArgs(), i);
+                if (i == 9)
+                {
+                    req.Result += (sender, state1) =&gt;
+                    {
+                        Debug.WriteLine(&quot;MultipleRequestQueueTest - &quot; + ((Request) sender).RequestId + &quot; - &quot; + state1);
+                        requestsList.Add(state1);
+                        requestReady.SetResult(state1);
+                    };
+                }
+                else
+                {
+                    req.Result += (sender, state1) =&gt;
+                    {
+                        Debug.WriteLine(&quot;MultipleRequestQueueTest - &quot; + ((Request) sender).RequestId + &quot; - &quot; + state1);
+                        requestsList.Add(state1);
+                    };
+                }
+                queue.Add(req);
+            }
+            if (await Task.WhenAny(requestReady.Task, Task.Delay(500000)) == requestReady.Task)
+            {
+                Assert.AreEqual(RequestResultState.Success, requestReady.Task.Result, &quot;Request not successfull&quot;);
+
+                Assert.AreEqual(10, requestsList.Count, &quot;Not 10 request results&quot;);
+            }
+            else
+            {
+                Assert.Fail(&quot;Timout&quot;);
+            }
+        }
+
+
+        [TestMethod]
+        public async Task MultipleRequestWithFailuresQueueTest()
+        {
+            ((MockLayoutManager) ServiceManager.LayoutManager).ShouldFail += (r, fail) =&gt;
+            {
+                if (r.RequestId == 5 &amp;&amp; r.TryCount == 1)
+                {
+                    fail.Fail = true;
+                    return;
+                }
+
+                if (r.RequestId == 6)
+                {
+                    fail.Fail = true;
+                    return;
+                }
+            };
+
+            RequestQueue queue = new RequestQueue();
+            TaskCompletionSource&lt;RequestResultState&gt; requestReady = new TaskCompletionSource&lt;RequestResultState&gt;();
+            List&lt;RequestResultState&gt; requestsList = new List&lt;RequestResultState&gt;();
+            for (int i = 0; i &lt; 10; i++)
+            {
+                Request req = new Request(new BeaconEventArgs(), i);
+                req.Result += (sender, state1) =&gt;
+                {
+                    Debug.WriteLine(&quot;MultipleRequestWithFailuresQueueTest - &quot; + ((Request) sender).RequestId + &quot; - &quot; + state1);
+                    if (((Request) sender).RequestId == 5 &amp;&amp; ((Request) sender).TryCount != 2)
+                    {
+                        return;
+                    }
+                    if (((Request) sender).RequestId == 6 &amp;&amp; ((Request) sender).TryCount != 3)
+                    {
+                        return;
+                    }
+                    requestsList.Add(state1);
+                    if (queue.QueueSize == 0)
+                    {
+                        requestReady.SetResult(state1);
+                    }
+                };
+                queue.Add(req);
+            }
+            if (await Task.WhenAny(requestReady.Task, Task.Delay(500000)) == requestReady.Task)
+            {
+                Assert.AreEqual(RequestResultState.Failed, requestReady.Task.Result, &quot;Request successfull (last should fail)&quot;);
+
+                Assert.AreEqual(10, requestsList.Count, &quot;Not 10 request results&quot;);
+            }
+            else
+            {
+                Assert.Fail(&quot;Timout&quot;);
+            }
+        }
+
+        [TestMethod]
+        public async Task MultipleRequestBlocksQueueTest()
+        {
+            RequestQueue queue = new RequestQueue();
+            TaskCompletionSource&lt;RequestResultState&gt; requestReady = new TaskCompletionSource&lt;RequestResultState&gt;();
+            List&lt;RequestResultState&gt; requestsList = new List&lt;RequestResultState&gt;();
+            for (int i = 0; i &lt; 10; i++)
+            {
+                Request req = new Request(new BeaconEventArgs(), i);
+                req.Result += (sender, state1) =&gt;
+                {
+                    Debug.WriteLine(&quot;MultipleRequestBlocksQueueTest - &quot; + ((Request) sender).RequestId + &quot; - &quot; + state1);
+                    requestsList.Add(state1);
+                    if (requestsList.Count == 10)
+                    {
+                        requestReady.SetResult(state1);
+                    }
+                };
+                queue.Add(req);
+            }
+            if (await Task.WhenAny(requestReady.Task, Task.Delay(500000)) == requestReady.Task)
+            {
+                Assert.AreEqual(RequestResultState.Success, requestReady.Task.Result, &quot;Request not successfull&quot;);
+
+                Assert.AreEqual(10, requestsList.Count, &quot;Not 10 request results&quot;);
+            }
+            else
+            {
+                Assert.Fail(&quot;Timout&quot;);
+            }
+
+
+
+            requestReady = new TaskCompletionSource&lt;RequestResultState&gt;();
+            requestsList = new List&lt;RequestResultState&gt;();
+            for (int i = 0; i &lt; 10; i++)
+            {
+                Request req = new Request(new BeaconEventArgs(), i);
+                req.Result += (sender, state1) =&gt;
+                {
+                    Debug.WriteLine(&quot;MultipleRequestBlocksQueueTest#2 - &quot; + ((Request) sender).RequestId + &quot; - &quot; + state1);
+                    requestsList.Add(state1);
+                    if (requestsList.Count == 10)
+                    {
+                        requestReady.SetResult(state1);
+                    }
+                };
+                queue.Add(req);
+            }
+            if (await Task.WhenAny(requestReady.Task, Task.Delay(500000)) == requestReady.Task)
+            {
+                Assert.AreEqual(RequestResultState.Success, requestReady.Task.Result, &quot;Request not successfull&quot;);
+
+                Assert.AreEqual(10, requestsList.Count, &quot;Not 10 request results&quot;);
+            }
+            else
+            {
+                Assert.Fail(&quot;Timout2&quot;);
+            }
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[79,13,79,14,0],[80,17,80,39,0],[113,21,113,22,0],[114,25,114,32,0],[117,21,117,22,0],[118,25,118,32,0],[135,13,135,14,0],[136,17,136,39,0],[167,13,167,14,0],[168,17,168,39,0],[169,13,169,14,0],[196,13,196,14,0],[197,17,197,40,0],[24,9,24,10,1],[25,13,25,53,1],[26,13,26,36,1],[27,13,27,68,1],[28,13,28,52,1],[29,9,29,10,1],[37,47,37,48,1],[37,49,37,80,1],[37,81,37,82,1],[33,9,33,10,1],[34,13,34,53,1],[35,13,35,65,1],[36,13,36,116,1],[37,13,37,47,1],[37,48,37,49,1],[37,80,37,81,1],[37,82,37,83,1],[38,13,38,28,1],[40,13,40,64,1],[41,13,41,91,1],[42,9,42,10,1],[56,21,56,22,1],[57,25,57,120,1],[58,25,58,50,1],[59,25,59,56,1],[60,21,60,22,1],[65,21,65,22,1],[66,25,66,120,1],[67,25,67,50,1],[68,21,68,22,1],[46,9,46,10,1],[47,13,47,53,1],[48,13,48,116,1],[49,13,49,84,1],[50,18,50,27,1],[51,13,51,14,1],[52,17,52,69,1],[53,17,53,28,1],[54,17,54,18,1],[55,21,56,21,1],[56,22,57,25,1],[57,120,58,25,1],[58,50,59,25,1],[59,56,60,21,1],[60,22,60,23,1],[61,17,61,18,1],[63,17,63,18,1],[64,21,65,21,1],[65,22,66,25,1],[66,120,67,25,1],[67,50,68,21,1],[68,22,68,23,1],[69,17,69,18,1],[70,17,70,32,1],[71,13,71,14,1],[50,37,50,40,1],[50,29,50,35,1],[72,13,72,96,1],[73,13,73,14,1],[74,17,74,114,1],[76,17,76,83,1],[77,13,77,14,1],[81,13,81,14,1],[82,9,82,10,1],[110,17,110,18,1],[111,21,111,128,1],[112,21,112,95,1],[116,21,116,95,1],[120,21,120,46,1],[121,21,121,46,1],[122,21,122,22,1],[123,25,123,56,1],[124,21,124,22,1],[125,17,125,18,1],[89,13,89,14,1],[90,17,90,57,1],[91,17,91,18,1],[92,21,92,38,1],[93,21,93,28,1],[96,17,96,38,1],[97,17,97,18,1],[98,21,98,38,1],[99,21,99,28,1],[101,13,101,14,1],[87,9,87,10,1],[88,13,89,13,1],[89,14,90,17,1],[90,57,91,17,1],[91,18,92,21,1],[92,38,93,21,1],[93,28,96,17,1],[96,38,97,17,1],[97,18,98,21,1],[98,38,99,21,1],[99,28,101,13,1],[101,14,101,15,1],[103,13,103,53,1],[104,13,104,116,1],[105,13,105,84,1],[106,18,106,27,1],[107,13,107,14,1],[108,17,108,69,1],[109,17,110,17,1],[110,18,111,21,1],[111,128,112,21,1],[112,95,113,21,1],[113,22,114,25,1],[114,32,116,21,1],[116,95,117,21,1],[117,22,118,25,1],[118,32,120,21,1],[120,46,121,21,1],[121,46,122,21,1],[122,22,123,25,1],[123,56,124,21,1],[124,22,125,17,1],[125,18,125,19,1],[126,17,126,32,1],[127,13,127,14,1],[106,37,106,40,1],[106,29,106,35,1],[128,13,128,96,1],[129,13,129,14,1],[130,17,130,128,1],[132,17,132,83,1],[133,13,133,14,1],[137,13,137,14,1],[138,9,138,10,1],[150,17,150,18,1],[151,21,151,122,1],[152,21,152,46,1],[153,21,153,50,1],[154,21,154,22,1],[155,25,155,56,1],[156,21,156,22,1],[157,17,157,18,1],[179,17,179,18,1],[180,21,180,124,1],[181,21,181,46,1],[182,21,182,50,1],[183,21,183,22,1],[184,25,184,56,1],[185,21,185,22,1],[186,17,186,18,1],[142,9,142,10,1],[143,13,143,53,1],[144,13,144,116,1],[145,13,145,84,1],[146,18,146,27,1],[147,13,147,14,1],[148,17,148,69,1],[149,17,150,17,1],[150,18,151,21,1],[151,122,152,21,1],[152,46,153,21,1],[153,50,154,21,1],[154,22,155,25,1],[155,56,156,21,1],[156,22,157,17,1],[157,18,157,19,1],[158,17,158,32,1],[159,13,159,14,1],[146,37,146,40,1],[146,29,146,35,1],[160,13,160,96,1],[161,13,161,14,1],[162,17,162,114,1],[164,17,164,83,1],[165,13,165,14,1],[173,13,173,75,1],[174,13,174,59,1],[175,18,175,27,1],[176,13,176,14,1],[177,17,177,69,1],[178,17,179,17,1],[179,18,180,21,1],[180,124,181,21,1],[181,46,182,21,1],[182,50,183,21,1],[183,22,184,25,1],[184,56,185,21,1],[185,22,186,17,1],[186,18,186,19,1],[187,17,187,32,1],[188,13,188,14,1],[175,37,175,40,1],[175,29,175,35,1],[189,13,189,96,1],[190,13,190,14,1],[191,17,191,114,1],[193,17,193,83,1],[194,13,194,14,1],[198,13,198,14,1],[199,9,199,10,1]]);
+    </script>
+  </body>
+</html>

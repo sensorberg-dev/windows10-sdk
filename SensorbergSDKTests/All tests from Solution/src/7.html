@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdktests\response.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Windows.Data.Json;
+using Windows.Storage;
+using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Newtonsoft.Json;
+using SensorbergSDK;
+using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Transport;
+using SensorbergSDKTests.Mocks;
+
+namespace SensorbergSDKTests
+{
+    [TestClass]
+    public class UnitTestResponse
+    {
+        [TestInitialize]
+        public void TestSetup()
+        {
+            ServiceManager.ReadOnlyForTests = false;
+            ServiceManager.Clear();
+            ServiceManager.StorageService = new StorageService() {Storage = new MockStorage()};
+            ServiceManager.ReadOnlyForTests = true;
+        }
+
+        [TestMethod]
+        public async Task Response_latest_response()
+        {
+            var uri = new Uri(&quot;ms-appx:///Assets/raw/latest_response.json&quot;);
+            var file = await StorageFile.GetFileFromApplicationUriAsync(uri);
+            string text = await FileIO.ReadTextAsync(file);
+            var val = JsonValue.Parse(text);
+
+            Layout resp = JsonConvert.DeserializeObject&lt;Layout&gt;(text, new JsonSerializerSettings
+            {
+                DateTimeZoneHandling = DateTimeZoneHandling.Utc
+            });
+            resp?.FromJson(null, DateTimeOffset.Now);
+
+            Assert.IsNotNull(resp);
+            Assert.AreEqual(2, resp.AccountBeaconId1S.Count);
+            Assert.AreEqual(5, resp.ResolvedActions.Count);
+
+            IList&lt;ResolvedAction&gt; list = resp.GetResolvedActionsForPidAndEvent(&quot;7367672374000000ffff0000ffff13370133701337&quot;, BeaconEventType.Enter);
+            Assert.IsNotNull(list);
+            Assert.AreEqual(3, list.Count);
+        }
+
+        [TestMethod]
+        public async Task Response_reportImmediately_false()
+        {
+            var uri = new Uri(&quot;ms-appx:///Assets/raw/reportImmediately_false.json&quot;);
+            var file = await StorageFile.GetFileFromApplicationUriAsync(uri);
+            string text = await FileIO.ReadTextAsync(file);
+            var val = JsonValue.Parse(text);
+
+            Layout resp = JsonConvert.DeserializeObject&lt;Layout&gt;(text, new JsonSerializerSettings
+            {
+                DateTimeZoneHandling = DateTimeZoneHandling.Utc
+            });
+            resp?.FromJson(null, DateTimeOffset.Now);
+
+            Assert.IsNotNull(resp);
+            Assert.AreEqual(1, resp.AccountBeaconId1S.Count);
+            Assert.AreEqual(1, resp.ResolvedActions.Count);
+
+            IList&lt;ResolvedAction&gt; list = resp.GetResolvedActionsForPidAndEvent(&quot;7367672374000000ffff0000ffff00070800800005&quot;, BeaconEventType.Exit);
+            Assert.IsNotNull(list);
+            Assert.AreEqual(1, list.Count);
+
+            foreach (var item in list)
+            {
+                Assert.IsFalse(item.ReportImmediately);
+            }
+        }
+
+        [TestMethod]
+        public async Task Response_reportImmediately_true()
+        {
+            var uri = new Uri(&quot;ms-appx:///Assets/raw/reportImmediately_true.json&quot;);
+            var file = await StorageFile.GetFileFromApplicationUriAsync(uri);
+            string text = await FileIO.ReadTextAsync(file);
+            var val = JsonValue.Parse(text);
+
+            Layout resp = JsonConvert.DeserializeObject&lt;Layout&gt;(text, new JsonSerializerSettings
+            {
+                DateTimeZoneHandling = DateTimeZoneHandling.Utc
+            });
+            resp?.FromJson(null, DateTimeOffset.Now);
+
+            Assert.IsNotNull(resp);
+            Assert.AreEqual(1, resp.AccountBeaconId1S.Count);
+            Assert.AreEqual(1, resp.ResolvedActions.Count);
+
+            IList&lt;ResolvedAction&gt; list = resp.GetResolvedActionsForPidAndEvent(&quot;7367672374000000ffff0000ffff00070800800005&quot;, BeaconEventType.Exit);
+            Assert.IsNotNull(list);
+            Assert.AreEqual(1, list.Count);
+
+            foreach (var item in list)
+            {
+                Assert.IsTrue(item.ReportImmediately);
+            }
+        }
+
+        [TestMethod]
+        public async Task Response_reportImmediately_not_set()
+        {
+            var uri = new Uri(&quot;ms-appx:///Assets/raw/reportImmediately_not_set.json&quot;);
+            var file = await StorageFile.GetFileFromApplicationUriAsync(uri);
+            string text = await FileIO.ReadTextAsync(file);
+            var val = JsonValue.Parse(text);
+
+            Layout resp = JsonConvert.DeserializeObject&lt;Layout&gt;(text, new JsonSerializerSettings
+            {
+                DateTimeZoneHandling = DateTimeZoneHandling.Utc
+            });
+            resp?.FromJson(null, DateTimeOffset.Now);
+
+            Assert.IsNotNull(resp);
+            Assert.AreEqual(1, resp.AccountBeaconId1S.Count);
+            Assert.AreEqual(1, resp.ResolvedActions.Count);
+
+            IList&lt;ResolvedAction&gt; list = resp.GetResolvedActionsForPidAndEvent(&quot;7367672374000000ffff0000ffff00070800800005&quot;, BeaconEventType.Exit);
+            Assert.IsNotNull(list);
+            Assert.AreEqual(1, list.Count);
+
+            foreach (var item in list)
+            {
+                Assert.IsFalse(item.ReportImmediately);
+            }
+        }
+
+        [TestMethod]
+        public async Task Response_sendOnlyOnce_set()
+        {
+            var uri = new Uri(&quot;ms-appx:///Assets/raw/response_sendOnlyOnce_true.json&quot;);
+            var file = await StorageFile.GetFileFromApplicationUriAsync(uri);
+            string text = await FileIO.ReadTextAsync(file);
+            var val = JsonValue.Parse(text);
+
+            Layout resp = JsonConvert.DeserializeObject&lt;Layout&gt;(text, new JsonSerializerSettings
+            {
+                DateTimeZoneHandling = DateTimeZoneHandling.Utc
+            });
+            resp?.FromJson(null, DateTimeOffset.Now);
+
+            Assert.IsNotNull(resp);
+            Assert.AreEqual(1, resp.AccountBeaconId1S.Count);
+            Assert.AreEqual(1, resp.ResolvedActions.Count);
+
+            IList&lt;ResolvedAction&gt; list = resp.GetResolvedActionsForPidAndEvent(&quot;7367672374000000ffff0000ffff00070800800005&quot;, BeaconEventType.Exit);
+            Assert.IsNotNull(list);
+            Assert.AreEqual(1, list.Count);
+
+            foreach (var item in list)
+            {
+                Assert.IsTrue(item.SendOnlyOnce);
+            }
+        }
+
+        [TestMethod]
+        public async Task Response_supressionTime()
+        {
+            var uri = new Uri(&quot;ms-appx:///Assets/raw/response_supressionTime.json&quot;);
+            var file = await StorageFile.GetFileFromApplicationUriAsync(uri);
+            string text = await FileIO.ReadTextAsync(file);
+            var val = JsonValue.Parse(text);
+
+            Layout resp = JsonConvert.DeserializeObject&lt;Layout&gt;(text, new JsonSerializerSettings
+            {
+                DateTimeZoneHandling = DateTimeZoneHandling.Utc
+            });
+            resp?.FromJson(null, DateTimeOffset.Now);
+
+            Assert.IsNotNull(resp);
+            Assert.AreEqual(1, resp.AccountBeaconId1S.Count);
+            Assert.AreEqual(1, resp.ResolvedActions.Count);
+
+            IList&lt;ResolvedAction&gt; list = resp.GetResolvedActionsForPidAndEvent(&quot;7367672374000000ffff0000ffff00070800800005&quot;, BeaconEventType.Exit);
+            Assert.IsNotNull(list);
+            Assert.AreEqual(1, list.Count);
+
+            foreach (var item in list)
+            {
+                Assert.IsTrue(item.SuppressionTime == 30);
+            }
+        }
+
+        [TestMethod]
+        public async Task Response_ResolvedAction_serialization()
+        {
+            var uri = new Uri(&quot;ms-appx:///Assets/raw/response_sendOnlyOnce_true.json&quot;);
+            var file = await StorageFile.GetFileFromApplicationUriAsync(uri);
+            string text = await FileIO.ReadTextAsync(file);
+            Layout resp = JsonConvert.DeserializeObject&lt;Layout&gt;(text, new JsonSerializerSettings
+                {
+                    DateTimeZoneHandling = DateTimeZoneHandling.Utc
+                });
+            resp?.FromJson(null, DateTimeOffset.Now);
+
+            Assert.IsNotNull(resp);
+            Assert.AreEqual(1, resp.AccountBeaconId1S.Count);
+            Assert.AreEqual(1, resp.ResolvedActions.Count);
+
+            IList&lt;ResolvedAction&gt; list = resp.GetResolvedActionsForPidAndEvent(&quot;7367672374000000ffff0000ffff00070800800005&quot;, BeaconEventType.Exit);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[22,9,22,10,1],[23,13,23,53,1],[24,13,24,36,1],[25,13,25,96,1],[26,13,26,52,1],[27,9,27,10,1],[31,9,31,10,1],[32,13,32,77,1],[33,13,33,78,1],[34,13,34,60,1],[35,13,35,45,1],[37,13,40,16,1],[41,13,41,54,1],[43,13,43,36,1],[44,13,44,62,1],[45,13,45,60,1],[47,13,47,149,1],[48,13,48,36,1],[49,13,49,44,1],[50,9,50,10,1],[54,9,54,10,1],[55,13,55,85,1],[56,13,56,78,1],[57,13,57,60,1],[58,13,58,45,1],[60,13,63,16,1],[64,13,64,54,1],[66,13,66,36,1],[67,13,67,62,1],[68,13,68,60,1],[70,13,70,148,1],[71,13,71,36,1],[72,13,72,44,1],[74,13,74,20,1],[74,34,74,38,1],[74,22,74,30,1],[75,13,75,14,1],[76,17,76,56,1],[77,13,77,14,1],[74,31,74,33,1],[78,9,78,10,1],[82,9,82,10,1],[83,13,83,84,1],[84,13,84,78,1],[85,13,85,60,1],[86,13,86,45,1],[88,13,91,16,1],[92,13,92,54,1],[94,13,94,36,1],[95,13,95,62,1],[96,13,96,60,1],[98,13,98,148,1],[99,13,99,36,1],[100,13,100,44,1],[102,13,102,20,1],[102,34,102,38,1],[102,22,102,30,1],[103,13,103,14,1],[104,17,104,55,1],[105,13,105,14,1],[102,31,102,33,1],[106,9,106,10,1],[110,9,110,10,1],[111,13,111,87,1],[112,13,112,78,1],[113,13,113,60,1],[114,13,114,45,1],[116,13,119,16,1],[120,13,120,54,1],[122,13,122,36,1],[123,13,123,62,1],[124,13,124,60,1],[126,13,126,148,1],[127,13,127,36,1],[128,13,128,44,1],[130,13,130,20,1],[130,34,130,38,1],[130,22,130,30,1],[131,13,131,14,1],[132,17,132,56,1],[133,13,133,14,1],[130,31,130,33,1],[134,9,134,10,1],[138,9,138,10,1],[139,13,139,88,1],[140,13,140,78,1],[141,13,141,60,1],[142,13,142,45,1],[144,13,147,16,1],[148,13,148,54,1],[150,13,150,36,1],[151,13,151,62,1],[152,13,152,60,1],[154,13,154,148,1],[155,13,155,36,1],[156,13,156,44,1],[158,13,158,20,1],[158,34,158,38,1],[158,22,158,30,1],[159,13,159,14,1],[160,17,160,50,1],[161,13,161,14,1],[158,31,158,33,1],[162,9,162,10,1],[166,9,166,10,1],[167,13,167,85,1],[168,13,168,78,1],[169,13,169,60,1],[170,13,170,45,1],[172,13,175,16,1],[176,13,176,54,1],[178,13,178,36,1],[179,13,179,62,1],[180,13,180,60,1],[182,13,182,148,1],[183,13,183,36,1],[184,13,184,44,1],[186,13,186,20,1],[186,34,186,38,1],[186,22,186,30,1],[187,13,187,14,1],[188,17,188,59,1],[189,13,189,14,1],[186,31,186,33,1],[190,9,190,10,1],[194,9,194,10,1],[195,13,195,88,1],[196,13,196,78,1],[197,13,197,60,1],[198,13,201,20,1],[202,13,202,54,1],[204,13,204,36,1],[205,13,205,62,1],[206,13,206,60,1],[208,13,208,148,1],[209,9,209,10,1]]);
+    </script>
+  </body>
+</html>

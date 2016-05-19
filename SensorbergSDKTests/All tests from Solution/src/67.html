@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\data\useragentmodel.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System.Runtime.Serialization;
+
+namespace SensorbergSDK.Internal.Data
+{
+    [DataContract]
+    internal class UserAgentModel
+    {
+        public UserAgentModel(string operatingSystemInfo, string sdkInfo, string applicationInfo)
+        {
+            OperatingSystemInfo = operatingSystemInfo;
+            SdkInfo = sdkInfo;
+            ApplicationInfo = applicationInfo;
+        }
+
+        [DataMember(Name = &quot;os&quot;)]
+        public string OperatingSystemInfo { get; private set; }
+
+        [DataMember(Name = &quot;sdk&quot;)]
+        public string SdkInfo { get; private set; }
+
+        [DataMember(Name = &quot;app&quot;)]
+        public string ApplicationInfo { get; private set; }
+
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[12,9,12,98,0],[13,9,13,10,0],[14,13,14,55,0],[15,13,15,31,0],[16,13,16,47,0],[17,9,17,10,0],[20,45,20,49,0],[20,50,20,62,0],[23,33,23,37,0],[23,38,23,50,0],[26,41,26,45,0],[26,46,26,58,0]]);
+    </script>
+  </body>
+</html>

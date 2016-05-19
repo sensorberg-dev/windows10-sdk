@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\data\historyaction.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System.Runtime.Serialization;
+
+namespace SensorbergSDK.Internal.Data
+{
+    [DataContract]
+    public class HistoryAction
+    {
+        [DataMember(Name = &quot;eid&quot;)]
+        public string EventId { get; set; } 
+        [DataMember(Name = &quot;pid&quot;)]
+        public string BeaconId { get; set; }
+        [DataMember(Name = &quot;dt&quot;)]
+        public string ActionTime { get; set; } 
+        [DataMember(Name = &quot;trigger&quot;)]
+        public int Trigger { get; set; }
+        public bool Delivered { get; set; }
+        public bool Background { get; set; }
+    }
+
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[13,33,13,37,1],[13,38,13,42,1],[15,34,15,38,1],[15,39,15,43,1],[17,36,17,40,1],[17,41,17,45,1],[19,30,19,34,1],[19,35,19,39,1],[20,33,20,37,1],[20,38,20,42,1],[21,34,21,38,1],[21,39,21,43,1]]);
+    </script>
+  </body>
+</html>

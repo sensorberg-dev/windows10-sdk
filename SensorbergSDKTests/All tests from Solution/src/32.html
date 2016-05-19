@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\beacon.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Diagnostics;
+using System.Runtime.Serialization;
+using System.Text;
+using SensorbergSDK.Internal.Utils;
+
+namespace SensorbergSDK
+{
+    /// &lt;summary&gt;
+    /// Representation of a beacon, incl. of there properties.
+    /// &lt;/summary&gt;
+    [DataContract]
+    public sealed class Beacon
+    {
+        private const char HexStringSeparator = &#39;-&#39;; // For UpdatePid()
+
+        /// &lt;summary&gt;
+        /// ManufacturerId of the beacon.
+        /// &lt;/summary&gt;
+        [DataMember]
+        public ushort ManufacturerId
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        /// &lt;summary&gt;
+        /// BeaconCode of the beacon.
+        /// &lt;/summary&gt;
+        [DataMember]
+        public ushort Code
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        private string _id1;
+        /// &lt;summary&gt;
+        /// Id1 of the beacon as string representation.
+        /// &lt;/summary&gt;
+        [DataMember]
+        public string Id1
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                return _id1;
+            }
+            [DebuggerStepThrough]
+            set
+            {
+                if (_id1 != value)
+                {
+                    _id1 = value;
+                    UpdatePid();
+                }
+            }
+        }
+
+        private ushort _id2;
+        /// &lt;summary&gt;
+        /// Id2 of the beacon as string representation.
+        /// &lt;/summary&gt;
+        [DataMember]
+        public ushort Id2
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                return _id2;
+            }
+            [DebuggerStepThrough]
+            set
+            {
+                if (_id2 != value)
+                {
+                    _id2 = value;
+                    UpdatePid();
+                }
+            }
+        }
+
+        private ushort _id3;
+        /// &lt;summary&gt;
+        /// Id3 of the beacon as string representation.
+        /// &lt;/summary&gt;
+        [DataMember]
+        public ushort Id3
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                return _id3;
+            }
+            [DebuggerStepThrough]
+            set
+            {
+                if (_id3 != value)
+                {
+                    _id3 = value;
+                    UpdatePid();
+                }
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Aux value of the string.
+        /// &lt;/summary&gt;
+        public byte Aux
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+            
+        /// &lt;summary&gt;
+        /// PID is a unique string consisting of IDs 1, 2 and 3 this beacon.
+        /// The length of the PID is always the same.
+        /// &lt;/summary&gt;
+        [DataMember]
+        public string Pid
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            private set;
+        }
+
+        /// &lt;summary&gt;
+        /// Proximity distance of beacon.
+        /// &lt;/summary&gt;
+        [DataMember]
+        public double Distance
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            private set;
+        }
+
+        private int _rawSignalStrengthInDBm;
+        /// &lt;summary&gt;
+        /// Signalstrength from beacon.
+        /// &lt;/summary&gt;
+        [DataMember]
+        public int RawSignalStrengthInDBm
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                return _rawSignalStrengthInDBm;
+            }
+            [DebuggerStepThrough]
+            set
+            {
+                if (_rawSignalStrengthInDBm != value)
+                {
+                    _rawSignalStrengthInDBm = value;
+                    CalculateDistance(_rawSignalStrengthInDBm, MeasuredPower);
+                }
+            }
+        }
+
+        private int _measuredPower;
+        /// &lt;summary&gt;
+        /// Measured prower of beacon.
+        /// &lt;/summary&gt;
+        [DataMember]
+        public int MeasuredPower
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                return _measuredPower;
+            }
+            [DebuggerStepThrough]
+            set
+            {
+                if (_measuredPower != value)
+                {
+                    _measuredPower = value;
+                    CalculateDistance(RawSignalStrengthInDBm, _measuredPower);
+                }
+            }
+        }
+
+        [DataMember]
+        public DateTimeOffset Timestamp
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
+
+        /// &lt;summary&gt;
+        /// Compares the given beacon to this.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;beacon&quot;&gt;The beacon to compare to.&lt;/param&gt;
+        /// &lt;returns&gt;True, if the beacons match.&lt;/returns&gt;
+        public bool Matches(Beacon beacon)
+        {
+            return beacon.Id1 == Id1
+                   &amp;&amp; beacon.Id2 == Id2
+                   &amp;&amp; beacon.Id3 == Id3;
+        }
+
+        /// &lt;summary&gt;
+        /// Creates a string representation of this instance consisting of ID1,
+        /// ID2, ID3 and measured power.
+        /// &lt;/summary&gt;
+        /// &lt;returns&gt;A string representation of this instance.&lt;/returns&gt;
+        public override string ToString()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append(&quot;[&quot;);
+            stringBuilder.Append(string.Join(&quot;; &quot;, Id1, Id2, Id3, MeasuredPower));
+            stringBuilder.Append(&quot;]&quot;);
+            return stringBuilder.ToString();
+        }
+
+        /// &lt;summary&gt;
+        /// Updated the beacon PID; The ID 1 (without dashes) + 5 digits ID 2
+        /// (padded with zeros) + 5 digits ID 3 (padded with zeros).
+        /// &lt;/summary&gt;
+        private void UpdatePid()
+        {
+            string template = &quot;00000&quot;;
+            string beaconId2 = Id2.ToString();
+            string beaconId3 = Id3.ToString();
+            beaconId2 = template.Substring(beaconId2.Length) + beaconId2;
+            beaconId3 = template.Substring(beaconId3.Length) + beaconId3;
+            string pid = Id1.Replace(HexStringSeparator.ToString(), string.Empty) + beaconId2 + beaconId3;
+            Pid = pid.ToLower();
+        }
+
+        private void CalculateDistance(int rawSignalStrengthInDBm, int measuredPower)
+        {
+            if (rawSignalStrengthInDBm != 0 &amp;&amp; measuredPower != 0)
+            {
+                Distance = BeaconFactory.CalculateDistanceFromRssi(rawSignalStrengthInDBm, measuredPower);
+            }
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[27,13,28,17,0],[29,13,30,17,0],[39,13,40,17,0],[41,13,42,17,0],[119,13,120,17,0],[121,13,122,17,0],[144,13,145,17,0],[146,13,147,25,0],[164,13,164,14,0],[165,17,165,54,0],[166,17,166,18,0],[167,21,167,53,0],[168,21,168,79,0],[169,17,169,18,0],[170,13,170,14,0],[182,13,182,14,0],[183,17,183,39,0],[184,13,184,14,0],[187,13,187,14,0],[188,17,188,45,0],[189,17,189,18,0],[190,21,190,44,0],[191,21,191,79,0],[192,17,192,18,0],[193,13,193,14,0],[211,9,211,10,0],[212,13,214,41,0],[215,9,215,10,0],[223,9,223,10,0],[224,13,224,63,0],[225,13,225,39,0],[226,13,226,83,0],[227,13,227,39,0],[228,13,228,45,0],[229,9,229,10,0],[247,9,247,10,0],[248,13,248,67,0],[249,13,249,14,0],[250,17,250,107,0],[251,13,251,14,0],[252,9,252,10,0],[54,13,54,14,1],[55,17,55,29,1],[56,13,56,14,1],[59,13,59,14,1],[60,17,60,35,1],[61,17,61,18,1],[62,21,62,34,1],[63,21,63,33,1],[64,17,64,18,1],[65,13,65,14,1],[77,13,77,14,1],[78,17,78,29,1],[79,13,79,14,1],[82,13,82,14,1],[83,17,83,35,1],[84,17,84,18,1],[85,21,85,34,1],[86,21,86,33,1],[87,17,87,18,1],[88,13,88,14,1],[100,13,100,14,1],[101,17,101,29,1],[102,13,102,14,1],[105,13,105,14,1],[106,17,106,35,1],[107,17,107,18,1],[108,21,108,34,1],[109,21,109,33,1],[110,17,110,18,1],[111,13,111,14,1],[132,13,133,17,1],[134,13,135,25,1],[159,13,159,14,1],[160,17,160,48,1],[161,13,161,14,1],[199,13,200,17,1],[201,13,202,17,1],[236,9,236,10,1],[237,13,237,39,1],[238,13,238,47,1],[239,13,239,47,1],[240,13,240,74,1],[241,13,241,74,1],[242,13,242,107,1],[243,13,243,33,1],[244,9,244,10,1]]);
+    </script>
+  </body>
+</html>

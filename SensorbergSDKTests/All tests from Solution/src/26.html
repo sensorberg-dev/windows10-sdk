@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\apikeyhelper.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Collections.Generic;
+using Windows.Web.Http.Headers;
+using System.Threading.Tasks;
+using Windows.Data.Json;
+using Windows.Web.Http;
+using Windows.Web.Http.Filters;
+using SensorbergSDK.Internal.Services;
+
+namespace SensorbergSDK
+{
+    public enum ApiKeyValidationResult
+    {
+        Valid,
+        Invalid,
+        NetworkError,
+        UnknownError
+    }
+
+    public enum NetworkResult
+    {
+        Success,
+        NetworkError,
+        AuthenticationFailed,
+        ParsingError,
+        NoWindowsCampains,
+        UnknownError
+    }
+
+    /// &lt;summary&gt;
+    /// Helper class to receive the api key from the sensorberg plattform or validate it.
+    /// &lt;/summary&gt;
+    public class ApiKeyHelper
+    {
+        private const string LoginUrl = &quot;https://connect.sensorberg.com/api/user/login&quot;;
+        private const string ApplicationsUrl = &quot;https://connect.sensorberg.com/api/applications/&quot;;
+        private const string KeyEmail = &quot;email&quot;;
+        private const string KeyPassword = &quot;password&quot;;
+        private const string KeyResponse = &quot;response&quot;;
+        private const string KeyAuthorizationToken = &quot;authToken&quot;;
+        private const string KeyApiKey = &quot;apiKey&quot;;
+        private const string KeyName = &quot;name&quot;;
+        private const string KeyPlatform = &quot;platform&quot;;
+        private const string PlatformValueWindows = &quot;windows&quot;;
+
+        /// &lt;summary&gt;
+        /// Received ApiKey.
+        /// &lt;/summary&gt;
+        public string ApiKey
+        {
+            get;
+            set;
+        }
+
+        /// &lt;summary&gt;
+        /// Application Name.
+        /// &lt;/summary&gt;
+        public string ApplicationName
+        {
+            get;
+            set;
+        }
+
+        /// &lt;summary&gt;
+        /// Checks whether the given API key is valid or not.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;apiKey&quot;&gt;The API key to validate.&lt;/param&gt;
+        /// &lt;returns&gt;The validation result.&lt;/returns&gt;
+        public async Task&lt;ApiKeyValidationResult&gt; ValidateApiKey(string apiKey)
+        {
+            return await ServiceManager.StorageService.ValidateApiKey(apiKey);
+        }
+
+        /// &lt;summary&gt;
+        /// Tries to fetch the API key from the server matching the given credentials.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;email&quot;&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;password&quot;&gt;&lt;/param&gt;
+        /// &lt;returns&gt;The fetching operation result. If successful, the API key is placed in the ApiKey property of this class.&lt;/returns&gt;
+        public async Task&lt;NetworkResult&gt; FetchApiKeyAsync(string email, string password)
+        {
+            NetworkResult result;
+
+            HttpBaseProtocolFilter httpBaseProtocolFilter = new HttpBaseProtocolFilter();
+            httpBaseProtocolFilter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
+            httpBaseProtocolFilter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
+            HttpClient client = new HttpClient(httpBaseProtocolFilter);
+
+            var keyValues = new List&lt;KeyValuePair&lt;string, string&gt;&gt;();
+            keyValues.Add(new KeyValuePair&lt;string, string&gt;(KeyEmail, email));
+            keyValues.Add(new KeyValuePair&lt;string, string&gt;(KeyPassword, password));
+            HttpFormUrlEncodedContent formContent = new HttpFormUrlEncodedContent(keyValues);
+
+            Uri uri = new Uri(LoginUrl);
+            HttpResponseMessage response;
+
+            try
+            {
+                response = await client.PostAsync(uri, formContent);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(&quot;ApiKeyHelper.FetchApiKeyAsync(): Network error: &quot; + ex.Message);
+                return NetworkResult.NetworkError;
+            }
+
+            if (response.StatusCode == HttpStatusCode.Ok)
+            {
+                string responseAsString;
+
+                try
+                {
+                    responseAsString = await response.Content.ReadAsStringAsync();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(&quot;ApiKeyHelper.FetchApiKeyAsync(): Network error: &quot; + ex.Message);
+                    return NetworkResult.NetworkError;
+                }
+
+                JsonValue responseAsJsonValue;
+                string authToken = string.Empty;
+
+                try
+                {
+                    responseAsJsonValue = JsonValue.Parse(responseAsString);
+
+                    if (responseAsJsonValue.ValueType == JsonValueType.Object)
+                    {
+                        var jsonObject = responseAsJsonValue.GetObject();
+                        var responseObject = jsonObject.GetNamedObject(KeyResponse);
+                        authToken = responseObject.GetNamedString(KeyAuthorizationToken);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(&quot;ApiKeyHelper.FetchApiKeyAsync(): Parsing error: &quot; + ex.Message);
+                    return NetworkResult.ParsingError;
+                }
+
+                if (!string.IsNullOrEmpty(authToken))
+                {
+                    client = new HttpClient(httpBaseProtocolFilter);
+                    uri = new Uri(ApplicationsUrl);
+                    client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue(authToken);
+
+                    try
+                    {
+                        responseAsString = await client.GetStringAsync(uri);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine(&quot;ApiKeyHelper.FetchApiKeyAsync(): Network error: &quot; + ex.Message);
+                        return NetworkResult.NetworkError;
+                    }
+
+                    responseAsJsonValue = JsonValue.Parse(responseAsString);
+                    result = NetworkResult.NoWindowsCampains;
+
+                    if (responseAsJsonValue.ValueType == JsonValueType.Array)
+                    {
+                        var applicationsArray = responseAsJsonValue.GetArray();
+
+                        // We take the first Windows application from the list
+                        foreach (IJsonValue applicationValue in applicationsArray)
+                        {
+                            if (applicationValue.ValueType == JsonValueType.Object)
+                            {
+                                JsonObject applicationObject = applicationValue.GetObject();
+
+                                var apiKeyValue = applicationObject[KeyApiKey];
+                                if (apiKeyValue.ValueType == JsonValueType.Null)
+                                {
+                                    continue;
+                                }
+
+                                var apiKey = applicationObject.GetNamedString(KeyApiKey);
+
+                                string applicationName = applicationObject.GetNamedString(KeyName);
+                                string platform = applicationObject.GetNamedString(KeyPlatform);
+
+                                if (platform.ToLower().Equals(PlatformValueWindows.ToLower()))
+                                {
+                                    ApiKey = apiKey;
+                                    ApplicationName = applicationName;
+                                    result = NetworkResult.Success;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    result = NetworkResult.AuthenticationFailed;
+                }
+            }
+            else if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                result = NetworkResult.AuthenticationFailed;
+            }
+            else
+            {
+                result = NetworkResult.NetworkError;
+            }
+
+            return result;
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[55,13,55,17,0],[56,13,56,17,0],[64,13,64,17,0],[65,13,65,17,0],[74,9,74,10,0],[75,13,75,79,0],[76,9,76,10,0],[85,9,85,10,0],[88,13,88,90,0],[89,13,89,97,0],[90,13,90,96,0],[91,13,91,72,0],[93,13,93,70,0],[94,13,94,78,0],[95,13,95,84,0],[96,13,96,94,0],[98,13,98,41,0],[102,13,102,14,0],[103,17,103,69,0],[104,13,104,14,0],[105,13,105,33,0],[106,13,106,14,0],[107,17,107,117,0],[108,17,108,51,0],[111,13,111,58,0],[112,13,112,14,0],[116,17,116,18,0],[117,21,117,83,0],[118,17,118,18,0],[119,17,119,37,0],[120,17,120,18,0],[121,21,121,121,0],[122,21,122,55,0],[126,17,126,49,0],[129,17,129,18,0],[130,21,130,77,0],[132,21,132,79,0],[133,21,133,22,0],[134,25,134,74,0],[135,25,135,85,0],[136,25,136,90,0],[137,21,137,22,0],[138,17,138,18,0],[139,17,139,37,0],[140,17,140,18,0],[141,21,141,121,0],[142,21,142,55,0],[145,17,145,54,0],[146,17,146,18,0],[147,21,147,69,0],[148,21,148,52,0],[149,21,149,108,0],[152,21,152,22,0],[153,25,153,77,0],[154,21,154,22,0],[155,21,155,41,0],[156,21,156,22,0],[157,25,157,125,0],[158,25,158,59,0],[161,21,161,77,0],[162,21,162,62,0],[164,21,164,78,0],[165,21,165,22,0],[166,25,166,80,0],[169,25,169,32,0],[169,65,169,82,0],[169,34,169,61,0],[170,25,170,26,0],[171,29,171,84,0],[172,29,172,30,0],[173,33,173,93,0],[175,33,175,80,0],[176,33,176,81,0],[177,33,177,34,0],[178,37,178,46,0],[181,33,181,90,0],[183,33,183,100,0],[184,33,184,97,0],[186,33,186,95,0],[187,33,187,34,0],[188,37,188,53,0],[189,37,189,71,0],[190,37,190,68,0],[191,37,191,43,0],[193,29,193,30,0],[194,25,194,26,0],[169,62,169,64,0],[195,21,195,22,0],[196,17,196,18,0],[198,17,198,18,0],[199,21,199,65,0],[200,17,200,18,0],[201,13,201,14,0],[202,18,202,73,0],[203,13,203,14,0],[204,17,204,61,0],[205,13,205,14,0],[207,13,207,14,0],[208,17,208,53,0],[209,13,209,14,0],[211,13,211,27,0],[212,9,212,10,0]]);
+    </script>
+  </body>
+</html>
