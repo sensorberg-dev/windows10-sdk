@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SensorbergSDK;
-using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Transport;
 using SensorbergSDK.Services;

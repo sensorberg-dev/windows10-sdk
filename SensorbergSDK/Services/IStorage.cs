@@ -117,7 +117,7 @@ namespace SensorbergSDK.Services
         /// <summary>
         /// Returns all actions that are triggered by the background task.
         /// </summary>
-        /// <param name="doNotDelete">Boolean to delete or not delete the returned actions</param>
+        /// <param name="doNotDelete">Boolean to delete or not delete the returned actions.</param>
         Task<List<HistoryAction>> GetActionsForForeground(bool doNotDelete = false);
 
     }

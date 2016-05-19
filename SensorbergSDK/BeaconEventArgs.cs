@@ -14,15 +14,15 @@ namespace SensorbergSDK
     {
         None,
         /// <summary>
-        /// Entered to range of beacon event
+        /// Entered to range of beacon event.
         /// </summary>
         Enter,
         /// <summary>
-        /// Exit from beacon range event
+        /// Exit from beacon range event.
         /// </summary>
         Exit,
         /// <summary>
-        /// This we get from the server when the trigger can be both
+        /// This we get from the server when the trigger can be both.
         /// </summary>
         EnterExit
     }

@@ -13,7 +13,6 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
-using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Transport;
 using SensorbergSDK.Services;

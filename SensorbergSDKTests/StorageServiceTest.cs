@@ -12,7 +12,6 @@ using Windows.Storage.Streams;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Newtonsoft.Json;
 using SensorbergSDK;
-using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Internal.Transport;
