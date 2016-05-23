@@ -50,6 +50,7 @@ try {
     bat "\"${msbuild}\" VSIX_Packaging.sln"
     
     stage 'package nuget'
+	bat "del *.nupkg"
     bat "createnuget.bat"
     
     stage 'install vsix package'
