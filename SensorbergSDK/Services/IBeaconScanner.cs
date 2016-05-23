@@ -5,7 +5,7 @@
 // All rights reserved.
 
 using System;
-using SensorbergSDK;
+using SensorbergSDK.Internal;
 
 namespace SensorbergSDK.Services
 {

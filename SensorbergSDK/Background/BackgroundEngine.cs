@@ -7,10 +7,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.UI.Notifications;
 using MetroLog;
-using SensorbergSDK;
-using SensorbergSDK.Data;
-using SensorbergSDK.Services;
-using SensorbergSDK.Utils;
+using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Utils;
 
 namespace SensorbergSDK.Background
 {

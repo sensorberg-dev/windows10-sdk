@@ -5,9 +5,9 @@
 // All rights reserved.
 
 using System;
-using SensorbergSDK.Transport;
+using SensorbergSDK.Internal.Transport;
 
-namespace SensorbergSDK.Data
+namespace SensorbergSDK.Internal.Data
 {
     public class DelayedActionData
     {

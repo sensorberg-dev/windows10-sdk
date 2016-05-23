@@ -4,9 +4,9 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using SensorbergSDK.Transport;
+using SensorbergSDK.Internal.Transport;
 
-namespace SensorbergSDK
+namespace SensorbergSDK.Internal
 {
     public sealed class ResolvedActionsEventArgs
     {

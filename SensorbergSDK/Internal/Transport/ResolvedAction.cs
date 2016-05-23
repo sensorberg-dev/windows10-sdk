@@ -7,9 +7,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
-using SensorbergSDK.Data;
+using SensorbergSDK.Internal.Data;
 
-namespace SensorbergSDK.Transport
+namespace SensorbergSDK.Internal.Transport
 {
     /// <summary>
     /// Internal class that represents a single action coming from the server. 

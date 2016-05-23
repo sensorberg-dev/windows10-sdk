@@ -7,7 +7,7 @@
 using System.Diagnostics;
 using SensorbergSDK.Services;
 
-namespace SensorbergSDK.Services
+namespace SensorbergSDK.Internal.Services
 {
     public static class ServiceManager
     {

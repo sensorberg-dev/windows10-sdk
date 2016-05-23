@@ -10,7 +10,7 @@ using Windows.Data.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace SensorbergSDK.Transport.Converter
+namespace SensorbergSDK.Internal.Transport.Converter
 {
     public class ResolvedActionConverter: JsonConverter
     {

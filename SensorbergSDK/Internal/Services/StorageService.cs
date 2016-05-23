@@ -14,12 +14,12 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using MetroLog;
 using Newtonsoft.Json;
-using SensorbergSDK.Data;
+using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Transport;
+using SensorbergSDK.Internal.Utils;
 using SensorbergSDK.Services;
-using SensorbergSDK.Transport;
-using SensorbergSDK.Utils;
 
-namespace SensorbergSDK.Services
+namespace SensorbergSDK.Internal.Services
 {
     public class StorageService : IStorageService
     {

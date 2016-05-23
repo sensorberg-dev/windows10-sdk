@@ -6,7 +6,7 @@
 
 using Windows.Web.Http;
 
-namespace SensorbergSDK.Services
+namespace SensorbergSDK.Internal.Services
 {
     public class ResponseMessage
     {

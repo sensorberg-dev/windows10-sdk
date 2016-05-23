@@ -6,7 +6,7 @@
 
 using System.Diagnostics;
 
-namespace SensorbergSDK.Data
+namespace SensorbergSDK.Internal.Data
 {
     /// <summary>
     /// Class provides the result for requests to the storage.

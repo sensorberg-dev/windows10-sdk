@@ -7,12 +7,12 @@
 using System;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
-using SensorbergSDK.Internal;
-using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
 using System.Collections.Generic;
 using MetroLog;
+using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Internal.Transport;
 using SensorbergSDK.Internal.Utils;
 

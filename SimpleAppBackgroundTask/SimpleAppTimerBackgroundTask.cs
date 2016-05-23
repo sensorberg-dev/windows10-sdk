@@ -6,7 +6,7 @@
 
 using System.Diagnostics;
 using Windows.ApplicationModel.Background;
-using SensorbergSDK.SensorbergSDKBackground;
+using SensorbergSDK.Background;
 
 namespace SimpleAppBackgroundTask
 {

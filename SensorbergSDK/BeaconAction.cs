@@ -2,7 +2,6 @@
 // 
 // All rights reserved.
 
-using SensorbergSDK.Internal;
 using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
@@ -10,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.UI.Popups;
+using SensorbergSDK.Internal;
 
 namespace SensorbergSDK
 {

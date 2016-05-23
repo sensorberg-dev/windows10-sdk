@@ -4,7 +4,7 @@
 
 using System;
 
-namespace SensorbergSDK
+namespace SensorbergSDK.Internal
 {
     public class SettingsEventArgs: EventArgs
     {

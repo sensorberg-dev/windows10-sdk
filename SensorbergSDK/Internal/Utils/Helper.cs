@@ -7,7 +7,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace SensorbergSDK.Utils
+namespace SensorbergSDK.Internal.Utils
 {
     public static class Helper
     {

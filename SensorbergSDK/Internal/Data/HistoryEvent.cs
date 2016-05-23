@@ -6,7 +6,7 @@
 
 using System.Runtime.Serialization;
 
-namespace SensorbergSDK.Data
+namespace SensorbergSDK.Internal.Data
 {
     [DataContract]
     public class HistoryEvent

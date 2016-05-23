@@ -7,10 +7,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MetroLog;
-using SensorbergSDK.Services;
-using SensorbergSDK.Transport;
+using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Transport;
 
-namespace SensorbergSDK.Data
+namespace SensorbergSDK.Internal.Data
 {
     /// <summary>
     /// Event storage. It stores all past beacon events and actions associated with the events.

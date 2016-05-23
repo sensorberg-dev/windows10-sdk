@@ -7,9 +7,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MetroLog;
-using SensorbergSDK.Services;
+using SensorbergSDK.Internal.Services;
 
-namespace SensorbergSDK.Transport
+namespace SensorbergSDK.Internal.Transport
 {
     /// <summary>
     /// Simple queue for requests. When a request is added, it is handled automatically in due time.
