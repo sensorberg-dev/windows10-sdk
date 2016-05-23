@@ -5,6 +5,5 @@ var searchData=
   ['apiconnection_2ecs',['ApiConnection.cs',['../_api_connection_8cs.html',1,'']]],
   ['apikeyhelper_2ecs',['ApiKeyHelper.cs',['../_api_key_helper_8cs.html',1,'']]],
   ['appsettings_2ecs',['AppSettings.cs',['../_app_settings_8cs.html',1,'']]],
-  ['appsettingsresponse_2ecs',['AppSettingsResponse.cs',['../_app_settings_response_8cs.html',1,'']]],
   ['assemblyinfo_2ecs',['AssemblyInfo.cs',['../_assembly_info_8cs.html',1,'']]]
 ];

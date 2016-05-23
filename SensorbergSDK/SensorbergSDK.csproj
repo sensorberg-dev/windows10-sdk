@@ -118,7 +118,6 @@
     <Compile Include="BeaconAction.cs" />
     <Compile Include="Internal\Constants.cs" />
     <Compile Include="Internal\AppSettings.cs" />
-    <Compile Include="Internal\Data\AppSettingsResponse.cs" />
     <Compile Include="Internal\Data\BackgroundEvent.cs" />
     <Compile Include="Internal\Data\BackgroundWorkerType.cs" />
     <Compile Include="Internal\Data\BeaconContainer.cs" />
@@ -127,7 +126,7 @@
     <Compile Include="Internal\Data\FileStorageHelper.cs" />
     <Compile Include="Internal\Data\History.cs" />
     <Compile Include="Internal\Data\HistoryEvent.cs" />
-    <Compile Include="Internal\Data\IResolver.cs" />
+    <Compile Include="Internal\Services\IResolver.cs" />
     <Compile Include="Internal\Data\UserAgentModel.cs" />
     <Compile Include="Internal\SDKEngine.cs" />
     <Compile Include="Internal\Services\ApiConnection.cs" />

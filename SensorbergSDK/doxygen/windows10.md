@@ -4,7 +4,7 @@ title: Windows10 SDK Integration
 permalink: /windows10/
 additionalNavigation : [
 { "title" : "Win10 SDK",                "link" : "https://github.com/sensorberg-dev/windows10-sdk" },
-{ "title" : "Win10 Documentation",         "link" : "windows10-sdk/documentation" },
+{ "title" : "Win10 Documentation",      "link" : "windows10-sdk/documentation/index.html" },
 { "title" : "Win10 Bugtracker",         "link" : "https://github.com/sensorberg-dev/windows10-sdk/issues" },
 { "title" : "Edit this page",           "link" : "https://github.com/sensorberg-dev/sensorberg-dev.github.io/edit/master/windows10.md" }
 ]
@@ -20,7 +20,6 @@ Sensorberg SDK for Windows is supported on Windows 10, this include Desktop, Mob
 ## Taking Sensorberg SDK into use ##
 
 ### 1. Add Sensorberg SDK projects into your solution ###
-
 
 You can download the latest nuget package from https://github.com/sensorberg-dev/windows10-sdk/releases or the nuget repository.
 

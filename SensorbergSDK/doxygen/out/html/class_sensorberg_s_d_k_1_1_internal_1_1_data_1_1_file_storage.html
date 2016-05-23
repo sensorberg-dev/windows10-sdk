@@ -112,6 +112,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a61f74f7a56680e16c5ac44ee3cc737a6"><td class="memItemLeft" align="right" valign="top">async Task&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a61f74f7a56680e16c5ac44ee3cc737a6">InitStorage</a> ()</td></tr>
 <tr class="memdesc:a61f74f7a56680e16c5ac44ee3cc737a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the storage, e.g. create folders or database. This depends on the implementation, but needs to be called during startup of the SDK.  <a href="#a61f74f7a56680e16c5ac44ee3cc737a6">More...</a><br /></td></tr>
 <tr class="separator:a61f74f7a56680e16c5ac44ee3cc737a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6cd0653c7caa861579ebbb587e9e3151"><td class="memItemLeft" align="right" valign="top">async Task&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a6cd0653c7caa861579ebbb587e9e3151">CleanDatabase</a> ()</td></tr>
+<tr class="memdesc:a6cd0653c7caa861579ebbb587e9e3151"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes all from database.  <a href="#a6cd0653c7caa861579ebbb587e9e3151">More...</a><br /></td></tr>
+<tr class="separator:a6cd0653c7caa861579ebbb587e9e3151"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a685de419874c54c6068d001acffb8e25"><td class="memItemLeft" align="right" valign="top">async Task&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a685de419874c54c6068d001acffb8e25">CleanupDatabase</a> ()</td></tr>
+<tr class="memdesc:a685de419874c54c6068d001acffb8e25"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cleans old entries from the database.  <a href="#a685de419874c54c6068d001acffb8e25">More...</a><br /></td></tr>
+<tr class="separator:a685de419874c54c6068d001acffb8e25"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a016d62c594860ee7a471ae54e08b7bbd"><td class="memItemLeft" align="right" valign="top">async Task&lt; IList&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_event.html">HistoryEvent</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a016d62c594860ee7a471ae54e08b7bbd">GetUndeliveredEvents</a> ()</td></tr>
 <tr class="memdesc:a016d62c594860ee7a471ae54e08b7bbd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets all not delivered HistoryEvents.  <a href="#a016d62c594860ee7a471ae54e08b7bbd">More...</a><br /></td></tr>
 <tr class="separator:a016d62c594860ee7a471ae54e08b7bbd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -136,9 +142,6 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:afedc4062f41f8bf65a3b1a8292bc51cc"><td class="memItemLeft" align="right" valign="top">async Task&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_action.html">HistoryAction</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#afedc4062f41f8bf65a3b1a8292bc51cc">GetAction</a> (string uuid)</td></tr>
 <tr class="memdesc:afedc4062f41f8bf65a3b1a8292bc51cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_action.html">HistoryAction</a> that is fired by an action with that given UUID.  <a href="#afedc4062f41f8bf65a3b1a8292bc51cc">More...</a><br /></td></tr>
 <tr class="separator:afedc4062f41f8bf65a3b1a8292bc51cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6cd0653c7caa861579ebbb587e9e3151"><td class="memItemLeft" align="right" valign="top">async Task&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a6cd0653c7caa861579ebbb587e9e3151">CleanDatabase</a> ()</td></tr>
-<tr class="memdesc:a6cd0653c7caa861579ebbb587e9e3151"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cleans old entries from the database.  <a href="#a6cd0653c7caa861579ebbb587e9e3151">More...</a><br /></td></tr>
-<tr class="separator:a6cd0653c7caa861579ebbb587e9e3151"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c462415098bc4b6b5876bebd54555cf"><td class="memItemLeft" align="right" valign="top">async Task&lt; IList&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_delayed_action_data.html">DelayedActionData</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a4c462415098bc4b6b5876bebd54555cf">GetDelayedActions</a> ()</td></tr>
 <tr class="memdesc:a4c462415098bc4b6b5876bebd54555cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns delayed actions which should be executed now.  <a href="#a4c462415098bc4b6b5876bebd54555cf">More...</a><br /></td></tr>
 <tr class="separator:a4c462415098bc4b6b5876bebd54555cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -164,6 +167,8 @@ Public Member Functions</h2></td></tr>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a963ba46fd2428782995b59cff5838a0c"><td class="memItemLeft" align="right" valign="top">const string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a963ba46fd2428782995b59cff5838a0c">ActionsFileName</a> = &quot;actions.ini&quot;</td></tr>
 <tr class="separator:a963ba46fd2428782995b59cff5838a0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aedbd291b0ea7b67ab999f15240b1a119"><td class="memItemLeft" align="right" valign="top">const string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#aedbd291b0ea7b67ab999f15240b1a119">BackgroundEventsFolder</a> = BackgroundFolder + Serperator + EventsFolderName</td></tr>
+<tr class="separator:aedbd291b0ea7b67ab999f15240b1a119"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4717e20792d5247f8368f23dff89a991"><td class="memItemLeft" align="right" valign="top">const string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a4717e20792d5247f8368f23dff89a991">ForegroundActionsFolder</a> = ForegroundFolder + Serperator + ActionsFolderName</td></tr>
 <tr class="separator:a4717e20792d5247f8368f23dff89a991"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a473b52e7778d770ea1281f2644a69c25"><td class="memItemLeft" align="right" valign="top">const string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a473b52e7778d770ea1281f2644a69c25">ForegroundEventsFolder</a> = ForegroundFolder + Serperator + EventsFolderName</td></tr>
@@ -188,9 +193,29 @@ Properties</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Cleans old entries from the database. </p>
+<p>Removes all from database. </p>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 <p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#a69f1f9dfb45a8d95adc6adaad1448a1f">SensorbergSDK.Services.IStorage</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a685de419874c54c6068d001acffb8e25"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">async Task SensorbergSDK.Internal.Data.FileStorage.CleanupDatabase </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Cleans old entries from the database. </p>
+
+<p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#a303b886a2151bf94811ad85aa12153b6">SensorbergSDK.Services.IStorage</a>.</p>
 
 </div>
 </div>
@@ -264,7 +289,7 @@ Properties</h2></td></tr>
 <p>Returns all actions that are triggered by the background task. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">doNotDelete</td><td>Boolean to delete or not delete the returned actions</td></tr>
+    <tr><td class="paramname">doNotDelete</td><td>Boolean to delete or not delete the returned actions.</td></tr>
   </table>
   </dd>
 </dl>
@@ -435,7 +460,6 @@ Properties</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 <p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#ab1668adabf526d217765b4373184a6ec">SensorbergSDK.Services.IStorage</a>.</p>
 
@@ -616,6 +640,18 @@ Properties</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname">const string SensorbergSDK.Internal.Data.FileStorage.ActionsFileName = &quot;actions.ini&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aedbd291b0ea7b67ab999f15240b1a119"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const string SensorbergSDK.Internal.Data.FileStorage.BackgroundEventsFolder = BackgroundFolder + Serperator + EventsFolderName</td>
         </tr>
       </table>
 </div><div class="memdoc">

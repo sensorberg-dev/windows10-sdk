@@ -137,8 +137,11 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aa92472f707d77f3f14f4125d4d595849"><td class="memItemLeft" align="right" valign="top">Task&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_action.html">HistoryAction</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#aa92472f707d77f3f14f4125d4d595849">GetAction</a> (string uuid)</td></tr>
 <tr class="memdesc:aa92472f707d77f3f14f4125d4d595849"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a HistoryAction that is fired by an action with that given UUID.  <a href="#aa92472f707d77f3f14f4125d4d595849">More...</a><br /></td></tr>
 <tr class="separator:aa92472f707d77f3f14f4125d4d595849"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a303b886a2151bf94811ad85aa12153b6"><td class="memItemLeft" align="right" valign="top">Task&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#a303b886a2151bf94811ad85aa12153b6">CleanupDatabase</a> ()</td></tr>
+<tr class="memdesc:a303b886a2151bf94811ad85aa12153b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cleans old entries from the database.  <a href="#a303b886a2151bf94811ad85aa12153b6">More...</a><br /></td></tr>
+<tr class="separator:a303b886a2151bf94811ad85aa12153b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a69f1f9dfb45a8d95adc6adaad1448a1f"><td class="memItemLeft" align="right" valign="top">Task&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#a69f1f9dfb45a8d95adc6adaad1448a1f">CleanDatabase</a> ()</td></tr>
-<tr class="memdesc:a69f1f9dfb45a8d95adc6adaad1448a1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cleans old entries from the database.  <a href="#a69f1f9dfb45a8d95adc6adaad1448a1f">More...</a><br /></td></tr>
+<tr class="memdesc:a69f1f9dfb45a8d95adc6adaad1448a1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes all from database.  <a href="#a69f1f9dfb45a8d95adc6adaad1448a1f">More...</a><br /></td></tr>
 <tr class="separator:a69f1f9dfb45a8d95adc6adaad1448a1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6836081d65fbd3f550fc597b50288fb7"><td class="memItemLeft" align="right" valign="top">Task&lt; IList&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_delayed_action_data.html">DelayedActionData</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html#a6836081d65fbd3f550fc597b50288fb7">GetDelayedActions</a> ()</td></tr>
 <tr class="memdesc:a6836081d65fbd3f550fc597b50288fb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns delayed actions which should be executed now.  <a href="#a6836081d65fbd3f550fc597b50288fb7">More...</a><br /></td></tr>
@@ -175,9 +178,29 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Cleans old entries from the database. </p>
+<p>Removes all from database. </p>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 <p>Implemented in <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a6cd0653c7caa861579ebbb587e9e3151">SensorbergSDK.Internal.Data.FileStorage</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a303b886a2151bf94811ad85aa12153b6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Task SensorbergSDK.Services.IStorage.CleanupDatabase </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Cleans old entries from the database. </p>
+
+<p>Implemented in <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a685de419874c54c6068d001acffb8e25">SensorbergSDK.Internal.Data.FileStorage</a>.</p>
 
 </div>
 </div>
@@ -251,7 +274,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns all actions that are triggered by the background task. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">doNotDelete</td><td>Boolean to delete or not delete the returned actions</td></tr>
+    <tr><td class="paramname">doNotDelete</td><td>Boolean to delete or not delete the returned actions.</td></tr>
   </table>
   </dd>
 </dl>
@@ -396,7 +419,6 @@ Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 <p>Implemented in <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage.html#a2c49fc72dba4fa747efd87b0ae8c166d">SensorbergSDK.Internal.Data.FileStorage</a>.</p>
 

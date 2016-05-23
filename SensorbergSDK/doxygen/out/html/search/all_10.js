@@ -6,6 +6,7 @@ var searchData=
   ['registerbackgroundtaskasync',['RegisterBackgroundTaskAsync',['../class_sensorberg_s_d_k_1_1_background_task_manager.html#a38ec42ee09e72308050e97c0b5958370',1,'SensorbergSDK.BackgroundTaskManager.RegisterBackgroundTaskAsync()'],['../class_sensorberg_s_d_k_1_1_s_d_k_manager.html#a7474d1c46c98b10f011b62e53d5d625d',1,'SensorbergSDK.SDKManager.RegisterBackgroundTaskAsync()']]],
   ['registeronprogresseventhandler',['RegisterOnProgressEventHandler',['../class_sensorberg_s_d_k_1_1_background_task_manager.html#a726706b829892f1d93a93ed08baded59',1,'SensorbergSDK::BackgroundTaskManager']]],
   ['registertimedbackgroundtask',['RegisterTimedBackgroundTask',['../class_sensorberg_s_d_k_1_1_background_task_manager.html#af102cafc37b32540eaee552e251a6909',1,'SensorbergSDK::BackgroundTaskManager']]],
+  ['remove',['Remove',['../class_sensorberg_s_d_k_1_1_internal_1_1_app_settings.html#a814cdcf911e726a535d16fd0ed4b0075',1,'SensorbergSDK::Internal::AppSettings']]],
   ['removebeaconsbasedonage',['RemoveBeaconsBasedOnAge',['../class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_beacon_container.html#a8ed3b6d19732c5dcb04f53a07761c11b',1,'SensorbergSDK::Internal::Data::BeaconContainer']]],
   ['reportimmediately',['ReportImmediately',['../class_sensorberg_s_d_k_1_1_internal_1_1_transport_1_1_resolved_action.html#a05ab4b670a695b3dc95f904ef98399d2',1,'SensorbergSDK::Internal::Transport::ResolvedAction']]],
   ['request',['Request',['../class_sensorberg_s_d_k_1_1_internal_1_1_transport_1_1_request.html',1,'SensorbergSDK::Internal::Transport']]],

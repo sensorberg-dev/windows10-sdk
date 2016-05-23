@@ -96,57 +96,71 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">SensorbergSDK.Internal.AppSettings Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Class to hold all configuration for the app. These settings are changeable by the Sensorberg backend. <a href="https://github.com/sensorberg-dev/android-sdk-samples/blob/master/technical-features.md#advanced-features">https://github.com/sensorberg-dev/android-sdk-samples/blob/master/technical-features.md#advanced-features</a> Some settings are preset for the SDK but also custom data is possible.  
+ <a href="class_sensorberg_s_d_k_1_1_internal_1_1_app_settings.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a93df3f23d456fef23c2495c212237a8d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_app_settings.html#a93df3f23d456fef23c2495c212237a8d">AppSettings</a> ()</td></tr>
-<tr class="memdesc:a93df3f23d456fef23c2495c212237a8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates an appsettings object, including the basic setup.  <a href="#a93df3f23d456fef23c2495c212237a8d">More...</a><br /></td></tr>
-<tr class="separator:a93df3f23d456fef23c2495c212237a8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad81800288d0abc4fdf41e959d25e9aa9"><td class="memItemLeft" align="right" valign="top">override string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_app_settings.html#ad81800288d0abc4fdf41e959d25e9aa9">ToString</a> ()</td></tr>
-<tr class="separator:ad81800288d0abc4fdf41e959d25e9aa9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e62a24a628594161d4dbddadef6af02"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_app_settings.html#a0e62a24a628594161d4dbddadef6af02">ContainsKey</a> (string key)</td></tr>
+<tr class="separator:a0e62a24a628594161d4dbddadef6af02"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a814cdcf911e726a535d16fd0ed4b0075"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_app_settings.html#a814cdcf911e726a535d16fd0ed4b0075">Remove</a> (string key)</td></tr>
+<tr class="separator:a814cdcf911e726a535d16fd0ed4b0075"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="properties"></a>
 Properties</h2></td></tr>
-<tr class="memitem:a3ed3609b45203c69e5b21c7344324c1e"><td class="memItemLeft" align="right" valign="top">ulong&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_app_settings.html#a3ed3609b45203c69e5b21c7344324c1e">BeaconExitTimeout</a><code> [get, set]</code></td></tr>
+<tr class="memitem:a6096462295cab57e4d6a46a71ab0378b"><td class="memItemLeft" align="right" valign="top">Dictionary&lt; string, object &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_app_settings.html#a6096462295cab57e4d6a46a71ab0378b">Settings</a><code> [get]</code></td></tr>
+<tr class="separator:a6096462295cab57e4d6a46a71ab0378b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ed3609b45203c69e5b21c7344324c1e"><td class="memItemLeft" align="right" valign="top">ulong&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_app_settings.html#a3ed3609b45203c69e5b21c7344324c1e">BeaconExitTimeout</a> = new Dictionary&lt;string, object&gt;()<code> [get, set]</code></td></tr>
 <tr class="separator:a3ed3609b45203c69e5b21c7344324c1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b1d28ce6a675cebe71da0b2338e6625"><td class="memItemLeft" align="right" valign="top">ulong&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_app_settings.html#a7b1d28ce6a675cebe71da0b2338e6625">HistoryUploadInterval</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a7b1d28ce6a675cebe71da0b2338e6625"><td class="mdescLeft">&#160;</td><td class="mdescRight">Time between each upload of history entries for the statistics.  <a href="#a7b1d28ce6a675cebe71da0b2338e6625">More...</a><br /></td></tr>
 <tr class="separator:a7b1d28ce6a675cebe71da0b2338e6625"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a24111b7721307fdef596f81f6f415f92"><td class="memItemLeft" align="right" valign="top">short&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_app_settings.html#a24111b7721307fdef596f81f6f415f92">RssiEnterThreshold</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a24111b7721307fdef596f81f6f415f92"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value for handling the Enter/Exit of beacons. The value has to be between -128 &lt; x &lt; 127  <a href="#a24111b7721307fdef596f81f6f415f92">More...</a><br /></td></tr>
 <tr class="separator:a24111b7721307fdef596f81f6f415f92"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7a2b7c495ac25409fca5930a5517b43b"><td class="memItemLeft" align="right" valign="top">ulong&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_app_settings.html#a7a2b7c495ac25409fca5930a5517b43b">EnterDistanceThreshold</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a7a2b7c495ac25409fca5930a5517b43b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value for handling Enter and Exit based on distance. The value is in meter.  <a href="#a7a2b7c495ac25409fca5930a5517b43b">More...</a><br /></td></tr>
 <tr class="separator:a7a2b7c495ac25409fca5930a5517b43b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab04ebacee11005fb2b06fe7e27d71c4"><td class="memItemLeft" align="right" valign="top">ulong&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_app_settings.html#aab04ebacee11005fb2b06fe7e27d71c4">LayoutUpdateInterval</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:aab04ebacee11005fb2b06fe7e27d71c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Time to update the layout.  <a href="#aab04ebacee11005fb2b06fe7e27d71c4">More...</a><br /></td></tr>
 <tr class="separator:aab04ebacee11005fb2b06fe7e27d71c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab3ed689662e9936d9a22c7ad4417ae9b"><td class="memItemLeft" align="right" valign="top">ulong&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_app_settings.html#ab3ed689662e9936d9a22c7ad4417ae9b">SettingsUpdateInterval</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:ab3ed689662e9936d9a22c7ad4417ae9b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Time to update the app settings.  <a href="#ab3ed689662e9936d9a22c7ad4417ae9b">More...</a><br /></td></tr>
 <tr class="separator:ab3ed689662e9936d9a22c7ad4417ae9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a17799a2f99e300a28ce0f02db9003bcb"><td class="memItemLeft" align="right" valign="top">object&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_app_settings.html#a17799a2f99e300a28ce0f02db9003bcb">this[string key]</a><code> [get]</code></td></tr>
+<tr class="separator:a17799a2f99e300a28ce0f02db9003bcb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad37d7ea44a6c1da15877127001c86cb6"><td class="memItemLeft" align="right" valign="top">Dictionary&lt; string, object &gt;.KeyCollection&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_app_settings.html#ad37d7ea44a6c1da15877127001c86cb6">Keys</a><code> [get]</code></td></tr>
+<tr class="separator:ad37d7ea44a6c1da15877127001c86cb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a93df3f23d456fef23c2495c212237a8d"></a>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Class to hold all configuration for the app. These settings are changeable by the Sensorberg backend. <a href="https://github.com/sensorberg-dev/android-sdk-samples/blob/master/technical-features.md#advanced-features">https://github.com/sensorberg-dev/android-sdk-samples/blob/master/technical-features.md#advanced-features</a> Some settings are preset for the SDK but also custom data is possible. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a0e62a24a628594161d4dbddadef6af02"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">SensorbergSDK.Internal.AppSettings.AppSettings </td>
+          <td class="memname">bool SensorbergSDK.Internal.AppSettings.ContainsKey </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype">string&#160;</td>
+          <td class="paramname"><em>key</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Creates an appsettings object, including the basic setup. </p>
-
 </div>
 </div>
-<h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="ad81800288d0abc4fdf41e959d25e9aa9"></a>
+<a class="anchor" id="a814cdcf911e726a535d16fd0ed4b0075"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">override string SensorbergSDK.Internal.AppSettings.ToString </td>
+          <td class="memname">bool SensorbergSDK.Internal.AppSettings.Remove </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype">string&#160;</td>
+          <td class="paramname"><em>key</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -163,7 +177,7 @@ Properties</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">ulong SensorbergSDK.Internal.AppSettings.BeaconExitTimeout</td>
+          <td class="memname">ulong SensorbergSDK.Internal.AppSettings.BeaconExitTimeout = new Dictionary&lt;string, object&gt;()</td>
         </tr>
       </table>
   </td>
@@ -193,6 +207,8 @@ Properties</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Value for handling Enter and Exit based on distance. The value is in meter. </p>
+
 </div>
 </div>
 <a class="anchor" id="a7b1d28ce6a675cebe71da0b2338e6625"></a>
@@ -209,6 +225,28 @@ Properties</h2></td></tr>
   </td>
   <td class="mlabels-right">
 <span class="mlabels"><span class="mlabel">get</span><span class="mlabel">set</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Time between each upload of history entries for the statistics. </p>
+
+</div>
+</div>
+<a class="anchor" id="ad37d7ea44a6c1da15877127001c86cb6"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Dictionary&lt;string, object&gt;.KeyCollection SensorbergSDK.Internal.AppSettings.Keys</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">get</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -233,6 +271,8 @@ Properties</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Time to update the layout. </p>
+
 </div>
 </div>
 <a class="anchor" id="a24111b7721307fdef596f81f6f415f92"></a>
@@ -253,6 +293,28 @@ Properties</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Value for handling the Enter/Exit of beacons. The value has to be between -128 &lt; x &lt; 127 </p>
+
+</div>
+</div>
+<a class="anchor" id="a6096462295cab57e4d6a46a71ab0378b"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Dictionary&lt;string,object&gt; SensorbergSDK.Internal.AppSettings.Settings</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">get</span><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
 </div>
 </div>
 <a class="anchor" id="ab3ed689662e9936d9a22c7ad4417ae9b"></a>
@@ -269,6 +331,28 @@ Properties</h2></td></tr>
   </td>
   <td class="mlabels-right">
 <span class="mlabels"><span class="mlabel">get</span><span class="mlabel">set</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Time to update the app settings. </p>
+
+</div>
+</div>
+<a class="anchor" id="a17799a2f99e300a28ce0f02db9003bcb"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">object SensorbergSDK.Internal.AppSettings.this[string key]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">get</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
