@@ -53,7 +53,7 @@ try {
     bat "createnuget.bat"
     
     stage 'install vsix package'
-    bat "\"C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\VSIXInstaller.exe\" /q /a VSIX_Packaging\\bin\\Release\\SensorbergSDK.vsix"
+    //bat "\"C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\VSIXInstaller.exe\" /q /a VSIX_Packaging\\bin\\Release\\SensorbergSDK.vsix"
     
     archive 'VSIX_Packaging/bin/Release/*.vsix'
     archive 'SensorbergSDK*.nupkg'
