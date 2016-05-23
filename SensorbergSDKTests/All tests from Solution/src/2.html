@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdktests\filestoragehelpertest.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 30.03.2016
+// 
+// Copyright (c) 2016,  EagleEye .
+// 
+// All rights reserved.
+
+using System;
+using System.Collections.Generic;
+using Windows.Data.Json;
+using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using SensorbergSDK;
+using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Transport;
+
+namespace SensorbergSDKTests
+{
+    [TestClass]
+    public class FileStorageHelperTest
+    {
+        [DataTestMethod]
+        [DataRow(&quot;1,1429192800000,1,False&quot;, &quot;1&quot;,&quot;2015-04-16T14:00:00.000+00:00&quot;, BeaconEventType.Enter, false)]
+        [DataRow(&quot;1,1429192800000,1&quot;, &quot;1&quot;, &quot;2015-04-16T14:00:00.000+00:00&quot;, BeaconEventType.Enter, false)]
+        [DataRow(&quot;1,1429192800000,1,True&quot;, &quot;1&quot;, &quot;2015-04-16T14:00:00.000+00:00&quot;, BeaconEventType.Enter, true)]
+        [DataRow(&quot;1,1429192800000,1,true&quot;, &quot;1&quot;, &quot;2015-04-16T14:00:00.000+00:00&quot;, BeaconEventType.Enter, true)]
+        [DataRow(&quot;1,1429192800000,1,False,&quot;, &quot;1&quot;, &quot;2015-04-16T14:00:00.000+00:00&quot;, BeaconEventType.Enter, false)]
+        [DataRow(&quot;1,1429192800000,1,Faslse,&quot;, &quot;1&quot;, &quot;2015-04-16T14:00:00.000+00:00&quot;, BeaconEventType.Enter, false)]
+        [DataRow(&quot;1sdafsadf3423r2352twet,1429192800000,1,false&quot;, &quot;1sdafsadf3423r2352twet&quot;, &quot;2015-04-16T14:00:00.000+00:00&quot;, BeaconEventType.Enter, false)]
+        [DataRow(&quot;1sdafsadf3423r2352twet,63596412-000000-23423sdfgdfgs0000,1,false&quot;, null, null, null, null)]
+        [DataRow(&quot;1,&quot;, null, null, null, null)]
+        [DataRow(&quot;,,&quot;, null, null, null, null)]
+        [DataRow(&quot;&quot;, null, null, null, null)]
+        [DataRow(null, null, null, null, null)]
+        public void TestHistoryEventParsing(string query, string beaconId, string eventTime, BeaconEventType beaconEventType, bool send)
+        {
+            HistoryEvent e = FileStorageHelper.EventFromString(query);
+
+            //fallback for unparsable data
+            if (beaconId == null &amp;&amp; eventTime == null)
+            {
+                Assert.IsNull(e);
+                return;
+            }
+
+            Assert.AreEqual(beaconId, e.BeaconId);
+            Assert.AreEqual(eventTime, e.EventTime);
+            Assert.AreEqual((int) beaconEventType, e.Trigger);
+        }
+
+        [TestMethod]
+        public void TestHistoryEventToString()
+        {
+            string s = FileStorageHelper.EventToString(new HistoryEvent()
+            {
+                BeaconId = &quot;1&quot;,
+                EventTime = DateTimeOffset.Parse(&quot;2015-04-16T14:00:00.000+0000&quot;).ToString(History.Timeformat),
+                Trigger = (int) BeaconEventType.Enter
+            });
+            Assert.AreEqual(&quot;1,1429192800000,1,False\n&quot;, s);
+        }
+
+        [TestMethod]
+        public void TestActionToString()
+        {
+            string s = FileStorageHelper.ActionToString(&quot;1&quot;, &quot;1&quot;, DateTimeOffset.Parse(&quot;2015-04-16T14:00:00.000+0000&quot;), BeaconEventType.Enter);
+            Assert.AreEqual(&quot;1,1,1429192800000,1,False,False\n&quot;, s);
+            s = FileStorageHelper.ActionToString(new HistoryAction() { EventId = &quot;1&quot;, BeaconId = &quot;1&quot;, ActionTime = DateTimeOffset.Parse(&quot;2015-04-16T14:00:00.000+0000&quot;).ToString(History.Timeformat), Trigger =  (int)BeaconEventType.Enter, Delivered = false});
+            Assert.AreEqual(&quot;1,1,1429192800000,1,False,False\n&quot;, s);
+        }
+
+        [DataTestMethod]
+        [DataRow(&quot;1,2,1429192800000,1,False,False&quot;, &quot;1&quot;, &quot;2&quot;, &quot;2015-04-16T14:00:00.000+00:00&quot;, BeaconEventType.Enter, false)]
+        [DataRow(&quot;1,2,1429192800000,1,False&quot;, &quot;1&quot;, &quot;2&quot;, &quot;2015-04-16T14:00:00.000+00:00&quot;, BeaconEventType.Enter, false)]
+        [DataRow(&quot;1,2,1429192800000,1,False,True&quot;, &quot;1&quot;, &quot;2&quot;, &quot;2015-04-16T14:00:00.000+00:00&quot;, BeaconEventType.Enter, true)]
+        [DataRow(&quot;1,2,1429192800000,1,False,true&quot;, &quot;1&quot;, &quot;2&quot;, &quot;2015-04-16T14:00:00.000+00:00&quot;, BeaconEventType.Enter, true)]
+        [DataRow(&quot;1,2,1429192800000,1,False,False,&quot;, &quot;1&quot;, &quot;2&quot;, &quot;2015-04-16T14:00:00.000+00:00&quot;, BeaconEventType.Enter, false)]
+        [DataRow(&quot;1,2,1429192800000,1,False,Faslse,&quot;, &quot;1&quot;, &quot;2&quot;, &quot;2015-04-16T14:00:00.000+00:00&quot;, BeaconEventType.Enter, false)]
+        [DataRow(&quot;1sdafsadf3423r2352twet,asdasdasdag321rqwf-dsafdsg-sadg,1429192800000,1,false,False&quot;, &quot;1sdafsadf3423r2352twet&quot;, &quot;asdasdasdag321rqwf-dsafdsg-sadg&quot;,&quot;2015-04-16T14:00:00.000+00:00&quot;, BeaconEventType.Enter, false)]
+        [DataRow(&quot;1sdafsadf3423r2352twet,sadfasdf23e-rfr12e-2wrweafr21-asd,63596412-000000-23423sdfgdfgs0000,1,false,False&quot;, null,null, null, null, null)]
+        [DataRow(&quot;1,&quot;, null, null, null, null, null)]
+        [DataRow(&quot;,,&quot;, null, null, null, null, null)]
+        [DataRow(&quot;&quot;, null, null, null, null, null)]
+        [DataRow(null, null, null, null, null, null)]
+        public void TestHistoryActionParsing(string query, string uuid, string beaconId, string eventTime, BeaconEventType beaconEventType, bool send)
+        {
+            HistoryAction a = FileStorageHelper.ActionFromString(query);
+
+            //fallback for unparsable data
+            if (beaconId == null &amp;&amp; eventTime == null)
+            {
+                Assert.IsNull(a);
+                return;
+            }
+
+            Assert.AreEqual(beaconId, a.BeaconId);
+            Assert.AreEqual(eventTime, a.ActionTime);
+            Assert.AreEqual(uuid, a.EventId);
+            Assert.AreEqual((int)beaconEventType, a.Trigger);
+        }
+
+        [TestMethod]
+        public void TestDelayedActionToString()
+        {
+            ResolvedAction action = new ResolvedAction();
+            action.BeaconAction = new BeaconAction();
+            action.BeaconAction.Body = &quot;body&quot;;
+            action.BeaconAction.Id = 1;
+            action.BeaconAction.Payload = JsonObject.Parse(&quot;{\&quot;pay\&quot;:\&quot;load\&quot;}&quot;);
+            action.BeaconAction.Subject = &quot;Subject&quot;;
+            action.BeaconAction.Type = BeaconActionType.InApp;
+            action.BeaconAction.Url = &quot;http://sensorberg.com&quot;;
+            action.BeaconAction.Uuid = &quot;uuid&quot;;
+            action.Delay = 123;
+            action.BeaconPids = new List&lt;string&gt;() { &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot; };
+            action.EventTypeDetectedByDevice = BeaconEventType.EnterExit;
+            action.ReportImmediately = true;
+            action.SendOnlyOnce = true;
+            action.SuppressionTime = 321;
+            action.Timeframes = new List&lt;Timeframe&gt;()
+            {
+                new Timeframe() {End = DateTimeOffset.Parse(&quot;2015-04-16T12:00:00.000+0000&quot;), Start = DateTimeOffset.Parse(&quot;2015-04-15T12:00:00.000+0000&quot;)}
+            };
+
+            Guid guid = Guid.NewGuid();
+            string s = FileStorageHelper.DelayedActionToString(action, DateTimeOffset.Parse(&quot;2015-04-16T14:00:00.000+0000&quot;), &quot;123&quot;, BeaconEventType.Enter, guid);
+            Assert.AreEqual(guid+ &quot;,1429192800000,False,eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJlaWQiOiJ1dWlkIiwiU3ViamVjdCI6IlN1YmplY3QiLCJCb2R5IjoiYm9keSIsIlVybCI6Imh0dHA6Ly9zZW5zb3JiZXJnLmNvbSIsIlBheWxvYWRTdHJpbmciOiJ7XCJwYXlcIjpcImxvYWRcIn0ifSwiYmVhY29ucyI6WyIxIiwiMiIsIjMiLCI0Il0sInRyaWdnZXIiOjMsIkRlbGF5IjoxMjMsIlNlbmRPbmx5T25jZSI6dHJ1ZSwic3VwcHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=\n&quot;, s);
+        }
+
+        [TestMethod]
+        public void TestDelayedActionHelperToString()
+        {
+            Guid guid = Guid.NewGuid();
+            FileStorageHelper.DelayedActionHelper helper = new FileStorageHelper.DelayedActionHelper();
+            helper.Id = guid.ToString();
+            helper.Executed = false;
+            helper.Offset = DateTimeOffset.Parse(&quot;2015-04-16T14:00:00.000+0000&quot;);
+            helper.Content =
+                &quot;eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJlaWQiOiJ1dWlkIiwiU3ViamVjdCI6IlN1YmplY3QiLCJCb2R5IjoiYm9keSIsIlVybCI6Imh0dHA6Ly9zZW5zb3JiZXJnLmNvbSIsIlBheWxvYWRTdHJpbmciOiJ7XCJwYXlcIjpcImxvYWRcIn0ifSwiYmVhY29ucyI6WyIxIiwiMiIsIjMiLCI0Il0sInRyaWdnZXIiOjMsIkRlbGF5IjoxMjMsIlNlbmRPbmx5T25jZSI6dHJ1ZSwic3VwcHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=&quot;;
+
+            string s = FileStorageHelper.DelayedActionToString(helper);
+            Assert.AreEqual(guid + &quot;,1429192800000,False,eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJlaWQiOiJ1dWlkIiwiU3ViamVjdCI6IlN1YmplY3QiLCJCb2R5IjoiYm9keSIsIlVybCI6Imh0dHA6Ly9zZW5zb3JiZXJnLmNvbSIsIlBheWxvYWRTdHJpbmciOiJ7XCJwYXlcIjpcImxvYWRcIn0ifSwiYmVhY29ucyI6WyIxIiwiMiIsIjMiLCI0Il0sInRyaWdnZXIiOjMsIkRlbGF5IjoxMjMsIlNlbmRPbmx5T25jZSI6dHJ1ZSwic3VwcHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=\n&quot;, s);
+        }
+        [TestMethod]
+        public void TestDelayedActionFromString()
+        {
+            Guid guid = Guid.NewGuid();
+            FileStorageHelper.DelayedActionHelper simpleDelayedActionFromString = FileStorageHelper.SimpleDelayedActionFromString(guid+ &quot;,1429192800000,False,eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJlaWQiOiJ1dWlkIiwiU3ViamVjdCI6IlN1YmplY3QiLCJCb2R5IjoiYm9keSIsIlVybCI6Imh0dHA6Ly9zZW5zb3JiZXJnLmNvbSIsIlBheWxvYWRTdHJpbmciOiJ7XCJwYXlcIjpcImxvYWRcIn0ifSwiYmVhY29ucyI6WyIxIiwiMiIsIjMiLCI0Il0sInRyaWdnZXIiOjMsIkRlbGF5IjoxMjMsIlNlbmRPbmx5T25jZSI6dHJ1ZSwic3VwcHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=&quot;);
+
+            Assert.AreEqual(DateTimeOffset.Parse(&quot;2015-04-16T14:00:00.000+0000&quot;), simpleDelayedActionFromString.Offset, &quot;Wrong offset&quot;);
+            Assert.IsFalse(simpleDelayedActionFromString.Executed, &quot;Is executed&quot;);
+            string s =
+                &quot;eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJlaWQiOiJ1dWlkIiwiU3ViamVjdCI6IlN1YmplY3QiLCJCb2R5IjoiYm9keSIsIlVybCI6Imh0dHA6Ly9zZW5zb3JiZXJnLmNvbSIsIlBheWxvYWRTdHJpbmciOiJ7XCJwYXlcIjpcImxvYWRcIn0ifSwiYmVhY29ucyI6WyIxIiwiMiIsIjMiLCI0Il0sInRyaWdnZXIiOjMsIkRlbGF5IjoxMjMsIlNlbmRPbmx5T25jZSI6dHJ1ZSwic3VwcHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=&quot;;
+            Assert.AreEqual(s, simpleDelayedActionFromString.Content, &quot;Wrong content&quot;);
+
+            ResolvedAction action = new ResolvedAction();
+            action.BeaconAction = new BeaconAction();
+            action.BeaconAction.Body = &quot;body&quot;;
+            action.BeaconAction.Id = 1;
+            action.BeaconAction.Payload = JsonObject.Parse(&quot;{\&quot;pay\&quot;:\&quot;load\&quot;}&quot;);
+            action.BeaconAction.Subject = &quot;Subject&quot;;
+            action.BeaconAction.Type = BeaconActionType.InApp;
+            action.BeaconAction.Url = &quot;http://sensorberg.com&quot;;
+            action.BeaconAction.Uuid = &quot;uuid&quot;;
+            action.Delay = 123;
+            action.BeaconPids = new List&lt;string&gt;() { &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot; };
+            action.EventTypeDetectedByDevice = BeaconEventType.EnterExit;
+            action.ReportImmediately = true;
+            action.SendOnlyOnce = true;
+            action.SuppressionTime = 321;
+            action.Timeframes = new List&lt;Timeframe&gt;()
+            {
+                new Timeframe() {End = DateTimeOffset.Parse(&quot;2015-04-16T12:00:00.000+0000&quot;), Start = DateTimeOffset.Parse(&quot;2015-04-15T12:00:00.000+0000&quot;)}
+            };
+            DelayedActionData data = FileStorageHelper.DelayedActionFromHelper(simpleDelayedActionFromString);
+            Assert.AreEqual(&quot;123&quot;, data.BeaconPid, &quot;Wrong beacon pid&quot;);
+            Assert.AreEqual(BeaconEventType.Enter, data.EventTypeDetectedByDevice, &quot;Wrong event type&quot;);
+            Assert.AreEqual(DateTimeOffset.Parse(&quot;2015-04-16T14:00:00.000+0000&quot;), data.DueTime, &quot;Wrong time&quot;);
+            Assert.AreEqual(guid.ToString(), data.Id, &quot;ID isnt set&quot;);
+            Assert.AreEqual(action, data.ResolvedAction);
+
+            Assert.IsNull(FileStorageHelper.SimpleDelayedActionFromString(&quot;&quot;));
+            Assert.IsNull(FileStorageHelper.SimpleDelayedActionFromString(null));
+            Assert.IsNull(FileStorageHelper.DelayedActionFromHelper(null));
+        }
+
+        [TestMethod]
+        public void TestBackgroundEventFromString()
+        {
+            string s = &quot;{\&quot;1\&quot;:{\&quot;time\&quot;:1429192800000,\&quot;event\&quot;:1},\&quot;2\&quot;:{\&quot;time\&quot;:1429192800000,\&quot;event\&quot;:1}}&quot;;
+            Dictionary&lt;string, Dictionary&lt;string, long&gt;&gt; dict = new Dictionary&lt;string, Dictionary&lt;string, long&gt;&gt;
+            {
+                {
+                    &quot;1&quot;, new Dictionary&lt;string, long&gt; {{&quot;time&quot;, 1429192800000}, {&quot;event&quot;, (long) BeaconEventType.Enter}}
+                },
+                {
+                    &quot;2&quot;, new Dictionary&lt;string, long&gt; {{&quot;time&quot;, 1429192800000}, {&quot;event&quot;, (long) BeaconEventType.Enter}}
+                }
+            };
+            Dictionary&lt;string, Dictionary&lt;string, long&gt;&gt; readDict = FileStorageHelper.BackoundEventsFromString(s);
+            Assert.AreEqual(dict.Count, readDict.Count, &quot;Not same element count&quot;);
+                        CollectionAssert.AreEqual(dict[&quot;1&quot;], readDict[&quot;1&quot;]);
+                        CollectionAssert.AreEqual(dict[&quot;2&quot;], readDict[&quot;2&quot;]);
+
+
+            Assert.IsNull(FileStorageHelper.BackoundEventsFromString(null));
+        }
+        [TestMethod]
+        public void TestBackgroundEventToString()
+        {
+            string s = &quot;{\&quot;1\&quot;:{\&quot;time\&quot;:1429192800000,\&quot;event\&quot;:1},\&quot;2\&quot;:{\&quot;time\&quot;:1429192800000,\&quot;event\&quot;:1}}&quot;;
+            Dictionary&lt;string, Dictionary&lt;string, long&gt;&gt; dict = new Dictionary&lt;string, Dictionary&lt;string, long&gt;&gt;
+            {
+                {
+                    &quot;1&quot;, new Dictionary&lt;string, long&gt; {{&quot;time&quot;, 1429192800000}, {&quot;event&quot;, (long) BeaconEventType.Enter}}
+                },
+                {
+                    &quot;2&quot;, new Dictionary&lt;string, long&gt; {{&quot;time&quot;, 1429192800000}, {&quot;event&quot;, (long) BeaconEventType.Enter}}
+                }
+            };
+            Assert.AreEqual(s, FileStorageHelper.BackoundEventsToString(dict));
+        }
+
+        [TestMethod]
+        public void TestEventStateStorage()
+        {
+            string s = FileStorageHelper.BeaconEventStateToString(&quot;1&quot;, BeaconEventType.Enter, DateTimeOffset.Parse(&quot;2015-04-16T14:00:00.000+0000&quot;));
+            Assert.AreEqual(&quot;1,1,1429192800000&quot;,s);
+
+            BackgroundEvent be = FileStorageHelper.BeaconEventStateFromString(s);
+            Assert.AreEqual(&quot;1&quot;,be.BeaconId);
+            Assert.AreEqual(DateTimeOffset.Parse(&quot;2015-04-16T14:00:00.000+0000&quot;), be.EventTime);
+            Assert.AreEqual(BeaconEventType.Enter,be.LastEvent);
+            Assert.IsNull(FileStorageHelper.BeaconEventStateFromString(&quot;&quot;));
+            Assert.IsNull(FileStorageHelper.BeaconEventStateFromString(null));
+        }
+
+        [TestMethod]
+        public void TestBeaconActionToString()
+        {
+            string s = &quot;{\&quot;Id\&quot;:1,\&quot;Type\&quot;:3,\&quot;eid\&quot;:\&quot;uuid\&quot;,\&quot;Subject\&quot;:\&quot;Subject\&quot;,\&quot;Body\&quot;:\&quot;body\&quot;,\&quot;Url\&quot;:\&quot;http://sensorberg.com\&quot;,\&quot;PayloadString\&quot;:\&quot;{\\\&quot;pay\\\&quot;:\\\&quot;load\\\&quot;}\&quot;}&quot;;
+            BeaconAction beaconAction = new BeaconAction();
+            beaconAction.Body = &quot;body&quot;;
+            beaconAction.Id = 1;
+            beaconAction.Payload = JsonObject.Parse(&quot;{\&quot;pay\&quot;:\&quot;load\&quot;}&quot;);
+            beaconAction.Subject = &quot;Subject&quot;;
+            beaconAction.Type = BeaconActionType.InApp;
+            beaconAction.Url = &quot;http://sensorberg.com&quot;;
+            beaconAction.Uuid = &quot;uuid&quot;;
+
+            string beaconString = FileStorageHelper.BeaconActionToString(beaconAction);
+            Assert.AreEqual(s,beaconString);
+        }
+
+        [TestMethod]
+        public void TestBeaconActionFromString()
+        {
+            string s = &quot;{\&quot;Id\&quot;:1,\&quot;Type\&quot;:3,\&quot;eid\&quot;:\&quot;uuid\&quot;,\&quot;Subject\&quot;:\&quot;Subject\&quot;,\&quot;Body\&quot;:\&quot;body\&quot;,\&quot;Url\&quot;:\&quot;http://sensorberg.com\&quot;,\&quot;PayloadString\&quot;:\&quot;{\\\&quot;pay\\\&quot;:\\\&quot;load\\\&quot;}\&quot;}&quot;;
+            BeaconAction beaconAction = new BeaconAction();
+            beaconAction.Body = &quot;body&quot;;
+            beaconAction.Id = 1;
+            beaconAction.Payload = JsonObject.Parse(&quot;{\&quot;pay\&quot;:\&quot;load\&quot;}&quot;);
+            beaconAction.Subject = &quot;Subject&quot;;
+            beaconAction.Type = BeaconActionType.InApp;
+            beaconAction.Url = &quot;http://sensorberg.com&quot;;
+            beaconAction.Uuid = &quot;uuid&quot;;
+
+            BeaconAction action = FileStorageHelper.BeaconActionFromString(s);
+
+            Assert.AreEqual(beaconAction, action);
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[35,9,35,10,1],[36,13,36,71,1],[39,13,39,55,1],[40,13,40,14,1],[41,17,41,34,1],[42,17,42,24,1],[45,13,45,51,1],[46,13,46,53,1],[47,13,47,63,1],[48,9,48,10,1],[52,9,52,10,1],[53,13,58,16,1],[59,13,59,61,1],[60,9,60,10,1],[64,9,64,10,1],[65,13,65,144,1],[66,13,66,69,1],[67,13,67,258,1],[68,13,68,69,1],[69,9,69,10,1],[85,9,85,10,1],[86,13,86,73,1],[89,13,89,55,1],[90,13,90,14,1],[91,17,91,34,1],[92,17,92,24,1],[95,13,95,51,1],[96,13,96,54,1],[97,13,97,46,1],[98,13,98,62,1],[99,9,99,10,1],[103,9,103,10,1],[104,13,104,58,1],[105,13,105,54,1],[106,13,106,47,1],[107,13,107,40,1],[108,13,108,82,1],[109,13,109,53,1],[110,13,110,63,1],[111,13,111,63,1],[112,13,112,47,1],[113,13,113,32,1],[114,13,114,75,1],[115,13,115,74,1],[116,13,116,45,1],[117,13,117,40,1],[118,13,118,42,1],[119,13,122,15,1],[124,13,124,40,1],[125,13,125,162,1],[126,13,126,633,1],[127,9,127,10,1],[131,9,131,10,1],[132,13,132,40,1],[133,13,133,104,1],[134,13,134,41,1],[135,13,135,37,1],[136,13,136,82,1],[137,13,138,588,1],[140,13,140,72,1],[141,13,141,634,1],[142,9,142,10,1],[145,9,145,10,1],[146,13,146,40,1],[147,13,147,730,1],[149,13,149,137,1],[150,13,150,83,1],[151,13,152,588,1],[153,13,153,88,1],[155,13,155,58,1],[156,13,156,54,1],[157,13,157,47,1],[158,13,158,40,1],[159,13,159,82,1],[160,13,160,53,1],[161,13,161,63,1],[162,13,162,63,1],[163,13,163,47,1],[164,13,164,32,1],[165,13,165,75,1],[166,13,166,74,1],[167,13,167,45,1],[168,13,168,40,1],[169,13,169,42,1],[170,13,173,15,1],[174,13,174,111,1],[175,13,175,72,1],[176,13,176,104,1],[177,13,177,111,1],[178,13,178,70,1],[179,13,179,58,1],[181,13,181,80,1],[182,13,182,82,1],[183,13,183,76,1],[184,9,184,10,1],[188,9,188,10,1],[189,13,189,114,1],[190,13,198,15,1],[199,13,199,115,1],[200,13,200,83,1],[201,25,201,77,1],[202,25,202,77,1],[205,13,205,77,1],[206,9,206,10,1],[209,9,209,10,1],[210,13,210,114,1],[211,13,219,15,1],[220,13,220,80,1],[221,9,221,10,1],[225,9,225,10,1],[226,13,226,149,1],[227,13,227,52,1],[229,13,229,82,1],[230,13,230,46,1],[231,13,231,97,1],[232,13,232,65,1],[233,13,233,77,1],[234,13,234,79,1],[235,9,235,10,1],[239,9,239,10,1],[240,13,240,190,1],[241,13,241,60,1],[242,13,242,40,1],[243,13,243,33,1],[244,13,244,75,1],[245,13,245,46,1],[246,13,246,56,1],[247,13,247,56,1],[248,13,248,40,1],[250,13,250,88,1],[251,13,251,45,1],[252,9,252,10,1],[256,9,256,10,1],[257,13,257,190,1],[258,13,258,60,1],[259,13,259,40,1],[260,13,260,33,1],[261,13,261,75,1],[262,13,262,46,1],[263,13,263,56,1],[264,13,264,56,1],[265,13,265,40,1],[267,13,267,79,1],[269,13,269,51,1],[270,9,270,10,1]]);
+    </script>
+  </body>
+</html>

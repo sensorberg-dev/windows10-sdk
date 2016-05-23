@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdktests\storageservicetest.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 10.03.2016
+// 
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Windows.Storage;
+using Windows.Storage.Streams;
+using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Newtonsoft.Json;
+using SensorbergSDK;
+using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Transport;
+using SensorbergSDK.Services;
+using SensorbergSDKTests.Mocks;
+
+namespace SensorbergSDKTests
+{
+    [TestClass]
+    public class StorageServiceTest
+    {
+        [TestInitialize]
+        public async Task Setup()
+        {
+            await TestHelper.ClearFiles(&quot;sensorberg-storage&quot;);
+            ServiceManager.ReadOnlyForTests = false;
+            ServiceManager.Clear();
+            ServiceManager.ApiConnction = new MockApiConnection();
+            ServiceManager.LayoutManager = new LayoutManager();
+            ServiceManager.StorageService = new StorageServiceExtend();
+            ServiceManager.SettingsManager = new SettingsManager();
+            ServiceManager.ReadOnlyForTests = true;
+
+
+            await ServiceManager.StorageService.InitStorage();
+        }
+
+        [TestMethod]
+        public async Task ValidateAPIKeyTest()
+        {
+            MockApiConnection connection = (MockApiConnection) ServiceManager.ApiConnction;
+
+            IStorageService service = ServiceManager.StorageService;
+            Assert.AreEqual(ApiKeyValidationResult.Valid, await service.ValidateApiKey(&quot;true&quot;), &quot;Not successfull&quot;);
+            connection.APIInvalid = true;
+            Assert.AreEqual(ApiKeyValidationResult.Invalid, await service.ValidateApiKey(&quot;false&quot;), &quot;Not invalid&quot;);
+            connection.APIInvalid = false;
+
+
+            connection.FailNetwork = true;
+            Assert.AreEqual(ApiKeyValidationResult.NetworkError, await service.ValidateApiKey(&quot;true&quot;), &quot;No network issue&quot;);
+            connection.FailNetwork = false;
+
+            connection.UnknownError = true;
+            Assert.AreEqual(ApiKeyValidationResult.UnknownError, await service.ValidateApiKey(&quot;true&quot;), &quot;No unknown issue&quot;);
+            connection.UnknownError = false;
+        }
+
+        [TestMethod]
+        public async Task RetrieveLayoutTest()
+        {
+            MockApiConnection connection = (MockApiConnection) ServiceManager.ApiConnction;
+            IStorageService service = ServiceManager.StorageService;
+
+            ApplicationData.Current.LocalSettings.Values.Remove(LayoutManager.KeyLayoutHeaders);
+            ApplicationData.Current.LocalSettings.Values.Remove(LayoutManager.KeyLayoutRetrievedTime);
+            await TestHelper.RemoveFile(LayoutManager.KeyLayoutContent);
+
+            connection.FailNetwork = true;
+            LayoutResult layout = await service.RetrieveLayout();
+            Assert.AreEqual(NetworkResult.NetworkError, layout.Result, &quot;Not failed&quot;);
+            connection.FailNetwork = false;
+
+            layout = await service.RetrieveLayout();
+            Assert.AreEqual(NetworkResult.Success, layout.Result, &quot;Not successfull loaded&quot;);
+            LayoutManagerTest.ValidateMockLayout(layout.Layout);
+
+            connection.FailNetwork = true;
+            //should be cached
+            layout = await service.RetrieveLayout();
+            Assert.AreEqual(NetworkResult.Success, layout.Result, &quot;Not successfull loaded from cache&quot;);
+            LayoutManagerTest.ValidateMockLayout(layout.Layout);
+        }
+
+        [TestMethod]
+        public async Task FlushHistoryTest()
+        {
+            StorageServiceExtend sse = (StorageServiceExtend) ServiceManager.StorageService;
+            MockStorage mockStorage = new MockStorage();
+            sse.SetStorage(mockStorage);
+            mockStorage.UndeliveredActions = new List&lt;HistoryAction&gt; {new HistoryAction()};
+            mockStorage.UndeliveredEvents = new List&lt;HistoryEvent&gt; {new HistoryEvent()};
+
+            MockApiConnection connection = (MockApiConnection) ServiceManager.ApiConnction;
+            IStorageService service = ServiceManager.StorageService;
+
+
+            connection.FailNetwork = true;
+            Assert.IsFalse(await service.FlushHistory(), &quot;Flushing History not failed&quot;);
+            connection.FailNetwork = false;
+            Assert.IsTrue(mockStorage.UndeliveredEvents.Count != 0, &quot;Event were resetet&quot;);
+            Assert.IsTrue(mockStorage.UndeliveredActions.Count != 0, &quot;Actions were resetet&quot;);
+
+            Assert.IsTrue(await service.FlushHistory(), &quot;Flushing History not succeed&quot;);
+            Assert.IsTrue(mockStorage.UndeliveredEvents.Count == 0, &quot;Event were not marked as send&quot;);
+            Assert.IsTrue(mockStorage.UndeliveredActions.Count == 0, &quot;Actions were not marked as send&quot;);
+        }
+
+// no cache available        [TestMethod]
+        public async Task TestHistorActionCacheTest()
+        {
+            IStorageService service = ServiceManager.StorageService;
+            await service.SaveHistoryAction(&quot;1&quot;, &quot;11&quot;, DateTime.Now, BeaconEventType.Enter);
+            await service.SaveHistoryAction(&quot;2&quot;, &quot;11&quot;, DateTime.Now, BeaconEventType.Enter);
+            await service.SaveHistoryAction(&quot;3&quot;, &quot;11&quot;, DateTime.Now, BeaconEventType.Enter);
+            await service.SaveHistoryAction(&quot;1&quot;, &quot;11&quot;, DateTime.Now, BeaconEventType.Enter);
+            await service.SaveHistoryAction(&quot;5&quot;, &quot;11&quot;, DateTime.Now, BeaconEventType.Enter);
+
+            IList&lt;HistoryAction&gt; dbHistoryActions = await service.GetActions(&quot;1&quot;);
+
+            Assert.AreEqual(2, dbHistoryActions.Count, &quot;Not 2 actions found&quot;);
+
+            StorageService serviceInstance = (StorageService) service;
+            IStorage storage = serviceInstance.Storage;
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;1&quot;, &quot;11&quot;, DateTime.Now, BeaconEventType.Enter));
+
+            dbHistoryActions = await service.GetActions(&quot;1&quot;);
+
+            Assert.AreEqual(2, dbHistoryActions.Count, &quot;Not 2 actions found, cache not worked&quot;);
+
+            dbHistoryActions = await service.GetActions(&quot;1&quot;);
+
+            Assert.AreEqual(2, dbHistoryActions.Count, &quot;Not 2 actions found&quot;);
+
+
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;6&quot;, &quot;11&quot;, DateTime.Now, BeaconEventType.Enter));
+            dbHistoryActions = await service.GetActions(&quot;6&quot;);
+
+            Assert.AreEqual(1, dbHistoryActions.Count, &quot;Not 1 actions found&quot;);
+        }
+
+        [TestMethod]
+        public async Task TestBackgroundActionsTest()
+        {
+            ServiceManager.ReadOnlyForTests = false;
+            ServiceManager.LayoutManager = new LayoutManagerExtend();
+
+            Layout resp = JsonConvert.DeserializeObject&lt;Layout&gt;(await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri(&quot;ms-appx:///Assets/raw/mock/mock_layout.json&quot;, UriKind.RelativeOrAbsolute))), new JsonSerializerSettings
+            {
+                DateTimeZoneHandling = DateTimeZoneHandling.Utc
+            });
+            resp?.FromJson(await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri(&quot;ms-appx:///Assets/raw/mock/layout_request_header.txt&quot;, UriKind.RelativeOrAbsolute))), DateTimeOffset.Now);
+
+            ((LayoutManagerExtend) ServiceManager.LayoutManager).SetLayout(resp);
+            ServiceManager.ReadOnlyForTests = true;
+
+            FileStorage storage = new FileStorage {Background = true};
+
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;9ded63644e424d758b0218f7c70f2473&quot;, &quot;1&quot;, DateTimeOffset.Parse(&quot;2016-04-16T12:00:00.000+0000&quot;),
+                BeaconEventType.Enter));
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;3f30be2605524f82a9bf0ccb4a81618f&quot;, &quot;2&quot;, DateTimeOffset.Parse(&quot;2016-04-16T13:00:00.000+0000&quot;),
+                BeaconEventType.Exit));
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;312a8594e07542bd814ecdd17f76538e&quot;, &quot;3&quot;, DateTimeOffset.Parse(&quot;2016-04-16T14:00:00.000+0000&quot;),
+                BeaconEventType.EnterExit));
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;959ea393e3424ab7ad53584a8b789197&quot;, &quot;2&quot;, DateTimeOffset.Parse(&quot;2016-04-16T14:00:00.000+0000&quot;),
+                BeaconEventType.EnterExit));
+
+
+            IStorageService storageService = ServiceManager.StorageService;
+            List&lt;BeaconAction&gt; beaconActions = await storageService.GetActionsForForeground();
+
+            Assert.AreEqual(4, beaconActions.Count, &quot;Not 4 actions found&quot;);
+
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;9ded63644e424d758b0218f7c70f2473&quot;, &quot;1&quot;, DateTimeOffset.Parse(&quot;2016-04-16T12:00:00.000+0000&quot;),
+                    BeaconEventType.Enter));
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;3f30be2605524f82a9bf0ccb4a81618f&quot;, &quot;2&quot;, DateTimeOffset.Parse(&quot;2016-04-16T13:00:00.000+0000&quot;),
+                    BeaconEventType.Exit));
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;312a8594e07542bd814ecdd17f76538e&quot;, &quot;3&quot;, DateTimeOffset.Parse(&quot;2016-04-16T14:00:00.000+0000&quot;),
+                    BeaconEventType.EnterExit));
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;959ea393e3424ab7ad53584a8b789197&quot;, &quot;2&quot;, DateTimeOffset.Parse(&quot;2016-04-16T14:00:00.000+0000&quot;),
+                    BeaconEventType.EnterExit));
+
+            beaconActions = await storageService.GetActionsForForeground();
+
+            Assert.AreEqual(4, beaconActions.Count, &quot;Not 4 actions found&quot;);
+
+            StorageService service = (StorageService) ServiceManager.StorageService;
+            IStorage foregroundStorage = service.Storage;
+            await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;4&quot;, &quot;1&quot;, DateTimeOffset.Parse(&quot;2016-04-16T12:00:00.000+0000&quot;),
+                    BeaconEventType.Enter));
+            await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;3&quot;, &quot;2&quot;, DateTimeOffset.Parse(&quot;2016-04-16T13:00:00.000+0000&quot;),
+                    BeaconEventType.Exit));
+            await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;2&quot;, &quot;3&quot;, DateTimeOffset.Parse(&quot;2016-04-16T14:00:00.000+0000&quot;),
+                    BeaconEventType.EnterExit));
+            await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;1&quot;, &quot;2&quot;, DateTimeOffset.Parse(&quot;2016-04-16T14:00:00.000+0000&quot;),
+                    BeaconEventType.EnterExit));
+
+            IList&lt;HistoryAction&gt; historyActions = await foregroundStorage.GetUndeliveredActions();
+
+            Assert.AreEqual(12, historyActions.Count, &quot;Not 12 history actions found&quot;);
+
+
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;9ded63644e424d758b0218f7c70f2473&quot;, &quot;1&quot;, DateTimeOffset.Parse(&quot;2016-04-16T12:00:00.000+0000&quot;),
+                    BeaconEventType.Enter));
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;3f30be2605524f82a9bf0ccb4a81618f&quot;, &quot;2&quot;, DateTimeOffset.Parse(&quot;2016-04-16T13:00:00.000+0000&quot;),
+                    BeaconEventType.Exit));
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;312a8594e07542bd814ecdd17f76538e&quot;, &quot;3&quot;, DateTimeOffset.Parse(&quot;2016-04-16T14:00:00.000+0000&quot;),
+                    BeaconEventType.EnterExit));
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;959ea393e3424ab7ad53584a8b789197&quot;, &quot;2&quot;, DateTimeOffset.Parse(&quot;2016-04-16T14:00:00.000+0000&quot;),
+                    BeaconEventType.EnterExit));
+
+            await foregroundStorage.SetActionsAsDelivered();
+            historyActions = await foregroundStorage.GetUndeliveredActions();
+            Assert.AreEqual(4, historyActions.Count, &quot;Not 4 history actions found&quot;);
+
+            beaconActions = await storageService.GetActionsForForeground();
+
+            Assert.AreEqual(4, beaconActions.Count, &quot;Not 4 actions found&quot;);
+
+
+
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;9ded63644e424d758b0218f7c70f2473&quot;, &quot;1&quot;, DateTimeOffset.Parse(&quot;2016-04-16T12:00:00.000+0000&quot;),
+                    BeaconEventType.Enter));
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;3f30be2605524f82a9bf0ccb4a81618f&quot;, &quot;2&quot;, DateTimeOffset.Parse(&quot;2016-04-16T13:00:00.000+0000&quot;),
+                    BeaconEventType.Exit));
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;312a8594e07542bd814ecdd17f76538e&quot;, &quot;3&quot;, DateTimeOffset.Parse(&quot;2016-04-16T14:00:00.000+0000&quot;),
+                    BeaconEventType.EnterExit));
+            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction(&quot;959ea393e3424ab7ad53584a8b789197&quot;, &quot;2&quot;, DateTimeOffset.Parse(&quot;2016-04-16T14:00:00.000+0000&quot;),
+                    BeaconEventType.EnterExit));
+
+            await foregroundStorage.GetUndeliveredActions();
+            await foregroundStorage.SetActionsAsDelivered();
+            historyActions = await foregroundStorage.GetUndeliveredActions();
+            Assert.AreEqual(0, historyActions.Count, &quot;Not 0 history actions found&quot;);
+
+            beaconActions = await storageService.GetActionsForForeground();
+
+            Assert.AreEqual(4, beaconActions.Count, &quot;Not 4 actions found&quot;);
+        }
+
+        [TestMethod]
+        public async Task TestFileLock()
+        {
+            IStorageService service = ServiceManager.StorageService;
+            await service.SaveHistoryAction(&quot;1&quot;, &quot;1&quot;, DateTimeOffset.Parse(&quot;2016-04-16T12:00:00.000+0000&quot;), BeaconEventType.Enter);
+            await service.SaveHistoryAction(&quot;2&quot;, &quot;2&quot;, DateTimeOffset.Parse(&quot;2016-04-16T13:00:00.000+0000&quot;), BeaconEventType.Exit);
+
+            StorageFolder folder = await ((FileStorage) ((StorageService) service).Storage).GetFolder(FileStorage.ForegroundActionsFolder);
+            StorageFile file = await folder.CreateFileAsync(FileStorage.ActionsFileName, CreationCollisionOption.OpenIfExists);
+            IRandomAccessStream randomAccessStream;
+            using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
+            {
+                Task.Run(() =&gt;
+                {
+                    Task.Delay(200);
+                    randomAccessStream.Dispose();
+                }).ConfigureAwait(false);
+                await service.SaveHistoryAction(&quot;1&quot;, &quot;1&quot;, DateTimeOffset.Parse(&quot;2016-04-16T12:00:00.000+0000&quot;), BeaconEventType.Enter);
+            }
+            using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
+            {
+                await service.SaveHistoryAction(&quot;2&quot;, &quot;2&quot;, DateTimeOffset.Parse(&quot;2016-04-16T13:00:00.000+0000&quot;), BeaconEventType.Exit);
+            }
+            folder = await ((FileStorage) ((StorageService) service).Storage).GetFolder(FileStorage.ForegroundEventsFolder);
+            file = await folder.CreateFileAsync(&quot;1&quot;, CreationCollisionOption.OpenIfExists);
+            await service.SaveHistoryEvent(&quot;1&quot;, DateTimeOffset.Parse(&quot;2016-04-16T14:00:00.000+0000&quot;), BeaconEventType.Enter);
+            await service.SaveHistoryEvent(&quot;1&quot;, DateTimeOffset.Parse(&quot;2016-04-16T15:00:00.000+0000&quot;), BeaconEventType.Exit);
+
+            using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
+            {
+                Task.Run(() =&gt;
+                {
+                    Task.Delay(200);
+                    randomAccessStream.Dispose();
+                }).ConfigureAwait(false);
+                await service.SaveHistoryEvent(&quot;1&quot;, DateTimeOffset.Parse(&quot;2016-04-16T14:00:00.000+0000&quot;), BeaconEventType.Enter);
+            }
+            using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
+            {
+                await service.SaveHistoryEvent(&quot;1&quot;, DateTimeOffset.Parse(&quot;2016-04-16T15:00:00.000+0000&quot;), BeaconEventType.Exit);
+            }
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[116,9,116,10,0],[117,13,117,69,0],[118,13,118,93,0],[119,13,119,93,0],[120,13,120,93,0],[121,13,121,93,0],[122,13,122,93,0],[124,13,124,83,0],[126,13,126,79,0],[128,13,128,71,0],[129,13,129,56,0],[130,13,130,128,0],[132,13,132,62,0],[134,13,134,97,0],[136,13,136,62,0],[138,13,138,79,0],[141,13,141,128,0],[142,13,142,62,0],[144,13,144,79,0],[145,9,145,10,0],[29,9,29,10,1],[30,13,30,63,1],[31,13,31,53,1],[32,13,32,36,1],[33,13,33,67,1],[34,13,34,64,1],[35,13,35,72,1],[36,13,36,68,1],[37,13,37,52,1],[40,13,40,63,1],[41,9,41,10,1],[45,9,45,10,1],[46,13,46,92,1],[48,13,48,69,1],[49,13,49,116,1],[50,13,50,42,1],[51,13,51,115,1],[52,13,52,43,1],[55,13,55,43,1],[56,13,56,124,1],[57,13,57,44,1],[59,13,59,44,1],[60,13,60,124,1],[61,13,61,45,1],[62,9,62,10,1],[66,9,66,10,1],[67,13,67,92,1],[68,13,68,69,1],[70,13,70,97,1],[71,13,71,103,1],[72,13,72,73,1],[74,13,74,43,1],[75,13,75,66,1],[76,13,76,86,1],[77,13,77,44,1],[79,13,79,53,1],[80,13,80,93,1],[81,13,81,65,1],[83,13,83,43,1],[85,13,85,53,1],[86,13,86,104,1],[87,13,87,65,1],[88,9,88,10,1],[92,9,92,10,1],[93,13,93,93,1],[94,13,94,57,1],[95,13,95,41,1],[96,13,96,92,1],[97,13,97,89,1],[99,13,99,92,1],[100,13,100,69,1],[103,13,103,43,1],[104,13,104,89,1],[105,13,105,44,1],[106,13,106,91,1],[107,13,107,94,1],[109,13,109,89,1],[110,13,110,102,1],[111,13,111,105,1],[112,9,112,10,1],[149,9,149,10,1],[150,13,150,53,1],[151,13,151,70,1],[153,13,156,16,1],[157,13,157,219,1],[159,13,159,82,1],[160,13,160,52,1],[162,13,162,71,1],[164,13,165,41,1],[166,13,167,40,1],[168,13,169,45,1],[170,13,171,45,1],[174,13,174,76,1],[175,13,175,95,1],[177,13,177,76,1],[179,13,180,45,1],[181,13,182,44,1],[183,13,184,49,1],[185,13,186,49,1],[188,13,188,76,1],[190,13,190,76,1],[192,13,192,85,1],[193,13,193,58,1],[194,13,195,45,1],[196,13,197,44,1],[198,13,199,49,1],[200,13,201,49,1],[203,13,203,99,1],[205,13,205,87,1],[208,13,209,45,1],[210,13,211,44,1],[212,13,213,49,1],[214,13,215,49,1],[217,13,217,61,1],[218,13,218,78,1],[219,13,219,85,1],[221,13,221,76,1],[223,13,223,76,1],[227,13,228,45,1],[229,13,230,44,1],[231,13,232,49,1],[233,13,234,49,1],[236,13,236,61,1],[237,13,237,61,1],[238,13,238,78,1],[239,13,239,85,1],[241,13,241,76,1],[243,13,243,76,1],[244,9,244,10,1],[259,17,259,18,1],[260,21,260,37,1],[261,21,261,50,1],[262,17,262,18,1],[277,17,277,18,1],[278,21,278,37,1],[279,21,279,50,1],[280,17,280,18,1],[248,9,248,10,1],[249,13,249,69,1],[250,13,250,132,1],[251,13,251,131,1],[253,13,253,140,1],[254,13,254,128,1],[256,13,256,125,1],[257,13,257,14,1],[258,17,259,17,1],[259,18,260,21,1],[260,37,261,21,1],[261,50,262,17,1],[262,18,262,42,1],[263,17,263,136,1],[264,13,264,14,1],[265,13,265,125,1],[266,13,266,14,1],[267,17,267,135,1],[268,13,268,14,1],[269,13,269,125,1],[270,13,270,92,1],[271,13,271,126,1],[272,13,272,125,1],[274,13,274,125,1],[275,13,275,14,1],[276,17,277,17,1],[277,18,278,21,1],[278,37,279,21,1],[279,50,280,17,1],[280,18,280,42,1],[281,17,281,130,1],[282,13,282,14,1],[283,13,283,125,1],[284,13,284,14,1],[285,17,285,129,1],[286,13,286,14,1],[287,9,287,10,1]]);
+    </script>
+  </body>
+</html>

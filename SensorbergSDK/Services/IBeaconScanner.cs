@@ -5,11 +5,12 @@
 // All rights reserved.
 
 using System;
+using SensorbergSDK.Internal;
 
 namespace SensorbergSDK.Services
 {
     /// <summary>
-    /// Interface for all beacon scanner.
+    /// Abstraction for the beacon scanner.
     /// </summary>
     public interface IBeaconScanner
     {

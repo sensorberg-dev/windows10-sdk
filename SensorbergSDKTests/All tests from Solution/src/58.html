@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\services\settingsmanager.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Windows.Storage;
+using MetroLog;
+using Newtonsoft.Json;
+using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Services;
+
+namespace SensorbergSDK.Internal.Services
+{
+    public sealed class SettingsManager: ISettingsManager, IDisposable
+    {
+        private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger&lt;SettingsManager&gt;();
+        private const string StorageKey = &quot;app_settings&quot;;
+        private readonly ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
+        private readonly SdkData _sdkData;
+        private Timer _updateSettingsTimer;
+        private AppSettings _lastSettings;
+
+        public event EventHandler&lt;SettingsEventArgs&gt; SettingsUpdated;
+        public AppSettings DefaultAppSettings { get; set; }
+
+
+        public SettingsManager()
+        {
+            _sdkData = SdkData.Instance;
+        }
+
+        public async Task&lt;AppSettings&gt; GetSettings(bool forceUpdate = false)
+        {
+            if (_lastSettings != null &amp;&amp; !forceUpdate)
+            {
+                Logger.Debug(&quot;SettingsManager returned settings from cache.&quot; + _lastSettings);
+                return _lastSettings;
+            }
+
+            var settings = (await GetSettingsFromApiAsync() ?? GetSettingsFromStorage()) ?? CreateDefaultSettings();
+
+            InitTimer(settings.SettingsUpdateInterval);
+
+            _lastSettings = settings;
+            return settings;
+        }
+
+        private void InitTimer(ulong miliseconds)
+        {
+            TimeSpan interval = TimeSpan.FromMilliseconds(miliseconds);
+            if (_updateSettingsTimer != null)
+            {
+                _updateSettingsTimer.Change(interval, interval);
+                return;
+            }
+
+            _updateSettingsTimer = new Timer(OnTimerTick,null, interval, interval);
+        }
+
+        private async void OnTimerTick(object state)
+        {
+            var settings = await GetSettings(true);
+            if (SettingsUpdated != null &amp;&amp; settings != null)
+            {
+                SettingsUpdated(this, new SettingsEventArgs(settings));
+            }
+        }
+
+        private async Task&lt;AppSettings&gt; GetSettingsFromApiAsync()
+        {
+
+            try
+            {
+                var responseMessage = await ServiceManager.ApiConnction.LoadSettings(_sdkData);
+                if (string.IsNullOrEmpty(responseMessage))
+                {
+                    return null;
+                }
+
+                var settings = JsonConvert.DeserializeObject&lt;AppSettingsResponse&gt;(responseMessage);
+
+                SaveSettingsToStorage(settings.Settings);
+
+                Logger.Debug(&quot;Got settings from api. &quot; + settings.Settings);
+
+                return settings.Settings;
+            }
+            catch (Exception ex)
+            {
+                Logger.Debug(&quot;SettingsManager.GetSettingsFromApiAsync(): Failed to send HTTP request: &quot; + ex.Message);
+                return null;
+            }
+        }
+
+        private AppSettings CreateDefaultSettings()
+        {
+            Logger.Debug(&quot;SettingsManager used default settings values.&quot;);
+            return DefaultAppSettings != null ? DefaultAppSettings : new AppSettings();
+        }
+
+        private void SaveSettingsToStorage(AppSettings settings)
+        {
+            _localSettings.Values[StorageKey] = JsonConvert.SerializeObject(settings);
+        }
+
+        private AppSettings GetSettingsFromStorage()
+        {
+            var storageValue = _localSettings.Values[StorageKey];
+
+            var storageString = storageValue?.ToString();
+
+            if (string.IsNullOrEmpty(storageString))
+            {
+                return null;
+            }
+            return JsonConvert.DeserializeObject&lt;AppSettings&gt;(storageString);
+        }
+
+        public void Dispose()
+        {
+            _updateSettingsTimer?.Dispose();
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[26,54,26,58,0],[54,13,54,14,0],[55,17,55,65,0],[56,17,56,24,0],[118,13,118,78,0],[122,9,122,10,0],[123,13,123,45,0],[124,9,124,10,0],[63,9,63,10,0],[64,13,64,52,0],[65,13,65,61,0],[66,13,66,14,0],[67,17,67,72,0],[68,13,68,14,0],[69,9,69,10,0],[90,13,90,33,0],[91,13,91,14,0],[92,17,92,119,0],[93,17,93,29,0],[26,49,26,53,1],[20,9,20,106,1],[29,9,29,33,1],[30,9,30,10,1],[31,13,31,41,1],[32,9,32,10,1],[51,9,51,10,1],[52,13,52,72,1],[53,13,53,46,1],[59,13,59,84,1],[60,9,60,10,1],[98,9,98,10,1],[99,13,99,75,1],[100,13,100,88,1],[101,9,101,10,1],[104,9,104,10,1],[105,13,105,87,1],[106,9,106,10,1],[109,9,109,10,1],[110,13,110,66,1],[112,13,112,58,1],[114,13,114,53,1],[115,13,115,14,1],[116,17,116,29,1],[119,9,119,10,1],[18,9,18,115,1],[35,9,35,10,1],[36,13,36,55,1],[37,13,37,14,1],[38,17,38,95,1],[39,17,39,38,1],[42,13,42,117,1],[44,13,44,56,1],[46,13,46,38,1],[47,13,47,29,1],[48,9,48,10,1],[72,9,72,10,1],[75,13,75,14,1],[76,17,76,96,1],[77,17,77,59,1],[78,17,78,18,1],[79,21,79,33,1],[82,17,82,100,1],[84,17,84,58,1],[86,17,86,77,1],[88,17,88,42,1],[95,9,95,10,1]]);
+    </script>
+  </body>
+</html>

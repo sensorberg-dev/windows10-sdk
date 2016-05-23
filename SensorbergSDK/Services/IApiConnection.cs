@@ -10,6 +10,9 @@ using SensorbergSDK.Internal.Services;
 
 namespace SensorbergSDK.Services
 {
+    /// <summary>
+    /// Abstraction for every connection to the Sensorberg backends.
+    /// </summary>
     public interface IApiConnection
     {
         /// <summary>
@@ -20,13 +23,15 @@ namespace SensorbergSDK.Services
         /// <returns>A HttpResponseMessage containing the server response or null in case of an error.</returns>
         Task<ResponseMessage> RetrieveLayoutResponse(SdkData data, string apiId = null);
 
+        /// <summary>
+        /// Receive the settings for the app.
+        /// </summary>
         Task<string> LoadSettings(SdkData sdkData);
 
         /// <summary>
         /// Sends History object to the api.
         /// </summary>
         /// <param name="history">Object to send.</param>
-        /// <returns></returns>
         Task<ResponseMessage> SendHistory(History history);
     }
 }

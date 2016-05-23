@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\background\advertisementwatcherbackgroundworker.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 05.04.2016
+// 
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Collections.Generic;
+using Windows.ApplicationModel.Background;
+using Windows.Devices.Bluetooth.Background;
+using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Utils;
+
+namespace SensorbergSDK.Background
+{
+    public class AdvertisementWatcherBackgroundWorker
+    {
+        public event EventHandler&lt;BeaconAction&gt; BeaconActionResolved
+        {
+            add { BackgroundEngine.BeaconActionResolved += value; }
+            remove { BackgroundEngine.BeaconActionResolved -= value; }
+        }
+
+        public event EventHandler&lt;string&gt; FailedToResolveBeaconAction
+        {
+            add { BackgroundEngine.FailedToResolveBeaconAction += value; }
+            remove { BackgroundEngine.FailedToResolveBeaconAction -= value; }
+        }
+
+        public event EventHandler&lt;bool&gt; LayoutValidityChanged
+        {
+            add { BackgroundEngine.LayoutValidityChanged += value; }
+            remove { BackgroundEngine.LayoutValidityChanged -= value; }
+        }
+
+        public AdvertisementWatcherBackgroundWorker()
+        {
+            BackgroundEngine = new BackgroundEngine();
+            BackgroundEngine.Finished += OnFinished;
+        }
+
+        protected BackgroundEngine BackgroundEngine { get; }
+        protected BackgroundTaskDeferral Deferral { get; set; }
+
+        public async void Run(IBackgroundTaskInstance taskInstance)
+        {
+            Deferral = taskInstance.GetDeferral();
+
+            await BackgroundEngine.InitializeAsync();
+
+            var triggerDetails = taskInstance.TriggerDetails as BluetoothLEAdvertisementWatcherTriggerDetails;
+            if (triggerDetails != null)
+            {
+                int outOfRangeDb = triggerDetails.SignalStrengthFilter.OutOfRangeThresholdInDBm.HasValue ? triggerDetails.SignalStrengthFilter.OutOfRangeThresholdInDBm.Value : 0;
+                await BackgroundEngine.ResolveBeaconActionsAsync(TriggerDetailsToBeacons(triggerDetails), outOfRangeDb);
+            }
+
+            //setting any value to Progress will fire Progress event with UI app
+            taskInstance.Progress = 1;
+        }
+
+        /// &lt;summary&gt;
+        /// Constructs Beacon instances from the trigger data and adds recognized beacons to the _beacons list.
+        /// &lt;/summary&gt;
+        private List&lt;Beacon&gt; TriggerDetailsToBeacons(BluetoothLEAdvertisementWatcherTriggerDetails triggerDetails)
+        {
+            List&lt;Beacon&gt; beacons = new List&lt;Beacon&gt;(); 
+            if (triggerDetails != null)
+            {
+                foreach (var bleAdvertisementReceivedEventArgs in triggerDetails.Advertisements)
+                {
+                    Beacon beacon = BeaconFactory.BeaconFromBluetoothLeAdvertisementReceivedEventArgs(bleAdvertisementReceivedEventArgs);
+                    beacons.Add(beacon);
+                }
+            }
+            return beacons;
+        }
+
+        private void OnFinished(object sender, BackgroundWorkerType type)
+        {
+            if (type == BackgroundWorkerType.AdvertisementWorker)
+            {
+                BackgroundEngine.ProcessDelayedActionsAsync().ConfigureAwait(false);
+            }
+            else
+            {
+                Deferral?.Complete();
+                BackgroundEngine.Finished -= OnFinished;
+                BackgroundEngine?.Dispose();
+            }
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[20,17,20,18,0],[20,19,20,66,0],[20,67,20,68,0],[21,20,21,21,0],[21,22,21,69,0],[21,70,21,71,0],[26,17,26,18,0],[26,19,26,73,0],[26,74,26,75,0],[27,20,27,21,0],[27,22,27,76,0],[27,77,27,78,0],[32,17,32,18,0],[32,19,32,67,0],[32,68,32,69,0],[33,20,33,21,0],[33,22,33,70,0],[33,71,33,72,0],[36,9,36,54,0],[37,9,37,10,0],[38,13,38,55,0],[39,13,39,53,0],[40,9,40,10,0],[42,55,42,59,0],[43,53,43,57,0],[43,58,43,62,0],[66,9,66,10,0],[67,13,67,55,0],[68,13,68,40,0],[69,13,69,14,0],[70,17,70,24,0],[70,67,70,96,0],[70,26,70,63,0],[71,17,71,18,0],[72,21,72,138,0],[73,21,73,41,0],[74,17,74,18,0],[70,64,70,66,0],[75,13,75,14,0],[76,13,76,28,0],[77,9,77,10,0],[80,9,80,10,0],[81,13,81,66,0],[82,13,82,14,0],[83,17,83,85,0],[84,13,84,14,0],[86,13,86,14,0],[87,17,87,38,0],[88,17,88,57,0],[89,17,89,45,0],[90,13,90,14,0],[91,9,91,10,0],[46,9,46,10,0],[47,13,47,51,0],[49,13,49,54,0],[51,13,51,111,0],[52,13,52,40,0],[53,13,53,14,0],[54,17,54,179,0],[55,17,55,121,0],[56,13,56,14,0],[59,13,59,39,0],[60,9,60,10,0]]);
+    </script>
+  </body>
+</html>

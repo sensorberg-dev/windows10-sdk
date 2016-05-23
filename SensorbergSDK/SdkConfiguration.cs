@@ -11,7 +11,7 @@ using SensorbergSDK.Internal.Data;
 namespace SensorbergSDK
 {
     /// <summary>
-    /// Defines the configuration for the sdk.
+    /// Defines the configuration for the SDK.
     /// </summary>
     public class SdkConfiguration
     {
@@ -22,16 +22,20 @@ namespace SensorbergSDK
 
         /// <summary>
         /// Class name to register the background timer.
+        /// <see cref="SDKManager.RegisterBackgroundTaskAsync"/>
         /// </summary>
         public string BackgroundTimerClassName { get; set; }
 
         /// <summary>
         /// class name to register the advertismend task, this task receives the bluetooth events.
+        /// <see cref="SDKManager.RegisterBackgroundTaskAsync"/>
         /// </summary>
         public string BackgroundAdvertisementClassName { get; set; }
 
         /// <summary>
-        /// Defines an differend bacground beacon uuid space. See https://msdn.microsoft.com/de-de/library/windows/apps/windows.devices.bluetooth.advertisement.bluetoothleadvertisementfilter.bytepatterns.aspx for further information.
+        /// Defines an differend background beacon uuid space.
+        /// See https://msdn.microsoft.com/de-de/library/windows/apps/windows.devices.bluetooth.advertisement.bluetoothleadvertisementfilter.bytepatterns.aspx for further information.
+        /// Without background usage this property isn't needet.
         /// </summary>
         public string BackgroundBeaconUuidSpace { get; set; }
 
@@ -52,24 +56,12 @@ namespace SensorbergSDK
         /// <summary>
         /// The manufacturer ID to filter beacons that are being watched.
         /// </summary>
-        public ushort ManufacturerId
-        {
-            [DebuggerStepThrough]
-            get;
-            [DebuggerStepThrough]
-            set;
-        }
+        public ushort ManufacturerId { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
         /// <summary>
         /// The beacon code to filter beacons that are being watched.
         /// </summary>
-        public ushort BeaconCode
-        {
-            [DebuggerStepThrough]
-            get;
-            [DebuggerStepThrough]
-            set;
-        }
+        public ushort BeaconCode { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
         /// <summary>
         /// Creates a new object that starts automatic the scanner and collect every beacon contains the sensorberg uuids.

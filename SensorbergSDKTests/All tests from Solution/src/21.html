@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdktests\sdkenginetest.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 20.04.2016
+// 
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using SensorbergSDK;
+using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Transport;
+using SensorbergSDKTests.Mocks;
+
+namespace SensorbergSDKTests
+{
+    [TestClass]
+    public class SDKEngineTest
+    {
+        [TestInitialize]
+        public async Task Setup()
+        {
+            await TestHelper.ClearFiles(&quot;sensorberg-storage&quot;);
+            ServiceManager.ReadOnlyForTests = false;
+            ServiceManager.Clear();
+            ServiceManager.ApiConnction = new MockApiConnection();
+            ServiceManager.LayoutManager = new LayoutManager();
+            ServiceManager.SettingsManager = new SettingsManager();
+            ServiceManager.StorageService = new StorageService();
+            ServiceManager.ReadOnlyForTests = true;
+        }
+
+        [TestMethod]
+        public async Task ResolveBackgroundBeaconsSingleAction()
+        {
+            LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
+            await layoutManager.VerifyLayoutAsync(true);
+            SdkEngine engine = new SdkEngine(false);
+            await engine.InitializeAsync();
+
+            BeaconAction orgAction = layoutManager.Layout.ResolvedActions.FirstOrDefault(ra =&gt; ra.BeaconAction.Uuid == &quot;9ded63644e424d758b0218f7c70f2473&quot;).BeaconAction;
+
+            TaskCompletionSource&lt;BeaconAction&gt; action = new TaskCompletionSource&lt;BeaconAction&gt;();
+            engine.BeaconActionResolved += (sender, args) =&gt;
+            {
+                action.SetResult(args);
+            };
+            await
+                engine.ResolveBeaconAction(new BeaconEventArgs()
+                {
+                    Beacon = new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff0004&quot;, Id2 = 39178, Id3 = 30929},
+                    EventType = BeaconEventType.Enter
+                });
+
+            BeaconAction result = await action.Task;
+
+            Assert.AreEqual(orgAction, result, &quot;action not found&quot;);
+        }
+
+        [TestMethod]
+        [Timeout(10000)]
+        public async Task ResolveMultipleAction()
+        {
+            LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
+            await layoutManager.VerifyLayoutAsync(true);
+            SdkEngine engine = new SdkEngine(false);
+            await engine.InitializeAsync();
+
+            TaskCompletionSource&lt;IList&lt;BeaconAction&gt;&gt; action = new TaskCompletionSource&lt;IList&lt;BeaconAction&gt;&gt;();
+            IList&lt;BeaconAction&gt; list = new List&lt;BeaconAction&gt;();
+            engine.BeaconActionResolved += (sender, args) =&gt;
+            {
+                list.Add(args);
+                if (list.Count &gt;= 3)
+                {
+                    action.TrySetResult(list);
+                }
+            };
+            await
+                engine.ResolveBeaconAction(new BeaconEventArgs()
+                {
+                    Beacon = new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff0003&quot;, Id2 = 48869, Id3 = 21321},
+                    EventType = BeaconEventType.Enter
+                });
+
+            IList&lt;BeaconAction&gt; result = await action.Task;
+
+            Assert.AreEqual(3, result.Count, &quot;Not 3 action found&quot;);
+        }
+
+        [TestMethod]
+        [Timeout(2000)]
+        public async Task ResolveSingleActionNoResult()
+        {
+            LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
+            await layoutManager.VerifyLayoutAsync(true);
+            SdkEngine engine = new SdkEngine(false);
+            await engine.InitializeAsync();
+
+            TaskCompletionSource&lt;IList&lt;BeaconAction&gt;&gt; action = new TaskCompletionSource&lt;IList&lt;BeaconAction&gt;&gt;();
+            IList&lt;BeaconAction&gt; list = new List&lt;BeaconAction&gt;();
+            engine.BeaconActionResolved += (sender, args) =&gt;
+            {
+                list.Add(args);
+                if (list.Count &gt;= 3)
+                {
+                    action.SetResult(list);
+                }
+            };
+            await
+                engine.ResolveBeaconAction(new BeaconEventArgs()
+                {
+                    Beacon = new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff1234&quot;, Id2 = 39178, Id3 = 30929},
+                    EventType = BeaconEventType.Enter
+                });
+
+            if (await Task.WhenAny(action.Task, Task.Delay(500)) == action.Task)
+            {
+                Assert.AreEqual(0, action.Task.Result, &quot;Not 0 action found&quot;);
+            }
+            else
+            {
+                //timeout is fine
+            }
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[105,13,105,14,0],[106,17,106,32,0],[107,17,107,37,0],[108,17,108,18,0],[109,21,109,44,0],[110,17,110,18,0],[111,13,111,14,0],[120,13,120,14,0],[121,17,121,78,0],[122,13,122,14,0],[24,9,24,10,1],[25,13,25,63,1],[26,13,26,53,1],[27,13,27,36,1],[28,13,28,67,1],[29,13,29,64,1],[30,13,30,68,1],[31,13,31,66,1],[32,13,32,52,1],[33,9,33,10,1],[47,13,47,14,1],[48,17,48,40,1],[49,13,49,14,1],[43,96,43,154,1],[37,9,37,10,1],[38,13,38,88,1],[39,13,39,57,1],[40,13,40,53,1],[41,13,41,44,1],[43,13,43,96,1],[43,154,43,169,1],[45,13,45,98,1],[46,13,47,13,1],[47,14,48,17,1],[48,40,49,13,1],[49,14,49,15,1],[50,13,55,20,1],[57,13,57,53,1],[59,13,59,68,1],[60,9,60,10,1],[74,13,74,14,1],[75,17,75,32,1],[76,17,76,37,1],[77,17,77,18,1],[78,21,78,47,1],[79,17,79,18,1],[80,13,80,14,1],[65,9,65,10,1],[66,13,66,88,1],[67,13,67,57,1],[68,13,68,53,1],[69,13,69,44,1],[71,13,71,112,1],[72,13,72,65,1],[73,13,74,13,1],[74,14,75,17,1],[75,32,76,17,1],[76,37,77,17,1],[77,18,78,21,1],[78,47,79,17,1],[79,18,80,13,1],[80,14,80,15,1],[81,13,86,20,1],[88,13,88,60,1],[90,13,90,68,1],[91,9,91,10,1],[96,9,96,10,1],[97,13,97,88,1],[98,13,98,57,1],[99,13,99,53,1],[100,13,100,44,1],[102,13,102,112,1],[103,13,103,65,1],[104,13,105,13,1],[105,14,106,17,1],[106,32,107,17,1],[107,37,108,17,1],[108,18,109,21,1],[109,44,110,17,1],[110,18,111,13,1],[111,14,111,15,1],[112,13,117,20,1],[119,13,119,81,1],[124,13,124,14,1],[126,13,126,14,1],[127,9,127,10,1]]);
+    </script>
+  </body>
+</html>

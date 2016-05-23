@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdktests\resolvertest.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 19.04.2016
+// 
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Windows.Storage;
+using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using SensorbergSDK;
+using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Transport;
+using SensorbergSDKTests.Mocks;
+
+namespace SensorbergSDKTests
+{
+    [TestClass]
+    public class ResolverTest
+    {
+        [TestInitialize]
+        public async Task Setup()
+        {
+            await TestHelper.ClearFiles(&quot;sensorberg-storage&quot;);
+            ServiceManager.ReadOnlyForTests = false;
+            ServiceManager.Clear();
+            ServiceManager.ApiConnction = new MockApiConnection();
+            ServiceManager.LayoutManager = new LayoutManager();
+            ServiceManager.SettingsManager = new SettingsManager();
+            ServiceManager.StorageService = new StorageService() {Storage = new MockStorage()};
+            ServiceManager.ReadOnlyForTests = true;
+            ApplicationData.Current.LocalSettings.Values.Remove(SdkData.KeyIncrementalId);
+        }
+
+        [TestMethod]
+        [Timeout(1000)]
+        public async Task ResolveSingleAction()
+        {
+            IResolver resolver = new Resolver(true);
+            TaskCompletionSource&lt;IList&lt;ResolvedAction&gt;&gt; action = new TaskCompletionSource&lt;IList&lt;ResolvedAction&gt;&gt;();
+            resolver.ActionsResolved += (sender, args) =&gt;
+            {
+                action.SetResult(args.ResolvedActions);
+            };
+            await resolver.CreateRequest(new BeaconEventArgs()
+            {
+                Beacon = new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff0004&quot;, Id2 = 39178, Id3 = 30929},
+                EventType = BeaconEventType.Enter
+            });
+
+            IList&lt;ResolvedAction&gt; result = await action.Task;
+
+            Assert.AreEqual(1, result.Count, &quot;Not 1 action found&quot;);
+        }
+
+        [TestMethod]
+        [Timeout(1000)]
+        public async Task ResolveMultipleAction()
+        {
+            IResolver resolver = new Resolver(true);
+            TaskCompletionSource&lt;IList&lt;ResolvedAction&gt;&gt; action = new TaskCompletionSource&lt;IList&lt;ResolvedAction&gt;&gt;();
+            resolver.ActionsResolved += (sender, args) =&gt;
+            {
+                action.SetResult(args.ResolvedActions);
+            };
+            await resolver.CreateRequest(new BeaconEventArgs()
+            {
+                Beacon = new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff0003&quot;, Id2 = 48869, Id3 = 21321},
+                EventType = BeaconEventType.Enter
+            });
+
+            IList&lt;ResolvedAction&gt; result = await action.Task;
+
+            Assert.AreEqual(4, result.Count, &quot;Not 4 action found&quot;);
+        }
+
+        [TestMethod]
+        [Timeout(1000)]
+        public async Task ResolveSingleActionNoResult()
+        {
+            IResolver resolver = new Resolver(true);
+            TaskCompletionSource&lt;IList&lt;ResolvedAction&gt;&gt; action = new TaskCompletionSource&lt;IList&lt;ResolvedAction&gt;&gt;();
+            resolver.ActionsResolved += (sender, args) =&gt;
+            {
+                action.SetResult(args.ResolvedActions);
+            };
+            await resolver.CreateRequest(new BeaconEventArgs()
+            {
+                Beacon = new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff1234&quot;, Id2 = 39178, Id3 = 30929},
+                EventType = BeaconEventType.Enter
+            });
+
+            IList&lt;ResolvedAction&gt; result = await action.Task;
+
+            Assert.AreEqual(0, result.Count, &quot;Not 0 action found&quot;);
+        }
+
+        /***************************** Async Part ************************************/
+
+        [TestMethod]
+        [Timeout(5000)]
+        public async Task SimpleRequestQueueTest()
+        {
+            MockLayoutManager layoutManager = new MockLayoutManager();
+            layoutManager.FindOneAction = true;
+            IResolver resolver = new Resolver(false);
+            ServiceManager.ReadOnlyForTests = false;
+            ServiceManager.LayoutManager = layoutManager;
+            ServiceManager.ReadOnlyForTests = true;
+
+            TaskCompletionSource&lt;ResolvedActionsEventArgs&gt; requestReady = new TaskCompletionSource&lt;ResolvedActionsEventArgs&gt;();
+            resolver.ActionsResolved += (sender, args) =&gt;
+            {
+                requestReady.TrySetResult(args);
+            };
+            await resolver.CreateRequest(new BeaconEventArgs()
+            {
+                Beacon = new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff0004&quot;, Id2 = 39178, Id3 = 30929},
+                EventType = BeaconEventType.Enter
+            });
+
+            ResolvedActionsEventArgs state = await requestReady.Task;
+            Assert.AreEqual(1, state.ResolvedActions.Count, &quot;Request not successfull&quot;);
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public async Task MultipleRequestQueueTest()
+        {
+            MockLayoutManager layoutManager = new MockLayoutManager();
+            layoutManager.FindOneAction = true;
+            IResolver resolver = new Resolver(false);
+            ServiceManager.ReadOnlyForTests = false;
+            ServiceManager.LayoutManager = layoutManager;
+            ServiceManager.ReadOnlyForTests = true;
+
+            TaskCompletionSource&lt;List&lt;ResolvedActionsEventArgs&gt;&gt; requestReady = new TaskCompletionSource&lt;List&lt;ResolvedActionsEventArgs&gt;&gt;();
+            List&lt;ResolvedActionsEventArgs&gt; requestsList = new List&lt;ResolvedActionsEventArgs&gt;();
+            resolver.ActionsResolved += (sender, args) =&gt;
+            {
+                requestsList.Add(args);
+            };
+            ((Resolver) resolver).Finished += () =&gt;
+            {
+                if (requestsList.Count == 10)
+                {
+                    requestReady.TrySetResult(requestsList);
+                }
+            };
+            for (int i = 0; i &lt; 10; i++)
+            {
+                await resolver.CreateRequest(new BeaconEventArgs()
+                {
+                    Beacon = new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff0004&quot;, Id2 = 39178, Id3 = 30929},
+                    EventType = BeaconEventType.Enter
+                });
+            }
+            if (await Task.WhenAny(requestReady.Task, Task.Delay(500000)) == requestReady.Task)
+            {
+                Assert.AreEqual(10, requestReady.Task.Result.Count, &quot;Request not successfull&quot;);
+
+                Assert.AreEqual(10, requestsList.Count, &quot;Not 10 request results&quot;);
+            }
+            else
+            {
+                Assert.Fail(&quot;Timout&quot;);
+            }
+        }
+
+
+        [TestMethod]
+        [Timeout(5000)]
+        public async Task MultipleRequestWithFailuresQueueTest()
+        {
+            MockLayoutManager layoutManager = new MockLayoutManager();
+            layoutManager.FindOneAction = true;
+            IResolver resolver = new Resolver(false);
+            ServiceManager.ReadOnlyForTests = false;
+            ServiceManager.LayoutManager = layoutManager;
+            ServiceManager.ReadOnlyForTests = true;
+
+            layoutManager.ShouldFail += (r, fail) =&gt;
+            {
+                if (r.RequestId == 5 &amp;&amp; r.TryCount == 1)
+                {
+                    fail.Fail = true;
+                    return;
+                }
+
+                if (r.RequestId == 6)
+                {
+                    fail.Fail = true;
+                    return;
+                }
+            };
+
+            TaskCompletionSource&lt;List&lt;ResolvedActionsEventArgs&gt;&gt; requestReady = new TaskCompletionSource&lt;List&lt;ResolvedActionsEventArgs&gt;&gt;();
+            List&lt;ResolvedActionsEventArgs&gt; requestsList = new List&lt;ResolvedActionsEventArgs&gt;();
+            resolver.ActionsResolved += (sender, args) =&gt;
+            {
+                requestsList.Add(args);
+            };
+            ((Resolver) resolver).Finished += () =&gt; requestReady.TrySetResult(requestsList);
+
+            for (int i = 0; i &lt; 10; i++)
+            {
+                await resolver.CreateRequest(new BeaconEventArgs()
+                {
+                    Beacon = new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff0004&quot;, Id2 = 39178, Id3 = 30929},
+                    EventType = BeaconEventType.Enter
+                });
+            }
+
+            if (await Task.WhenAny(requestReady.Task, Task.Delay(5000)) == requestReady.Task)
+            {
+                Assert.AreEqual(9, requestReady.Task.Result.Count, &quot;Request successfull (last should fail)&quot;);
+
+                Assert.AreEqual(9, requestsList.Count, &quot;Not 9 request results&quot;);
+            }
+            else
+            {
+                Assert.Fail(&quot;Timout&quot;);
+            }
+        }
+
+        [TestMethod]
+        [Timeout(500000)]
+        public async Task MultipleRequestBlocksQueueTest()
+        {
+            MockLayoutManager layoutManager = new MockLayoutManager();
+            layoutManager.FindOneAction = true;
+            IResolver resolver = new Resolver(false);
+            ServiceManager.ReadOnlyForTests = false;
+            ServiceManager.LayoutManager = layoutManager;
+            ServiceManager.ReadOnlyForTests = true;
+
+
+            TaskCompletionSource&lt;List&lt;ResolvedActionsEventArgs&gt;&gt; requestReady = new TaskCompletionSource&lt;List&lt;ResolvedActionsEventArgs&gt;&gt;();
+            List&lt;ResolvedActionsEventArgs&gt; requestsList = new List&lt;ResolvedActionsEventArgs&gt;();
+            EventHandler&lt;ResolvedActionsEventArgs&gt; resolverOnActionsResolved = (sender, args) =&gt;
+            {
+                requestsList.Add(args);
+            };
+            resolver.ActionsResolved += resolverOnActionsResolved;
+            ((Resolver) resolver).Finished += () =&gt;
+            {
+                if (requestsList.Count == 10)
+                {
+                    requestReady.TrySetResult(requestsList);
+                }
+            };
+
+            for (int i = 0; i &lt; 10; i++)
+            {
+                await resolver.CreateRequest(new BeaconEventArgs()
+                {
+                    Beacon = new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff0004&quot;, Id2 = 39178, Id3 = 30929},
+                    EventType = BeaconEventType.Enter
+                });
+            }
+
+            if (await Task.WhenAny(requestReady.Task, Task.Delay(500000)) == requestReady.Task)
+            {
+                Assert.AreEqual(10, requestReady.Task.Result.Count, &quot;Request not successfull&quot;);
+
+                Assert.AreEqual(10, requestsList.Count, &quot;Not 10 request results&quot;);
+            }
+            else
+            {
+                Assert.Fail(&quot;Timout&quot;);
+            }
+            resolver.ActionsResolved -= resolverOnActionsResolved;
+
+            requestsList = new List&lt;ResolvedActionsEventArgs&gt;();
+            TaskCompletionSource&lt;List&lt;ResolvedActionsEventArgs&gt;&gt; requestReady2 = new TaskCompletionSource&lt;List&lt;ResolvedActionsEventArgs&gt;&gt;();
+
+            resolver.ActionsResolved += (sender, args) =&gt;
+            {
+                requestsList.Add(args);
+            };
+            ((Resolver) resolver).Finished += () =&gt;
+            {
+                if (requestsList.Count == 10)
+                {
+                    requestReady2.TrySetResult(requestsList);
+                }
+            };
+            for (int i = 0; i &lt; 10; i++)
+            {
+                await resolver.CreateRequest(new BeaconEventArgs()
+                {
+                    Beacon = new Beacon() {Id1 = &quot;7367672374000000ffff0000ffff0004&quot;, Id2 = 39178, Id3 = 30929},
+                    EventType = BeaconEventType.Enter
+                });
+            }
+
+            if (await Task.WhenAny(requestReady2.Task, Task.Delay(500000)) == requestReady2.Task)
+            {
+                Assert.AreEqual(10, requestReady2.Task.Result.Count, &quot;Request not successfull&quot;);
+
+                Assert.AreEqual(10, requestsList.Count, &quot;Not 10 request results&quot;);
+            }
+            else
+            {
+                Assert.Fail(&quot;Timout2&quot;);
+            }
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[168,13,168,14,0],[169,17,169,39,0],[224,13,224,14,0],[225,17,225,39,0],[272,13,272,14,0],[273,17,273,39,0],[274,13,274,14,0],[307,13,307,14,0],[308,17,308,40,0],[26,9,26,10,1],[27,13,27,63,1],[28,13,28,53,1],[29,13,29,36,1],[30,13,30,67,1],[31,13,31,64,1],[32,13,32,68,1],[33,13,33,96,1],[34,13,34,52,1],[35,13,35,91,1],[36,9,36,10,1],[45,13,45,14,1],[46,17,46,56,1],[47,13,47,14,1],[41,9,41,10,1],[42,13,42,53,1],[43,13,43,116,1],[44,13,45,13,1],[45,14,46,17,1],[46,56,47,13,1],[47,14,47,15,1],[48,13,52,16,1],[54,13,54,62,1],[56,13,56,68,1],[57,9,57,10,1],[66,13,66,14,1],[67,17,67,56,1],[68,13,68,14,1],[62,9,62,10,1],[63,13,63,53,1],[64,13,64,116,1],[65,13,66,13,1],[66,14,67,17,1],[67,56,68,13,1],[68,14,68,15,1],[69,13,73,16,1],[75,13,75,62,1],[77,13,77,68,1],[78,9,78,10,1],[87,13,87,14,1],[88,17,88,56,1],[89,13,89,14,1],[83,9,83,10,1],[84,13,84,53,1],[85,13,85,116,1],[86,13,87,13,1],[87,14,88,17,1],[88,56,89,13,1],[89,14,89,15,1],[90,13,94,16,1],[96,13,96,62,1],[98,13,98,68,1],[99,9,99,10,1],[116,13,116,14,1],[117,17,117,49,1],[118,13,118,14,1],[106,9,106,10,1],[107,13,107,71,1],[108,13,108,48,1],[109,13,109,54,1],[110,13,110,53,1],[111,13,111,58,1],[112,13,112,52,1],[114,13,114,128,1],[115,13,116,13,1],[116,14,117,17,1],[117,49,118,13,1],[118,14,118,15,1],[119,13,123,16,1],[125,13,125,70,1],[126,13,126,88,1],[127,9,127,10,1],[143,13,143,14,1],[144,17,144,40,1],[145,13,145,14,1],[147,13,147,14,1],[148,17,148,46,1],[149,17,149,18,1],[150,21,150,61,1],[151,17,151,18,1],[152,13,152,14,1],[132,9,132,10,1],[133,13,133,71,1],[134,13,134,48,1],[135,13,135,54,1],[136,13,136,53,1],[137,13,137,58,1],[138,13,138,52,1],[140,13,140,140,1],[141,13,141,96,1],[142,13,143,13,1],[143,14,144,17,1],[144,40,145,13,1],[145,14,145,15,1],[146,13,147,13,1],[147,14,148,17,1],[148,46,149,17,1],[149,18,150,21,1],[150,61,151,17,1],[151,18,152,13,1],[152,14,152,15,1],[153,18,153,27,1],[154,13,154,14,1],[155,17,159,20,1],[160,13,160,14,1],[153,37,153,40,1],[153,29,153,35,1],[161,13,161,96,1],[162,13,162,14,1],[163,17,163,96,1],[165,17,165,83,1],[166,13,166,14,1],[170,13,170,14,1],[171,9,171,10,1],[203,13,203,14,1],[204,17,204,40,1],[205,13,205,14,1],[206,53,206,92,1],[186,13,186,14,1],[187,17,187,57,1],[188,17,188,18,1],[189,21,189,38,1],[190,21,190,28,1],[193,17,193,38,1],[194,17,194,18,1],[195,21,195,38,1],[196,21,196,28,1],[198,13,198,14,1],[177,9,177,10,1],[178,13,178,71,1],[179,13,179,48,1],[180,13,180,54,1],[181,13,181,53,1],[182,13,182,58,1],[183,13,183,52,1],[185,13,186,13,1],[186,14,187,17,1],[187,57,188,17,1],[188,18,189,21,1],[189,38,190,21,1],[190,28,193,17,1],[193,38,194,17,1],[194,18,195,21,1],[195,38,196,21,1],[196,28,198,13,1],[198,14,198,15,1],[200,13,200,140,1],[201,13,201,96,1],[202,13,203,13,1],[203,14,204,17,1],[204,40,205,13,1],[205,14,205,15,1],[206,13,206,53,1],[206,92,206,93,1],[208,18,208,27,1],[209,13,209,14,1],[210,17,214,20,1],[215,13,215,14,1],[208,37,208,40,1],[208,29,208,35,1],[217,13,217,94,1],[218,13,218,14,1],[219,17,219,110,1],[221,17,221,81,1],[222,13,222,14,1],[226,13,226,14,1],[227,9,227,10,1],[244,13,244,14,1],[245,17,245,40,1],[246,13,246,14,1],[249,13,249,14,1],[250,17,250,46,1],[251,17,251,18,1],[252,21,252,61,1],[253,17,253,18,1],[254,13,254,14,1],[281,13,281,14,1],[282,17,282,40,1],[283,13,283,14,1],[285,13,285,14,1],[286,17,286,46,1],[287,17,287,18,1],[288,21,288,62,1],[289,17,289,18,1],[290,13,290,14,1],[232,9,232,10,1],[233,13,233,71,1],[234,13,234,48,1],[235,13,235,54,1],[236,13,236,53,1],[237,13,237,58,1],[238,13,238,52,1],[241,13,241,140,1],[242,13,242,96,1],[243,13,244,13,1],[244,14,245,17,1],[245,40,246,13,1],[246,14,246,15,1],[247,13,247,67,1],[248,13,249,13,1],[249,14,250,17,1],[250,46,251,17,1],[251,18,252,21,1],[252,61,253,17,1],[253,18,254,13,1],[254,14,254,15,1],[256,18,256,27,1],[257,13,257,14,1],[258,17,262,20,1],[263,13,263,14,1],[256,37,256,40,1],[256,29,256,35,1],[265,13,265,96,1],[266,13,266,14,1],[267,17,267,96,1],[269,17,269,83,1],[270,13,270,14,1],[275,13,275,67,1],[277,13,277,65,1],[278,13,278,141,1],[280,13,281,13,1],[281,14,282,17,1],[282,40,283,13,1],[283,14,283,15,1],[284,13,285,13,1],[285,14,286,17,1],[286,46,287,17,1],[287,18,288,21,1],[288,62,289,17,1],[289,18,290,13,1],[290,14,290,15,1],[291,18,291,27,1],[292,13,292,14,1],[293,17,297,20,1],[298,13,298,14,1],[291,37,291,40,1],[291,29,291,35,1],[300,13,300,98,1],[301,13,301,14,1],[302,17,302,97,1],[304,17,304,83,1],[305,13,305,14,1],[309,13,309,14,1],[310,9,310,10,1]]);
+    </script>
+  </body>
+</html>

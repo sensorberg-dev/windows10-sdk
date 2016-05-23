@@ -13,9 +13,18 @@ namespace SensorbergSDK
     public enum BeaconEventType
     {
         None,
-        Enter, // Entered to range of beacon event
-        Exit, // Exit from beacon range event
-        EnterExit // This we get from the server when the trigger can be both
+        /// <summary>
+        /// Entered to range of beacon event.
+        /// </summary>
+        Enter,
+        /// <summary>
+        /// Exit from beacon range event.
+        /// </summary>
+        Exit,
+        /// <summary>
+        /// This we get from the server when the trigger can be both.
+        /// </summary>
+        EnterExit
     }
 
     public sealed class BeaconEventArgs

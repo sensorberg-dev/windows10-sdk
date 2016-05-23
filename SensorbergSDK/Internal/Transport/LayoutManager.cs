@@ -89,9 +89,9 @@ namespace SensorbergSDK.Internal.Transport
             await ServiceManager.StorageService.InvalidateLayout();
         }
 
-        public ResolvedAction GetAction(string actionId)
+        public ResolvedAction GetAction(string uuid)
         {
-            return Layout.ResolvedActions.FirstOrDefault(r => r.BeaconAction.Uuid == actionId);
+            return Layout.ResolvedActions.FirstOrDefault(r => r.BeaconAction.Uuid == uuid);
         }
 
         /// <summary>
