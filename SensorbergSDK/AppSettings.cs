@@ -5,7 +5,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace SensorbergSDK.Internal
+namespace SensorbergSDK
 {
     /// <summary>
     /// Class to hold all configuration for the app. These settings are changeable by the Sensorberg backend.
@@ -13,7 +13,7 @@ namespace SensorbergSDK.Internal
     /// Some settings are preset for the SDK but also custom data is possible.
     /// </summary>
     [DataContract]
-    public sealed class AppSettings
+    public class AppSettings
     {
         private const string ScannerExittimeoutmillis = "scanner.exitTimeoutMillis";
         private const string NetworkHistoryuploadinterval = "network.historyUploadInterval";

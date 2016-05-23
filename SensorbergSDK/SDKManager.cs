@@ -2,15 +2,14 @@
 // 
 // All rights reserved.
 
-using SensorbergSDK.Internal;
+using SensorbergSDK;
 using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Core;
 using MetroLog;
-using SensorbergSDK.Internal.Data;
-using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Data;
 using SensorbergSDK.Services;
 
 namespace SensorbergSDK

@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace SensorbergSDK.Internal.Data
+namespace SensorbergSDK.Data
 {
     /// <summary>
     /// History, HistoryEvent,HistoryAction are internal classes that used to construct json structure for an HTTP post.

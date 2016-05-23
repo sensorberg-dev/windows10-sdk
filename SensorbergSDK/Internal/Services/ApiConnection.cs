@@ -11,15 +11,15 @@ using System.Threading.Tasks;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
 using Newtonsoft.Json;
-using SensorbergSDK.Internal.Data;
-using SensorbergSDK.Internal.Utils;
+using SensorbergSDK.Data;
 using SensorbergSDK.Services;
+using SensorbergSDK.Utils;
 using HttpClient = Windows.Web.Http.HttpClient;
 using HttpMethod = Windows.Web.Http.HttpMethod;
 using HttpRequestMessage = Windows.Web.Http.HttpRequestMessage;
 using HttpResponseMessage = Windows.Web.Http.HttpResponseMessage;
 
-namespace SensorbergSDK.Internal.Services
+namespace SensorbergSDK.Services
 {
     public class ApiConnection : IApiConnection
     {

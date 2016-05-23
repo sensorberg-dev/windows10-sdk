@@ -10,7 +10,7 @@ using System.Text;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Storage.Streams;
 
-namespace SensorbergSDK.Internal.Utils
+namespace SensorbergSDK.Utils
 {
     /// <summary>
     /// Creates beacon instances from received advertisement data.

@@ -3,7 +3,7 @@
 // Copyright (c) 2016,  Sensorberg
 // 
 // All rights reserved.
-namespace SensorbergSDK.Internal.Data
+namespace SensorbergSDK.Data
 {
     public enum BackgroundWorkerType
     {

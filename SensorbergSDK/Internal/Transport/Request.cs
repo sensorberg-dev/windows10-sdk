@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SensorbergSDK.Internal.Transport
+namespace SensorbergSDK.Transport
 {
     public enum RequestResultState
     {

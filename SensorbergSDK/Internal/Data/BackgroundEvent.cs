@@ -6,7 +6,7 @@
 
 using System;
 
-namespace SensorbergSDK.Internal.Data
+namespace SensorbergSDK.Data
 {
     /// <summary>
     /// Event class for storage of each background event.

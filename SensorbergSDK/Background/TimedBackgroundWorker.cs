@@ -4,7 +4,7 @@
 
 using System;
 using Windows.ApplicationModel.Background;
-using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Data;
 
 namespace SensorbergSDK.Background
 {

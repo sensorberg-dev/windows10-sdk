@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SensorbergSDK.Internal.Data
+namespace SensorbergSDK.Data
 {
     /// <summary>
     /// A container class for managing a set of current beacons.

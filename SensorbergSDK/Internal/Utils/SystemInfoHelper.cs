@@ -7,7 +7,7 @@ using Windows.ApplicationModel;
 using Windows.Security.ExchangeActiveSyncProvisioning;
 using Windows.System.Profile;
 
-namespace SensorbergSDK.Internal.Utils
+namespace SensorbergSDK.Utils
 {
     internal static class SystemInfoHelper
     {

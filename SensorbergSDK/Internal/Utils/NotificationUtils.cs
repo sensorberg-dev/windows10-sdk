@@ -5,7 +5,7 @@
 using Windows.Data.Xml.Dom;
 using Windows.UI.Notifications;
 
-namespace SensorbergSDK.Internal.Utils
+namespace SensorbergSDK.Utils
 {
     public static class NotificationUtils
     {

@@ -2,7 +2,7 @@
 // 
 // All rights reserved.
 
-namespace SensorbergSDK.Internal
+namespace SensorbergSDK
 {
     internal static class Constants
     {

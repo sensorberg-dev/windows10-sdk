@@ -6,7 +6,7 @@
 
 using System;
 
-namespace SensorbergSDK.Internal.Data
+namespace SensorbergSDK.Data
 {
     public sealed class Timeframe
     {

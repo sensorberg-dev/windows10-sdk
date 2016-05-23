@@ -7,10 +7,10 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using MetroLog;
 using Newtonsoft.Json;
-using SensorbergSDK.Internal.Transport;
-using SensorbergSDK.Internal.Transport.Converter;
+using SensorbergSDK.Transport;
+using SensorbergSDK.Transport.Converter;
 
-namespace SensorbergSDK.Internal.Data
+namespace SensorbergSDK.Data
 {
     /// <summary>
     /// Represents a layout with beacons and actions associated with them.

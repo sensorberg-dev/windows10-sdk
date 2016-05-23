@@ -5,9 +5,9 @@
 using System;
 using System.IO;
 using System.Runtime.Serialization.Json;
-using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Data;
 
-namespace SensorbergSDK.Internal.Utils
+namespace SensorbergSDK.Utils
 {
     internal static class UserAgentBuilder
     {

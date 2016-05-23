@@ -4,7 +4,6 @@
 // 
 // All rights reserved.
 
-using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
 
 namespace SensorbergSDKTests.Mocks

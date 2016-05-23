@@ -8,11 +8,11 @@ using System.Threading;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
 using MetroLog;
-using SensorbergSDK.Internal.Data;
-using SensorbergSDK.Internal.Utils;
+using SensorbergSDK.Data;
 using SensorbergSDK.Services;
+using SensorbergSDK.Utils;
 
-namespace SensorbergSDK.Internal
+namespace SensorbergSDK
 {
     public enum ScannerStatus
     {

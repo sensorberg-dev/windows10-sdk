@@ -4,7 +4,7 @@
 
 using System.Runtime.Serialization;
 
-namespace SensorbergSDK.Internal.Data
+namespace SensorbergSDK.Data
 {
     [DataContract]
     internal class UserAgentModel

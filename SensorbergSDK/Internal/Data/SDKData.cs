@@ -6,7 +6,7 @@ using System;
 using System.Diagnostics;
 using Windows.Storage;
 
-namespace SensorbergSDK.Internal.Data
+namespace SensorbergSDK.Data
 {
     /// <summary>
     /// Contains the global SDK data.

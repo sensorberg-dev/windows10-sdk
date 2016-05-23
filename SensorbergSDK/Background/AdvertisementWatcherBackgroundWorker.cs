@@ -8,8 +8,8 @@ using System;
 using System.Collections.Generic;
 using Windows.ApplicationModel.Background;
 using Windows.Devices.Bluetooth.Background;
-using SensorbergSDK.Internal.Data;
-using SensorbergSDK.Internal.Utils;
+using SensorbergSDK.Data;
+using SensorbergSDK.Utils;
 
 namespace SensorbergSDK.Background
 {
