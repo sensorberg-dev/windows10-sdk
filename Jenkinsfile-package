@@ -1,0 +1,17 @@
+
+node ('Windows') {
+    
+try {
+    stage 'checkout'
+    checkout scm
+	
+    load 'package.groovy'
+}
+catch(e) {
+    node {
+        emailext body: '$DEFAULT_CONTENT', subject: 'fail $DEFAULT_SUBJECT', to: '$DEFAULT_RECIPIENTS'
+    }
+    throw e
+}
+
+}
