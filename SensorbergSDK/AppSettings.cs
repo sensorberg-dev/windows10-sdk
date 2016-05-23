@@ -42,7 +42,7 @@ namespace SensorbergSDK
         }
 
         /// <summary>
-        /// Value for handling the Enter/Exit of beacons. The value has to be between -128 < x < 127
+        /// Value for handling the Enter/Exit of beacons. The value has to be between -128 &lt; x &lt; 127.
         /// </summary>
         public short? RssiEnterThreshold
         {
