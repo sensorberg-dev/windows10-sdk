@@ -14,6 +14,7 @@ using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Internal.Transport;
+using SensorbergSDK.Services;
 using SensorbergSDKTests.Mocks;
 
 namespace SensorbergSDKTests
