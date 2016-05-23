@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Transport;
 using SensorbergSDK.Services;
@@ -35,13 +34,13 @@ namespace SensorbergSDKTests.Mocks
         public Layout Layout { get; set; }
         public bool FindOneAction { get; set; }
 
-        public async Task<bool> VerifyLayoutAsync(bool b = false)
+        public async Task<bool> VerifyLayoutAsync(bool forceUpdate = false)
         {
             return true;
         }
 
         public event EventHandler<bool> LayoutValidityChanged;
-        public ResolvedAction GetAction(string actionId)
+        public ResolvedAction GetAction(string uuid)
         {
             throw new NotImplementedException();
         }

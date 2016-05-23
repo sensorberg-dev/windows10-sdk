@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\transport\converter\resolvedactionconverter.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 04.05.2016
+// 
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Collections.Generic;
+using Windows.Data.Json;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+namespace SensorbergSDK.Internal.Transport.Converter
+{
+    public class ResolvedActionConverter: JsonConverter
+    {
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            List&lt;ResolvedAction&gt; resolvedActions = new List&lt;ResolvedAction&gt;();
+
+            JArray actionsArray = JArray.Load(reader);
+            foreach (JObject jobject in actionsArray)
+            {
+                ResolvedAction resolvedAction = new ResolvedAction();
+                serializer.Populate(jobject.CreateReader(), resolvedAction);
+                resolvedAction.BeaconAction = new BeaconAction();
+                serializer.Populate(jobject.CreateReader(), resolvedAction.BeaconAction);
+                if (jobject[&quot;content&quot;] != null)
+                {
+                    serializer.Populate(jobject[&quot;content&quot;]?.CreateReader(), resolvedAction.BeaconAction);
+                    resolvedAction.BeaconAction.PayloadString = jobject[&quot;content&quot;][&quot;payload&quot;].ToString();
+                    // create json object for fallback
+                    if(!string.IsNullOrEmpty(resolvedAction.BeaconAction.PayloadString))
+                    {
+                        resolvedAction.BeaconAction.Payload = JsonObject.Parse(resolvedAction.BeaconAction.PayloadString);
+                    }
+                }
+                resolvedActions.Add(resolvedAction);
+            }
+
+            return resolvedActions;
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[18,9,18,10,0],[19,13,19,49,0],[23,9,23,10,0],[24,13,24,49,0],[28,9,28,10,1],[29,13,29,79,1],[31,13,31,55,1],[32,13,32,20,1],[32,41,32,53,1],[32,22,32,37,1],[33,13,33,14,1],[34,17,34,70,1],[35,17,35,77,1],[36,17,36,66,1],[37,17,37,90,1],[38,17,38,48,1],[39,17,39,18,1],[40,21,40,106,1],[41,21,41,106,1],[43,21,43,89,1],[44,21,44,22,1],[45,25,45,123,1],[46,21,46,22,1],[47,17,47,18,1],[48,17,48,53,1],[49,13,49,14,1],[32,38,32,40,1],[51,13,51,36,1],[52,9,52,10,1]]);
+    </script>
+  </body>
+</html>

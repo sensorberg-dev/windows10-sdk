@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\data\layout.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using MetroLog;
+using Newtonsoft.Json;
+using SensorbergSDK.Internal.Transport;
+using SensorbergSDK.Internal.Transport.Converter;
+
+namespace SensorbergSDK.Internal.Data
+{
+    /// &lt;summary&gt;
+    /// Represents a layout with beacons and actions associated with them.
+    /// &lt;/summary&gt;
+    [DataContract]
+    public sealed class Layout
+    {
+        private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger&lt;Layout&gt;();
+        private const string KeyMaxAge = &quot;max-age&quot;;
+
+        [DataMember(Name = &quot;accountProximityUUIDs&quot;)]
+        public IList&lt;string&gt; AccountBeaconId1S
+        {
+            get;
+            private set;
+        }
+
+        [DataMember(Name = &quot;actions&quot;)]
+        [JsonConverter(typeof(ResolvedActionConverter))]
+        public IList&lt;ResolvedAction&gt; ResolvedActions
+        {
+            get;
+            private set;
+        }
+
+        private IList&lt;BeaconAction&gt; PlainActions
+        {
+            get;
+            set;
+        }
+
+        public DateTimeOffset ValidTill
+        {
+            get;
+            private set;
+        }
+
+        /// &lt;summary&gt;
+        /// Constructs a Layout instance from the given JSON data.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;headers&quot;&gt;String repersentation of the header fields.&lt;/param&gt;
+        /// &lt;param name=&quot;layoutRetrievedTime&quot;&gt;Timestamp of receiving the layout.&lt;/param&gt;
+        public void FromJson(string headers, DateTimeOffset layoutRetrievedTime)
+        {
+
+            try
+            {
+
+                if (!string.IsNullOrEmpty(headers))
+                {
+                    try
+                    {
+                        ResolveMaxAge(headers, layoutRetrievedTime);
+                    }
+                    catch (Exception)
+                    {
+                        ValidTill = DateTimeOffset.MaxValue;
+                    }
+                }
+                else
+                {
+                    ValidTill = DateTimeOffset.MaxValue;
+                }
+
+            } 
+            catch (Exception ex)
+            {
+                Logger.Error(&quot;Layout.FromJson(): Failed to parse: &quot; + ex, ex);
+            }
+        }
+
+        public Layout()
+        {
+            AccountBeaconId1S = new List&lt;string&gt;();
+            ResolvedActions = new List&lt;ResolvedAction&gt;();
+        }
+
+        /// &lt;summary&gt;
+        /// Resolves the beacon actions associated with the given PID and event type.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;pid&quot;&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;eventType&quot;&gt;&lt;/param&gt;
+        /// &lt;returns&gt;A list of actions based on the given values or an empty list if none found.&lt;/returns&gt;
+        public IList&lt;ResolvedAction&gt; GetResolvedActionsForPidAndEvent(string pid, BeaconEventType eventType)
+        {
+            List&lt;ResolvedAction&gt; actions = new List&lt;ResolvedAction&gt;();
+
+            foreach (ResolvedAction item in ResolvedActions)
+            {
+                if (item.BeaconPids.Contains(pid)
+                    &amp;&amp; (item.EventTypeDetectedByDevice == eventType || item.EventTypeDetectedByDevice == BeaconEventType.EnterExit))
+                { 
+                    actions.Add(item);
+                }
+            }
+
+            return actions;
+        }
+
+        /// &lt;summary&gt;
+        /// Checks if the beacon ID1s in this layout contain other than those of Sensorberg
+        /// beacons.
+        /// &lt;/summary&gt;
+        /// &lt;returns&gt;True, if the beacon ID1s are not limited to Sensorberg beacons.&lt;/returns&gt;
+        public bool ContainsOtherThanSensorbergBeaconId1S()
+        {
+            bool containsOtherThanSensorbergBeaconId1S = false;
+
+            foreach (string beaconId1 in AccountBeaconId1S)
+            {
+                if (!beaconId1.StartsWith(Constants.SensorbergUuidSpace, StringComparison.CurrentCultureIgnoreCase))
+                {
+                     containsOtherThanSensorbergBeaconId1S = true;
+                }
+            }
+
+            return containsOtherThanSensorbergBeaconId1S;
+        }
+
+        private void ResolveMaxAge(string headers, DateTimeOffset layoutRetrievedTime)
+        {
+            int startIndex = headers.IndexOf(KeyMaxAge, 0, headers.Length, StringComparison.Ordinal) + KeyMaxAge.Length + 1;
+            int endIndex = headers.IndexOf(&#39;;&#39;, startIndex, headers.Length - startIndex);
+            string maxAgeAsString = headers.Substring(startIndex, endIndex - startIndex);
+            double maxAgeAsDouble = double.Parse(maxAgeAsString);
+            ValidTill = layoutRetrievedTime + TimeSpan.FromSeconds(maxAgeAsDouble);
+        }
+
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[41,13,41,17,0],[42,13,42,17,0],[68,21,68,38,0],[69,21,69,22,0],[70,25,70,61,0],[71,21,71,22,0],[79,13,79,33,0],[80,13,80,14,0],[81,17,81,79,0],[82,13,82,14,0],[119,9,119,10,0],[120,13,120,64,0],[122,13,122,20,0],[122,42,122,59,0],[122,22,122,38,0],[123,13,123,14,0],[124,17,124,117,0],[125,17,125,18,0],[126,22,126,67,0],[127,17,127,18,0],[128,13,128,14,0],[122,39,122,41,0],[130,13,130,58,0],[131,9,131,10,0],[21,9,21,106,0],[27,13,27,17,1],[28,13,28,25,1],[35,13,35,17,1],[36,13,36,25,1],[47,13,47,17,1],[48,13,48,25,1],[57,9,57,10,1],[60,13,60,14,1],[62,17,62,52,1],[63,17,63,18,1],[65,21,65,22,1],[66,25,66,69,1],[67,21,67,22,1],[72,17,72,18,1],[74,17,74,18,1],[75,21,75,57,1],[76,17,76,18,1],[78,13,78,14,1],[83,9,83,10,1],[85,9,85,24,1],[86,9,86,10,1],[87,13,87,52,1],[88,13,88,58,1],[89,9,89,10,1],[98,9,98,10,1],[99,13,99,71,1],[101,13,101,20,1],[101,45,101,60,1],[101,22,101,41,1],[102,13,102,14,1],[103,17,104,133,1],[105,17,105,18,1],[106,21,106,39,1],[107,17,107,18,1],[108,13,108,14,1],[101,42,101,44,1],[110,13,110,28,1],[111,9,111,10,1],[134,9,134,10,1],[135,13,135,125,1],[136,13,136,90,1],[137,13,137,90,1],[138,13,138,66,1],[139,13,139,84,1],[140,9,140,10,1]]);
+    </script>
+  </body>
+</html>

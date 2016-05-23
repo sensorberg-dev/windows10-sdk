@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using MetroLog;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Transport;
+using SensorbergSDK.Services;
 
 namespace SensorbergSDK.Internal.Services
 {

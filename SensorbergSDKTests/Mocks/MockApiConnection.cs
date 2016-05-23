@@ -8,7 +8,6 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Web.Http;
-using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
 using System.Collections.Generic;

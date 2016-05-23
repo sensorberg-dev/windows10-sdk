@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\transport\request.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Collections.Generic;
+
+namespace SensorbergSDK.Internal.Transport
+{
+    public enum RequestResultState
+    {
+        None,
+        Failed,
+        Success
+    }
+
+    public sealed class Request
+    {
+        private const int DefaultMaxNumberOfRetries = 3;
+
+        [Obsolete]
+        public event EventHandler&lt;RequestResultState&gt; Result;
+
+        public BeaconEventArgs BeaconEventArgs
+        {
+            get;
+            private set;
+        }
+
+        public IList&lt;ResolvedAction&gt; ResolvedActions
+        {
+            get;
+            set;
+        }
+
+        public RequestResultState ResultState
+        {
+            get;
+            private set;
+        }
+
+        public string ErrorMessage
+        {
+            get;
+            set;
+        }
+
+        /// &lt;summary&gt;
+        /// This ID can be used to track this specific request (to match the outgoing request
+        /// with the incoming result) if needed. The value can be arbitrary, but should naturally
+        /// be unique.
+        /// &lt;/summary&gt;
+        public int RequestId
+        {
+            get;
+            private set;
+        }
+
+        public int TryCount
+        {
+            get;
+            set;
+        }
+
+        public int MaxNumberOfRetries
+        {
+            get
+            {
+                return DefaultMaxNumberOfRetries;
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Creates an new Request object.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;beaconEventArgs&quot;&gt;The beacon event details.&lt;/param&gt;
+        /// &lt;param name=&quot;requestId&quot;&gt;The request ID (can be arbitrary).&lt;/param&gt;
+        public Request(BeaconEventArgs beaconEventArgs, int requestId)
+        {
+            BeaconEventArgs = beaconEventArgs;
+            RequestId = requestId;
+            ResultState = RequestResultState.None;
+        }
+
+        /// &lt;summary&gt;
+        /// Called when this request has been handled. Notifies any listeners
+        /// of the result.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;resultState&quot;&gt;The request result.&lt;/param&gt;
+        public void NotifyResult(RequestResultState resultState)
+        {
+            ResultState = resultState;
+
+            Result?.Invoke(this, ResultState);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[44,13,44,17,0],[45,13,45,17,0],[26,13,26,17,1],[27,13,27,25,1],[32,13,32,17,1],[33,13,33,17,1],[38,13,38,17,1],[39,13,39,25,1],[55,13,55,17,1],[56,13,56,25,1],[61,13,61,17,1],[62,13,62,17,1],[68,13,68,14,1],[69,17,69,50,1],[70,13,70,14,1],[78,9,78,71,1],[79,9,79,10,1],[80,13,80,47,1],[81,13,81,35,1],[82,13,82,51,1],[83,9,83,10,1],[91,9,91,10,1],[92,13,92,39,1],[94,13,94,47,1],[95,9,95,10,1]]);
+    </script>
+  </body>
+</html>

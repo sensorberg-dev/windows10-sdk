@@ -95,6 +95,16 @@ namespace SensorbergSDK.Internal.Data
             return he;
         }
 
+        public static string ActionsToString(List<HistoryAction> fileActions)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (HistoryAction historyAction in fileActions)
+            {
+                sb.Append(ActionToString(historyAction));
+            }
+            return sb.ToString();
+        }
+
         public static string ActionToString(HistoryAction historyAction)
         {
             return ActionToString(historyAction.EventId, historyAction.BeaconId, DateTimeOffset.Parse(historyAction.ActionTime), historyAction.Trigger, historyAction.Delivered, historyAction.Background);

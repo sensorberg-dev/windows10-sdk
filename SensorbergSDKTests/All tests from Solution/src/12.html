@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdktests\mocks\mockapiconnection.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 04.03.2016
+// 
+// Copyright (c) 2016,  EagleEye .
+// 
+// All rights reserved.
+
+using System;
+using System.IO;
+using System.Threading.Tasks;
+using Windows.Web.Http;
+using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Services;
+using System.Collections.Generic;
+using SensorbergSDK.Internal.Data;
+
+namespace SensorbergSDKTests.Mocks
+{
+    public class MockApiConnection : IApiConnection
+    {
+        public string LayoutFile { get; set; } = &quot;mock/layout_request.json&quot;;
+        public List&lt;HistoryAction&gt; HistoryActions { get; } = new List&lt;HistoryAction&gt;();
+        public List&lt;HistoryEvent&gt; HistoryEvents { get; }= new List&lt;HistoryEvent&gt;();
+
+        private async Task&lt;string&gt; Load(string file)
+        {
+            if (APIInvalid)
+            {
+                return string.Empty;
+            }
+            if (FailNetwork)
+            {
+                throw new IOException();
+            }
+            if (UnknownError)
+            {
+                throw new Exception(&quot;ups&quot;);
+            }
+            var uri = new Uri(&quot;ms-appx:///Assets/raw/&quot; + file, UriKind.RelativeOrAbsolute);
+            return await Windows.Storage.FileIO.ReadTextAsync(await Windows.Storage.StorageFile.GetFileFromApplicationUriAsync(uri));
+        }
+
+
+        public async Task&lt;ResponseMessage&gt; RetrieveLayoutResponse(SdkData data, string apiId = null)
+        {
+            return new ResponseMessage()
+            {
+                StatusCode = HttpStatusCode.Ok, Content = await Load(LayoutFile), Header = await Load(&quot;mock/layout_request_header.txt&quot;), IsSuccess = true
+            };
+        }
+
+        public async Task&lt;string&gt; LoadSettings(SdkData sdkData)
+        {
+            return MockSettings;
+        }
+
+        public Task&lt;ResponseMessage&gt; SendHistory(History history)
+        {
+            if (APIInvalid)
+            {
+                return Task.FromResult(new ResponseMessage() { IsSuccess = false });
+            }
+            if (FailNetwork)
+            {
+                throw new IOException();
+            }
+            if (UnknownError)
+            {
+                throw new Exception(&quot;ups&quot;);
+            }
+            if (history != null)
+            {
+                HistoryEvents.AddRange(history.Events);
+                HistoryActions.AddRange(history.Actions);
+            }
+            return Task.FromResult(new ResponseMessage() {IsSuccess = true});
+        }
+
+        public bool APIInvalid { get; set; }
+        public bool FailNetwork { get; set; }
+        public bool UnknownError { get; set; }
+        public string MockSettings { get; set; }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[60,13,60,14,0],[61,17,61,85,0],[68,13,68,14,0],[69,17,69,44,0],[21,36,21,40,1],[21,41,21,45,1],[22,53,22,57,1],[23,51,23,55,1],[58,9,58,10,1],[59,13,59,28,1],[63,13,63,29,1],[64,13,64,14,1],[65,17,65,41,1],[67,13,67,30,1],[71,13,71,33,1],[72,13,72,14,1],[73,17,73,56,1],[74,17,74,58,1],[75,13,75,14,1],[76,13,76,78,1],[77,9,77,10,1],[79,34,79,38,1],[79,39,79,43,1],[80,35,80,39,1],[80,40,80,44,1],[81,36,81,40,1],[81,41,81,45,1],[82,38,82,42,1],[82,43,82,47,1],[21,50,21,76,1],[22,62,22,87,1],[23,59,23,83,1],[26,9,26,10,1],[27,13,27,28,1],[28,13,28,14,1],[29,17,29,37,1],[31,13,31,29,1],[32,13,32,14,1],[33,17,33,41,1],[35,13,35,30,1],[36,13,36,14,1],[37,17,37,44,1],[39,13,39,92,1],[40,13,40,134,1],[41,9,41,10,1],[45,9,45,10,1],[46,13,49,15,1],[50,9,50,10,1],[53,9,53,10,1],[54,13,54,33,1],[55,9,55,10,1]]);
+    </script>
+  </body>
+</html>

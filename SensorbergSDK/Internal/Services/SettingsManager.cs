@@ -79,13 +79,13 @@ namespace SensorbergSDK.Internal.Services
                     return null;
                 }
 
-                var settings = JsonConvert.DeserializeObject<AppSettingsResponse>(responseMessage);
+                var settings = JsonConvert.DeserializeObject<AppSettings>(responseMessage);
 
-                SaveSettingsToStorage(settings.Settings);
+                SaveSettingsToStorage(settings);
 
-                Logger.Debug("Got settings from api. " + settings.Settings);
+                Logger.Debug("Got settings from api. " + settings.Keys);
 
-                return settings.Settings;
+                return settings;
             }
             catch (Exception ex)
             {

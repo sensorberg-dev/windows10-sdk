@@ -10,11 +10,17 @@ using SensorbergSDK.Internal.Utils;
 
 namespace SensorbergSDK
 {
+    /// <summary>
+    /// Representation of a beacon, incl. of there properties.
+    /// </summary>
     [DataContract]
     public sealed class Beacon
     {
         private const char HexStringSeparator = '-'; // For UpdatePid()
 
+        /// <summary>
+        /// ManufacturerId of the beacon.
+        /// </summary>
         [DataMember]
         public ushort ManufacturerId
         {
@@ -24,6 +30,9 @@ namespace SensorbergSDK
             set;
         }
 
+        /// <summary>
+        /// BeaconCode of the beacon.
+        /// </summary>
         [DataMember]
         public ushort Code
         {
@@ -34,6 +43,9 @@ namespace SensorbergSDK
         }
 
         private string _id1;
+        /// <summary>
+        /// Id1 of the beacon as string representation.
+        /// </summary>
         [DataMember]
         public string Id1
         {
@@ -54,6 +66,9 @@ namespace SensorbergSDK
         }
 
         private ushort _id2;
+        /// <summary>
+        /// Id2 of the beacon as string representation.
+        /// </summary>
         [DataMember]
         public ushort Id2
         {
@@ -74,6 +89,9 @@ namespace SensorbergSDK
         }
 
         private ushort _id3;
+        /// <summary>
+        /// Id3 of the beacon as string representation.
+        /// </summary>
         [DataMember]
         public ushort Id3
         {
@@ -93,6 +111,9 @@ namespace SensorbergSDK
             }
         }
 
+        /// <summary>
+        /// Aux value of the string.
+        /// </summary>
         public byte Aux
         {
             [DebuggerStepThrough]
@@ -114,6 +135,9 @@ namespace SensorbergSDK
             private set;
         }
 
+        /// <summary>
+        /// Proximity distance of beacon.
+        /// </summary>
         [DataMember]
         public double Distance
         {
@@ -124,6 +148,9 @@ namespace SensorbergSDK
         }
 
         private int _rawSignalStrengthInDBm;
+        /// <summary>
+        /// Signalstrength from beacon.
+        /// </summary>
         [DataMember]
         public int RawSignalStrengthInDBm
         {
@@ -144,6 +171,9 @@ namespace SensorbergSDK
         }
 
         private int _measuredPower;
+        /// <summary>
+        /// Measured prower of beacon.
+        /// </summary>
         [DataMember]
         public int MeasuredPower
         {
@@ -179,9 +209,9 @@ namespace SensorbergSDK
         /// <returns>True, if the beacons match.</returns>
         public bool Matches(Beacon beacon)
         {
-            return beacon.Id1==Id1
-                && beacon.Id2 == Id2
-                && beacon.Id3 == Id3;
+            return beacon.Id1 == Id1
+                   && beacon.Id2 == Id2
+                   && beacon.Id3 == Id3;
         }
 
         /// <summary>

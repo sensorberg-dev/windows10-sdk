@@ -6,6 +6,7 @@
 
 using System;
 using SensorbergSDK;
+using SensorbergSDK.Internal;
 using SensorbergSDK.Services;
 
 namespace SensorbergSDKTests.Mocks

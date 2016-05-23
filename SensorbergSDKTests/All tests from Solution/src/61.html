@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\data\beaconcontainer.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Collections.Generic;
+
+namespace SensorbergSDK.Internal.Data
+{
+    /// &lt;summary&gt;
+    /// A container class for managing a set of current beacons.
+    /// &lt;/summary&gt;
+    public class BeaconContainer
+    {
+        private readonly List&lt;Beacon&gt; _beacons;
+        private readonly object _beaconListLock;
+
+        /// &lt;summary&gt;
+        /// The number of beacons in the container.
+        /// &lt;/summary&gt;
+        public int Count
+        {
+            get
+            {
+                return _beacons.Count;
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Constructor for empty BeaconContainer.
+        /// &lt;/summary&gt;
+        public BeaconContainer()
+        {
+            _beaconListLock = new object();
+            _beacons = new List&lt;Beacon&gt;();
+        }
+
+        /// &lt;summary&gt;
+        /// Adds the given beacon to this container.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;beacon&quot;&gt;The beacon to add.&lt;/param&gt;
+        /// &lt;param name=&quot;overwrite&quot;&gt;If true, will update a matching beacon.&lt;/param&gt;
+        public void Add(Beacon beacon, bool overwrite = false)
+        {
+            if (beacon == null)
+            {
+                return;
+            }
+
+            if (overwrite)
+            {
+                if (!TryUpdate(beacon))
+                {
+                    SaveAddBeacon(beacon);
+                }
+            }
+            else
+            {
+                SaveAddBeacon(beacon);
+            }
+        }
+
+        /// &lt;param name=&quot;beacon&quot;&gt;&lt;/param&gt;
+        /// &lt;returns&gt;True, if the given beacon matches an existing one in this container.&lt;/returns&gt;
+        public bool Contains(Beacon beacon)
+        {
+
+            lock (_beaconListLock)
+            {
+                foreach (Beacon existingBeacon in _beacons)
+                {
+                    if (beacon.Matches(existingBeacon))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// &lt;summary&gt;
+        /// Updates a matching beacon in the list based on the given one, if found.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;beacon&quot;&gt;The beacon, with latest data, to update.&lt;/param&gt;
+        /// &lt;returns&gt;True, if updated. False, if no matching beacon was found.&lt;/returns&gt;
+        public bool TryUpdate(Beacon beacon)
+        {
+            lock (_beaconListLock)
+            {
+                for (int i = 0; i &lt; _beacons.Count; ++i)
+                {
+                    if (beacon.Matches(_beacons[i]))
+                    {
+                        _beacons[i] = beacon;
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// &lt;summary&gt;
+        /// Removes the beacons, which are older than the given age, from this container.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;olderThanAgeInMilliseconds&quot;&gt;The minimum age of the beacons, which should be removed.&lt;/param&gt;
+        /// &lt;returns&gt;A list of removed beacons.&lt;/returns&gt;
+        public List&lt;Beacon&gt; RemoveBeaconsBasedOnAge(ulong olderThanAgeInMilliseconds)
+        {
+            List&lt;Beacon&gt; removedBeacons = new List&lt;Beacon&gt;();
+
+            if (_beacons.Count &gt; 0)
+            {
+                TimeSpan ageAsTimeSpan = TimeSpan.FromMilliseconds(olderThanAgeInMilliseconds);
+
+                lock (_beaconListLock)
+                {
+                    for (int i = _beacons.Count - 1; i &gt;= 0; --i)
+                    {
+                        var currentBeacon = _beacons[i];
+
+                        if (currentBeacon.Timestamp.Add(ageAsTimeSpan) &lt; DateTime.Now)
+                        {
+                            System.Diagnostics.Debug.WriteLine(&quot;CurrentBeaconsContainer.RemoveOldBeacons(): &quot;
+                                + string.Format(&quot;Last seen {0:mm:ss}, time is now {1:mm:ss} =&gt; exit&quot;,
+                                    currentBeacon.Timestamp, DateTime.Now));
+
+                            removedBeacons.Add(currentBeacon);
+                            _beacons.RemoveAt(i);
+                        }
+                    }
+                }
+            }
+
+            return removedBeacons;
+        }
+
+        /// &lt;summary&gt;
+        /// Finds the beacons, which are older than the given age.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;olderThanAgeInMilliseconds&quot;&gt;The minimum age of the beacons to find.&lt;/param&gt;
+        /// &lt;returns&gt;A list of beacons matching the age criteria.&lt;/returns&gt;
+        public List&lt;Beacon&gt; BeaconsBasedOnAge(ulong olderThanAgeInMilliseconds)
+        {
+            List&lt;Beacon&gt; beacons = new List&lt;Beacon&gt;();
+            TimeSpan ageAsTimeSpan = TimeSpan.FromMilliseconds(olderThanAgeInMilliseconds);
+
+            lock (_beaconListLock)
+            {
+                foreach (Beacon beacon in _beacons)
+                {
+                    if (beacon.Timestamp.Add(ageAsTimeSpan) &lt; DateTime.Now)
+                    {
+                        beacons.Add(beacon);
+                    }
+                }
+            }
+
+            return beacons;
+        }
+
+        /// &lt;summary&gt;
+        /// Locks collection and add beacon to it.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;beacon&quot;&gt;Beacon to add.&lt;/param&gt;
+        private void SaveAddBeacon(Beacon beacon)
+        {
+            lock (_beaconListLock)
+            {
+                _beacons.Add(beacon);
+            }
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[24,13,24,14,0],[25,17,25,39,0],[26,13,26,14,0],[44,9,44,10,0],[45,13,45,32,0],[46,13,46,14,0],[47,17,47,24,0],[50,13,50,27,0],[51,13,51,14,0],[52,17,52,40,0],[53,17,53,18,0],[54,21,54,43,0],[55,17,55,18,0],[56,13,56,14,0],[58,13,58,14,0],[59,17,59,39,0],[60,13,60,14,0],[61,9,61,10,0],[66,9,66,10,0],[68,13,68,35,0],[69,13,69,14,0],[70,17,70,24,0],[70,51,70,59,0],[70,26,70,47,0],[71,17,71,18,0],[72,21,72,56,0],[73,21,73,22,0],[74,25,74,37,0],[76,17,76,18,0],[70,48,70,50,0],[77,13,77,14,0],[79,13,79,26,0],[80,9,80,10,0],[88,9,88,10,0],[89,13,89,35,0],[90,13,90,14,0],[91,22,91,31,0],[92,17,92,18,0],[93,21,93,53,0],[94,21,94,22,0],[95,25,95,46,0],[96,25,96,37,0],[98,17,98,18,0],[91,53,91,56,0],[91,33,91,51,0],[99,13,99,14,0],[101,13,101,26,0],[102,9,102,10,0],[110,9,110,10,0],[111,13,111,62,0],[113,13,113,36,0],[114,13,114,14,0],[115,17,115,96,0],[117,17,117,39,0],[118,17,118,18,0],[119,26,119,52,0],[120,21,120,22,0],[121,25,121,57,0],[123,25,123,87,0],[124,25,124,26,0],[125,29,127,77,0],[129,29,129,63,0],[130,29,130,50,0],[131,25,131,26,0],[132,21,132,22,0],[119,62,119,65,0],[119,54,119,60,0],[133,17,133,18,0],[134,13,134,14,0],[136,13,136,35,0],[137,9,137,10,0],[145,9,145,10,0],[146,13,146,55,0],[147,13,147,92,0],[149,13,149,35,0],[150,13,150,14,0],[151,17,151,24,0],[151,43,151,51,0],[151,26,151,39,0],[152,17,152,18,0],[153,21,153,76,0],[154,21,154,22,0],[155,25,155,45,0],[156,21,156,22,0],[157,17,157,18,0],[151,40,151,42,0],[158,13,158,14,0],[160,13,160,28,0],[161,9,161,10,0],[168,9,168,10,0],[169,13,169,35,0],[170,13,170,14,0],[171,17,171,38,0],[172,13,172,14,0],[173,9,173,10,0],[32,9,32,33,1],[33,9,33,10,1],[34,13,34,44,1],[35,13,35,43,1],[36,9,36,10,1]]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdktests\mocks\mocklayoutmanager.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 09.03.2016
+// 
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using SensorbergSDK.Internal;
+using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Transport;
+using SensorbergSDK.Services;
+
+namespace SensorbergSDKTests.Mocks
+{
+    public class MockLayoutManager:ILayoutManager
+    {
+        public async Task&lt;RequestResultState&gt; ExecuteRequestAsync(Request currentRequest)
+        {
+            FailToken token = new FailToken();
+            ShouldFail?.Invoke(currentRequest, token);
+            if (FindOneAction)
+            {
+                currentRequest.ResolvedActions = new List&lt;ResolvedAction&gt;() { new ResolvedAction() };
+            }
+            return token.Fail ? RequestResultState.Failed : RequestResultState.Success;
+        }
+
+        public async Task InvalidateLayout()
+        {
+        }
+
+        public bool IsLayoutValid { get; }
+        public Layout Layout { get; set; }
+        public bool FindOneAction { get; set; }
+
+        public async Task&lt;bool&gt; VerifyLayoutAsync(bool forceUpdate = false)
+        {
+            return true;
+        }
+
+        public event EventHandler&lt;bool&gt; LayoutValidityChanged;
+        public ResolvedAction GetAction(string uuid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public event Action&lt;Request,FailToken&gt; ShouldFail;
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[34,37,34,41,0],[35,32,35,36,0],[35,37,35,41,0],[45,9,45,10,0],[46,13,46,49,0],[31,9,31,10,0],[32,9,32,10,0],[39,9,39,10,0],[40,13,40,25,0],[41,9,41,10,0],[36,37,36,41,1],[36,42,36,46,1],[20,9,20,10,1],[21,13,21,47,1],[22,13,22,55,1],[23,13,23,31,1],[24,13,24,14,1],[25,17,25,102,1],[26,13,26,14,1],[27,13,27,88,1],[28,9,28,10,1]]);
+    </script>
+  </body>
+</html>

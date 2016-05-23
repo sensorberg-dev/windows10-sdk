@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SensorbergSDK;
-using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Transport;
 using SensorbergSDK.Services;
@@ -69,25 +68,29 @@ namespace SensorbergSDKTests.Mocks
             return UndeliveredActions.FirstOrDefault(a => a.EventId == uuid);
         }
 
+        public Task CleanupDatabase()
+        {
+            throw new NotImplementedException();
+        }
+
         public Task CleanDatabase()
         {
             throw new NotImplementedException();
         }
 
-        public async Task<IList<DelayedActionData>> GetDelayedActions(int maxDelayFromNowInSeconds)
+        public async Task<IList<DelayedActionData>> GetDelayedActions()
         {
-            DateTimeOffset maxDelayfromNow = DateTimeOffset.Now.AddSeconds(maxDelayFromNowInSeconds);
-            return DelayedActions.Where(da => da.DueTime < maxDelayfromNow).ToList();
+            return DelayedActions;
         }
 
-        public async Task SetDelayedActionAsExecuted(string id)
+        public async Task SetDelayedActionAsExecuted(string uuid)
         {
-            DelayedActions.Remove(DelayedActions.FirstOrDefault(d => d.Id == id));
+            DelayedActions.Remove(DelayedActions.FirstOrDefault(d => d.Id == uuid));
         }
 
-        public async Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventTypeDetectedByDevice)
+        public async Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventType)
         {
-            DelayedActions.Add(new DelayedActionData() {BeaconPid = beaconPid,DueTime = dueTime, EventTypeDetectedByDevice =  eventTypeDetectedByDevice, Id = Guid.NewGuid().ToString(), ResolvedAction = action});
+            DelayedActions.Add(new DelayedActionData() {BeaconPid = beaconPid,DueTime = dueTime, EventTypeDetectedByDevice =  eventType, Id = Guid.NewGuid().ToString(), ResolvedAction = action});
             return true;
         }
 

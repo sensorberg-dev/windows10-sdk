@@ -9,7 +9,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.Data.Json;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Internal.Transport;

@@ -1,0 +1,7 @@
+var searchData=
+[
+  ['offset',['Offset',['../class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_file_storage_helper_1_1_delayed_action_helper.html#a7d38c35b1b91339e1425c07e561ca962',1,'SensorbergSDK::Internal::Data::FileStorageHelper::DelayedActionHelper']]],
+  ['onapplicationvisibilitychanged',['OnApplicationVisibilityChanged',['../class_sensorberg_s_d_k_1_1_s_d_k_manager.html#ae749f4235db6a6e6c4d969ff43afc4c6',1,'SensorbergSDK::SDKManager']]],
+  ['operator_21_3d',['operator!=',['../class_sensorberg_s_d_k_1_1_beacon_action.html#a4071997af8d7c99cabe2a3ceadc277a6',1,'SensorbergSDK.BeaconAction.operator!=()'],['../class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_timeframe.html#a906bb61af17a7ac9f3d96e1537cb7303',1,'SensorbergSDK.Internal.Data.Timeframe.operator!=()'],['../class_sensorberg_s_d_k_1_1_internal_1_1_transport_1_1_resolved_action.html#a753ec7ff405ad9510b75a8837cb431ff',1,'SensorbergSDK.Internal.Transport.ResolvedAction.operator!=()']]],
+  ['operator_3d_3d',['operator==',['../class_sensorberg_s_d_k_1_1_beacon_action.html#ab2220712ef0116fbb8ea1ce685216213',1,'SensorbergSDK.BeaconAction.operator==()'],['../class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_timeframe.html#aabb4240313e195004581b202b4dcc9ba',1,'SensorbergSDK.Internal.Data.Timeframe.operator==()'],['../class_sensorberg_s_d_k_1_1_internal_1_1_transport_1_1_resolved_action.html#afc444b794ba2492602c707f8c40efe11',1,'SensorbergSDK.Internal.Transport.ResolvedAction.operator==()']]]
+];

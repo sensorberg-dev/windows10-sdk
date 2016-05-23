@@ -11,6 +11,7 @@ using MetroLog;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Internal.Transport;
+using SensorbergSDK.Services;
 
 namespace SensorbergSDK.Internal
 {
@@ -273,10 +274,11 @@ namespace SensorbergSDK.Internal
         /// </summary>
         private async Task CleanDatabaseAsync()
         {
-            if (SdkData.Instance.DatabaseCleaningTime < DateTimeOffset.Now.AddHours(-DatabaseExpirationInHours))
+            var dateTimeOffset = DateTimeOffset.Now.AddHours(-DatabaseExpirationInHours);
+            if (SdkData.Instance.DatabaseCleaningTime < dateTimeOffset)
             {
                 SdkData.Instance.DatabaseCleaningTime = DateTimeOffset.Now;
-                await ServiceManager.StorageService.CleanDatabase();
+                await ServiceManager.StorageService.CleanupDatabase();
             }
         }
 
