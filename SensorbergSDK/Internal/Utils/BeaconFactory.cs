@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -6,13 +10,13 @@ using System.Text;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Storage.Streams;
 
-namespace SensorbergSDK
+namespace SensorbergSDK.Internal.Utils
 {
     /// <summary>
     /// Creates beacon instances from received advertisement data.
     /// Can also turn beacon instances back to advertisement data.
     /// </summary>
-    public sealed class BeaconFactory
+    public static class BeaconFactory
     {
         private const char HexStringSeparator = '-';
         private const byte FirstBeaconDataSectionDataType = 0x01;
@@ -24,7 +28,7 @@ namespace SensorbergSDK
         /// </summary>
         /// <param name="args"></param>
         /// <returns>A newly created Beacon instance or null in case of a failure.</returns>
-        public static Beacon BeaconFromBluetoothLEAdvertisementReceivedEventArgs(BluetoothLEAdvertisementReceivedEventArgs args)
+        public static Beacon BeaconFromBluetoothLeAdvertisementReceivedEventArgs(BluetoothLEAdvertisementReceivedEventArgs args)
         {
             Beacon beacon = null;
 
@@ -45,7 +49,7 @@ namespace SensorbergSDK
         /// <summary>
         /// Constructs a Beacon instance and sets the properties based on the given data.
         /// </summary>
-        /// <param name="dataSection">A data section containing beacon data.</param>
+        /// <param name="dataSections">A data section containing beacon data.</param>
         /// <returns>A newly created Beacon instance or null in case of a failure.</returns>
         public static Beacon BeaconFromDataSectionList(IList<BluetoothLEAdvertisementDataSection> dataSections)
         {
@@ -55,12 +59,9 @@ namespace SensorbergSDK
             {
                 foreach (BluetoothLEAdvertisementDataSection dataSection in dataSections)
                 {
-                    if (dataSection != null)
+                    if (dataSection?.DataType == SecondBeaconDataSectionDataType)
                     {
-                        if (dataSection.DataType == SecondBeaconDataSectionDataType)
-                        {
-                            beacon = BeaconFromDataSection(dataSection);
-                        }
+                        beacon = BeaconFromDataSection(dataSection);
                     }
                 }
             }
@@ -91,9 +92,7 @@ namespace SensorbergSDK
 
         /// <summary>
         /// Constructs a Beacon instance and sets the properties based on the given data.
-        /// 
         /// The expected specification of the data is as follows:
-        /// 
         /// Byte(s)     Name
         /// --------------------------
         /// 0-1         Manufacturer ID (16-bit unsigned integer, big endian)
@@ -103,9 +102,7 @@ namespace SensorbergSDK
         /// 22-23       ID3 (16-bit unsigned integer, big endian)
         /// 24          Measured Power (signed 8-bit integer)
         /// 25          Additional information byte (optional)
-        /// 
         /// For more details on the beacon specifications see https://github.com/AltBeacon/spec
-        /// 
         /// The minimum length of the given byte array is 25. If it is longer than 26 bits,
         /// everything after the 26th bit is ignored.
         /// </summary>
@@ -151,7 +148,7 @@ namespace SensorbergSDK
         /// <param name="manufacturerId">The manufacturer ID.</param>
         /// <param name="beaconCode">The beacon code.</param>
         /// <returns>BluetoothLEManufacturerData instance based on given arguments.</returns>
-        public static BluetoothLEManufacturerData BeaconManufacturerData(UInt16 manufacturerId, UInt16 beaconCode)
+        public static BluetoothLEManufacturerData BeaconManufacturerData(ushort manufacturerId, ushort beaconCode)
         {
             BluetoothLEManufacturerData manufacturerData = new BluetoothLEManufacturerData();
             manufacturerData.CompanyId = manufacturerId;
@@ -172,7 +169,7 @@ namespace SensorbergSDK
             Beacon beacon, bool includeAuxByte = false)
         {
             string[] temp = beacon.Id1.Split(HexStringSeparator);
-            string beaconId1 = string.Join("", temp);
+            string beaconId1 = string.Join(string.Empty, temp);
 
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.Append(ManufacturerIdToString(beacon.ManufacturerId));
@@ -207,7 +204,7 @@ namespace SensorbergSDK
         /// </summary>
         /// <param name="manufacturerId">The manufacturer ID as Uint16.</param>
         /// <returns>The manufacturer ID as string.</returns>        
-        public static string ManufacturerIdToString(UInt16 manufacturerId)
+        public static string ManufacturerIdToString(ushort manufacturerId)
         {
             byte[] manufacturerIdAsByteArray = BitConverter.GetBytes(manufacturerId);
             string manufacturerIdAsString = BitConverter.ToString(manufacturerIdAsByteArray);
@@ -219,22 +216,23 @@ namespace SensorbergSDK
         /// </summary>
         /// <param name="beaconCode">The beacon code as Uint16.</param>
         /// <returns>The beacon code as string.</returns>        
-        public static string BeaconCodeToString(UInt16 beaconCode)
+        public static string BeaconCodeToString(ushort beaconCode)
         {
             byte[] beaconCodeAsByteArray = ChangeInt16ArrayEndianess(BitConverter.GetBytes(beaconCode));
             string beaconCodeAsString = BitConverter.ToString(beaconCodeAsByteArray);
             return beaconCodeAsString.Replace(HexStringSeparator.ToString(), string.Empty);
-        }        
-        
+        }
+
         /// <summary>
         /// Calculates the beacon distance based on the given values.
+        /// http://developer.radiusnetworks.com/2014/12/04/fundamentals-of-beacon-ranging.html
         /// </summary>
         /// <param name="rawSignalStrengthInDBm">The detected signal strength.</param>
         /// <param name="measuredPower">The device specific measured power as reported by the beacon.</param>
         /// <returns>The distance to the beacon in meters.</returns>
         public static double CalculateDistanceFromRssi(double rawSignalStrengthInDBm, int measuredPower)
         {
-            double distance = 0d;
+            double distance;
             double near = rawSignalStrengthInDBm / measuredPower;
 
             if (near < 1.0f)
@@ -243,7 +241,7 @@ namespace SensorbergSDK
             }
             else
             {
-                distance = ((0.89976f) * Math.Pow(near, 7.7095f) + 0.111f);
+                distance = 0.89976f * Math.Pow(near, 7.7095f) + 0.111f;
             }
 
             return distance;
@@ -253,7 +251,6 @@ namespace SensorbergSDK
         /// Formats the given UUID. The method also accepts strings, which do
         /// not have the full UUID (are shorter than expected). Too long
         /// strings are truncated.
-        /// 
         /// An example of a formatted UUID: de305d54-75b4-431b-adb2-eb6b9e546014
         /// </summary>
         /// <param name="uuid">A UUID to format.</param>
@@ -287,14 +284,7 @@ namespace SensorbergSDK
                                 stringBuilder.Append(uuid.Substring(16, 4));
                                 stringBuilder.Append(HexStringSeparator);
 
-                                if (uuid.Length > 32)
-                                {
-                                    stringBuilder.Append(uuid.Substring(20, 12));
-                                }
-                                else
-                                {
-                                    stringBuilder.Append(uuid.Substring(20));
-                                }
+                                stringBuilder.Append(uuid.Length > 32 ? uuid.Substring(20, 12) : uuid.Substring(20));
                             }
                             else
                             {
@@ -337,9 +327,9 @@ namespace SensorbergSDK
         /// <param name="uuid">The UUID.</param>
         /// <param name="manufacturerId">The manufacturer ID.</param>
         /// <param name="beaconCode">The beacon code.</param>
-        /// <returns>BluetoothLEAdvertisementBytePattern</returns>
-        public static BluetoothLEAdvertisementBytePattern UUIDToAdvertisementBytePattern(
-            string uuid, UInt16 manufacturerId, UInt16 beaconCode)
+        /// <returns>BluetoothLEAdvertisementBytePattern.</returns>
+        public static BluetoothLEAdvertisementBytePattern UuidToAdvertisementBytePattern(
+            string uuid, ushort manufacturerId, ushort beaconCode)
         {
             if (uuid.Length % 2 != 0)
             {

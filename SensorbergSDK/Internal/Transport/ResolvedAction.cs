@@ -1,213 +1,103 @@
-﻿using System;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Diagnostics;
+using System.Linq;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
-using Windows.Data.Json;
+using SensorbergSDK.Internal.Data;
 
-namespace SensorbergSDK.Internal
+namespace SensorbergSDK.Internal.Transport
 {
-    public sealed class Timeframe
-    {
-        public DateTimeOffset ?Start
-        {
-            get;
-            set;
-        }
-        public DateTimeOffset ?End
-        {
-            get;
-            set;
-        }
-    }
-
     /// <summary>
     /// Internal class that represents a single action coming from the server. 
     /// Class holds a BeaconAction object which exposes public API for the application. 
     /// </summary>
-    /// 
     [DataContract]
     public sealed class ResolvedAction
     {
-        private static readonly string KeyActionUuid = "eid";
-        private static readonly string KeyBeacons = "beacons";
-        private static readonly string KeyContent = "content";
-        private static readonly string KeyDelayTime = "delay";
-        private static readonly string KeyTrigger = "trigger";
-        private static readonly string KeyType = "type";
-        private static readonly string KeySendOnlyOnce = "sendOnlyOnce";
-        private static readonly string KeysupressionTime = "supressionTime";
-        private static readonly string KeyReportImmediately = "reportImmediately";
-        private static readonly string KeyTimeframes = "timeframes";
-        private static readonly string KeyStart = "start";
-        private static readonly string KeyEnd = "end";
+        private ICollection<string> _beaconPids;
 
         [DataMember]
         public BeaconAction BeaconAction
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
-        [DataMember]
-        public IDictionary<string, int> BeaconPids
+        [DataMember(Name = "beacons")]
+        public ICollection<string> BeaconPids
         {
-            get;
-            set;
+            [DebuggerStepThrough]
+            get { return _beaconPids; }
+            [DebuggerStepThrough]
+            set { _beaconPids = value; }
         }
 
-        [DataMember]
+        [DataMember(Name = "trigger")]
         public BeaconEventType EventTypeDetectedByDevice
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         [DataMember]
         public long Delay
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         [DataMember]
         public bool SendOnlyOnce
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
-        [DataMember]
-        public int SupressionTime
+        [DataMember(Name = "suppressionTime")]
+        public int SuppressionTime
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         [DataMember]
         public bool ReportImmediately
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         [DataMember]
         public IList<Timeframe> Timeframes
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         public ResolvedAction()
         {
-            BeaconPids = new Dictionary<string, int>();
+            BeaconPids = new HashSet<string>();
             Timeframes = new List<Timeframe>();
         }
 
-        /// <summary>
-        /// Parses and constructs a ResolvedAction instance from the given JSON data.
-        /// </summary>
-        /// <param name="contentJson"></param>
-        /// <returns>A newly created ResolvedAction instance.</returns>
-        public static ResolvedAction ResolvedActionFromJsonObject(JsonObject contentJson)
-        {
-            var resolvedAction = new ResolvedAction();
-
-            var obj = contentJson.GetObject();
-            var type = (int)obj.GetNamedValue(KeyType).GetNumber();
-            var actionUUID = obj.GetNamedString(KeyActionUuid);
-            var trigger = (int)obj.GetNamedNumber(KeyTrigger);
-            var delaySeconds = JsonHelper.Optional(obj, KeyDelayTime, 0);
-            var jsonContent = obj.GetNamedObject(KeyContent);
-            var sendOnlyOnce = JsonHelper.OptionalBoolean(obj, KeySendOnlyOnce, false);
-            var beacons = contentJson.GetNamedArray(KeyBeacons);
-            var supressionTime = JsonHelper.Optional(obj, KeysupressionTime, -1);
-            var reportImmediately = JsonHelper.OptionalBoolean(obj, KeyReportImmediately, false);
-
-            // TimeFrames
-            if (obj.ContainsKey(KeyTimeframes))
-            {
-                if (obj.GetNamedValue(KeyTimeframes).ValueType == JsonValueType.Array)
-                {
-                    var keyframes = obj.GetNamedArray(KeyTimeframes);
-
-                    foreach (var frame in keyframes)
-                    {
-                        if (frame.ValueType == JsonValueType.Object)
-                        {
-                            string start = JsonHelper.OptionalString(frame.GetObject(), KeyStart);
-                            string end = JsonHelper.OptionalString(frame.GetObject(), KeyEnd);
-                            DateTimeOffset? startOffset = null;
-                            DateTimeOffset? endOffset = null;
-
-                            var newFrame = new Timeframe();
-
-                            if (start.Length > 5)
-                            {
-                                startOffset = DateTimeOffset.Parse(start);
-                            }
-                            if (end.Length > 5)
-                            {
-                                endOffset = DateTimeOffset.Parse(end);
-                            }
-
-                            resolvedAction.Timeframes.Add(new Timeframe() { Start = startOffset, End = endOffset });
-                        }
-                    }
-                }
-            }
-
-            foreach (JsonValue resp in beacons)
-            {
-                if (resp.ValueType == JsonValueType.String)
-                {
-                    resolvedAction.BeaconPids.Add(resp.GetString(), 1);
-                }
-            }
-
-            BeaconAction action = ActionFactory.CreateBeaconAction(type, jsonContent, actionUUID);
-            resolvedAction.BeaconAction = action;
-            resolvedAction.EventTypeDetectedByDevice = (BeaconEventType)trigger;
-            resolvedAction.Delay = delaySeconds;
-            resolvedAction.SendOnlyOnce = sendOnlyOnce;
-            resolvedAction.SupressionTime = supressionTime;
-            resolvedAction.ReportImmediately = reportImmediately;
-
-            return resolvedAction;
-        }
-
-        /// <summary>
-        /// Serializes the given ResolvedAction instance.
-        /// </summary>
-        /// <param name="resolvedAction">The instance to serialize.</param>
-        /// <returns>The serialized instance as string.</returns>
-        public static string Serialize(ResolvedAction resolvedAction)
-        {
-            MemoryStream stream = new MemoryStream();
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ResolvedAction));
-            serializer.WriteObject(stream, resolvedAction);
-            stream.Position = 0;
-            StreamReader streamReader = new StreamReader(stream);
-            return streamReader.ReadToEnd();
-        }
-
-        /// <summary>
-        /// Deserializes the given serialized ResolvedAction.
-        /// </summary>
-        /// <param name="serializedResolvedAction">The serialized ResolvedAction as string.</param>
-        /// <returns>The deserialized ResolvedAction instance.</returns>
-        public static ResolvedAction Deserialize(string serializedResolvedAction)
-        {
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ResolvedAction));
-            var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(serializedResolvedAction));
-            return (ResolvedAction)serializer.ReadObject(stream);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="time"></param>
-        /// <returns></returns>
         public bool IsInsideTimeframes(DateTimeOffset time)
         {
             if (Timeframes.Count == 0)
@@ -254,6 +144,46 @@ namespace SensorbergSDK.Internal
             }
 
             return false;
+        }
+
+        private bool Equals(ResolvedAction other)
+        {
+            return (!_beaconPids?.Except(other._beaconPids).GetEnumerator().MoveNext()).Value && Equals(BeaconAction.ToString(), other.BeaconAction.ToString()) && EventTypeDetectedByDevice == other.EventTypeDetectedByDevice &&
+                   Delay == other.Delay && SendOnlyOnce == other.SendOnlyOnce && SuppressionTime == other.SuppressionTime && ReportImmediately == other.ReportImmediately &&
+                   (!Timeframes?.Except(other.Timeframes).GetEnumerator().MoveNext()).Value;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) { return false;}
+            if (ReferenceEquals(this, obj)) { return true;}
+            return obj is ResolvedAction && Equals((ResolvedAction) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = _beaconPids != null ? _beaconPids.GetHashCode() : 0;
+                hashCode = (hashCode*397) ^ (BeaconAction != null ? BeaconAction.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (int) EventTypeDetectedByDevice;
+                hashCode = (hashCode*397) ^ Delay.GetHashCode();
+                hashCode = (hashCode*397) ^ SendOnlyOnce.GetHashCode();
+                hashCode = (hashCode*397) ^ SuppressionTime;
+                hashCode = (hashCode*397) ^ ReportImmediately.GetHashCode();
+                hashCode = (hashCode*397) ^ (Timeframes != null ? Timeframes.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(ResolvedAction left, ResolvedAction right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(ResolvedAction left, ResolvedAction right)
+        {
+            return !Equals(left, right);
         }
     }
 }

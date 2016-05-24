@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\appsettings.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System.Runtime.Serialization;
+
+namespace SensorbergSDK.Internal
+{
+    [DataContract]
+    public sealed class AppSettings
+    {
+        [DataMember(Name = &quot;scanner.exitTimeoutMillis&quot;)]
+        public ulong BeaconExitTimeout { get; set; }
+
+        [DataMember(Name = &quot;network.historyUploadInterval&quot;)]
+        public ulong HistoryUploadInterval { get; set; }
+
+        [DataMember(Name = &quot;scanner.enterRssiThreshold&quot;)]
+        public short? RssiEnterThreshold { get; set; }
+
+        [DataMember(Name = &quot;scanner.enterDistanceThreshold&quot;)]
+        public ulong? EnterDistanceThreshold { get; set; }
+
+        [DataMember(Name = &quot;network.beaconLayoutUpdateInterval&quot;)]
+        public ulong LayoutUpdateInterval { get; set; }
+
+        [DataMember(Name = &quot;settings.updateTime&quot;)]
+        public ulong SettingsUpdateInterval { get; set; }
+
+        /// &lt;summary&gt;
+        /// Creates an appsettings object, including the basic setup.
+        /// &lt;/summary&gt;
+        public AppSettings()
+        {
+            BeaconExitTimeout = Constants.DefaultBeaconExitTimeout;
+            SettingsUpdateInterval = Constants.DefaultSettingsUpdateInterval;
+            HistoryUploadInterval = Constants.DefaultHistoryUploadInterval;
+            LayoutUpdateInterval = Constants.DefaultLayoutUpdateInterval;
+        }
+
+        public override string ToString()
+        {
+            return
+                $&quot;BeaconExitTimeout = {BeaconExitTimeout}, HistoryUploadInterval = {HistoryUploadInterval}, RssiEnterThreshold = {RssiEnterThreshold}, EnterDistanceThreshold = {EnterDistanceThreshold}, LayoutUpdateInterval = {LayoutUpdateInterval}, SettingsUpdateInterval = {SettingsUpdateInterval}&quot;;
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[19,49,19,53,0],[22,53,22,57,0],[13,42,13,46,1],[13,47,13,51,1],[16,46,16,50,1],[16,51,16,55,1],[19,44,19,48,1],[22,48,22,52,1],[25,45,25,49,1],[25,50,25,54,1],[28,47,28,51,1],[28,52,28,56,1],[33,9,33,29,1],[34,9,34,10,1],[35,13,35,68,1],[36,13,36,78,1],[37,13,37,76,1],[38,13,38,74,1],[39,9,39,10,1],[42,9,42,10,1],[43,13,44,301,1],[45,9,45,10,1]]);
+    </script>
+  </body>
+</html>

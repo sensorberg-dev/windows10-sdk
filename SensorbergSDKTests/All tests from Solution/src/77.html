@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\scanner.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using Windows.Devices.Bluetooth;
+using Windows.Devices.Bluetooth.Advertisement;
+using MetroLog;
+using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Utils;
+using SensorbergSDK.Services;
+
+namespace SensorbergSDK.Internal
+{
+    public enum ScannerStatus
+    {
+        Stopped,
+        Started,
+        Aborted
+    }
+
+    /// &lt;summary&gt;
+    /// Bluetooth LE advertisement scanner helper class with beacon list management.
+    /// &lt;/summary&gt;
+    public sealed class Scanner : IBeaconScanner, IDisposable
+    {
+        private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger&lt;Scanner&gt;();
+
+        /// &lt;summary&gt;
+        /// Triggered when the scanner is either started, stopped or aborted.
+        /// Aborted status may indicate that the bluetooth has not been turned on on the device.
+        /// &lt;/summary&gt;
+        public event EventHandler&lt;ScannerStatus&gt; StatusChanged;
+
+        public event EventHandler&lt;BeaconEventArgs&gt; BeaconEvent;
+
+        /// &lt;summary&gt;
+        /// Triggered when beacon hasn&#39;t been seen for a time defined in BeaconNotSeenDelayInMilliseconds.
+        /// &lt;/summary&gt;
+        public event EventHandler&lt;Beacon&gt; BeaconNotSeenForAWhile;
+
+        private readonly BeaconContainer _beaconsContainer;
+        private BluetoothLEAdvertisementWatcher _bluetoothLeAdvertisementWatcher;
+        private BluetoothLEManufacturerData _bluetoothLeManufacturerData;
+        private Timer _beaconListRefreshTimer;
+        private Timer _notifyStartedDelayTimer;
+
+        private ulong _beaconExitTimeout;
+        private ulong? _enterDistanceThreshold;
+
+        private ScannerStatus _status;
+
+        /// &lt;summary&gt;
+        /// Defines whether the scanner (bluetooth advertisement watcher) has been started or not.
+        /// When the watcher is started, the timer for checking up on the list of beacons is
+        /// started as well.
+        /// &lt;/summary&gt;
+        public ScannerStatus Status
+        {
+            get { return _status; }
+            private set
+            {
+                if (_status != value)
+                {
+                    _status = value;
+
+                    if (_notifyStartedDelayTimer != null)
+                    {
+                        _notifyStartedDelayTimer.Dispose();
+                        _notifyStartedDelayTimer = null;
+                    }
+
+                    if (_status == ScannerStatus.Started)
+                    {
+                        if (_beaconListRefreshTimer == null)
+                        {
+                            _beaconListRefreshTimer = new Timer(CheckListForOldBeacons, null,
+                                Constants.BeaconsListRefreshIntervalInMilliseconds, Constants.BeaconsListRefreshIntervalInMilliseconds);
+                        }
+
+                        // Delay the notification in case there is an immediate error (e.g. when
+                        // the bluetooth is not turned on the device.
+                        _notifyStartedDelayTimer = new Timer(OnNotifyStartedDelayTimeout, null, 500, Timeout.Infinite);
+                    }
+                    else
+                    {
+                        // Notify immediately
+                        if (StatusChanged != null)
+                        {
+                            StatusChanged(this, _status);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Create new Scanner Object.
+        /// &lt;/summary&gt;
+        public Scanner()
+        {
+            _status = ScannerStatus.Stopped;
+            _beaconsContainer = new BeaconContainer();
+        }
+
+        /// &lt;summary&gt;
+        /// Starts the watcher and hooks its events to callbacks.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;manufacturerId&quot;&gt;The manufacturer ID.&lt;/param&gt;
+        /// &lt;param name=&quot;beaconCode&quot;&gt;The beacon code.&lt;/param&gt;
+        /// &lt;param name=&quot;beaconExitTimeoutInMiliseconds&quot;&gt;Time in miliseconds after beacon will be trated as lost.&lt;/param&gt;
+        /// &lt;param name=&quot;rssiEnterThreshold&quot;&gt;Optional rssi threshold which will trigger beacon discover event. Value must be between -128 and 127.&lt;/param&gt;
+        /// &lt;param name=&quot;enterDistanceThreshold&quot;&gt;Optional minimal distance in meters that will trigger beacon discover event.&lt;/param&gt;
+        public void StartWatcher(ushort manufacturerId, ushort beaconCode, ulong beaconExitTimeoutInMiliseconds, short? rssiEnterThreshold = null,
+            ulong? enterDistanceThreshold = null)
+        {
+            _beaconExitTimeout = beaconExitTimeoutInMiliseconds;
+            _enterDistanceThreshold = enterDistanceThreshold;
+
+            if (_beaconExitTimeout &lt; 1000)
+            {
+                _beaconExitTimeout = 1000;
+            }
+
+            if (Status != ScannerStatus.Started)
+            {
+                if (_bluetoothLeAdvertisementWatcher == null)
+                {
+                    _bluetoothLeManufacturerData = BeaconFactory.BeaconManufacturerData(manufacturerId, beaconCode);
+                    _bluetoothLeAdvertisementWatcher = new BluetoothLEAdvertisementWatcher();
+                    _bluetoothLeAdvertisementWatcher.AdvertisementFilter.Advertisement.ManufacturerData.Add(_bluetoothLeManufacturerData);
+                    _bluetoothLeAdvertisementWatcher.SignalStrengthFilter.SamplingInterval = TimeSpan.FromMilliseconds(0);
+                    _bluetoothLeAdvertisementWatcher.SignalStrengthFilter.OutOfRangeTimeout = TimeSpan.FromMilliseconds(_beaconExitTimeout);
+                    _bluetoothLeAdvertisementWatcher.ScanningMode = BluetoothLEScanningMode.Active;
+
+                    if (rssiEnterThreshold != null &amp;&amp; rssiEnterThreshold.Value &gt;= -128 &amp;&amp; rssiEnterThreshold.Value &lt;= 127)
+                    {
+                        _bluetoothLeAdvertisementWatcher.SignalStrengthFilter = new BluetoothSignalStrengthFilter() {InRangeThresholdInDBm = rssiEnterThreshold.Value};
+                    }
+                }
+
+                _bluetoothLeAdvertisementWatcher.Received += OnAdvertisementReceived;
+                _bluetoothLeAdvertisementWatcher.Stopped += OnWatcherStopped;
+                _bluetoothLeAdvertisementWatcher.Start();
+
+                Status = ScannerStatus.Started;
+                Logger.Debug(&quot;Scanner.StartWatcher(): Watcher started&quot;);
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Stops the watcher. The events are unhooked in the callback (OnWatcherStopped).
+        /// &lt;/summary&gt;
+        public void StopWatcher()
+        {
+            if (Status == ScannerStatus.Started)
+            {
+                _bluetoothLeAdvertisementWatcher?.Stop();
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Notifies any listeners about the beacon event.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;beacon&quot;&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;eventType&quot;&gt;&lt;/param&gt;
+        public void NotifyBeaconEvent(Beacon beacon, BeaconEventType eventType)
+        {
+            BeaconEvent?.Invoke(this, new BeaconEventArgs() {Beacon = beacon, EventType = eventType});
+        }
+
+        /// &lt;summary&gt;
+        /// Checks the list of beacons for old beacons. If old enough beacons are found, an
+        /// exit event for them is generated and they are removed from the list.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;state&quot;&gt;&lt;/param&gt;
+        private void CheckListForOldBeacons(object state)
+        {
+            List&lt;Beacon&gt; beacons = _beaconsContainer.RemoveBeaconsBasedOnAge(_beaconExitTimeout);
+
+            foreach (Beacon beacon in beacons)
+            {
+                NotifyBeaconEvent(beacon, BeaconEventType.Exit);
+            }
+
+            beacons = _beaconsContainer.BeaconsBasedOnAge(_beaconExitTimeout);
+
+            if (BeaconNotSeenForAWhile != null)
+            {
+                foreach (Beacon beacon in beacons)
+                {
+                    BeaconNotSeenForAWhile(this, beacon);
+                }
+            }
+
+            if (Status != ScannerStatus.Started &amp;&amp; _beaconsContainer.Count == 0 &amp;&amp; _beaconListRefreshTimer != null)
+            {
+                _beaconListRefreshTimer.Dispose();
+                _beaconListRefreshTimer = null;
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Triggered when the watcher receives an advertisement.
+        /// If the advertisement came from a beacon, a Beacon instance is created based on the
+        /// received data. A new beacon is added to the list and an existing one is only updated.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;sender&quot;&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;args&quot;&gt;&lt;/param&gt;
+        private void OnAdvertisementReceived(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
+        {
+            Logger.Debug(&quot;Scanner: Advertisement received &quot; + args.Timestamp.ToString(&quot;HH:mm:ss.fff&quot;));
+            Beacon beacon = BeaconFactory.BeaconFromBluetoothLeAdvertisementReceivedEventArgs(args);
+
+            if (beacon != null)
+            {
+                if (_enterDistanceThreshold != null &amp;&amp; beacon.Distance &gt; _enterDistanceThreshold.Value)
+                {
+                    return;
+                }
+
+                bool isExistingBeacon = _beaconsContainer.TryUpdate(beacon);
+                Logger.Trace(&quot;Scanner: beacon exists:&quot; + isExistingBeacon + &quot; &quot; + beacon.Id1 + &quot; &quot; + beacon.Id2 + &quot; &quot; + beacon.Id3);
+                if (isExistingBeacon)
+                {
+                    NotifyBeaconEvent(beacon, BeaconEventType.None);
+
+                }
+                else
+                {
+                    _beaconsContainer.Add(beacon);
+                    NotifyBeaconEvent(beacon, BeaconEventType.Enter);
+                }
+            }
+        }
+
+        private void OnWatcherStopped(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementWatcherStoppedEventArgs args)
+        {
+            if (_bluetoothLeAdvertisementWatcher != null)
+            {
+                Logger.Debug(&quot;Scanner: .OnWatcherStopped(): Status: &quot; + _bluetoothLeAdvertisementWatcher.Status);
+
+                Status = _bluetoothLeAdvertisementWatcher.Status == BluetoothLEAdvertisementWatcherStatus.Aborted ? ScannerStatus.Aborted : ScannerStatus.Stopped;
+
+                _bluetoothLeAdvertisementWatcher.Received -= OnAdvertisementReceived;
+                _bluetoothLeAdvertisementWatcher.Stopped -= OnWatcherStopped;
+                _bluetoothLeAdvertisementWatcher = null;
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Sends a delayed notifications about watcher started event.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;state&quot;&gt;&lt;/param&gt;
+        private void OnNotifyStartedDelayTimeout(object state)
+        {
+            if (_notifyStartedDelayTimer != null)
+            {
+                _notifyStartedDelayTimer.Dispose();
+                _notifyStartedDelayTimer = null;
+            }
+
+            StatusChanged?.Invoke(this, _status);
+        }
+
+        public void Dispose()
+        {
+            _beaconListRefreshTimer?.Dispose();
+            _notifyStartedDelayTimer?.Dispose();
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[62,17,62,18,0],[62,19,62,34,0],[62,35,62,36,0],[64,13,64,14,0],[65,17,65,38,0],[66,17,66,18,0],[67,21,67,37,0],[69,21,69,58,0],[70,21,70,22,0],[71,25,71,60,0],[72,25,72,57,0],[73,21,73,22,0],[75,21,75,58,0],[76,21,76,22,0],[77,25,77,61,0],[78,25,78,26,0],[79,29,80,137,0],[81,25,81,26,0],[85,25,85,120,0],[86,21,86,22,0],[88,21,88,22,0],[90,25,90,51,0],[91,25,91,26,0],[92,29,92,58,0],[93,25,93,26,0],[94,21,94,22,0],[95,17,95,18,0],[96,13,96,14,0],[118,9,118,10,0],[119,13,119,65,0],[120,13,120,62,0],[122,13,122,43,0],[123,13,123,14,0],[124,17,124,43,0],[125,13,125,14,0],[127,13,127,49,0],[128,13,128,14,0],[129,17,129,62,0],[130,17,130,18,0],[131,21,131,117,0],[132,21,132,94,0],[133,21,133,139,0],[134,21,134,123,0],[135,21,135,141,0],[136,21,136,100,0],[138,21,138,123,0],[139,21,139,22,0],[140,25,140,168,0],[141,21,141,22,0],[142,17,142,18,0],[144,17,144,86,0],[145,17,145,78,0],[146,17,146,58,0],[148,17,148,48,0],[149,17,149,73,0],[150,13,150,14,0],[151,9,151,10,0],[157,9,157,10,0],[158,13,158,49,0],[159,13,159,14,0],[160,17,160,58,0],[161,13,161,14,0],[162,9,162,10,0],[170,9,170,10,0],[171,13,171,103,0],[172,9,172,10,0],[180,9,180,10,0],[181,13,181,98,0],[183,13,183,20,0],[183,39,183,46,0],[183,22,183,35,0],[184,13,184,14,0],[185,17,185,65,0],[186,13,186,14,0],[183,36,183,38,0],[188,13,188,79,0],[190,13,190,48,0],[191,13,191,14,0],[192,17,192,24,0],[192,43,192,50,0],[192,26,192,39,0],[193,17,193,18,0],[194,21,194,58,0],[195,17,195,18,0],[192,40,192,42,0],[196,13,196,14,0],[198,13,198,116,0],[199,13,199,14,0],[200,17,200,51,0],[201,17,201,48,0],[202,13,202,14,0],[203,9,203,10,0],[213,9,213,10,0],[214,13,214,104,0],[215,13,215,101,0],[217,13,217,32,0],[218,13,218,14,0],[219,17,219,104,0],[220,17,220,18,0],[221,21,221,28,0],[224,17,224,77,0],[225,17,225,133,0],[226,17,226,38,0],[227,17,227,18,0],[228,21,228,69,0],[230,17,230,18,0],[232,17,232,18,0],[233,21,233,51,0],[234,21,234,70,0],[235,17,235,18,0],[236,13,236,14,0],[237,9,237,10,0],[240,9,240,10,0],[241,13,241,58,0],[242,13,242,14,0],[243,17,243,114,0],[245,17,245,163,0],[247,17,247,86,0],[248,17,248,78,0],[249,17,249,57,0],[250,13,250,14,0],[251,9,251,10,0],[258,9,258,10,0],[259,13,259,50,0],[260,13,260,14,0],[261,17,261,52,0],[262,17,262,49,0],[263,13,263,14,0],[265,13,265,50,0],[266,9,266,10,0],[269,9,269,10,0],[270,13,270,48,0],[271,13,271,49,0],[272,9,272,10,0],[29,9,29,107,0],[102,9,102,25,1],[103,9,103,10,1],[104,13,104,45,1],[105,13,105,55,1],[106,9,106,10,1]]);
+    </script>
+  </body>
+</html>

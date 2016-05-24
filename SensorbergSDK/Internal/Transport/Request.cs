@@ -1,19 +1,24 @@
-﻿using System;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
 using System.Collections.Generic;
 
-namespace SensorbergSDK.Internal
+namespace SensorbergSDK.Internal.Transport
 {
     public enum RequestResultState
     {
         None,
         Failed,
         Success
-    };
+    }
 
     public sealed class Request
     {
         private const int DefaultMaxNumberOfRetries = 3;
 
+        [Obsolete]
         public event EventHandler<RequestResultState> Result;
 
         public BeaconEventArgs BeaconEventArgs
@@ -51,12 +56,6 @@ namespace SensorbergSDK.Internal
             private set;
         }
 
-        public bool IsBeingProcessed
-        {
-            get;
-            set;
-        }
-
         public int TryCount
         {
             get;
@@ -72,7 +71,7 @@ namespace SensorbergSDK.Internal
         }
 
         /// <summary>
-        /// Constructor.
+        /// Creates an new Request object.
         /// </summary>
         /// <param name="beaconEventArgs">The beacon event details.</param>
         /// <param name="requestId">The request ID (can be arbitrary).</param>
@@ -81,10 +80,6 @@ namespace SensorbergSDK.Internal
             BeaconEventArgs = beaconEventArgs;
             RequestId = requestId;
             ResultState = RequestResultState.None;
-        }
-         
-        private Request()
-        {
         }
 
         /// <summary>
@@ -96,10 +91,7 @@ namespace SensorbergSDK.Internal
         {
             ResultState = resultState;
 
-            if (Result != null)
-            {
-                Result(this, ResultState);
-            }
+            Result?.Invoke(this, ResultState);
         }
     }
 }

@@ -1,22 +1,28 @@
-﻿using SensorbergSDK.Internal;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Data.Json;
-using Windows.UI.Notifications;
 using Windows.UI.Popups;
-using Windows.UI.Xaml.Navigation;
+using SensorbergSDK.Internal;
 
 namespace SensorbergSDK
 {
+    /// <summary>
+    /// Type of BeaconAction.
+    /// </summary>
     [DataContract]
     public enum BeaconActionType
     {
         UrlMessage = Constants.ActionTypeUrlMessage,
         VisitWebsite = Constants.ActionTypeVisitWebsite,
         InApp = Constants.ActionTypeInApp
-    };
+    }
 
     /// <summary>
     /// Represents an action resolved based on a beacon event.
@@ -25,137 +31,86 @@ namespace SensorbergSDK
     public sealed class BeaconAction
     {
         private const char FieldSeparator = ';'; // For FromString() and ToString()
+        private string _payloadString;
 
         public BeaconAction()
         {
             Payload = null;
         }
 
+        /// <summary>
+        /// Id of action.
+        /// </summary>
         [DataMember]
-        public int Id
-        {
-            get;
-            set;
-        }
+        public int Id { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
+        /// <summary>
+        /// Type of action.
+        /// </summary>
         [DataMember]
-        public BeaconActionType Type
-        {
-            get;
-            set;
-        }
+        public BeaconActionType Type { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
-        [DataMember]
-        public string Uuid
-        {
-            get;
-            set;
-        }
+        /// <summary>
+        /// UUID of action. This is received from the receiver.
+        /// </summary>
+        [DataMember(Name = "eid")]
+        public string Uuid { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
+        /// <summary>
+        /// Subject for the action.
+        /// </summary>
         [DataMember]
-        public string Subject
-        {
-            get;
-            set;
-        }
+        public string Subject { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
+        /// <summary>
+        /// Body of the action.
+        /// </summary>
         [DataMember]
-        public string Body
-        {
-            get;
-            set;
-        }
+        public string Body { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
+        /// <summary>
+        /// URL to open for the action.
+        /// </summary>
         [DataMember]
-        public string Url
+        public string Url { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
+
+        /// <summary>
+        /// String representation of the payload.
+        /// </summary>
+        [DataMember]
+        public string PayloadString
         {
-            get;
-            set;
+            get { return string.IsNullOrEmpty(_payloadString) ? Payload?.ToString() : _payloadString; }
+            set { _payloadString = value; }
         }
 
         /// <summary>
         /// Payload message set for Action on the service. 
         /// Value is null, if payload is not set.
         /// </summary>
-        public JsonObject Payload
-        {
-            get;
-            set;
-        }
+        public JsonObject Payload { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
-        /// <summary>
-        /// Sets the beacon action type based on the given value.
-        /// </summary>
-        /// <param name="type">The type as integer.</param>
-        public void SetType(int type)
-        {
-            switch (type)
-            {
-                case Constants.ActionTypeUrlMessage:
-                    Type = BeaconActionType.UrlMessage;
-                    break;
-                case Constants.ActionTypeVisitWebsite:
-                    Type = BeaconActionType.VisitWebsite;
-                    break;
-                case Constants.ActionTypeInApp:
-                    Type = BeaconActionType.InApp;
-                    break;
-                default:
-                    throw new ArgumentException("Invalid type (" + type + ")");
-            }
-        }
-
-        /// <summary>
-        /// Sets the beacon action type based on the given value.
-        /// </summary>
-        /// <param name="type">The type as string.</param>
-        /// <returns>True, if the type was set. False otherwise.</returns>
-        public bool SetType(string type)
-        {
-            bool wasSet = false;
-
-            if (!string.IsNullOrEmpty(type))
-            {
-                if (type.Equals(BeaconActionType.InApp.ToString()))
-                {
-                    Type = BeaconActionType.InApp;
-                    wasSet = true;
-                }
-                else if (type.Equals(BeaconActionType.UrlMessage.ToString()))
-                {
-                    Type = BeaconActionType.UrlMessage;
-                    wasSet = true;
-                }
-                else if (type.Equals(BeaconActionType.VisitWebsite.ToString()))
-                {
-                    Type = BeaconActionType.VisitWebsite;
-                    wasSet = true;
-                }
-            }
-
-            return wasSet;
-        }
 
         /// <summary>
         /// Validates the received action.
-        /// 
         /// Requirements for each action type:
         /// - URL message: Mandatory: subject, body, URL
         /// - Visit website: Optional: subject, body. Mandatory URL
-        /// - In-app: Optional: subject, body. Mandatory: URL
+        /// - In-app: Optional: subject, body. Mandatory: URL.
         /// </summary>
         /// <returns>True, if valid. False otherwise.</returns>
         public bool Validate()
         {
             bool valid = false;
 
-            switch (Type) {
+            switch (Type)
+            {
                 case BeaconActionType.UrlMessage:
                     if (Subject.Length > 0 && Url.Length > 0 && Body.Length > 0)
                     {
                         valid = true;
                     }
-                        
+
                     break;
                 case BeaconActionType.VisitWebsite:
                 case BeaconActionType.InApp:
@@ -188,96 +143,6 @@ namespace SensorbergSDK
             return webBrowserLaunched;
         }
 
-        /// <summary>
-        /// For convenience. Tries to create a beacon action instance from the parameter of the
-        /// given navigation event arguments.
-        /// </summary>
-        /// <param name="args"></param>
-        /// <returns>A newly created beacon action instance, if successful. Null in case of an error.</returns>
-        public static BeaconAction FromNavigationEventArgs(NavigationEventArgs args)
-        {
-            if (args != null && args.Parameter != null && args.Parameter is string)
-            {
-                return BeaconAction.FromString(args.Parameter as string);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Creates a beacon action instance from the given string.
-        /// </summary>
-        /// <param name="beaconActionAsString">The beacon action as string.</param>
-        /// <returns>A newly created beacon action instance, if successful. Null in case of an error.</returns>
-        public static BeaconAction FromString(string beaconActionAsString)
-        {
-            BeaconAction beaconAction = null;
-
-            if (!string.IsNullOrEmpty(beaconActionAsString))
-            {
-                string[] fields = beaconActionAsString.Split(FieldSeparator);
-
-                if (fields.Length >= 2)
-                {
-                    beaconAction = new BeaconAction();
-
-                    for (int i = 0; i < fields.Length; ++i)
-                    {
-                        if (fields[i].Trim().Length > 0)
-                        {
-                            switch (i)
-                            {
-                                case 0: // Id
-                                    int id = 0;
-
-                                    try
-                                    {
-                                        int.TryParse(fields[i], out id);
-                                    }
-                                    catch (Exception)
-                                    {
-                                    }
-
-                                    beaconAction.Id = id;
-                                    break;
-                                case 1: // Type
-                                    beaconAction.SetType(fields[i]);
-                                    break;
-                                case 2: // Subject
-                                    beaconAction.Subject = fields[i];
-                                    break;
-                                case 3: // Body
-                                    beaconAction.Body = fields[i];
-                                    break;
-                                case 4: // Url
-                                    beaconAction.Url = fields[i];
-                                    break;
-                                case 5: // Payload
-                                    JsonObject payload = null;
-                                    bool jsonObjectParsed = false;
-
-                                    try
-                                    {
-                                        jsonObjectParsed = JsonObject.TryParse(fields[i], out payload);
-                                    }
-                                    catch (Exception)
-                                    {
-                                    }
-
-                                    if (jsonObjectParsed)
-                                    {
-                                        beaconAction.Payload = payload;
-                                    }
-
-                                    break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            return beaconAction;
-        }
 
         /// <summary>
         /// Converts this instance to a string.
@@ -306,16 +171,6 @@ namespace SensorbergSDK
         }
 
         /// <summary>
-        /// Creates a toast notification instance with populates it with data associated to this
-        /// beacon action.
-        /// </summary>
-        /// <returns>A newly created toast notification.</returns>
-        public ToastNotification ToToastNotification()
-        {
-            return NotificationUtils.CreateToastNotification(this);
-        }
-
-        /// <summary>
         /// Creates a message dialog based on the data of this beacon action.
         /// Note that no commands is added to the created dialog.
         /// </summary>
@@ -337,6 +192,44 @@ namespace SensorbergSDK
 
             MessageDialog messageDialog = new MessageDialog(message, Subject);
             return messageDialog;
+        }
+
+        private bool Equals(BeaconAction other)
+        {
+            return Id == other.Id && Type == other.Type && string.Equals(Uuid, other.Uuid) && string.Equals(Subject, other.Subject) && string.Equals(Body, other.Body) &&
+                   string.Equals(Url, other.Url) && Equals(Payload?.ToString(), other.Payload?.ToString());
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            return obj is BeaconAction && Equals((BeaconAction) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Id;
+                hashCode = (hashCode*397) ^ (int) Type;
+                hashCode = (hashCode*397) ^ (Uuid != null ? Uuid.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Subject != null ? Subject.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Body != null ? Body.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Url != null ? Url.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Payload != null ? Payload.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(BeaconAction left, BeaconAction right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(BeaconAction left, BeaconAction right)
+        {
+            return !Equals(left, right);
         }
     }
 }

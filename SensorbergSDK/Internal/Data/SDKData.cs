@@ -1,71 +1,71 @@
-﻿using System;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Diagnostics;
 using Windows.Storage;
 
-namespace SensorbergSDK.Internal
+namespace SensorbergSDK.Internal.Data
 {
-    internal class Constants
-    {
-        public const string XApiKey = "X-Api-Key"; // Application api key / required
-        public const string Xiid = "X-iid"; // Application installation id assigned by SDK / required
-        public const string Xpid = "X-pid"; // Request layout with beacon pid
-        public const string Xgeo = "X-geo"; // Request layout for given geo location
-        public const string Xqos = "X-qos"; // Connection type
-
-        public const string DemoApiKey = "04a709a208c83e2bc0ec66871c46d35af49efde5151032b3e865768bbf878db8";
-
-        public static readonly string LayoutApiUriAsString = "https://resolver.sensorberg.com/layout";
-        public static readonly string ApiUrlTemplate = "https://connect.sensorberg.com/api/beacon/resolve/?proximityId={0}&major={1}&minor={2}&event={3}&deviceId={4}";
-        public static readonly string FilterUrlTemplate = "https://connect.sensorberg.com/api/application/{0}/uuids";
-
-        public static readonly string SensorbergUuidSpace = "7367672374000000ffff0000ffff00";
-
-        public const int ActionTypeUrlMessage = 1;
-        public const int ActionTypeVisitWebsite = 2;
-        public const int ActionTypeInApp = 3;
-
-        public const int Id1LengthWithoutDashes = 32;
-        public const int MinimumLayoutContentLength = 10; // Arbitrary value to make sure that empty layouts are not validated
-        public const int BeaconExitDelayInMilliseconds = 9000;
-    }
-
     /// <summary>
     /// Contains the global SDK data.
     /// </summary>
-    public sealed class SDKData
+    public sealed class SdkData
     {
         private const string KeySensorbergSdkApiKey = "sensorberg_sdk_api_key";
         private const string KeySensorbergSdkGuid = "sensorberg_sdk_guid";
         private const string KeyLayoutBeaconId1Hash = "sensorberg_sdk_layout_uuid_hash";
-        private const string KeySensorbergSdkReportInterval = "sensorberg_sdk_report_interval";
         private const string KeyDatabaseCleaningTime = "sensorberg_sdk_database_cleaning_time";
         private const string KeyBackgroundTaskEnabled = "sensorberg_sdk_background_task_enabled";
-        private const string KeyNewActionsFromBackground = "sensorberg_sdk_new_actions_from_background";
         private const string KeyBackgroundFilterUpdateRequired = "sensorberg_sdk_background_filter_update_required";
-        private const string KeyIncrementalId = "sensorberg_sdk_incremental_id";
+        public const string KeyIncrementalId = "sensorberg_sdk_incremental_id";
         private const string KeyAppIsVisible = "sensorberg_sdk_app_visibility";
         private const string KeyVisibilityLastUpdated = "sensorberg_sdk_visibility_last_updated";
 
-        private const int DefaultReportIntervalInSeconds = 60;
-        private const int AppVisibilityFallbackDelayInSeconds = 60;
+        private const string Userid = "userid";
 
-        private ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
+        private readonly ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
 
-        private static SDKData _instance;
-        public static SDKData Instance
+        private static SdkData _instance;
+        public static SdkData Instance
         {
             get
             {
                 if (_instance == null)
                 {
-                    _instance = new SDKData();
+                    _instance = new SdkData();
                 }
 
                 return _instance;
             }
         }
 
+        public string UserId
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                object id;
+                ApplicationData.Current.LocalSettings.Values.TryGetValue(Userid, out id);
+                string s = id as string;
+                if (s == null)
+                {
+                    s = string.Empty;
+                }
+                return s;
+            }
+            [DebuggerStepThrough] set
+            {
+                string id = value;
+                id = !string.IsNullOrEmpty(id) ? Uri.EscapeDataString(id) : string.Empty;
+                ApplicationData.Current.LocalSettings.Values[Userid] = id;
+            }
+        }
+
         public string ApiKey
         {
+            [DebuggerStepThrough]
             get
             {
                 string apiKey = string.Empty;
@@ -77,6 +77,7 @@ namespace SensorbergSDK.Internal
 
                 return apiKey;
             }
+            [DebuggerStepThrough]
             set
             {
                 if (!_localSettings.Values.ContainsKey(KeySensorbergSdkApiKey)
@@ -89,6 +90,7 @@ namespace SensorbergSDK.Internal
 
         public string DeviceId
         {
+            [DebuggerStepThrough]
             get
             {
                 if (!_localSettings.Values.ContainsKey(KeySensorbergSdkGuid))
@@ -96,12 +98,13 @@ namespace SensorbergSDK.Internal
                     _localSettings.Values[KeySensorbergSdkGuid] = Guid.NewGuid().ToString();
                 }
 
-                return _localSettings.Values[KeySensorbergSdkGuid].ToString();
+                return _localSettings.Values[KeySensorbergSdkGuid] + (string.IsNullOrEmpty(UserId) ? string.Empty : "/" + UserId);
             }
         }
 
         public string LayoutBeaconId1Hash
         {
+            [DebuggerStepThrough]
             get
             {
                 string hash = string.Empty;
@@ -113,6 +116,7 @@ namespace SensorbergSDK.Internal
 
                 return hash;
             }
+            [DebuggerStepThrough]
             set
             {
                 if (!_localSettings.Values.ContainsKey(KeyLayoutBeaconId1Hash)
@@ -125,6 +129,7 @@ namespace SensorbergSDK.Internal
 
         public DateTimeOffset DatabaseCleaningTime
         {
+            [DebuggerStepThrough]
             get
             {
                 if (!_localSettings.Values.ContainsKey(KeyDatabaseCleaningTime))
@@ -134,57 +139,16 @@ namespace SensorbergSDK.Internal
 
                 return (DateTimeOffset)_localSettings.Values[KeyDatabaseCleaningTime];
             }
+            [DebuggerStepThrough]
             set
             {
                 _localSettings.Values[KeyDatabaseCleaningTime] = value;
             }
         }
 
-        public int ReportIntervalInSeconds
-        {
-            get
-            {
-                if (!_localSettings.Values.ContainsKey(KeySensorbergSdkReportInterval))
-                {
-                    _localSettings.Values[KeySensorbergSdkReportInterval] = DefaultReportIntervalInSeconds;
-                }
-
-                return (int)_localSettings.Values[KeySensorbergSdkReportInterval];
-            }
-            set
-            {
-                if (value > 0
-                    && (!_localSettings.Values.ContainsKey(KeySensorbergSdkReportInterval)
-                        || (int)_localSettings.Values[KeySensorbergSdkReportInterval] != value))
-                {
-                    _localSettings.Values[KeySensorbergSdkReportInterval] = value;
-                }
-            }
-        }
-
-        public bool NewActionsFromBackground
-        {
-            get
-            {
-                if (!_localSettings.Values.ContainsKey(KeyNewActionsFromBackground))
-                {
-                    _localSettings.Values[KeyNewActionsFromBackground] = false;
-                }
-
-                return (bool)_localSettings.Values[KeyNewActionsFromBackground];
-            }
-            set
-            {
-                if (!_localSettings.Values.ContainsKey(KeyNewActionsFromBackground)
-                    || !_localSettings.Values[KeyNewActionsFromBackground].Equals(value))
-                {
-                    _localSettings.Values[KeyNewActionsFromBackground] = value;
-                }
-            }
-        }
-
         public bool BackgroundTaskEnabled
         {
+            [DebuggerStepThrough]
             get
             {
                 if (!_localSettings.Values.ContainsKey(KeyBackgroundTaskEnabled))
@@ -194,6 +158,7 @@ namespace SensorbergSDK.Internal
 
                 return (bool)_localSettings.Values[KeyBackgroundTaskEnabled];
             }
+            [DebuggerStepThrough]
             set
             {
                 if (!_localSettings.Values.ContainsKey(KeyBackgroundTaskEnabled)
@@ -206,6 +171,7 @@ namespace SensorbergSDK.Internal
 
         public bool BackgroundFilterUpdateRequired
         {
+            [DebuggerStepThrough]
             get
             {
                 if (!_localSettings.Values.ContainsKey(KeyBackgroundFilterUpdateRequired))
@@ -215,6 +181,7 @@ namespace SensorbergSDK.Internal
 
                 return (bool)_localSettings.Values[KeyBackgroundFilterUpdateRequired];
             }
+            [DebuggerStepThrough]
             set
             {
                 if (!_localSettings.Values.ContainsKey(KeyBackgroundFilterUpdateRequired)
@@ -227,6 +194,7 @@ namespace SensorbergSDK.Internal
 
         public bool AppIsVisible
         {
+            [DebuggerStepThrough]
             get
             {
                 if (_localSettings.Values.ContainsKey(KeyAppIsVisible))
@@ -236,41 +204,12 @@ namespace SensorbergSDK.Internal
 
                 return false;
             }
+            [DebuggerStepThrough]
             set
             {
                 _localSettings.Values[KeyAppIsVisible] = value;
                 _localSettings.Values[KeyVisibilityLastUpdated] = DateTimeOffset.Now;
             }
-        }
-
-        /// <summary>
-        /// Checks, if we should show beacon notifications in the background or not.
-        /// </summary>
-        /// <returns>True, if we should handle the beacons in the background.</returns>
-        public bool ShowNotificationsOnBackground()
-        {
-            bool showNotificationsOnBackground = false;
-
-            if (_localSettings.Values.ContainsKey(KeyAppIsVisible)
-                && _localSettings.Values.ContainsKey(KeyVisibilityLastUpdated))
-            {
-                // We show beacon notifications on background, when KeyVisibilityUpdateTime value
-                // is older than 1 minute or KeyVisibility value is false
-                var lastUpdated = (DateTimeOffset)_localSettings.Values[KeyVisibilityLastUpdated];
-                var appIsVisible = (bool)_localSettings.Values[KeyAppIsVisible];
-
-                if (!appIsVisible
-                    || lastUpdated.AddSeconds(AppVisibilityFallbackDelayInSeconds) < DateTimeOffset.Now)
-                {
-                    showNotificationsOnBackground = true;
-                }
-            }
-            else
-            {
-                showNotificationsOnBackground = true;
-            }
-
-            return showNotificationsOnBackground;
         }
 
         /// <summary>

@@ -1,36 +1,60 @@
-﻿using System;
+﻿// Copyright (c) 2016,  Sensorberg
+// 
+// All rights reserved.
+
+using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Text;
+using SensorbergSDK.Internal.Utils;
 
 namespace SensorbergSDK
 {
+    /// <summary>
+    /// Representation of a beacon, incl. of there properties.
+    /// </summary>
     [DataContract]
     public sealed class Beacon
     {
         private const char HexStringSeparator = '-'; // For UpdatePid()
 
+        /// <summary>
+        /// ManufacturerId of the beacon.
+        /// </summary>
         [DataMember]
-        public UInt16 ManufacturerId
+        public ushort ManufacturerId
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
+        /// <summary>
+        /// BeaconCode of the beacon.
+        /// </summary>
         [DataMember]
-        public UInt16 Code
+        public ushort Code
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
         private string _id1;
+        /// <summary>
+        /// Id1 of the beacon as string representation.
+        /// </summary>
         [DataMember]
         public string Id1
         {
+            [DebuggerStepThrough]
             get
             {
                 return _id1;
             }
+            [DebuggerStepThrough]
             set
             {
                 if (_id1 != value)
@@ -41,14 +65,19 @@ namespace SensorbergSDK
             }
         }
 
-        private UInt16 _id2;
+        private ushort _id2;
+        /// <summary>
+        /// Id2 of the beacon as string representation.
+        /// </summary>
         [DataMember]
-        public UInt16 Id2
+        public ushort Id2
         {
+            [DebuggerStepThrough]
             get
             {
                 return _id2;
             }
+            [DebuggerStepThrough]
             set
             {
                 if (_id2 != value)
@@ -59,14 +88,19 @@ namespace SensorbergSDK
             }
         }
 
-        private UInt16 _id3;
+        private ushort _id3;
+        /// <summary>
+        /// Id3 of the beacon as string representation.
+        /// </summary>
         [DataMember]
-        public UInt16 Id3
+        public ushort Id3
         {
+            [DebuggerStepThrough]
             get
             {
                 return _id3;
             }
+            [DebuggerStepThrough]
             set
             {
                 if (_id3 != value)
@@ -77,9 +111,14 @@ namespace SensorbergSDK
             }
         }
 
+        /// <summary>
+        /// Aux value of the string.
+        /// </summary>
         public byte Aux
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
             
@@ -90,25 +129,37 @@ namespace SensorbergSDK
         [DataMember]
         public string Pid
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             private set;
         }
 
+        /// <summary>
+        /// Proximity distance of beacon.
+        /// </summary>
         [DataMember]
         public double Distance
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             private set;
         }
 
         private int _rawSignalStrengthInDBm;
+        /// <summary>
+        /// Signalstrength from beacon.
+        /// </summary>
         [DataMember]
         public int RawSignalStrengthInDBm
         {
+            [DebuggerStepThrough]
             get
             {
                 return _rawSignalStrengthInDBm;
             }
+            [DebuggerStepThrough]
             set
             {
                 if (_rawSignalStrengthInDBm != value)
@@ -120,13 +171,18 @@ namespace SensorbergSDK
         }
 
         private int _measuredPower;
+        /// <summary>
+        /// Measured prower of beacon.
+        /// </summary>
         [DataMember]
         public int MeasuredPower
         {
+            [DebuggerStepThrough]
             get
             {
                 return _measuredPower;
             }
+            [DebuggerStepThrough]
             set
             {
                 if (_measuredPower != value)
@@ -140,7 +196,9 @@ namespace SensorbergSDK
         [DataMember]
         public DateTimeOffset Timestamp
         {
+            [DebuggerStepThrough]
             get;
+            [DebuggerStepThrough]
             set;
         }
 
@@ -151,9 +209,9 @@ namespace SensorbergSDK
         /// <returns>True, if the beacons match.</returns>
         public bool Matches(Beacon beacon)
         {
-            return beacon.Id1.Equals(Id1)
-                && beacon.Id2 == Id2
-                && beacon.Id3 == Id3;
+            return beacon.Id1 == Id1
+                   && beacon.Id2 == Id2
+                   && beacon.Id3 == Id3;
         }
 
         /// <summary>
@@ -172,7 +230,7 @@ namespace SensorbergSDK
 
         /// <summary>
         /// Updated the beacon PID; The ID 1 (without dashes) + 5 digits ID 2
-        /// (padded with zeros) + 5 digits ID 3 (padded with zeros)
+        /// (padded with zeros) + 5 digits ID 3 (padded with zeros).
         /// </summary>
         private void UpdatePid()
         {
@@ -181,7 +239,7 @@ namespace SensorbergSDK
             string beaconId3 = Id3.ToString();
             beaconId2 = template.Substring(beaconId2.Length) + beaconId2;
             beaconId3 = template.Substring(beaconId3.Length) + beaconId3;
-            string pid = Id1.Replace(HexStringSeparator.ToString(), "") + beaconId2 + beaconId3;
+            string pid = Id1.Replace(HexStringSeparator.ToString(), string.Empty) + beaconId2 + beaconId3;
             Pid = pid.ToLower();
         }
 

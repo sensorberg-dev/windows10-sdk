@@ -1,0 +1,3 @@
+Sensorberg SDK for Windows BETA
+
+This is beta version 0.5 containing binaries build from a snapshot ($date) of the develop branch.

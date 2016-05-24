@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>d:\work\sensorberg\windows10-sdk\sensorbergsdk\internal\data\history.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Created by Kay Czarnotta on 10.05.2016
+// 
+// Copyright (c) 2016,  EagleEye
+// 
+// All rights reserved.
+
+using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+
+namespace SensorbergSDK.Internal.Data
+{
+    /// &lt;summary&gt;
+    /// History, HistoryEvent,HistoryAction are internal classes that used to construct json structure for an HTTP post.
+    /// &lt;/summary&gt;
+    [DataContract]
+    public class History
+    {
+        public const string Timeformat = &quot;yyyy-MM-dd&#39;T&#39;HH:mm:ss.fffzzz&quot;;
+
+        [DataMember(Name = &quot;deviceTimestamp&quot;)]
+        public string DeviceTimestamp { get; set; } = DateTime.UtcNow.ToString(Timeformat);
+        [DataMember(Name= &quot;events&quot;)]
+        public IList&lt;HistoryEvent&gt; Events { get; set; } = new List&lt;HistoryEvent&gt;();
+        [DataMember(Name= &quot;actions&quot;)]
+        public IList&lt;HistoryAction&gt; Actions { get; set; } = new List&lt;HistoryAction&gt;();
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[22,41,22,45,0],[22,46,22,50,0],[24,45,24,49,1],[24,50,24,54,1],[26,47,26,51,1],[26,52,26,56,1],[22,55,22,91,1],[24,59,24,83,1],[26,61,26,86,1]]);
+    </script>
+  </body>
+</html>
