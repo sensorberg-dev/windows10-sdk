@@ -7,6 +7,7 @@ try {
 	stage 'checkout'
     checkout scm//: [$class: 'GitSCM', branches: [[name: '*']], userRemoteConfigs: [[url: 'https://github.com/sensorberg-dev/windows10-sdk.git']], clean: true]
 
+	print env.BUILD_DISPLAY_NAME
 	if(env.BUILD_DISPLAY_NAME.indexOf('Package') != -1) {
 		load 'package.groovy'
 	}
