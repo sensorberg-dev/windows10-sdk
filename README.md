@@ -9,6 +9,15 @@
 
 For Integration instructions please visit our developer hub Windows SDK page and [developer.sensorberg.com/windows10](https://developer.sensorberg.com/windows10/)
 
+# Scripts
+* Jenkinsfile - Build script for the Jenkins Pipeline Pluing to create the SDK
+* Jenkinsfile-package - Build script for the Jenkins Pipeline Pluing to package the SDK
+* package.groovy - Groovy Script for the creation of nuget and VSIX package, is used in Jenkinsfile and Jenkinsfile-package
+* createnuget.bat - Batch Script for creation of the nuget file using the spec file from ``SensorbergSDK\nuget\SensorbergSDK.nuspec``, is used in the package.groovy
+
+# Documentation
+* SensorbergSDK/doxygen - Folder contains doxygen configuration and output
+* [Available under developer.sensorberg.com] (http://sensorberg-dev.github.io/windows10-sdk/documentation/)
 
 # Dependencies
 * Visual Studio 2015
