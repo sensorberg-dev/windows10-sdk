@@ -1,4 +1,4 @@
-
+#!groovy
 node ('Windows') {
     
 try {
@@ -9,7 +9,8 @@ try {
 }
 catch(e) {
     node {
-        emailext body: '$DEFAULT_CONTENT', subject: 'fail $DEFAULT_SUBJECT', to: '$DEFAULT_RECIPIENTS'
+		def sub = env.JOB_NAME+' - Build '+env.BUILD_NUMBER+' - FAILED'
+		emailext body: "${env.JOB_NAME} failed with ${e.message}", subject: sub , to: '$DEFAULT_RECIPIENTS'
     }
     throw e
 }

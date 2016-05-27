@@ -40,7 +40,8 @@ try {
 			bat "\"${vstest}\" /Settings:SensorbergSDKTests\\.runsettings TestProject.appx"
 		}
 		catch(e) {
-			mail subject: "${env.JOB_NAME} Test failed with ${e.message}", to: 'eagleeye@byte-welt.net', body: "${env.JOB_NAME} - ${env.BRANCH_NAME}\nTest Failed: ${e}"
+			def sub = env.JOB_NAME+' - Build '+env.BUILD_NUMBER+' - FAILED'
+			emailext body: "${env.JOB_NAME} Test failed with ${e.message}", subject: sub , to: '$DEFAULT_RECIPIENTS'
 			currentBuild.result = 'UNSTABLE'
 		}
 
@@ -51,14 +52,19 @@ try {
 		bat "\"C:\\Program Files (x86)\\JetBrains\\jb-commandline\\inspectcode.exe\" SensorbergSDKTests.sln /o=ReSharperResult.xml"
 		bat "for /D %%f in (.sonarqube\\out\\SensorbergSDK_x*) do rmdir %%f /s /q"
 		bat "\"${sonarQubeRunner}\\MSBuild.SonarQube.Runner.exe\" end"
+		
+		stage 'build simple app'
+		bat "\"${msbuild}\" /t:Clean,Build /p:Platform=x86 SensorbergSimpleApp.sln"
+		
 	}
 	
-
-    emailext body: '$DEFAULT_CONTENT', subject: '$DEFAULT_SUBJECT', to: '$DEFAULT_RECIPIENTS'
+	def sub = env.JOB_NAME+' - Build '+env.BUILD_NUMBER+' - '+(currentBuild.result == null? "STABLE":currentBuild.result)
+	emailext body: currentBuild.toString(), subject: sub , to: '$DEFAULT_RECIPIENTS'
 }
 catch(e) {
     node {
-        emailext body: '$DEFAULT_CONTENT', subject: 'fail $DEFAULT_SUBJECT', to: '$DEFAULT_RECIPIENTS'
+		def sub = env.JOB_NAME+' - Build '+env.BUILD_NUMBER+' - FAILED'
+		emailext body: "${env.JOB_NAME} failed with ${e.message}", subject: sub , to: '$DEFAULT_RECIPIENTS'
     }
     throw e
 }
