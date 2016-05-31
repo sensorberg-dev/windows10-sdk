@@ -59,11 +59,13 @@ try {
     archive 'VSIX_Packaging/bin/Release/*.vsix'
     archive 'SensorbergSDK*.nupkg'
     
-    emailext body: '$DEFAULT_CONTENT', subject: '$DEFAULT_SUBJECT', to: '$DEFAULT_RECIPIENTS'
+	def sub = env.JOB_NAME+' - Build '+env.BUILD_NUMBER+' - '+(currentBuild.result == null? "STABLE":currentBuild.result)
+	emailext body: currentBuild.toString(), subject: sub , to: '$DEFAULT_RECIPIENTS'
 }
 catch(e) {
     node {
-        emailext body: '$DEFAULT_CONTENT', subject: 'fail $DEFAULT_SUBJECT', to: '$DEFAULT_RECIPIENTS'
+		def sub = env.JOB_NAME+' - Build '+env.BUILD_NUMBER+' - FAILED'
+		emailext body: "${env.JOB_NAME} failed with ${e.message}", subject: sub , to: '$DEFAULT_RECIPIENTS'
     }
     throw e
 }
