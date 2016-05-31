@@ -183,3 +183,7 @@ message dialog with the action content.
 It is also highly recommended to ask the user for the permission to enable the
 background task. You can register and unregister the background task using `SDKManager` methods
 `RegisterBackgroundTaskAsync` and `UnregisterBackgroundTask`.
+
+### 5. Showcase App ###
+You can download the app from https://www.microsoft.com/en-us/store/apps/sensorberg-showcase/9nblggh0drgl
+![QR Code Shocase App](https://chart.googleapis.com/chart?cht=qr&chl=https://www.microsoft.com/en-us/store/apps/sensorberg-showcase/9nblggh0drgl&chs=100x100&choe=UTF-8&chld=L|2)

@@ -38,7 +38,7 @@ namespace SensorbergSDK.Internal.Transport.Converter
                 if (jobject["content"] != null)
                 {
                     serializer.Populate(jobject["content"]?.CreateReader(), resolvedAction.BeaconAction);
-                    resolvedAction.BeaconAction.PayloadString = jobject["content"]["payload"].ToString();
+                    resolvedAction.BeaconAction.PayloadString = jobject["content"]["payload"]?.ToString();
                     // create json object for fallback
                     if(!string.IsNullOrEmpty(resolvedAction.BeaconAction.PayloadString))
                     {
