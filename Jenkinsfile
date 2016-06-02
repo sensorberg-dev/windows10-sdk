@@ -37,7 +37,13 @@ try {
 
 		def vstest = tool 'VSTest'
 		try {
-			bat "\"${vstest}\" /Settings:SensorbergSDKTests\\.runsettings TestProject.appx"
+			try {
+				def myDir = pwd
+				bat "%USERPROFILE%\\Local\\JetBrains\\Installations\\dotCover05\\dotCover.exe cover /TargetExecutable="${vstest}" /TargetArguments="${myDir}\TestProject.appx" /Output=AppCoverageReport.html /ReportType=html"
+			}
+			catch(e) {
+				bat "\"${vstest}\" /Settings:SensorbergSDKTests\\.runsettings TestProject.appx"
+			}
 		}
 		catch(e) {
 			def sub = env.JOB_NAME+' - Build '+env.BUILD_NUMBER+' - FAILED'
