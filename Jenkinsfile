@@ -49,6 +49,7 @@ try {
 			}
 		}
 		catch(e) {
+			e.printStackTrace();
 			def sub = env.JOB_NAME+' - Build '+env.BUILD_NUMBER+' - FAILED'
 			emailext body: "${env.JOB_NAME} Test failed with ${e.message}", subject: sub , to: '$DEFAULT_RECIPIENTS'
 			currentBuild.result = 'UNSTABLE'
