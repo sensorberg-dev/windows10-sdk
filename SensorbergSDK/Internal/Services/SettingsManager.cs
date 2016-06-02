@@ -18,7 +18,6 @@ namespace SensorbergSDK.Internal.Services
         private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<SettingsManager>();
         private const string StorageKey = "app_settings";
         private readonly ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
-        private readonly SdkData _sdkData;
         private Timer _updateSettingsTimer;
         private AppSettings _lastSettings;
 
@@ -28,7 +27,6 @@ namespace SensorbergSDK.Internal.Services
 
         public SettingsManager()
         {
-            _sdkData = SdkData.Instance;
         }
 
         public async Task<AppSettings> GetSettings(bool forceUpdate = false)
@@ -73,7 +71,7 @@ namespace SensorbergSDK.Internal.Services
 
             try
             {
-                var responseMessage = await ServiceManager.ApiConnction.LoadSettings(_sdkData);
+                var responseMessage = await ServiceManager.ApiConnction.LoadSettings();
                 if (string.IsNullOrEmpty(responseMessage))
                 {
                     return null;

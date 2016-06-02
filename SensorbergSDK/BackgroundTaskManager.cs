@@ -97,18 +97,17 @@ namespace SensorbergSDK
         /// <returns>True, if an update is required. False otherwise.</returns>
         public static bool CheckIfBackgroundFilterUpdateIsRequired()
         {
-            SdkData sdkData = SdkData.Instance;
-            bool isRequired = sdkData.BackgroundFilterUpdateRequired;
+            bool isRequired = SdkData.BackgroundFilterUpdateRequired;
 
-            if (!isRequired && !string.IsNullOrEmpty(sdkData.LayoutBeaconId1Hash))
+            if (!isRequired && !string.IsNullOrEmpty(SdkData.LayoutBeaconId1Hash))
             {
                 string upToDateHash = LayoutManager.CreateHashOfBeaconId1SInLayout(ServiceManager.LayoutManager.Layout);
 
                 if (!string.IsNullOrEmpty(upToDateHash)
-                    && !sdkData.LayoutBeaconId1Hash.Equals(upToDateHash))
+                    && !SdkData.LayoutBeaconId1Hash.Equals(upToDateHash))
                 {
-                    sdkData.LayoutBeaconId1Hash = upToDateHash;
-                    sdkData.BackgroundFilterUpdateRequired = true;
+                    SdkData.LayoutBeaconId1Hash = upToDateHash;
+                    SdkData.BackgroundFilterUpdateRequired = true;
                     isRequired = true;
                 }
             }
@@ -238,22 +237,20 @@ namespace SensorbergSDK
 
                 if (result.Success)
                 {
-                    SdkData sdkData = SdkData.Instance;
-
                     // Check if there was a pending filter update
-                    if (sdkData.BackgroundFilterUpdateRequired)
+                    if (SdkData.BackgroundFilterUpdateRequired)
                     {
                         string upToDateHash = LayoutManager.CreateHashOfBeaconId1SInLayout(layoutManager.Layout);
 
-                        if (!string.IsNullOrEmpty(upToDateHash) && sdkData.LayoutBeaconId1Hash.Equals(upToDateHash))
+                        if (!string.IsNullOrEmpty(upToDateHash) && SdkData.LayoutBeaconId1Hash.Equals(upToDateHash))
                         {
                             // Background filter updated successfully
-                            sdkData.BackgroundFilterUpdateRequired = false;
+                            SdkData.BackgroundFilterUpdateRequired = false;
 
                             BackgroundFiltersUpdated?.Invoke(this, null);
                         }
                     }
-                    else if (string.IsNullOrEmpty(sdkData.LayoutBeaconId1Hash))
+                    else if (string.IsNullOrEmpty(SdkData.LayoutBeaconId1Hash))
                     {
                         // This is the first time the background task is registered with valid layout =>
                         // set the hash
@@ -261,7 +258,7 @@ namespace SensorbergSDK
 
                         if (!string.IsNullOrEmpty(upToDateHash))
                         {
-                            sdkData.LayoutBeaconId1Hash = upToDateHash;
+                            SdkData.LayoutBeaconId1Hash = upToDateHash;
                         }
                     }
                 }

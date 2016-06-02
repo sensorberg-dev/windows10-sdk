@@ -43,7 +43,7 @@ namespace SensorbergSDK.Internal.Services
 
         public async Task<int> CreateRequest(BeaconEventArgs beaconEventArgs)
         {
-            int requestId = SdkData.Instance.NextId();
+            int requestId = SdkData.NextId();
             Logger.Debug("Resolver: Beacon " + beaconEventArgs.Beacon.Id1 + " " + beaconEventArgs.Beacon.Id2 + " " + beaconEventArgs.Beacon.Id3 + " ---> Request: " + requestId);
             Request request = new Request(beaconEventArgs, requestId);
             if (SynchronResolver)

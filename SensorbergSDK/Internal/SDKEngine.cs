@@ -70,8 +70,8 @@ namespace SensorbergSDK.Internal
 
         public string UserId
         {
-            [DebuggerStepThrough] get { return SdkData.Instance.UserId; }
-            [DebuggerStepThrough] set { SdkData.Instance.UserId = value; }
+            [DebuggerStepThrough] get { return SdkData.UserId; }
+            [DebuggerStepThrough] set { SdkData.UserId = value; }
         }
 
         /// <summary>
@@ -275,9 +275,9 @@ namespace SensorbergSDK.Internal
         private async Task CleanDatabaseAsync()
         {
             var dateTimeOffset = DateTimeOffset.Now.AddHours(-DatabaseExpirationInHours);
-            if (SdkData.Instance.DatabaseCleaningTime < dateTimeOffset)
+            if (SdkData.DatabaseCleaningTime < dateTimeOffset)
             {
-                SdkData.Instance.DatabaseCleaningTime = DateTimeOffset.Now;
+                SdkData.DatabaseCleaningTime = DateTimeOffset.Now;
                 await ServiceManager.StorageService.CleanupDatabase();
             }
         }
@@ -352,7 +352,7 @@ namespace SensorbergSDK.Internal
 
         private void OnUpdateVisibilityTimerTimeout(object state)
         {
-            SdkData.Instance.AppIsVisible = SdkData.Instance.AppIsVisible;
+            SdkData.AppIsVisible = SdkData.AppIsVisible;
         }
 
         #endregion
