@@ -65,7 +65,6 @@ namespace SensorbergSDK.Internal.Services
 
         private async Task<AppSettings> GetSettingsFromApiAsync()
         {
-
             try
             {
                 var responseMessage = await ServiceManager.ApiConnction.LoadSettings();
