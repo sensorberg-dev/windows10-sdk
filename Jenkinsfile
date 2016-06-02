@@ -42,6 +42,7 @@ try {
 				bat '%USERPROFILE%\\Local\\JetBrains\\Installations\\dotCover05\\dotCover.exe cover /TargetExecutable="${vstest}" /TargetArguments="${myDir}\\TestProject.appx" /Output=AppCoverageReport.html /ReportType=html'
 			}
 			catch(e) {
+				def sub = env.JOB_NAME+' - Build '+env.BUILD_NUMBER+' - FAILED'
 				mailext body: "${env.JOB_NAME} Test failed with ${e.message}", subject: sub , to: '$DEFAULT_RECIPIENTS'
 				bat "\"${vstest}\" /Settings:SensorbergSDKTests\\.runsettings TestProject.appx"
 			}
