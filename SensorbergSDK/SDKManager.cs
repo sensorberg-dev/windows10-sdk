@@ -117,7 +117,7 @@ namespace SensorbergSDK
         /// </summary>
         public bool IsBackgroundTaskEnabled
         {
-            [DebuggerStepThrough] get { return SdkData.Instance.BackgroundTaskEnabled; }
+            [DebuggerStepThrough] get { return SdkData.BackgroundTaskEnabled; }
         }
 
         /// <summary>
@@ -256,16 +256,15 @@ namespace SensorbergSDK
         {
             _logger.Debug("InitializeAsync");
             Configuration = configuration;
-            SdkData sdkData = SdkData.Instance;
 
             if (!IsInitialized)
             {
-                sdkData.ApiKey = configuration.ApiKey;
+                SdkData.ApiKey = configuration.ApiKey;
                 await SdkEngine.InitializeAsync();
                 await InitializeSettingsAsync();
             }
 
-            if (sdkData.BackgroundTaskEnabled)
+            if (SdkData.BackgroundTaskEnabled)
             {
                 _logger.Debug("InitializeAsync#InitializeBackgground");
                 await UpdateBackgroundTaskIfNeededAsync();
@@ -324,7 +323,7 @@ namespace SensorbergSDK
         /// <returns>The registration result.</returns>
         public async Task<BackgroundTaskRegistrationResult> RegisterBackgroundTaskAsync()
         {
-            SdkData.Instance.BackgroundTaskEnabled = true;
+            SdkData.BackgroundTaskEnabled = true;
             return await _backgroundTaskManager.RegisterBackgroundTaskAsync(Configuration);
         }
 
@@ -341,7 +340,7 @@ namespace SensorbergSDK
                 result = await _backgroundTaskManager.UpdateBackgroundTaskAsync(Configuration);
             }
 
-            SdkData.Instance.BackgroundTaskEnabled = true;
+            SdkData.BackgroundTaskEnabled = true;
             return result;
         }
 
@@ -351,7 +350,7 @@ namespace SensorbergSDK
         public void UnregisterBackgroundTask()
         {
             _backgroundTaskManager.UnregisterBackgroundTask();
-            SdkData.Instance.BackgroundTaskEnabled = false;
+            SdkData.BackgroundTaskEnabled = false;
         }
 
         /// <summary>
@@ -404,7 +403,7 @@ namespace SensorbergSDK
         {
             Debug.WriteLine("SDKManager.OnApplicationVisibilityChanged(): "
                             + (e.Visible ? "To visible" : "To not visible"));
-            SdkData.Instance.AppIsVisible = e.Visible;
+            SdkData.AppIsVisible = e.Visible;
         }
 
         /// <summary>

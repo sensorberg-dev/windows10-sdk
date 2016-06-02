@@ -49,8 +49,8 @@ namespace SensorbergSDK
         /// </summary>
         public string UserId
         {
-            get { return SdkData.Instance.UserId; }
-            set { SdkData.Instance.UserId = value; }
+            get { return SdkData.UserId; }
+            set { SdkData.UserId = value; }
         }
 
         /// <summary>

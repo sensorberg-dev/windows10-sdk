@@ -51,7 +51,7 @@ namespace SensorbergSDK.Internal.Services
         /// <returns>The validation result.</returns>
         public async Task<ApiKeyValidationResult> ValidateApiKey(string apiKey)
         {
-            var responseMessage = await ExecuteCall(async () => await ServiceManager.ApiConnction.RetrieveLayoutResponse(SdkData.Instance, apiKey));
+            var responseMessage = await ExecuteCall(async () => await ServiceManager.ApiConnction.RetrieveLayoutResponse(apiKey));
 
             if (responseMessage != null && responseMessage.IsSuccess)
             {
@@ -70,7 +70,7 @@ namespace SensorbergSDK.Internal.Services
 
         public async Task<LayoutResult> RetrieveLayout()
         {
-            ResponseMessage responseMessage = await ExecuteCall(async () => await ServiceManager.ApiConnction.RetrieveLayoutResponse(SdkData.Instance));
+            ResponseMessage responseMessage = await ExecuteCall(async () => await ServiceManager.ApiConnction.RetrieveLayoutResponse());
             if (responseMessage != null && responseMessage.IsSuccess)
             {
                 Layout layout = null;

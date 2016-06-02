@@ -9,9 +9,9 @@ using Windows.Storage;
 namespace SensorbergSDK.Internal.Data
 {
     /// <summary>
-    /// Contains the global SDK data.
+    /// Persisten storage of the sdk related configuration and settings.
     /// </summary>
-    public sealed class SdkData
+    public static class SdkData
     {
         private const string KeySensorbergSdkApiKey = "sensorberg_sdk_api_key";
         private const string KeySensorbergSdkGuid = "sensorberg_sdk_guid";
@@ -22,26 +22,9 @@ namespace SensorbergSDK.Internal.Data
         public const string KeyIncrementalId = "sensorberg_sdk_incremental_id";
         private const string KeyAppIsVisible = "sensorberg_sdk_app_visibility";
         private const string KeyVisibilityLastUpdated = "sensorberg_sdk_visibility_last_updated";
-
         private const string Userid = "userid";
 
-        private readonly ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
-
-        private static SdkData _instance;
-        public static SdkData Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new SdkData();
-                }
-
-                return _instance;
-            }
-        }
-
-        public string UserId
+        public static string UserId
         {
             [DebuggerStepThrough]
             get
@@ -63,16 +46,16 @@ namespace SensorbergSDK.Internal.Data
             }
         }
 
-        public string ApiKey
+        public static string ApiKey
         {
             [DebuggerStepThrough]
             get
             {
                 string apiKey = string.Empty;
 
-                if (_localSettings.Values.ContainsKey(KeySensorbergSdkApiKey))
+                if (ApplicationData.Current.LocalSettings.Values.ContainsKey(KeySensorbergSdkApiKey))
                 {
-                    apiKey = _localSettings.Values[KeySensorbergSdkApiKey].ToString();
+                    apiKey = ApplicationData.Current.LocalSettings.Values[KeySensorbergSdkApiKey].ToString();
                 }
 
                 return apiKey;
@@ -80,38 +63,38 @@ namespace SensorbergSDK.Internal.Data
             [DebuggerStepThrough]
             set
             {
-                if (!_localSettings.Values.ContainsKey(KeySensorbergSdkApiKey)
-                    || !_localSettings.Values[KeySensorbergSdkApiKey].Equals(value))
+                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey(KeySensorbergSdkApiKey)
+                    || !ApplicationData.Current.LocalSettings.Values[KeySensorbergSdkApiKey].Equals(value))
                 {
-                    _localSettings.Values[KeySensorbergSdkApiKey] = value;
+                    ApplicationData.Current.LocalSettings.Values[KeySensorbergSdkApiKey] = value;
                 }
             }
         }
 
-        public string DeviceId
+        public static string DeviceId
         {
             [DebuggerStepThrough]
             get
             {
-                if (!_localSettings.Values.ContainsKey(KeySensorbergSdkGuid))
+                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey(KeySensorbergSdkGuid))
                 {
-                    _localSettings.Values[KeySensorbergSdkGuid] = Guid.NewGuid().ToString();
+                    ApplicationData.Current.LocalSettings.Values[KeySensorbergSdkGuid] = Guid.NewGuid().ToString();
                 }
 
-                return _localSettings.Values[KeySensorbergSdkGuid] + (string.IsNullOrEmpty(UserId) ? string.Empty : "/" + UserId);
+                return ApplicationData.Current.LocalSettings.Values[KeySensorbergSdkGuid] + (string.IsNullOrEmpty(UserId) ? string.Empty : "/" + UserId);
             }
         }
 
-        public string LayoutBeaconId1Hash
+        public static string LayoutBeaconId1Hash
         {
             [DebuggerStepThrough]
             get
             {
                 string hash = string.Empty;
 
-                if (_localSettings.Values.ContainsKey(KeyLayoutBeaconId1Hash))
+                if (ApplicationData.Current.LocalSettings.Values.ContainsKey(KeyLayoutBeaconId1Hash))
                 {
-                    hash = _localSettings.Values[KeyLayoutBeaconId1Hash].ToString();
+                    hash = ApplicationData.Current.LocalSettings.Values[KeyLayoutBeaconId1Hash].ToString();
                 }
 
                 return hash;
@@ -119,87 +102,87 @@ namespace SensorbergSDK.Internal.Data
             [DebuggerStepThrough]
             set
             {
-                if (!_localSettings.Values.ContainsKey(KeyLayoutBeaconId1Hash)
-                    || !_localSettings.Values[KeyLayoutBeaconId1Hash].Equals(value))
+                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey(KeyLayoutBeaconId1Hash)
+                    || !ApplicationData.Current.LocalSettings.Values[KeyLayoutBeaconId1Hash].Equals(value))
                 {
-                    _localSettings.Values[KeyLayoutBeaconId1Hash] = value;
+                    ApplicationData.Current.LocalSettings.Values[KeyLayoutBeaconId1Hash] = value;
                 }
             }
         }
 
-        public DateTimeOffset DatabaseCleaningTime
+        public static DateTimeOffset DatabaseCleaningTime
         {
             [DebuggerStepThrough]
             get
             {
-                if (!_localSettings.Values.ContainsKey(KeyDatabaseCleaningTime))
+                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey(KeyDatabaseCleaningTime))
                 {
-                    _localSettings.Values[KeyDatabaseCleaningTime] = DateTimeOffset.Now;
+                    ApplicationData.Current.LocalSettings.Values[KeyDatabaseCleaningTime] = DateTimeOffset.Now;
                 }
 
-                return (DateTimeOffset)_localSettings.Values[KeyDatabaseCleaningTime];
+                return (DateTimeOffset)ApplicationData.Current.LocalSettings.Values[KeyDatabaseCleaningTime];
             }
             [DebuggerStepThrough]
             set
             {
-                _localSettings.Values[KeyDatabaseCleaningTime] = value;
+                ApplicationData.Current.LocalSettings.Values[KeyDatabaseCleaningTime] = value;
             }
         }
 
-        public bool BackgroundTaskEnabled
+        public static bool BackgroundTaskEnabled
         {
             [DebuggerStepThrough]
             get
             {
-                if (!_localSettings.Values.ContainsKey(KeyBackgroundTaskEnabled))
+                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey(KeyBackgroundTaskEnabled))
                 {
-                    _localSettings.Values[KeyBackgroundTaskEnabled] = false;
+                    ApplicationData.Current.LocalSettings.Values[KeyBackgroundTaskEnabled] = false;
                 }
 
-                return (bool)_localSettings.Values[KeyBackgroundTaskEnabled];
+                return (bool)ApplicationData.Current.LocalSettings.Values[KeyBackgroundTaskEnabled];
             }
             [DebuggerStepThrough]
             set
             {
-                if (!_localSettings.Values.ContainsKey(KeyBackgroundTaskEnabled)
-                    || !_localSettings.Values[KeyBackgroundTaskEnabled].Equals(value))
+                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey(KeyBackgroundTaskEnabled)
+                    || !ApplicationData.Current.LocalSettings.Values[KeyBackgroundTaskEnabled].Equals(value))
                 {
-                    _localSettings.Values[KeyBackgroundTaskEnabled] = value;
+                    ApplicationData.Current.LocalSettings.Values[KeyBackgroundTaskEnabled] = value;
                 }
             }
         }
 
-        public bool BackgroundFilterUpdateRequired
+        public static bool BackgroundFilterUpdateRequired
         {
             [DebuggerStepThrough]
             get
             {
-                if (!_localSettings.Values.ContainsKey(KeyBackgroundFilterUpdateRequired))
+                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey(KeyBackgroundFilterUpdateRequired))
                 {
-                    _localSettings.Values[KeyBackgroundFilterUpdateRequired] = false;
+                    ApplicationData.Current.LocalSettings.Values[KeyBackgroundFilterUpdateRequired] = false;
                 }
 
-                return (bool)_localSettings.Values[KeyBackgroundFilterUpdateRequired];
+                return (bool)ApplicationData.Current.LocalSettings.Values[KeyBackgroundFilterUpdateRequired];
             }
             [DebuggerStepThrough]
             set
             {
-                if (!_localSettings.Values.ContainsKey(KeyBackgroundFilterUpdateRequired)
-                    || !_localSettings.Values[KeyBackgroundFilterUpdateRequired].Equals(value))
+                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey(KeyBackgroundFilterUpdateRequired)
+                    || !ApplicationData.Current.LocalSettings.Values[KeyBackgroundFilterUpdateRequired].Equals(value))
                 {
-                    _localSettings.Values[KeyBackgroundFilterUpdateRequired] = value;
+                    ApplicationData.Current.LocalSettings.Values[KeyBackgroundFilterUpdateRequired] = value;
                 }
             }
         }
 
-        public bool AppIsVisible
+        public static bool AppIsVisible
         {
             [DebuggerStepThrough]
             get
             {
-                if (_localSettings.Values.ContainsKey(KeyAppIsVisible))
+                if (ApplicationData.Current.LocalSettings.Values.ContainsKey(KeyAppIsVisible))
                 {
-                    return (bool)_localSettings.Values[KeyAppIsVisible];
+                    return (bool)ApplicationData.Current.LocalSettings.Values[KeyAppIsVisible];
                 }
 
                 return false;
@@ -207,8 +190,8 @@ namespace SensorbergSDK.Internal.Data
             [DebuggerStepThrough]
             set
             {
-                _localSettings.Values[KeyAppIsVisible] = value;
-                _localSettings.Values[KeyVisibilityLastUpdated] = DateTimeOffset.Now;
+                ApplicationData.Current.LocalSettings.Values[KeyAppIsVisible] = value;
+                ApplicationData.Current.LocalSettings.Values[KeyVisibilityLastUpdated] = DateTimeOffset.Now;
             }
         }
 
@@ -217,14 +200,14 @@ namespace SensorbergSDK.Internal.Data
         /// reset, when the application is restarted.
         /// </summary>
         /// <returns>The next incremental ID.</returns>
-        public int NextId()
+        public static int NextId()
         {
-            if (!_localSettings.Values.ContainsKey(KeyIncrementalId))
+            if (!ApplicationData.Current.LocalSettings.Values.ContainsKey(KeyIncrementalId))
             {
-                _localSettings.Values[KeyIncrementalId] = 0;
+                ApplicationData.Current.LocalSettings.Values[KeyIncrementalId] = 0;
             }
 
-            int id = (int)_localSettings.Values[KeyIncrementalId];
+            int id = (int)ApplicationData.Current.LocalSettings.Values[KeyIncrementalId];
 
             if (id >= int.MaxValue || id < 0)
             {
@@ -232,7 +215,7 @@ namespace SensorbergSDK.Internal.Data
                 id = 0;
             }
 
-            _localSettings.Values[KeyIncrementalId] = id + 1;
+            ApplicationData.Current.LocalSettings.Values[KeyIncrementalId] = id + 1;
             return id;
         }
     }
