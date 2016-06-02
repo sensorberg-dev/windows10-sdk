@@ -21,12 +21,15 @@ using HttpResponseMessage = Windows.Web.Http.HttpResponseMessage;
 
 namespace SensorbergSDK.Internal.Services
 {
+    /// <summary>
+    /// Implementation for the Sensorberg Cloud Backend.
+    /// <see cref="IApiConnection"/>
+    /// </summary>
     public class ApiConnection : IApiConnection
     {
         /// <summary>
         /// Sends a layout request to server and returns the HTTP response, if any.
         /// </summary>
-        /// <param name="data">api key and device id for the request.</param>
         /// <param name="apiId">optional api id, overrides the given id by SDKData.</param>
         /// <returns>A HttpResponseMessage containing the server response or null in case of an error.</returns>
         public async Task<ResponseMessage> RetrieveLayoutResponse(string apiId = null)
@@ -64,7 +67,10 @@ namespace SensorbergSDK.Internal.Services
             return new ResponseMessage() { StatusCode = responseMessage.StatusCode, IsSuccess = responseMessage.IsSuccessStatusCode };
         }
 
-
+        /// <summary>
+        /// Load the Settings from the backend.
+        /// </summary>
+        /// <returns>Returns a JSON formated string.</returns>
         public async Task<string> LoadSettings()
         {
             HttpRequestMessage requestMessage = new HttpRequestMessage();
@@ -83,6 +89,10 @@ namespace SensorbergSDK.Internal.Services
             return responseMessage?.Content.ToString();
         }
 
+        /// <summary>
+        /// Sends the given History object to the cloud.
+        /// </summary>
+        /// <param name="history">History object to send.</param>
         public async Task<ResponseMessage> SendHistory(History history)
         {
             System.Net.Http.HttpClient apiConnection = new System.Net.Http.HttpClient();
@@ -102,6 +112,9 @@ namespace SensorbergSDK.Internal.Services
             return new ResponseMessage() { StatusCode = Convert(responseMessage.StatusCode), IsSuccess = responseMessage.IsSuccessStatusCode };
         }
 
+        /// <summary>
+        /// Helper to convert the status code to the other status code object.
+        /// </summary>
         public static HttpStatusCode Convert(System.Net.HttpStatusCode code)
         {
             switch (code)

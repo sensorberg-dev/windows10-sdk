@@ -8,11 +8,13 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using MetroLog;
 using Newtonsoft.Json;
-using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Services;
 
 namespace SensorbergSDK.Internal.Services
 {
+    /// <summary>
+    /// Implementation of the SettingsManager.
+    /// </summary>
     public sealed class SettingsManager: ISettingsManager, IDisposable
     {
         private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<SettingsManager>();
@@ -23,11 +25,6 @@ namespace SensorbergSDK.Internal.Services
 
         public event EventHandler<SettingsEventArgs> SettingsUpdated;
         public AppSettings DefaultAppSettings { get; set; }
-
-
-        public SettingsManager()
-        {
-        }
 
         public async Task<AppSettings> GetSettings(bool forceUpdate = false)
         {
