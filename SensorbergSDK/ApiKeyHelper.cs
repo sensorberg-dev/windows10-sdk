@@ -47,23 +47,21 @@ namespace SensorbergSDK
         private const string KeyPlatform = "platform";
         private const string PlatformValueWindows = "windows";
 
+
+        /// <summary>
+        /// AuthToken for the Sensorberg backend.
+        /// </summary>
+        public string AuthToken { get; set; }
+
         /// <summary>
         /// Received ApiKey.
         /// </summary>
-        public string ApiKey
-        {
-            get;
-            set;
-        }
+        public string ApiKey { get; set; }
 
         /// <summary>
         /// Application Name.
         /// </summary>
-        public string ApplicationName
-        {
-            get;
-            set;
-        }
+        public string ApplicationName { get; set; }
 
         /// <summary>
         /// Checks whether the given API key is valid or not.
@@ -84,7 +82,83 @@ namespace SensorbergSDK
         public async Task<NetworkResult> FetchApiKeyAsync(string email, string password)
         {
             NetworkResult result;
+            HttpBaseProtocolFilter httpBaseProtocolFilter = new HttpBaseProtocolFilter();
+            httpBaseProtocolFilter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
+            httpBaseProtocolFilter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
+            NetworkResult loginResult = await Login(email, password);
+            if (loginResult != NetworkResult.Success)
+            {
+                return loginResult;
+            }
 
+            if (!string.IsNullOrEmpty(AuthToken))
+            {
+                var client = new HttpClient(httpBaseProtocolFilter);
+                var uri = new Uri(ApplicationsUrl);
+                client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue(AuthToken);
+
+                string responseAsString;
+                try
+                {
+                    responseAsString = await client.GetStringAsync(uri);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("ApiKeyHelper.FetchApiKeyAsync(): Network error: " + ex.Message);
+                    return NetworkResult.NetworkError;
+                }
+
+                var responseAsJsonValue = JsonValue.Parse(responseAsString);
+                result = NetworkResult.NoWindowsCampains;
+
+                if (responseAsJsonValue.ValueType != JsonValueType.Array)
+                {
+                    return result;
+                }
+
+                var applicationsArray = responseAsJsonValue.GetArray();
+
+                // We take the first Windows application from the list
+                foreach (IJsonValue applicationValue in applicationsArray)
+                {
+                    if (applicationValue.ValueType == JsonValueType.Object)
+                    {
+                        JsonObject applicationObject = applicationValue.GetObject();
+
+                        var apiKeyValue = applicationObject[KeyApiKey];
+                        if (apiKeyValue.ValueType == JsonValueType.Null)
+                        {
+                            continue;
+                        }
+
+                        var apiKey = applicationObject.GetNamedString(KeyApiKey);
+
+                        string applicationName = applicationObject.GetNamedString(KeyName);
+                        string platform = applicationObject.GetNamedString(KeyPlatform);
+
+                        if (platform.ToLower().Equals(PlatformValueWindows.ToLower()))
+                        {
+                            ApiKey = apiKey;
+                            ApplicationName = applicationName;
+                            result = NetworkResult.Success;
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                result = NetworkResult.AuthenticationFailed;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Execute a login on the backend.
+        /// </summary>
+        public async Task<NetworkResult> Login(string email, string password)
+        {
             HttpBaseProtocolFilter httpBaseProtocolFilter = new HttpBaseProtocolFilter();
             httpBaseProtocolFilter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
             httpBaseProtocolFilter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
@@ -105,110 +179,47 @@ namespace SensorbergSDK
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("ApiKeyHelper.FetchApiKeyAsync(): Network error: " + ex.Message);
+                {
+                    return NetworkResult.NetworkError;
+                }
+            }
+
+            if (response.StatusCode != HttpStatusCode.Ok)
+            {
+                return response.StatusCode == HttpStatusCode.Unauthorized ? NetworkResult.AuthenticationFailed : NetworkResult.NetworkError;
+            }
+            string responseAsString;
+
+            try
+            {
+                responseAsString = await response.Content.ReadAsStringAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("ApiKeyHelper.FetchApiKeyAsync(): Network error: " + ex.Message);
                 return NetworkResult.NetworkError;
             }
 
-            if (response.StatusCode == HttpStatusCode.Ok)
+            AuthToken = string.Empty;
+
+            try
             {
-                string responseAsString;
+                var responseAsJsonValue = JsonValue.Parse(responseAsString);
 
-                try
+                if (responseAsJsonValue.ValueType == JsonValueType.Object)
                 {
-                    responseAsString = await response.Content.ReadAsStringAsync();
+                    var jsonObject = responseAsJsonValue.GetObject();
+                    var responseObject = jsonObject.GetNamedObject(KeyResponse);
+                    AuthToken = responseObject.GetNamedString(KeyAuthorizationToken);
+                    return NetworkResult.Success;
                 }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine("ApiKeyHelper.FetchApiKeyAsync(): Network error: " + ex.Message);
-                    return NetworkResult.NetworkError;
-                }
-
-                JsonValue responseAsJsonValue;
-                string authToken = string.Empty;
-
-                try
-                {
-                    responseAsJsonValue = JsonValue.Parse(responseAsString);
-
-                    if (responseAsJsonValue.ValueType == JsonValueType.Object)
-                    {
-                        var jsonObject = responseAsJsonValue.GetObject();
-                        var responseObject = jsonObject.GetNamedObject(KeyResponse);
-                        authToken = responseObject.GetNamedString(KeyAuthorizationToken);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine("ApiKeyHelper.FetchApiKeyAsync(): Parsing error: " + ex.Message);
-                    return NetworkResult.ParsingError;
-                }
-
-                if (!string.IsNullOrEmpty(authToken))
-                {
-                    client = new HttpClient(httpBaseProtocolFilter);
-                    uri = new Uri(ApplicationsUrl);
-                    client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue(authToken);
-
-                    try
-                    {
-                        responseAsString = await client.GetStringAsync(uri);
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine("ApiKeyHelper.FetchApiKeyAsync(): Network error: " + ex.Message);
-                        return NetworkResult.NetworkError;
-                    }
-
-                    responseAsJsonValue = JsonValue.Parse(responseAsString);
-                    result = NetworkResult.NoWindowsCampains;
-
-                    if (responseAsJsonValue.ValueType == JsonValueType.Array)
-                    {
-                        var applicationsArray = responseAsJsonValue.GetArray();
-
-                        // We take the first Windows application from the list
-                        foreach (IJsonValue applicationValue in applicationsArray)
-                        {
-                            if (applicationValue.ValueType == JsonValueType.Object)
-                            {
-                                JsonObject applicationObject = applicationValue.GetObject();
-
-                                var apiKeyValue = applicationObject[KeyApiKey];
-                                if (apiKeyValue.ValueType == JsonValueType.Null)
-                                {
-                                    continue;
-                                }
-
-                                var apiKey = applicationObject.GetNamedString(KeyApiKey);
-
-                                string applicationName = applicationObject.GetNamedString(KeyName);
-                                string platform = applicationObject.GetNamedString(KeyPlatform);
-
-                                if (platform.ToLower().Equals(PlatformValueWindows.ToLower()))
-                                {
-                                    ApiKey = apiKey;
-                                    ApplicationName = applicationName;
-                                    result = NetworkResult.Success;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    result = NetworkResult.AuthenticationFailed;
-                }
+                return NetworkResult.ParsingError;
             }
-            else if (response.StatusCode == HttpStatusCode.Unauthorized)
+            catch (Exception ex)
             {
-                result = NetworkResult.AuthenticationFailed;
+                System.Diagnostics.Debug.WriteLine("ApiKeyHelper.FetchApiKeyAsync(): Parsing error: " + ex.Message);
+                return NetworkResult.ParsingError;
             }
-            else
-            {
-                result = NetworkResult.NetworkError;
-            }
-
-            return result;
         }
     }
 }
