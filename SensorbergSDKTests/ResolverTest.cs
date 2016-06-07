@@ -143,9 +143,6 @@ namespace SensorbergSDKTests
             resolver.ActionsResolved += (sender, args) =>
             {
                 requestsList.Add(args);
-            };
-            ((Resolver) resolver).Finished += () =>
-            {
                 if (requestsList.Count == 10)
                 {
                     requestReady.TrySetResult(requestsList);
