@@ -265,6 +265,14 @@ namespace SensorbergSDK.Internal
             StatusChanged?.Invoke(this, _status);
         }
 
+        /// <summary>
+        /// Reset all states of the beacons, so every beacon gets a new ENTER event.
+        /// </summary>
+        public void ResetBeaconState()
+        {
+            _beaconsContainer.Clean();
+        }
+
         public void Dispose()
         {
             _beaconListRefreshTimer?.Dispose();

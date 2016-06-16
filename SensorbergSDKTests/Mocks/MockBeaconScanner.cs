@@ -26,6 +26,11 @@ namespace SensorbergSDKTests.Mocks
         {
         }
 
+        public void ResetBeaconState()
+        {
+            throw new NotImplementedException();
+        }
+
         public void FireBeaconEvent(Beacon beacon, BeaconEventType eventType)
         {
             BeaconEvent?.Invoke(this, new BeaconEventArgs() {Beacon = beacon, EventType = eventType});

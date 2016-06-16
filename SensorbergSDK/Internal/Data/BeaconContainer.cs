@@ -171,5 +171,17 @@ namespace SensorbergSDK.Internal.Data
                 _beacons.Add(beacon);
             }
         }
+
+
+        /// <summary>
+        /// Removes all entries from the container.
+        /// </summary>
+        public void Clean()
+        {
+            lock (_beaconListLock)
+            {
+                _beacons.Clear();
+            }
+        }
     }
 }
