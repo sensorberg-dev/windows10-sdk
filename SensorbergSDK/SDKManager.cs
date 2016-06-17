@@ -23,12 +23,15 @@ namespace SensorbergSDK
         private static ILogger _logger = LogManagerFactory.DefaultLogManager.GetLogger<SDKManager>();
         public static readonly string DemoApiKey = Constants.DemoApiKey;
         private readonly int _startScannerIntervalInMilliseconds = 2000;
-        private AppSettings _appSettings;
         private static SDKManager _instance;
 
         private readonly BackgroundTaskManager _backgroundTaskManager;
         private Timer _startScannerTimer;
 
+        /// <summary>
+        /// Current AppSettings for the app.
+        /// </summary>
+        public AppSettings AppSettings { get; set; }
 
         /// <summary>
         /// Fired when a beacon action has been successfully resolved and is ready to be exeuted.
@@ -144,6 +147,9 @@ namespace SensorbergSDK
             [DebuggerStepThrough] get { return ServiceManager.LayoutManager.IsLayoutValid; }
         }
 
+        /// <summary>
+        /// Default settings for the sdk.
+        /// </summary>
         public AppSettings DefaultAppSettings
         {
             [DebuggerStepThrough] get { return SdkEngine.DefaultAppSettings; }
@@ -222,38 +228,6 @@ namespace SensorbergSDK
         /// </summary>
         public async Task InitializeAsync(SdkConfiguration configuration)
         {
-            await InitializeInternal(configuration);
-        }
-
-        /// <summary>
-        /// Initializes the SDK using the given API key. The scanner can be used separately, but
-        /// the resolving beacon actions cannot be done unless the SDK is initialized.
-        /// If background task is enabled, this method check if there are updates for the
-        /// background task filters available and updates them if so.
-        /// </summary>
-        /// <param name="apiKey">The API key for the Sensorberg service.</param>
-        /// <param name="timerClassName">Full class name of the timer background process, if needed.</param>
-        /// <param name="advertisementClassName">Full class name of the advertisement background process, if needed.</param>
-        /// <param name="uuidSpace">UUID space for the background task, default value is Constants.SensorbergUuidSpace.</param>
-        /// <param name="startScanning">Start the background scanner.</param>
-        [Obsolete("The new method should be used")]
-        public async Task InitializeAsync(string apiKey, string timerClassName = null, string advertisementClassName = null, string uuidSpace = Constants.SensorbergUuidSpace,
-            bool startScanning = true)
-        {
-            await InitializeInternal(new SdkConfiguration()
-            {
-                ApiKey = apiKey,
-                BackgroundTimerClassName = timerClassName,
-                BackgroundAdvertisementClassName = advertisementClassName,
-                BackgroundBeaconUuidSpace = uuidSpace,
-                AutoStartScanner = startScanning,
-                BeaconCode = Configuration != null ? Configuration.BeaconCode : (ushort) 0,
-                ManufacturerId = Configuration != null ? Configuration.ManufacturerId : (ushort) 0
-            });
-        }
-
-        private async Task InitializeInternal(SdkConfiguration configuration)
-        {
             _logger.Debug("InitializeAsync");
             Configuration = configuration;
 
@@ -276,15 +250,42 @@ namespace SensorbergSDK
             }
         }
 
+        /// <summary>
+        /// Initializes the SDK using the given API key. The scanner can be used separately, but
+        /// the resolving beacon actions cannot be done unless the SDK is initialized.
+        /// If background task is enabled, this method check if there are updates for the
+        /// background task filters available and updates them if so.
+        /// </summary>
+        /// <param name="apiKey">The API key for the Sensorberg service.</param>
+        /// <param name="timerClassName">Full class name of the timer background process, if needed.</param>
+        /// <param name="advertisementClassName">Full class name of the advertisement background process, if needed.</param>
+        /// <param name="uuidSpace">UUID space for the background task, default value is Constants.SensorbergUuidSpace.</param>
+        /// <param name="startScanning">Start the background scanner.</param>
+        [Obsolete("The new method should be used")]
+        public async Task InitializeAsync(string apiKey, string timerClassName = null, string advertisementClassName = null, string uuidSpace = Constants.SensorbergUuidSpace,
+            bool startScanning = true)
+        {
+            await InitializeAsync(new SdkConfiguration()
+            {
+                ApiKey = apiKey,
+                BackgroundTimerClassName = timerClassName,
+                BackgroundAdvertisementClassName = advertisementClassName,
+                BackgroundBeaconUuidSpace = uuidSpace,
+                AutoStartScanner = startScanning,
+                BeaconCode = Configuration != null ? Configuration.BeaconCode : (ushort) 0,
+                ManufacturerId = Configuration != null ? Configuration.ManufacturerId : (ushort) 0
+            });
+        }
+
         private void OnSettingsUpdated(object sender, SettingsEventArgs settingsEventArgs)
         {
-            var oldTimeout = _appSettings.BeaconExitTimeout;
-            var oldRssiThreshold = _appSettings.RssiEnterThreshold;
-            var oldDistanceThreshold = _appSettings.EnterDistanceThreshold;
+            var oldTimeout = AppSettings.BeaconExitTimeout;
+            var oldRssiThreshold = AppSettings.RssiEnterThreshold;
+            var oldDistanceThreshold = AppSettings.EnterDistanceThreshold;
 
-            _appSettings = settingsEventArgs.Settings;
+            AppSettings = settingsEventArgs.Settings;
 
-            bool settingsAreTheSame = _appSettings.BeaconExitTimeout == oldTimeout && _appSettings.RssiEnterThreshold == oldRssiThreshold && _appSettings.EnterDistanceThreshold == oldDistanceThreshold;
+            bool settingsAreTheSame = AppSettings.BeaconExitTimeout == oldTimeout && AppSettings.RssiEnterThreshold == oldRssiThreshold && AppSettings.EnterDistanceThreshold == oldDistanceThreshold;
 
             if (settingsAreTheSame)
             {
@@ -365,7 +366,7 @@ namespace SensorbergSDK
                 Scanner.BeaconEvent += OnBeaconEventAsync;
                 InitializeSettingsAsync().ContinueWith(task =>
                 {
-                    Scanner.StartWatcher(Configuration.ManufacturerId, Configuration.BeaconCode, _appSettings.BeaconExitTimeout, _appSettings.RssiEnterThreshold, _appSettings.EnterDistanceThreshold);
+                    Scanner.StartWatcher(Configuration.ManufacturerId, Configuration.BeaconCode, AppSettings.BeaconExitTimeout, AppSettings.RssiEnterThreshold, AppSettings.EnterDistanceThreshold);
                 });
             }
         }
@@ -455,9 +456,9 @@ namespace SensorbergSDK
 
         private async Task InitializeSettingsAsync()
         {
-            if (_appSettings == null)
+            if (AppSettings == null)
             {
-                _appSettings = await ServiceManager.SettingsManager.GetSettings();
+                AppSettings = await ServiceManager.SettingsManager.GetSettings();
                 ServiceManager.SettingsManager.SettingsUpdated += OnSettingsUpdated;
             }
         }

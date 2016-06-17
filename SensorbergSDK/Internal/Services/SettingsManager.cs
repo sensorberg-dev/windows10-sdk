@@ -21,24 +21,24 @@ namespace SensorbergSDK.Internal.Services
         private const string StorageKey = "app_settings";
         private readonly ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
         private Timer _updateSettingsTimer;
-        private AppSettings _lastSettings;
+        public AppSettings AppSettings { get; set; }
 
         public event EventHandler<SettingsEventArgs> SettingsUpdated;
         public AppSettings DefaultAppSettings { get; set; }
 
         public async Task<AppSettings> GetSettings(bool forceUpdate = false)
         {
-            if (_lastSettings != null && !forceUpdate)
+            if (AppSettings != null && !forceUpdate)
             {
-                Logger.Debug("SettingsManager returned settings from cache." + _lastSettings);
-                return _lastSettings;
+                Logger.Debug("SettingsManager returned settings from cache." + AppSettings);
+                return AppSettings;
             }
 
             var settings = (await GetSettingsFromApiAsync() ?? GetSettingsFromStorage()) ?? CreateDefaultSettings();
 
             InitTimer(settings.SettingsUpdateInterval);
 
-            _lastSettings = settings;
+            AppSettings = settings;
             return settings;
         }
 
