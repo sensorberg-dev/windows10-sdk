@@ -45,6 +45,11 @@ namespace SensorbergSDK
         public bool AutoStartScanner { get; set; }
 
         /// <summary>
+        /// Enable or disable the usage of geolocation for the beacon actions.
+        /// </summary>
+        public bool UseLocation { get; set; }
+
+        /// <summary>
         /// Defines an user or advertisement id for collection all the events from a specific user or device.
         /// </summary>
         public string UserId

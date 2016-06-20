@@ -46,6 +46,11 @@ namespace SensorbergSDK.Internal.Services
             HttpClient apiConnection = new HttpClient(baseProtocolFilter);
             apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, string.IsNullOrEmpty(apiId) ? SdkData.ApiKey : apiId);
             apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, SdkData.DeviceId);
+            string geoHash = await ServiceManager.LocationService.GetGeoHashedLocation();
+            if (!string.IsNullOrEmpty(geoHash))
+            {
+                apiConnection.DefaultRequestHeaders.Add(Constants.Xgeo, geoHash);
+            }
             apiConnection.DefaultRequestHeaders.Add(Constants.AdvertisementIdentifierHeader,
                 string.IsNullOrEmpty(SdkData.UserId) ? Windows.System.UserProfile.AdvertisingManager.AdvertisingId : SdkData.UserId);
             HttpResponseMessage responseMessage;

@@ -45,6 +45,8 @@ namespace SensorbergSDK.Internal
         private Timer _getLayoutTimer;
         private DateTimeOffset _nextTimeToProcessDelayedActions;
         private readonly bool _appIsOnForeground;
+        private SdkConfiguration _configuration;
+        private ILocationService _locationService;
         public AppSettings AppSettings { get; set; }
 
         public AppSettings DefaultAppSettings
@@ -74,10 +76,21 @@ namespace SensorbergSDK.Internal
             [DebuggerStepThrough] set { SdkData.UserId = value; }
         }
 
+        public SdkConfiguration Configuration
+        {
+            get { return _configuration; }
+            set
+            {
+                _configuration = value;
+                ServiceManager.LocationService.Configuration = _configuration;
+            }
+        }
+
         /// <summary>
         /// Creates a new Engine object.
         /// </summary>
         /// <param name="createdOnForeground">bool for indication if the engine works on foreground.</param>
+        /// <param name="configuration">Configuration used for the engine.</param>
         public SdkEngine(bool createdOnForeground)
         {
             ServiceManager.Clear();
@@ -86,9 +99,10 @@ namespace SensorbergSDK.Internal
             ServiceManager.LayoutManager = new LayoutManager();
             ServiceManager.StorageService = new StorageService(createdOnForeground);
             ServiceManager.SettingsManager = new SettingsManager();
+            ServiceManager.LocationService = _locationService = new LocationService();
 
             _appIsOnForeground = createdOnForeground;
-            Resolver = new Resolver(!createdOnForeground);
+            Resolver = new Resolver(!createdOnForeground, createdOnForeground);
             _eventHistory = new EventHistory();
             _nextTimeToProcessDelayedActions = DateTimeOffset.MaxValue;
             UnresolvedActionCount = 0;
@@ -133,6 +147,8 @@ namespace SensorbergSDK.Internal
                     var layoutTimeSpam = TimeSpan.FromMilliseconds(AppSettings.LayoutUpdateInterval);
                     _getLayoutTimer = new Timer(OnLayoutUpdatedAsync, null, layoutTimeSpam, layoutTimeSpam);
 
+                    await _locationService.Initialize();
+
                     // Check for possible delayed actions
                     await ProcessDelayedActionsAsync();
                     await CleanDatabaseAsync();
@@ -176,7 +192,8 @@ namespace SensorbergSDK.Internal
             if (IsInitialized && eventArgs.EventType != BeaconEventType.None)
             {
                 UnresolvedActionCount++;
-                await _eventHistory.SaveBeaconEventAsync(eventArgs);
+                string location = await _locationService.GetGeoHashedLocation();
+                await _eventHistory.SaveBeaconEventAsync(eventArgs, location);
                 await Resolver.CreateRequest(eventArgs);
             }
         }
@@ -195,7 +212,7 @@ namespace SensorbergSDK.Internal
                 if (delayedActionData.DueTime < DateTimeOffset.Now.AddSeconds(DelayedActionExecutionTimeframeInSeconds))
                 {
                     // Time to execute
-                    await ExecuteActionAsync(delayedActionData.ResolvedAction, delayedActionData.BeaconPid, delayedActionData.EventTypeDetectedByDevice);
+                    await ExecuteActionAsync(delayedActionData.ResolvedAction, delayedActionData.BeaconPid, delayedActionData.EventTypeDetectedByDevice, delayedActionData.Location);
                     await ServiceManager.StorageService.SetDelayedActionAsExecuted(delayedActionData.Id);
                 }
                 else if (delayedActionData.DueTime < nearestDueTime)
@@ -220,10 +237,7 @@ namespace SensorbergSDK.Internal
         /// <summary>
         /// Executes the given action, stores the event in event history and notifies the listeners.
         /// </summary>
-        /// <param name="resolvedAction"></param>
-        /// <param name="beaconPid"></param>
-        /// <param name="beaconEventType"></param>
-        private async Task ExecuteActionAsync(ResolvedAction resolvedAction, string beaconPid, BeaconEventType beaconEventType)
+        private async Task ExecuteActionAsync(ResolvedAction resolvedAction, string beaconPid, BeaconEventType beaconEventType, string location)
         {
             try
             {
@@ -235,7 +249,7 @@ namespace SensorbergSDK.Internal
                 if (!shouldSupress && !checkOnlyOnce && resolvedAction.IsInsideTimeframes(DateTimeOffset.Now))
                 {
                     Logger.Trace("SDKEngine: ExecuteActionAsync " + beaconPid + " action resolved");
-                    await _eventHistory.SaveExecutedResolvedActionAsync(resolvedAction.BeaconAction, beaconPid, beaconEventType);
+                    await _eventHistory.SaveExecutedResolvedActionAsync(resolvedAction.BeaconAction, beaconPid, beaconEventType, location);
 
                     BeaconActionResolved?.Invoke(this, resolvedAction.BeaconAction);
                 }
@@ -300,7 +314,7 @@ namespace SensorbergSDK.Internal
                     // Delay action execution
                     DateTimeOffset dueTime = DateTimeOffset.Now.AddSeconds((int) action.Delay);
 
-                    await ServiceManager.StorageService.SaveDelayedAction(action, dueTime, e.BeaconPid, action.EventTypeDetectedByDevice);
+                    await ServiceManager.StorageService.SaveDelayedAction(action, dueTime, e.BeaconPid, action.EventTypeDetectedByDevice, e.Location);
 
                     if (_appIsOnForeground && (_processDelayedActionsTimer == null || _nextTimeToProcessDelayedActions > dueTime))
                     {
@@ -316,7 +330,7 @@ namespace SensorbergSDK.Internal
                 {
                     Logger.Debug("SDKEngine: OnBeaconActionResolvedAsync/ExecuteActionAsync " + e.RequestId + " -> Beacon Pid " + e.BeaconPid);
                     // Execute action immediately
-                    await ExecuteActionAsync(action, e.BeaconPid, e.BeaconEventType);
+                    await ExecuteActionAsync(action, e.BeaconPid, e.BeaconEventType, e.Location);
                 }
             }
         }

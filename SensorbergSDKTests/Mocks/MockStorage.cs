@@ -88,9 +88,9 @@ namespace SensorbergSDKTests.Mocks
             DelayedActions.Remove(DelayedActions.FirstOrDefault(d => d.Id == uuid));
         }
 
-        public async Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventType)
+        public async Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventType, string location)
         {
-            DelayedActions.Add(new DelayedActionData() {BeaconPid = beaconPid,DueTime = dueTime, EventTypeDetectedByDevice =  eventType, Id = Guid.NewGuid().ToString(), ResolvedAction = action});
+            DelayedActions.Add(new DelayedActionData() {BeaconPid = beaconPid,DueTime = dueTime, EventTypeDetectedByDevice =  eventType, Id = Guid.NewGuid().ToString(), ResolvedAction = action, Location = location});
             return true;
         }
 

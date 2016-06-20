@@ -5,6 +5,7 @@ using SensorbergSDK;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Services;
 using SensorbergSDKTests.Mocks;
 
 namespace SensorbergSDKTests
@@ -14,7 +15,7 @@ namespace SensorbergSDKTests
     {
         ManualResetEvent _manualEvent = new ManualResetEvent(false);
         Beacon beacon = new Beacon();
-        Resolver res = new Resolver(false);
+        Resolver res = new Resolver(false,false);
         BeaconEventArgs args = new BeaconEventArgs();
         ResolvedActionsEventArgs _e = null;
 
@@ -26,6 +27,7 @@ namespace SensorbergSDKTests
             ServiceManager.LayoutManager = new MockLayoutManager() {FindOneAction = true};
             ServiceManager.SettingsManager = new SettingsManager();
             ServiceManager.StorageService = new StorageService() {Storage = new MockStorage()};
+            ServiceManager.LocationService = new LocationService();
             ServiceManager.ReadOnlyForTests = true;
         }
 

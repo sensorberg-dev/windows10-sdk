@@ -32,15 +32,16 @@ namespace SensorbergSDKTests
             ServiceManager.LayoutManager = new LayoutManager();
             ServiceManager.SettingsManager = new SettingsManager();
             ServiceManager.StorageService = new StorageService() {Storage = new MockStorage()};
+            ServiceManager.LocationService = new LocationService();
             ServiceManager.ReadOnlyForTests = true;
             ApplicationData.Current.LocalSettings.Values.Remove(SdkData.KeyIncrementalId);
         }
 
         [TestMethod]
-        [Timeout(1000)]
+        [Timeout(3000)]
         public async Task ResolveSingleAction()
         {
-            IResolver resolver = new Resolver(true);
+            IResolver resolver = new Resolver(true,false);
             TaskCompletionSource<IList<ResolvedAction>> action = new TaskCompletionSource<IList<ResolvedAction>>();
             resolver.ActionsResolved += (sender, args) =>
             {
@@ -61,7 +62,7 @@ namespace SensorbergSDKTests
         [Timeout(1000)]
         public async Task ResolveMultipleAction()
         {
-            IResolver resolver = new Resolver(true);
+            IResolver resolver = new Resolver(true, false);
             TaskCompletionSource<IList<ResolvedAction>> action = new TaskCompletionSource<IList<ResolvedAction>>();
             resolver.ActionsResolved += (sender, args) =>
             {
@@ -82,7 +83,7 @@ namespace SensorbergSDKTests
         [Timeout(1000)]
         public async Task ResolveSingleActionNoResult()
         {
-            IResolver resolver = new Resolver(true);
+            IResolver resolver = new Resolver(true, false);
             TaskCompletionSource<IList<ResolvedAction>> action = new TaskCompletionSource<IList<ResolvedAction>>();
             resolver.ActionsResolved += (sender, args) =>
             {
@@ -107,7 +108,7 @@ namespace SensorbergSDKTests
         {
             MockLayoutManager layoutManager = new MockLayoutManager();
             layoutManager.FindOneAction = true;
-            IResolver resolver = new Resolver(false);
+            IResolver resolver = new Resolver(false, false);
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.LayoutManager = layoutManager;
             ServiceManager.ReadOnlyForTests = true;
@@ -133,7 +134,7 @@ namespace SensorbergSDKTests
         {
             MockLayoutManager layoutManager = new MockLayoutManager();
             layoutManager.FindOneAction = true;
-            IResolver resolver = new Resolver(false);
+            IResolver resolver = new Resolver(false, false);
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.LayoutManager = layoutManager;
             ServiceManager.ReadOnlyForTests = true;
@@ -175,7 +176,7 @@ namespace SensorbergSDKTests
         {
             MockLayoutManager layoutManager = new MockLayoutManager();
             layoutManager.FindOneAction = true;
-            IResolver resolver = new Resolver(false);
+            IResolver resolver = new Resolver(false, false);
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.LayoutManager = layoutManager;
             ServiceManager.ReadOnlyForTests = true;
@@ -201,9 +202,16 @@ namespace SensorbergSDKTests
             {
                 requestsList.Add(args);
             };
-            ((Resolver) resolver).Finished += () => requestReady.TrySetResult(requestsList);
+            int i = 0;
+            ((Resolver) resolver).Finished += () =>
+            {
+                if (i == 10)
+                {
+                    requestReady.TrySetResult(requestsList);
+                }
+            };
 
-            for (int i = 0; i < 10; i++)
+            for (; i < 10; i++)
             {
                 await resolver.CreateRequest(new BeaconEventArgs()
                 {
@@ -230,7 +238,7 @@ namespace SensorbergSDKTests
         {
             MockLayoutManager layoutManager = new MockLayoutManager();
             layoutManager.FindOneAction = true;
-            IResolver resolver = new Resolver(false);
+            IResolver resolver = new Resolver(false, false);
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.LayoutManager = layoutManager;
             ServiceManager.ReadOnlyForTests = true;
