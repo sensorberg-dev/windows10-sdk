@@ -13,6 +13,7 @@ using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Services;
 using SensorbergSDKTests.Mocks;
 
 namespace SensorbergSDKTests

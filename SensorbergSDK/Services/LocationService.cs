@@ -16,6 +16,7 @@ namespace SensorbergSDK.Services
     /// </summary>
     public class LocationService : ILocationService
     {
+        private const int HashLength = 6;
         private Geolocator _locator;
         public SdkConfiguration Configuration { get; set; }
 
@@ -38,7 +39,7 @@ namespace SensorbergSDK.Services
             Geoposition position = await GetLocation();
             if (position != null)
             {
-                return GeoHash.Encode(position.Coordinate.Latitude, position.Coordinate.Longitude, 6);
+                return GeoHash.Encode(position.Coordinate.Latitude, position.Coordinate.Longitude, HashLength);
             }
             return null;
         }

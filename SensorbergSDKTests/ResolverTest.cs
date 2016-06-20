@@ -38,7 +38,7 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
-        [Timeout(1000)]
+        [Timeout(3000)]
         public async Task ResolveSingleAction()
         {
             IResolver resolver = new Resolver(true,false);

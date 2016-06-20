@@ -5,6 +5,7 @@ using SensorbergSDK;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Services;
 using SensorbergSDKTests.Mocks;
 
 namespace SensorbergSDKTests
@@ -26,6 +27,7 @@ namespace SensorbergSDKTests
             ServiceManager.LayoutManager = new MockLayoutManager() {FindOneAction = true};
             ServiceManager.SettingsManager = new SettingsManager();
             ServiceManager.StorageService = new StorageService() {Storage = new MockStorage()};
+            ServiceManager.LocationService = new LocationService();
             ServiceManager.ReadOnlyForTests = true;
         }
 

@@ -59,7 +59,8 @@ namespace SensorbergSDK.Internal.Services
 
         public static ILayoutManager LayoutManager
         {
-            [DebuggerStepThrough] get { return _layoutManager; }
+            [DebuggerStepThrough]
+            get { return _layoutManager; }
             [DebuggerStepThrough]
             set
             {
@@ -109,6 +110,7 @@ namespace SensorbergSDK.Internal.Services
             _layoutManager = null;
             _storageService = null;
             _settingsManager = null;
+            _locationService = null;
             ReadOnlyForTests = false;
         }
     }
