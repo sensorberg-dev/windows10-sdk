@@ -20,7 +20,7 @@ namespace SensorbergSimpleApp
          * Insert your API key for Sensorberg service and the manufacturer ID and beacon code for
          * filtering beacons below.
          */
-        private const string ApiKey = "f03551dc60a4a2c02d85257cc16d7f7131c9b778a264e6e0501429e046e80791";
+        private const string ApiKey = "af24473d3ccb1d7a34307747531f06c25f08de361a5349389bbbe39274bf08cd";
         private const ushort ManufacturerId = 0x004c;
         private const ushort BeaconCode = 0x0215;
 
