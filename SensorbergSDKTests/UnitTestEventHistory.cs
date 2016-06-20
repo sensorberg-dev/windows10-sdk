@@ -48,7 +48,7 @@ namespace SensorbergSDKTests
 
             EventHistory eventHistory = new EventHistory();
 
-            await eventHistory.SaveBeaconEventAsync(args);
+            await eventHistory.SaveBeaconEventAsync(args, null);
             await eventHistory.SaveExecutedResolvedActionAsync(resolvedActionEventArgs, beaconaction1);
             await eventHistory.SaveExecutedResolvedActionAsync(resolvedActionEventArgs, beaconaction3);
             await Task.Delay(2000);
@@ -85,7 +85,7 @@ namespace SensorbergSDKTests
 
             EventHistory eventHistory = new EventHistory();
 
-            await eventHistory.SaveBeaconEventAsync(args);
+            await eventHistory.SaveBeaconEventAsync(args, null);
             await eventHistory.SaveExecutedResolvedActionAsync(resolvedActionEventArgs, beaconaction1);
             await eventHistory.SaveExecutedResolvedActionAsync(resolvedActionEventArgs, beaconaction3);
 

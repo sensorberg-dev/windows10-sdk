@@ -74,7 +74,7 @@ namespace SensorbergSDKTests
 
             await storage.InitStorage();
 
-            Assert.IsTrue(await storage.SaveDelayedAction(action, DateTimeOffset.Parse("2015-04-16T12:00:00.000+0000"), "1", BeaconEventType.Enter));
+            Assert.IsTrue(await storage.SaveDelayedAction(action, DateTimeOffset.Parse("2015-04-16T12:00:00.000+0000"), "1", BeaconEventType.Enter, "1"));
 
             IList<DelayedActionData> delayedActions = await storage.GetDelayedActions();
             Assert.AreEqual(1, delayedActions.Count, "to many actions found");
@@ -126,7 +126,7 @@ namespace SensorbergSDKTests
                 new Timeframe() {End = DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), Start = DateTimeOffset.Parse("2014-04-15T12:00:00.000+0000")}
             };
 
-            Assert.IsTrue(await storage.SaveDelayedAction(action, DateTimeOffset.Parse("2015-05-16T12:00:00.000+0000"), "2", BeaconEventType.EnterExit));
+            Assert.IsTrue(await storage.SaveDelayedAction(action, DateTimeOffset.Parse("2015-05-16T12:00:00.000+0000"), "2", BeaconEventType.EnterExit, null));
 
 
             delayedActions = await storage.GetDelayedActions();
@@ -200,10 +200,10 @@ namespace SensorbergSDKTests
         {
             await storage.InitStorage();
 
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit)));
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter, "1")));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit, "2")));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, "")));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, null)));
 
             IList<HistoryAction> historyActions = await storage.GetUndeliveredActions();
             Assert.AreEqual(4, historyActions.Count, "Not 4 actions");
@@ -266,10 +266,10 @@ namespace SensorbergSDKTests
         {
             await storage.InitStorage();
 
-            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit)));
-            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T16:00:00.000+0000"), BeaconEventType.EnterExit)));
-            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("2", DateTimeOffset.Parse("2016-04-16T17:00:00.000+0000"), BeaconEventType.Enter)));
+            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter, "1")));
+            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit, "2")));
+            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T16:00:00.000+0000"), BeaconEventType.EnterExit, "")));
+            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("2", DateTimeOffset.Parse("2016-04-16T17:00:00.000+0000"), BeaconEventType.Enter, null)));
 
             IList<HistoryEvent> historyEvents = await storage.GetUndeliveredEvents();
             HistoryEvent historyEvent = historyEvents.FirstOrDefault(h => h.EventTime == "2016-04-16T15:00:00.000+00:00");
@@ -291,13 +291,13 @@ namespace SensorbergSDKTests
         {
             await storage.InitStorage();
 
-            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit)));
-            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T16:00:00.000+0000"), BeaconEventType.EnterExit)));
-            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("2", DateTimeOffset.Parse("2016-04-16T17:00:00.000+0000"), BeaconEventType.Enter)));
+            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter, "1")));
+            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit, "2")));
+            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T16:00:00.000+0000"), BeaconEventType.EnterExit, "")));
+            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("2", DateTimeOffset.Parse("2016-04-16T17:00:00.000+0000"), BeaconEventType.Enter, null)));
 
             IList<HistoryEvent> historyEvents = await storage.GetUndeliveredEvents();
-            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("3", DateTimeOffset.Parse("2016-04-16T17:00:00.000+0000"), BeaconEventType.Enter)));
+            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("3", DateTimeOffset.Parse("2016-04-16T17:00:00.000+0000"), BeaconEventType.Enter, "12")));
             await storage.SetEventsAsDelivered();
 
             historyEvents = await storage.GetUndeliveredEvents();
@@ -309,15 +309,15 @@ namespace SensorbergSDKTests
         {
             await storage.InitStorage();
 
-            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2015-04-16T15:00:00.000+0000"), BeaconEventType.Exit)));
-            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2015-04-16T16:00:00.000+0000"), BeaconEventType.EnterExit)));
-            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("2", DateTimeOffset.Parse("2015-04-16T17:00:00.000+0000"), BeaconEventType.Enter)));
+            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.Enter, "1")));
+            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2015-04-16T15:00:00.000+0000"), BeaconEventType.Exit, "2")));
+            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2015-04-16T16:00:00.000+0000"), BeaconEventType.EnterExit, "")));
+            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("2", DateTimeOffset.Parse("2015-04-16T17:00:00.000+0000"), BeaconEventType.Enter, null)));
 
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2015-04-16T12:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2015-04-16T13:00:00.000+0000"), BeaconEventType.Exit)));
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "3", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "2", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2015-04-16T12:00:00.000+0000"), BeaconEventType.Enter, "1")));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2015-04-16T13:00:00.000+0000"), BeaconEventType.Exit, "2")));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "3", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, "")));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "2", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, null)));
 
             Assert.AreEqual(4, (await storage.GetUndeliveredEvents()).Count, "not enough Undelivered Events found");
             Assert.AreEqual(4, (await storage.GetUndeliveredActions()).Count, "not enough Undelivered Actions found");
@@ -334,15 +334,15 @@ namespace SensorbergSDKTests
             Assert.AreEqual(0, (await storage.GetActions("1")).Count, "remaining Actions found");
 
 
-            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2015-04-16T15:00:00.000+0000"), BeaconEventType.Exit)));
-            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2015-04-16T16:00:00.000+0000"), BeaconEventType.EnterExit)));
-            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("2", DateTimeOffset.Parse("2015-04-16T17:00:00.000+0000"), BeaconEventType.Enter)));
+            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.Enter, "1")));
+            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2015-04-16T15:00:00.000+0000"), BeaconEventType.Exit, "2")));
+            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2015-04-16T16:00:00.000+0000"), BeaconEventType.EnterExit, "")));
+            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("2", DateTimeOffset.Parse("2015-04-16T17:00:00.000+0000"), BeaconEventType.Enter, null)));
 
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2015-04-16T12:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2015-04-16T13:00:00.000+0000"), BeaconEventType.Exit)));
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "3", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "2", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2015-04-16T12:00:00.000+0000"), BeaconEventType.Enter, "1")));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2015-04-16T13:00:00.000+0000"), BeaconEventType.Exit, "2")));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "3", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, "")));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "2", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, null)));
 
             await storage.CleanDatabase();
 
@@ -356,10 +356,10 @@ namespace SensorbergSDKTests
             IStorage foregroundStorage = storage;
             await foregroundStorage.InitStorage();
 
-            Assert.IsTrue(await foregroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await foregroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit)));
-            Assert.IsTrue(await foregroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T16:00:00.000+0000"), BeaconEventType.EnterExit)));
-            Assert.IsTrue(await foregroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("2", DateTimeOffset.Parse("2016-04-16T17:00:00.000+0000"), BeaconEventType.Enter)));
+            Assert.IsTrue(await foregroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter, "1")));
+            Assert.IsTrue(await foregroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit, "2")));
+            Assert.IsTrue(await foregroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T16:00:00.000+0000"), BeaconEventType.EnterExit, "")));
+            Assert.IsTrue(await foregroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("2", DateTimeOffset.Parse("2016-04-16T17:00:00.000+0000"), BeaconEventType.Enter, null)));
 
             IList<HistoryEvent> historyEvents = await foregroundStorage.GetUndeliveredEvents();
             HistoryEvent historyEvent = historyEvents.FirstOrDefault(h => h.EventTime == "2016-04-16T15:00:00.000+00:00");
@@ -376,10 +376,10 @@ namespace SensorbergSDKTests
             IStorage backgroundStorage = new FileStorage() {Background = true};
             await backgroundStorage.InitStorage();
 
-            Assert.IsTrue(await backgroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("3", DateTimeOffset.Parse("2016-04-15T14:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await backgroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("3", DateTimeOffset.Parse("2016-04-15T15:00:00.000+0000"), BeaconEventType.Exit)));
-            Assert.IsTrue(await backgroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("3", DateTimeOffset.Parse("2016-04-15T16:00:00.000+0000"), BeaconEventType.EnterExit)));
-            Assert.IsTrue(await backgroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("4", DateTimeOffset.Parse("2016-04-15T17:00:00.000+0000"), BeaconEventType.Enter)));
+            Assert.IsTrue(await backgroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("3", DateTimeOffset.Parse("2016-04-15T14:00:00.000+0000"), BeaconEventType.Enter, "1")));
+            Assert.IsTrue(await backgroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("3", DateTimeOffset.Parse("2016-04-15T15:00:00.000+0000"), BeaconEventType.Exit, "2")));
+            Assert.IsTrue(await backgroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("3", DateTimeOffset.Parse("2016-04-15T16:00:00.000+0000"), BeaconEventType.EnterExit, "")));
+            Assert.IsTrue(await backgroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("4", DateTimeOffset.Parse("2016-04-15T17:00:00.000+0000"), BeaconEventType.Enter, null)));
 
             historyEvents = await backgroundStorage.GetUndeliveredEvents();
             historyEvent = historyEvents.FirstOrDefault(h => h.EventTime == "2016-04-15T15:00:00.000+00:00");
@@ -401,15 +401,15 @@ namespace SensorbergSDKTests
             IStorage backgroundStorage = new FileStorage() {Background = true};
             await backgroundStorage.InitStorage();
 
-            Assert.IsTrue(await foregroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await foregroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit)));
-            Assert.IsTrue(await foregroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T16:00:00.000+0000"), BeaconEventType.EnterExit)));
-            Assert.IsTrue(await foregroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("2", DateTimeOffset.Parse("2016-04-16T17:00:00.000+0000"), BeaconEventType.Enter)));
+            Assert.IsTrue(await foregroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter, "1")));
+            Assert.IsTrue(await foregroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit, "2")));
+            Assert.IsTrue(await foregroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T16:00:00.000+0000"), BeaconEventType.EnterExit, "")));
+            Assert.IsTrue(await foregroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("2", DateTimeOffset.Parse("2016-04-16T17:00:00.000+0000"), BeaconEventType.Enter, null)));
 
-            Assert.IsTrue(await backgroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("3", DateTimeOffset.Parse("2016-04-15T14:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await backgroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("3", DateTimeOffset.Parse("2016-04-15T15:00:00.000+0000"), BeaconEventType.Exit)));
-            Assert.IsTrue(await backgroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("3", DateTimeOffset.Parse("2016-04-15T16:00:00.000+0000"), BeaconEventType.EnterExit)));
-            Assert.IsTrue(await backgroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("4", DateTimeOffset.Parse("2016-04-15T17:00:00.000+0000"), BeaconEventType.Enter)));
+            Assert.IsTrue(await backgroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("3", DateTimeOffset.Parse("2016-04-15T14:00:00.000+0000"), BeaconEventType.Enter, "1")));
+            Assert.IsTrue(await backgroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("3", DateTimeOffset.Parse("2016-04-15T15:00:00.000+0000"), BeaconEventType.Exit, "2")));
+            Assert.IsTrue(await backgroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("3", DateTimeOffset.Parse("2016-04-15T16:00:00.000+0000"), BeaconEventType.EnterExit, "")));
+            Assert.IsTrue(await backgroundStorage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("4", DateTimeOffset.Parse("2016-04-15T17:00:00.000+0000"), BeaconEventType.Enter, null)));
 
             //verify every storage api accesses every data
             IList<HistoryEvent> historyEvents = await backgroundStorage.GetUndeliveredEvents();
@@ -452,10 +452,10 @@ namespace SensorbergSDKTests
             IStorage backgroundStorage = new FileStorage() {Background = true};
             await backgroundStorage.InitStorage();
 
-            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit)));
-            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
-            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
+            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter, "1")));
+            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit, "2")));
+            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, "")));
+            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, null)));
 
             IList<HistoryAction> historyActions = await foregroundStorage.GetUndeliveredActions();
             Assert.AreEqual(4, historyActions.Count, "Not 4 actions");
@@ -491,10 +491,10 @@ namespace SensorbergSDKTests
 
             Assert.IsNotNull(await foregroundStorage.GetActions("3"), "no delivered message found");
 
-            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("4", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("5", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit)));
-            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("6", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
-            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("6", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
+            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("4", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter, "1")));
+            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("5", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit, "2")));
+            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("6", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, "")));
+            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("6", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, null)));
 
             historyActions = await backgroundStorage.GetUndeliveredActions();
             Assert.AreEqual(4, historyActions.Count, "Not 4 actions");
@@ -536,23 +536,25 @@ namespace SensorbergSDKTests
             IStorage backgroundStorage = new FileStorage() {Background = true};
             await backgroundStorage.InitStorage();
 
-            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit)));
-            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
-            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
-            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("4", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("5", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit)));
-            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("6", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
-            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("6", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
+            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter, "1")));
+            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit, "2")));
+            Assert.IsTrue(
+                await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, "31231231")));
+            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, "")));
+            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("4", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter, null)));
+            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("5", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit, "")));
+            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("6", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, null)));
+            Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("6", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, null)));
 
-            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit)));
-            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
-            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
-            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("4", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("5", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit)));
-            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("6", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
-            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("6", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
+            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter, "1")));
+            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit, "2")));
+            Assert.IsTrue(
+                await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, "31231231")));
+            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, "")));
+            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("4", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter, null)));
+            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("5", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit, "")));
+            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("6", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, null)));
+            Assert.IsTrue(await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("6", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, null)));
 
 
             IList<HistoryAction> historyActions = await backgroundStorage.GetUndeliveredActions();
@@ -591,8 +593,8 @@ namespace SensorbergSDKTests
         public async Task TestFileLock()
         {
             await storage.InitStorage();
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit)));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter, "1")));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit, "2")));
 
             StorageFolder folder = await ((FileStorage) storage).GetFolder(FileStorage.ForegroundActionsFolder);
             StorageFile file = await folder.CreateFileAsync(FileStorage.ActionsFileName, CreationCollisionOption.OpenIfExists);
@@ -604,17 +606,17 @@ namespace SensorbergSDKTests
                     Task.Delay(200);
                     randomAccessStream.Dispose();
                 }).ConfigureAwait(false);
-                await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter));
+                await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter, ""));
             }
             using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
             {
-                Assert.IsFalse(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit)));
+                Assert.IsFalse(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit, null)));
                 randomAccessStream.Dispose();
             }
             folder = await ((FileStorage) storage).GetFolder(FileStorage.ForegroundEventsFolder);
             file = await folder.CreateFileAsync("1", CreationCollisionOption.OpenIfExists);
-            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit)));
+            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter, "1")));
+            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit, "2")));
 
             using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
             {
@@ -623,11 +625,11 @@ namespace SensorbergSDKTests
                     Task.Delay(200);
                     randomAccessStream.Dispose();
                 }).ConfigureAwait(false);
-                await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter));
+                await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter, "1"));
             }
             using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
             {
-                Assert.IsFalse(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit)));
+                Assert.IsFalse(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit, "2")));
                 randomAccessStream.Dispose();
             }
         }
@@ -654,10 +656,10 @@ namespace SensorbergSDKTests
         public async Task HistoryBeaconActionTest()
         {
             await storage.InitStorage();
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit)));
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter, "1")));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit, "2")));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, "")));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, null)));
 
             IList<HistoryAction> historyActions = await storage.GetUndeliveredActions();
             Assert.AreEqual(4, historyActions.Count, "Not 4 actions");
@@ -687,10 +689,10 @@ namespace SensorbergSDKTests
         public async Task CleanupActionDatabaseTest()
         {
             await storage.InitStorage();
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit)));
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit)));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter, "1")));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit, "2")));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, "")));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, null)));
 
             await storage.GetUndeliveredActions();
             await storage.SetActionsAsDelivered();
@@ -700,13 +702,13 @@ namespace SensorbergSDKTests
             Assert.AreEqual(0, (await storage.GetActions("1")).Count, "Action found, not all actions where removed");
 
 
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter)));
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit)));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter, "1")));
+            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit, "2")));
             Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "3",
                 DateTimeOffset.Parse(string.Format("{0}-{1}-{2}T14:00:00.000+0000", DateTime.Now.AddDays(-2).Year, DateTime.Now.AddDays(-2).Month, DateTime.Now.AddDays(-2).Day)),
-                BeaconEventType.EnterExit)));
+                BeaconEventType.EnterExit, "")));
             Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "2",
-                DateTimeOffset.Parse(string.Format("{0}-{1}-{2}T14:00:00.000+0000", DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day)), BeaconEventType.EnterExit)));
+                DateTimeOffset.Parse(string.Format("{0}-{1}-{2}T14:00:00.000+0000", DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day)), BeaconEventType.EnterExit, null)));
 
             await storage.GetUndeliveredActions();
             await storage.SetActionsAsDelivered();

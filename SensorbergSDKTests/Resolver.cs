@@ -14,7 +14,7 @@ namespace SensorbergSDKTests
     {
         ManualResetEvent _manualEvent = new ManualResetEvent(false);
         Beacon beacon = new Beacon();
-        Resolver res = new Resolver(false);
+        Resolver res = new Resolver(false,false);
         BeaconEventArgs args = new BeaconEventArgs();
         ResolvedActionsEventArgs _e = null;
 

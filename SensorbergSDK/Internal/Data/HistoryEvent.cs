@@ -18,6 +18,8 @@ namespace SensorbergSDK.Internal.Data
         public string EventTime { get; set; }
         [DataMember(Name = "trigger")]
         public int Trigger { get; set; }
+        [DataMember(Name = "location")]
+        public string Location { get; set; }
 
         public bool Delivered { get; set; }
     }

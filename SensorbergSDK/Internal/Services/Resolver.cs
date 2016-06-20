@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Devices.Geolocation;
 using MetroLog;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Transport;
@@ -17,6 +18,7 @@ namespace SensorbergSDK.Internal.Services
 {
     public class Resolver : IResolver
     {
+        private readonly bool _createdOnForeground;
         private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<Resolver>();
         public event EventHandler<ResolvedActionsEventArgs> ActionsResolved;
         public event EventHandler<string> FailedToResolveActions;
@@ -27,8 +29,9 @@ namespace SensorbergSDK.Internal.Services
         private CancellationTokenSource CancelToken { get; set; }
         public bool SynchronResolver { get; }
 
-        public Resolver(bool synchron)
+        public Resolver(bool synchron, bool createdOnForeground)
         {
+            _createdOnForeground = createdOnForeground;
             SynchronResolver = synchron;
 
             if (!SynchronResolver)
@@ -150,7 +153,7 @@ namespace SensorbergSDK.Internal.Services
             }
         }
 
-        private void OnRequestServed(object sender, RequestResultState e)
+        private async void OnRequestServed(object sender, RequestResultState e)
         {
             Request request = sender as Request;
 
@@ -166,7 +169,7 @@ namespace SensorbergSDK.Internal.Services
                         eventArgs.ResolvedActions = request.ResolvedActions;
                         eventArgs.RequestId = request.RequestId;
                         eventArgs.BeaconEventType = request.BeaconEventArgs.EventType;
-
+                        eventArgs.Location = await ServiceManager.LocationService.GetGeoHashedLocation();
                         if (request.BeaconEventArgs != null && request.BeaconEventArgs.Beacon != null)
                         {
                             eventArgs.BeaconPid = request.BeaconEventArgs.Beacon.Pid;

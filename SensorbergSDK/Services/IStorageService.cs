@@ -59,12 +59,12 @@ namespace SensorbergSDK.Services
         /// <summary>
         /// Stores a resolved and executed action to the database.
         /// </summary>
-        Task<bool> SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType);
+        Task<bool> SaveHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType, string location);
 
         /// <summary>
         /// Stores a beacon event to the database.
         /// </summary>
-        Task<bool> SaveHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType);
+        Task<bool> SaveHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType, string location);
 
         /// <summary>
         /// Get all triggered actions by the given action uuid.
@@ -105,7 +105,8 @@ namespace SensorbergSDK.Services
         /// <param name="dueTime">Time of execution.</param>
         /// <param name="beaconPid">Beacon ID that the action triggered.</param>
         /// <param name="eventType">Type of event.</param>
-        Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventType);
+        /// <param name="location">Location of the event.</param>
+        Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventType, string location);
 
         /// <summary>
         /// Gets the last state of the beacon.

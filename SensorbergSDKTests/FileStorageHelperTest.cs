@@ -55,16 +55,28 @@ namespace SensorbergSDKTests
                 EventTime = DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000").ToString(History.Timeformat),
                 Trigger = (int) BeaconEventType.Enter
             });
-            Assert.AreEqual("1,1429192800000,1,False\n", s);
+            Assert.AreEqual("1,1429192800000,1,False,\n", s);
         }
 
         [TestMethod]
         public void TestActionToString()
         {
-            string s = FileStorageHelper.ActionToString("1", "1", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.Enter);
-            Assert.AreEqual("1,1,1429192800000,1,False,False\n", s);
+            string s = FileStorageHelper.ActionToString("1", "1", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.Enter,"1");
+            Assert.AreEqual("1,1,1429192800000,1,False,False,1\n", s);
+            s = FileStorageHelper.ActionToString("1", "1", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.Enter,"1234235235");
+            Assert.AreEqual("1,1,1429192800000,1,False,False,1234235235\n", s);
+            s = FileStorageHelper.ActionToString("1", "1", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.Enter,"");
+            Assert.AreEqual("1,1,1429192800000,1,False,False,\n", s);
+            s = FileStorageHelper.ActionToString("1", "1", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.Enter,null);
+            Assert.AreEqual("1,1,1429192800000,1,False,False,\n", s);
+
+
             s = FileStorageHelper.ActionToString(new HistoryAction() { EventId = "1", BeaconId = "1", ActionTime = DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000").ToString(History.Timeformat), Trigger =  (int)BeaconEventType.Enter, Delivered = false});
-            Assert.AreEqual("1,1,1429192800000,1,False,False\n", s);
+            Assert.AreEqual("1,1,1429192800000,1,False,False,\n", s);
+            s = FileStorageHelper.ActionToString(new HistoryAction() { EventId = "1", BeaconId = "1", ActionTime = DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000").ToString(History.Timeformat), Trigger = (int)BeaconEventType.Enter, Delivered = false , Location = ""});
+            Assert.AreEqual("1,1,1429192800000,1,False,False,\n", s);
+            s = FileStorageHelper.ActionToString(new HistoryAction() { EventId = "1", BeaconId = "1", ActionTime = DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000").ToString(History.Timeformat), Trigger = (int)BeaconEventType.Enter, Delivered = false, Location = "1234567"});
+            Assert.AreEqual("1,1,1429192800000,1,False,False,1234567\n", s);
         }
 
         [DataTestMethod]
@@ -121,15 +133,15 @@ namespace SensorbergSDKTests
             };
 
             Guid guid = Guid.NewGuid();
-            string s = FileStorageHelper.DelayedActionToString(action, DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), "123", BeaconEventType.Enter, guid);
-            Assert.AreEqual(guid+ ",1429192800000,False,eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJlaWQiOiJ1dWlkIiwiU3ViamVjdCI6IlN1YmplY3QiLCJCb2R5IjoiYm9keSIsIlVybCI6Imh0dHA6Ly9zZW5zb3JiZXJnLmNvbSIsIlBheWxvYWRTdHJpbmciOiJ7XCJwYXlcIjpcImxvYWRcIn0ifSwiYmVhY29ucyI6WyIxIiwiMiIsIjMiLCI0Il0sInRyaWdnZXIiOjMsIkRlbGF5IjoxMjMsIlNlbmRPbmx5T25jZSI6dHJ1ZSwic3VwcHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=\n", s);
+            string s = FileStorageHelper.DelayedActionToString(action, DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), "123", BeaconEventType.Enter, guid, "123");
+            Assert.AreEqual(guid+ ",1429192800000,False,eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJlaWQiOiJ1dWlkIiwiU3ViamVjdCI6IlN1YmplY3QiLCJCb2R5IjoiYm9keSIsIlVybCI6Imh0dHA6Ly9zZW5zb3JiZXJnLmNvbSIsIlBheWxvYWRTdHJpbmciOiJ7XCJwYXlcIjpcImxvYWRcIn0ifSwiYmVhY29ucyI6WyIxIiwiMiIsIjMiLCI0Il0sInRyaWdnZXIiOjMsIkRlbGF5IjoxMjMsIlNlbmRPbmx5T25jZSI6dHJ1ZSwic3VwcHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=,123\n", s);
         }
 
         [TestMethod]
         public void TestDelayedActionHelperToString()
         {
             Guid guid = Guid.NewGuid();
-            FileStorageHelper.DelayedActionHelper helper = new FileStorageHelper.DelayedActionHelper();
+            DelayedActionHelper helper = new DelayedActionHelper();
             helper.Id = guid.ToString();
             helper.Executed = false;
             helper.Offset = DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000");
@@ -137,13 +149,13 @@ namespace SensorbergSDKTests
                 "eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJlaWQiOiJ1dWlkIiwiU3ViamVjdCI6IlN1YmplY3QiLCJCb2R5IjoiYm9keSIsIlVybCI6Imh0dHA6Ly9zZW5zb3JiZXJnLmNvbSIsIlBheWxvYWRTdHJpbmciOiJ7XCJwYXlcIjpcImxvYWRcIn0ifSwiYmVhY29ucyI6WyIxIiwiMiIsIjMiLCI0Il0sInRyaWdnZXIiOjMsIkRlbGF5IjoxMjMsIlNlbmRPbmx5T25jZSI6dHJ1ZSwic3VwcHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=";
 
             string s = FileStorageHelper.DelayedActionToString(helper);
-            Assert.AreEqual(guid + ",1429192800000,False,eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJlaWQiOiJ1dWlkIiwiU3ViamVjdCI6IlN1YmplY3QiLCJCb2R5IjoiYm9keSIsIlVybCI6Imh0dHA6Ly9zZW5zb3JiZXJnLmNvbSIsIlBheWxvYWRTdHJpbmciOiJ7XCJwYXlcIjpcImxvYWRcIn0ifSwiYmVhY29ucyI6WyIxIiwiMiIsIjMiLCI0Il0sInRyaWdnZXIiOjMsIkRlbGF5IjoxMjMsIlNlbmRPbmx5T25jZSI6dHJ1ZSwic3VwcHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=\n", s);
+            Assert.AreEqual(guid + ",1429192800000,False,eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJlaWQiOiJ1dWlkIiwiU3ViamVjdCI6IlN1YmplY3QiLCJCb2R5IjoiYm9keSIsIlVybCI6Imh0dHA6Ly9zZW5zb3JiZXJnLmNvbSIsIlBheWxvYWRTdHJpbmciOiJ7XCJwYXlcIjpcImxvYWRcIn0ifSwiYmVhY29ucyI6WyIxIiwiMiIsIjMiLCI0Il0sInRyaWdnZXIiOjMsIkRlbGF5IjoxMjMsIlNlbmRPbmx5T25jZSI6dHJ1ZSwic3VwcHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=,\n", s);
         }
         [TestMethod]
         public void TestDelayedActionFromString()
         {
             Guid guid = Guid.NewGuid();
-            FileStorageHelper.DelayedActionHelper simpleDelayedActionFromString = FileStorageHelper.SimpleDelayedActionFromString(guid+ ",1429192800000,False,eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJlaWQiOiJ1dWlkIiwiU3ViamVjdCI6IlN1YmplY3QiLCJCb2R5IjoiYm9keSIsIlVybCI6Imh0dHA6Ly9zZW5zb3JiZXJnLmNvbSIsIlBheWxvYWRTdHJpbmciOiJ7XCJwYXlcIjpcImxvYWRcIn0ifSwiYmVhY29ucyI6WyIxIiwiMiIsIjMiLCI0Il0sInRyaWdnZXIiOjMsIkRlbGF5IjoxMjMsIlNlbmRPbmx5T25jZSI6dHJ1ZSwic3VwcHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=");
+            DelayedActionHelper simpleDelayedActionFromString = FileStorageHelper.SimpleDelayedActionFromString(guid+ ",1429192800000,False,eyJBY3Rpb24iOnsiQmVhY29uQWN0aW9uIjp7IklkIjoxLCJUeXBlIjozLCJlaWQiOiJ1dWlkIiwiU3ViamVjdCI6IlN1YmplY3QiLCJCb2R5IjoiYm9keSIsIlVybCI6Imh0dHA6Ly9zZW5zb3JiZXJnLmNvbSIsIlBheWxvYWRTdHJpbmciOiJ7XCJwYXlcIjpcImxvYWRcIn0ifSwiYmVhY29ucyI6WyIxIiwiMiIsIjMiLCI0Il0sInRyaWdnZXIiOjMsIkRlbGF5IjoxMjMsIlNlbmRPbmx5T25jZSI6dHJ1ZSwic3VwcHJlc3Npb25UaW1lIjozMjEsIlJlcG9ydEltbWVkaWF0ZWx5Ijp0cnVlLCJUaW1lZnJhbWVzIjpbeyJTdGFydCI6IjIwMTUtMDQtMTVUMTI6MDA6MDArMDA6MDAiLCJFbmQiOiIyMDE1LTA0LTE2VDEyOjAwOjAwKzAwOjAwIn1dfSwiVGltZSI6IjIwMTUtMDQtMTZUMTQ6MDA6MDArMDA6MDAiLCJCZWFjb24iOiIxMjMiLCJFdmVudCI6MX0=");
 
             Assert.AreEqual(DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), simpleDelayedActionFromString.Offset, "Wrong offset");
             Assert.IsFalse(simpleDelayedActionFromString.Executed, "Is executed");

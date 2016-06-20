@@ -283,9 +283,9 @@ namespace SensorbergSDK.Internal.Data
 
             StorageFolder folder = await GetFolder(ForegroundActionsFolder, true);
             StorageFile file = await folder.CreateFileAsync(DelayedActionsFileName, CreationCollisionOption.OpenIfExists);
-            List<FileStorageHelper.DelayedActionHelper> delayedActionHelpers = FileStorageHelper.DelayedActionsFromStrings(await FileIO.ReadLinesAsync(file));
+            List<DelayedActionHelper> delayedActionHelpers = FileStorageHelper.DelayedActionsFromStrings(await FileIO.ReadLinesAsync(file));
 
-            foreach (FileStorageHelper.DelayedActionHelper delayedActionHelper in delayedActionHelpers)
+            foreach (DelayedActionHelper delayedActionHelper in delayedActionHelpers)
             {
                 if (!delayedActionHelper.Executed)
                 {
@@ -301,11 +301,11 @@ namespace SensorbergSDK.Internal.Data
         {
             StorageFolder folder = await GetFolder(ForegroundActionsFolder, true);
             StorageFile file = await folder.CreateFileAsync(DelayedActionsFileName, CreationCollisionOption.OpenIfExists);
-            List<FileStorageHelper.DelayedActionHelper> delayedActionHelpers = FileStorageHelper.DelayedActionsFromStrings(await FileIO.ReadLinesAsync(file));
+            List<DelayedActionHelper> delayedActionHelpers = FileStorageHelper.DelayedActionsFromStrings(await FileIO.ReadLinesAsync(file));
 
             bool needed = false;
             List<string> strings = new List<string>();
-            foreach (FileStorageHelper.DelayedActionHelper delayedActionHelper in delayedActionHelpers)
+            foreach (DelayedActionHelper delayedActionHelper in delayedActionHelpers)
             {
                 if (delayedActionHelper.Id == uuid)
                 {
@@ -321,12 +321,11 @@ namespace SensorbergSDK.Internal.Data
 
         }
 
-        public async Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid,
-            BeaconEventType eventType)
+        public async Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventType, string location)
         {
             StorageFolder folder = await GetFolder(Background ? BackgroundActionsFolder : ForegroundActionsFolder, true);
             StorageFile file = await folder.CreateFileAsync(DelayedActionsFileName, CreationCollisionOption.OpenIfExists);
-            string actionToString = FileStorageHelper.DelayedActionToString(action, dueTime, beaconPid, eventType);
+            string actionToString = FileStorageHelper.DelayedActionToString(action, dueTime, beaconPid, eventType, location);
             return await RetryAppending(file, actionToString);
 
         }
@@ -477,7 +476,7 @@ namespace SensorbergSDK.Internal.Data
             return await folder.CreateFolderAsync(DateTime.UtcNow.ToString("yyyy-MM-dd-HHmmss"), CreationCollisionOption.OpenIfExists);
         }
 
-        private async Task<IList<HistoryEvent>> GetUndeliveredEvents(bool lockFolder)
+        private async Task<IList<HistoryEvent>>  GetUndeliveredEvents(bool lockFolder)
         {
             IList<HistoryEvent> events = new List<HistoryEvent>();
 

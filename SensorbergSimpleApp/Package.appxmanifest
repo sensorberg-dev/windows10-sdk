@@ -24,14 +24,14 @@
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
       <Extensions>
-        <Extension Category="windows.backgroundTasks" EntryPoint="SimpleAppBackgroundTask.SimpleAppTimerBackgroundTask">
-          <BackgroundTasks>
-            <Task Type="timer" />
-          </BackgroundTasks>
-        </Extension>
         <Extension Category="windows.backgroundTasks" EntryPoint="SimpleAppBackgroundTask.AdvertisementBackgroundTask">
           <BackgroundTasks>
             <Task Type="bluetooth" />
+          </BackgroundTasks>
+        </Extension>
+        <Extension Category="windows.backgroundTasks" EntryPoint="SimpleAppBackgroundTask.SimpleAppTimerBackgroundTask">
+          <BackgroundTasks>
+            <Task Type="timer" />
           </BackgroundTasks>
         </Extension>
       </Extensions>
@@ -40,5 +40,6 @@
   <Capabilities>
     <Capability Name="internetClient" />
     <DeviceCapability Name="bluetooth" />
+    <DeviceCapability Name="location" />
   </Capabilities>
 </Package>

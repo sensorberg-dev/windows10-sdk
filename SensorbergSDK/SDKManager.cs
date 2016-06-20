@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Devices.Geolocation;
 using Windows.UI.Core;
 using MetroLog;
 using SensorbergSDK.Internal;
@@ -230,6 +231,9 @@ namespace SensorbergSDK
         {
             _logger.Debug("InitializeAsync");
             Configuration = configuration;
+
+            SdkEngine.Configuration = configuration;
+
 
             if (!IsInitialized)
             {
