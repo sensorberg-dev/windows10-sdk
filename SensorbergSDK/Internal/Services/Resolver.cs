@@ -159,7 +159,7 @@ namespace SensorbergSDK.Internal.Services
 
             if (request != null)
             {
-                Logger.Debug("OnRequestServed: Request with ID " + request.RequestId + " was " + e);
+                Logger.Debug("OnRequestServed: Request with ID " + request.RequestId + " was " + e +" "+request.ResolvedActions.Count);
                 if (e == RequestResultState.Success)
                 {
 

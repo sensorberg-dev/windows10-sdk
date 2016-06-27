@@ -128,6 +128,7 @@
     <Compile Include="Internal\Data\History.cs" />
     <Compile Include="Internal\Data\HistoryEvent.cs" />
     <Compile Include="Internal\Data\SerializedAction.cs" />
+    <Compile Include="NGeoHash\GeoHash.cs" />
     <Compile Include="Services\ILocationService.cs" />
     <Compile Include="Services\IResolver.cs" />
     <Compile Include="Internal\Data\UserAgentModel.cs" />

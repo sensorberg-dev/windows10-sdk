@@ -80,7 +80,7 @@ namespace SensorbergSDK.Background
         {
             if (type == BackgroundWorkerType.AdvertisementWorker)
             {
-                BackgroundEngine.ProcessDelayedActionsAsync().ConfigureAwait(false);
+                BackgroundEngine.ProcessDelayedActionsAsync(false).ConfigureAwait(false);
             }
             else
             {
