@@ -308,6 +308,8 @@ namespace SensorbergSDK.Internal
             Logger.Debug("SDKEngine: OnBeaconActionResolvedAsync " + e.RequestId + " BeaconEventType:" + e.BeaconEventType);
             foreach (ResolvedAction action in e.ResolvedActions)
             {
+                try
+                {
                 if (action.Delay > 0 && !action.ReportImmediately)
                 {
                     Logger.Debug("SDKEngine: OnBeaconActionResolvedAsync " + e.RequestId + " delay");
@@ -331,6 +333,11 @@ namespace SensorbergSDK.Internal
                     Logger.Debug("SDKEngine: OnBeaconActionResolvedAsync/ExecuteActionAsync " + e.RequestId + " -> Beacon Pid " + e.BeaconPid);
                     // Execute action immediately
                     await ExecuteActionAsync(action, e.BeaconPid, e.BeaconEventType, e.Location);
+                }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error("Error while handling resolved action", ex);
                 }
             }
         }

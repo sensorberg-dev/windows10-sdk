@@ -98,10 +98,13 @@ namespace SensorbergSDK.Background
         /// <summary>
         /// Processes the delayed actions, executes them as necessary and sends history statistics.
         /// </summary>
-        public async Task ProcessDelayedActionsAsync()
+        public async Task ProcessDelayedActionsAsync(bool flushHistory = true)
         {
             await SdkEngine.ProcessDelayedActionsAsync();
-            await SdkEngine.FlushHistory();
+            if (flushHistory)
+            {
+                await SdkEngine.FlushHistory();
+            }
             Finished?.Invoke(this, BackgroundWorkerType.TimedWorker);
         }
 
