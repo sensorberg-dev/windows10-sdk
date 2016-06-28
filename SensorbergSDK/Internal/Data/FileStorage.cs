@@ -359,84 +359,99 @@ namespace SensorbergSDK.Internal.Data
         {
             List<HistoryAction> actions = new List<HistoryAction>();
 
-            StorageFolder folder = await GetFolder(BackgroundActionsFolder, true);
-            StorageFile deliveredActionsFile = await folder.CreateFileAsync(ActionsFileName, CreationCollisionOption.OpenIfExists);
-
-            List<HistoryAction> fileActions = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(deliveredActionsFile));
-            if (fileActions != null)
+            try
             {
-                foreach (HistoryAction historyAction in fileActions)
+                StorageFolder folder = await GetFolder(BackgroundActionsFolder, true);
+                StorageFile deliveredActionsFile = await folder.CreateFileAsync(ActionsFileName, CreationCollisionOption.OpenIfExists);
+
+                List<HistoryAction> fileActions = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(deliveredActionsFile));
+                if (fileActions != null)
                 {
-                    if (historyAction.Background)
-                    {
-                        actions.Add(historyAction);
-                    }
-                }
-                if (!doNotDelete && fileActions.Count != 0)
-                {
-                    StringBuilder sb = new StringBuilder();
                     foreach (HistoryAction historyAction in fileActions)
                     {
-                        historyAction.Background = false;
-                        sb.Append(FileStorageHelper.ActionToString(historyAction));
-                        sb.Append('\n');
+                        if (historyAction.Background)
+                        {
+                            actions.Add(historyAction);
+                        }
                     }
-                    if (!await RetryWriting(deliveredActionsFile, sb.ToString()))
+                    if (!doNotDelete && fileActions.Count != 0)
                     {
-                        Logger.Error("GetActionsForForeground#1: Writing failed ");
+                        StringBuilder sb = new StringBuilder();
+                        foreach (HistoryAction historyAction in fileActions)
+                        {
+                            historyAction.Background = false;
+                            sb.Append(FileStorageHelper.ActionToString(historyAction));
+                            sb.Append('\n');
+                        }
+                        if (!await RetryWriting(deliveredActionsFile, sb.ToString()))
+                        {
+                            Logger.Error("GetActionsForForeground#1: Writing failed ");
+                        }
+                    }
+                }
+                IReadOnlyList<StorageFolder> folders = await folder.GetFoldersAsync();
+                foreach (StorageFolder storageFolder in folders)
+                {
+                    try
+                    {
+                        IReadOnlyList<StorageFile> files = await storageFolder.GetFilesAsync();
+                        StorageFile first = null;
+                        foreach (var f in files)
+                        {
+                            if (f.Name == ActionsFileName)
+                            {
+                                first = f;
+                                break;
+                            }
+                        }
+                        if (first != null)
+                        {
+                            fileActions = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(first));
+                            if (fileActions != null && fileActions.Count != 0)
+                            {
+                                foreach (HistoryAction historyAction in fileActions)
+                                {
+                                    if (historyAction.Background)
+                                    {
+                                        actions.Add(historyAction);
+                                    }
+                                }
+                                if (!doNotDelete)
+                                {
+                                    StringBuilder sb = new StringBuilder();
+                                    foreach (HistoryAction historyAction in fileActions)
+                                    {
+                                        historyAction.Background = false;
+                                        sb.Append(FileStorageHelper.ActionToString(historyAction));
+                                        sb.Append('\n');
+                                    }
+                                    if (!await RetryWriting(first, sb.ToString()))
+                                    {
+                                        Logger.Error("GetActionsForForeground#2: Writing failed ");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                    }
+                    catch (SEHException)
+                    {
+                    }
+                    catch (FileNotFoundException)
+                    {
                     }
                 }
             }
-            IReadOnlyList<StorageFolder> folders = await folder.GetFoldersAsync();
-            foreach (StorageFolder storageFolder in folders)
+            catch (UnauthorizedAccessException)
             {
-                try
-                {
-                    IReadOnlyList<StorageFile> files = await storageFolder.GetFilesAsync();
-                    StorageFile first = null;
-                    foreach (var f in files)
-                    {
-                        if (f.Name == ActionsFileName)
-                        {
-                            first = f;
-                            break;
-                        }
-                    }
-                    if (first != null)
-                    {
-                        fileActions = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(first));
-                        if (fileActions != null && fileActions.Count != 0)
-                        {
-                            foreach (HistoryAction historyAction in fileActions)
-                            {
-                                if (historyAction.Background)
-                                {
-                                    actions.Add(historyAction);
-                                }
-                            }
-                            if (!doNotDelete)
-                            {
-                                StringBuilder sb = new StringBuilder();
-                                foreach (HistoryAction historyAction in fileActions)
-                                {
-                                    historyAction.Background = false;
-                                    sb.Append(FileStorageHelper.ActionToString(historyAction));
-                                    sb.Append('\n');
-                                }
-                                if (!await RetryWriting(first, sb.ToString()))
-                                {
-                                    Logger.Error("GetActionsForForeground#2: Writing failed ");
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (SEHException)
-                {
-                }
-                catch (FileNotFoundException)
-                {
-                }
+            }
+            catch (SEHException)
+            {
+            }
+            catch (FileNotFoundException)
+            {
             }
             return actions;
         }
