@@ -4,7 +4,7 @@ title: Windows10 SDK Integration
 permalink: /windows10/
 additionalNavigation : [
 { "title" : "Win10 SDK",                "link" : "https://github.com/sensorberg-dev/windows10-sdk" },
-{ "title" : "Win10 Documentation",      "link" : "windows10-sdk/documentation/index.html" },
+{ "title" : "Win10 Documentation",      "link" : "/windows10-sdk/documentation/index.html" },
 { "title" : "Win10 Bugtracker",         "link" : "https://github.com/sensorberg-dev/windows10-sdk/issues" },
 { "title" : "Edit this page",           "link" : "https://github.com/sensorberg-dev/sensorberg-dev.github.io/edit/master/windows10.md" }
 ]
@@ -157,7 +157,6 @@ namespace MySensorbergApp
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-
         }
         
         private async void OnBeaconActionResolvedAsync(object sender, BeaconAction e)
