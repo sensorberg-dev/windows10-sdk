@@ -101,10 +101,10 @@ namespace SensorbergSDK.Background
         public async Task ProcessDelayedActionsAsync(bool flushHistory = true)
         {
             await SdkEngine.ProcessDelayedActionsAsync();
-            if (flushHistory)
-            {
+//            if (flushHistory)
+//            {
                 await SdkEngine.FlushHistory();
-            }
+//            }
             Finished?.Invoke(this, BackgroundWorkerType.TimedWorker);
         }
 
