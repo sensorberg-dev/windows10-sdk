@@ -91,7 +91,7 @@ namespace SensorbergSDK.Internal.Transport
 
         public ResolvedAction GetAction(string uuid)
         {
-            return Layout.ResolvedActions.FirstOrDefault(r => r.BeaconAction.Uuid == uuid);
+            return Layout?.ResolvedActions.FirstOrDefault(r => r.BeaconAction.Uuid == uuid);
         }
 
         /// <summary>

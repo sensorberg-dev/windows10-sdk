@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
 using SensorbergSDK.Services;
 using System.Collections.Generic;
+using Windows.UI.Core;
+using Windows.UI.Popups;
+using Windows.UI.Xaml;
 using MetroLog;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
@@ -203,7 +206,7 @@ namespace SensorbergSDK
 
                 // Using MaxSamplingInterval as SamplingInterval ensures that we get an event only
                 // when entering or exiting from the range of the beacon
-                advertisementWatcherTrigger.SignalStrengthFilter.SamplingInterval = advertisementWatcherTrigger.MaxSamplingInterval;
+                advertisementWatcherTrigger.SignalStrengthFilter.SamplingInterval = /*TimeSpan.FromSeconds(1);//*/advertisementWatcherTrigger.MaxSamplingInterval;
                 if (AppSettings.RssiEnterThreshold != null && AppSettings.RssiEnterThreshold.Value >= -128 &&
                     AppSettings.RssiEnterThreshold.Value <= 127)
                 {
@@ -233,6 +236,10 @@ namespace SensorbergSDK
                 {
                     result.Exception = ex;
                     Logger.Error("BackgroundTaskManager.RegisterAdvertisementWatcherBackgroundTask(): Failed to register: ", ex);
+                    if (ex.Message.Contains("0x800710DF)"))
+                    {
+                        await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => await new MessageDialog("Activate Bluetooth for the app").ShowAsync());
+                    }
                 }
 
                 if (result.Success)

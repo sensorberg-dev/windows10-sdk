@@ -112,6 +112,7 @@ declared in your `Package.appxmanifest` file:
 ```
 ![capabilities](images/site/capabilities.png)
 
+If you whant to use the location options in the SDK since 1.1 you have to add the location capability.
 
 ### 4. Take SDKManager into use ###
 

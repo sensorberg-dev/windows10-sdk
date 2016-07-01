@@ -515,6 +515,10 @@ namespace SensorbergSDK.Internal.Data
 
                     foreach (StorageFile file in files)
                     {
+                        if (file.Name == FolderLockFile)
+                        {
+                            continue;
+                        }
                         List<HistoryEvent> fileEvents = FileStorageHelper.EventsFromStrings(await FileIO.ReadLinesAsync(file));
                         if (fileEvents != null)
                         {
