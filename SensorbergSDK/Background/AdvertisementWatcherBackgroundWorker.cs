@@ -52,13 +52,14 @@ namespace SensorbergSDK.Background
             await BackgroundEngine.InitializeAsync();
 
             var triggerDetails = taskInstance.TriggerDetails as BluetoothLEAdvertisementWatcherTriggerDetails;
-            
+
             if (triggerDetails != null)
             {
                 if (triggerDetails.Error == BluetoothError.RadioNotAvailable)
                 {
                     AdvertisementError?.Invoke(this, triggerDetails.Error);
-                }else
+                }
+                else
                 {
                     int outOfRangeDb = triggerDetails.SignalStrengthFilter.OutOfRangeThresholdInDBm.HasValue ? triggerDetails.SignalStrengthFilter.OutOfRangeThresholdInDBm.Value : 0;
                     await BackgroundEngine.ResolveBeaconActionsAsync(TriggerDetailsToBeacons(triggerDetails), outOfRangeDb);
