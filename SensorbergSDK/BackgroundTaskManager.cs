@@ -50,7 +50,7 @@ namespace SensorbergSDK
         {
             foreach (var taskValue in BackgroundTaskRegistration.AllTasks.Values)
             {
-                if (taskValue.Name.Equals(AdvertisementClass) || taskValue.Name.Equals(TimerClass))
+                if (taskValue.Name.StartsWith(AdvertisementClass) || taskValue.Name.Equals(TimerClass))
                 {
                     taskValue.Unregister(true);
                     Logger.Debug("BackgroundTaskManager.UnregisterBackgroundTask(): Unregistered task: " + taskValue.Name);
@@ -85,7 +85,7 @@ namespace SensorbergSDK
 
             foreach (var taskValue in BackgroundTaskRegistration.AllTasks.Values)
             {
-                if (taskValue.Name.Equals(AdvertisementClass))
+                if (taskValue.Name.StartsWith(AdvertisementClass))
                 {
                     taskValue.Progress += OnAdvertisementWatcherBackgroundTaskProgress;
                 }
@@ -191,7 +191,7 @@ namespace SensorbergSDK
             {
                 BackgroundTaskBuilder backgroundTaskBuilder = new BackgroundTaskBuilder();
 
-                backgroundTaskBuilder.Name = AdvertisementClass;
+                backgroundTaskBuilder.Name = AdvertisementClass + Guid.NewGuid();
                 backgroundTaskBuilder.TaskEntryPoint = configuration.BackgroundAdvertisementClassName;
 
                 BluetoothLEAdvertisementWatcherTrigger advertisementWatcherTrigger = new BluetoothLEAdvertisementWatcherTrigger();
@@ -206,7 +206,7 @@ namespace SensorbergSDK
 
                 // Using MaxSamplingInterval as SamplingInterval ensures that we get an event only
                 // when entering or exiting from the range of the beacon
-                advertisementWatcherTrigger.SignalStrengthFilter.SamplingInterval = /*TimeSpan.FromSeconds(1);//*/advertisementWatcherTrigger.MaxSamplingInterval;
+                advertisementWatcherTrigger.SignalStrengthFilter.SamplingInterval = advertisementWatcherTrigger.MaxSamplingInterval;
                 if (AppSettings.RssiEnterThreshold != null && AppSettings.RssiEnterThreshold.Value >= -128 &&
                     AppSettings.RssiEnterThreshold.Value <= 127)
                 {
@@ -331,7 +331,7 @@ namespace SensorbergSDK
 
             foreach (var taskValue in BackgroundTaskRegistration.AllTasks.Values)
             {
-                if (taskValue.Name.Equals(taskName))
+                if (taskValue.Name.StartsWith(taskName))
                 {
                     return true;
                 }
