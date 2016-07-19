@@ -28,6 +28,7 @@ namespace SensorbergSDK
 
         private readonly BackgroundTaskManager _backgroundTaskManager;
         private Timer _startScannerTimer;
+        private bool _timerHackStop;
 
         /// <summary>
         /// Current AppSettings for the app.
@@ -368,6 +369,7 @@ namespace SensorbergSDK
             if (Scanner.Status != ScannerStatus.Started)
             {
                 Scanner.BeaconEvent += OnBeaconEventAsync;
+                _timerHackStop = false;
                 InitializeSettingsAsync().ContinueWith(task =>
                 {
                     Scanner.StartWatcher(Configuration.ManufacturerId, Configuration.BeaconCode, AppSettings.BeaconExitTimeout, AppSettings.RssiEnterThreshold, AppSettings.EnterDistanceThreshold);
@@ -381,6 +383,11 @@ namespace SensorbergSDK
         public void StopScanner()
         {
             Scanner.StatusChanged -= OnScannerStatusChanged;
+
+            _timerHackStop = true;
+            _startScannerTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+            _startScannerTimer?.Dispose();
+            _startScannerTimer = null;
 
             if (Scanner.Status == ScannerStatus.Started)
             {
@@ -446,6 +453,10 @@ namespace SensorbergSDK
 
         private void StartScannerTimerCallback(object state)
         {
+            if (_timerHackStop)
+            {
+                return;
+            }
             if (_startScannerTimer != null)
             {
                 _startScannerTimer.Dispose();
