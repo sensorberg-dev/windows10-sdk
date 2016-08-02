@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
+using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
 
 namespace SensorbergSDK
@@ -62,6 +63,9 @@ namespace SensorbergSDK
         /// Application Name.
         /// </summary>
         public string ApplicationName { get; set; }
+
+
+        public List<SensorbergApplication> Applications { get; set; }
 
         /// <summary>
         /// Checks whether the given API key is valid or not.
@@ -118,6 +122,8 @@ namespace SensorbergSDK
 
                 var applicationsArray = responseAsJsonValue.GetArray();
 
+                Applications = new List<SensorbergApplication>();
+
                 // We take the first Windows application from the list
                 foreach (IJsonValue applicationValue in applicationsArray)
                 {
@@ -135,13 +141,12 @@ namespace SensorbergSDK
 
                         string applicationName = applicationObject.GetNamedString(KeyName);
                         string platform = applicationObject.GetNamedString(KeyPlatform);
-
-                        if (platform.ToLower().Equals(PlatformValueWindows.ToLower()))
+                        Applications.Add(new SensorbergApplication() {AppKey = apiKey, AppName = applicationName, Platform = (SensorbergPlatform) Enum.Parse(typeof(SensorbergPlatform), platform, true)});
+                        if (result != NetworkResult.Success && platform.ToLower().Equals(PlatformValueWindows.ToLower()))
                         {
                             ApiKey = apiKey;
                             ApplicationName = applicationName;
                             result = NetworkResult.Success;
-                            break;
                         }
                     }
                 }

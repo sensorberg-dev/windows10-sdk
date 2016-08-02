@@ -103,7 +103,12 @@ namespace SensorbergSDK.Internal.Services
 
         private async Task Resolve(Request request)
         {
-            Logger.Trace("take next request " + request.RequestId);
+            Logger.Trace("take next request " + request?.RequestId);
+            if (request == null)
+            {
+                OnRequestServed(request, RequestResultState.Failed);
+                return;
+            }
             request.TryCount++;
             RequestResultState requestResult;
 
@@ -159,7 +164,7 @@ namespace SensorbergSDK.Internal.Services
 
             if (request != null)
             {
-                Logger.Debug("OnRequestServed: Request with ID " + request.RequestId + " was " + e +" "+request.ResolvedActions.Count);
+                Logger.Debug("OnRequestServed: Request with ID " + request.RequestId + " was " + e +" "+request.ResolvedActions?.Count);
                 if (e == RequestResultState.Success)
                 {
 

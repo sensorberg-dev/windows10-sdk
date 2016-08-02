@@ -74,7 +74,7 @@ namespace SensorbergSDK
         public SdkConfiguration()
         {
             AutoStartScanner = true;
-            BackgroundBeaconUuidSpace = Constants.SensorbergUuidSpace;
+            BackgroundBeaconUuidSpace = string.Empty;
         }
     }
 }
