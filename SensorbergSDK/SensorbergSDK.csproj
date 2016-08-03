@@ -127,6 +127,7 @@
     <Compile Include="Internal\Data\FileStorageHelper.cs" />
     <Compile Include="Internal\Data\History.cs" />
     <Compile Include="Internal\Data\HistoryEvent.cs" />
+    <Compile Include="Internal\Data\SensorbergApplication.cs" />
     <Compile Include="Internal\Data\SerializedAction.cs" />
     <Compile Include="NGeoHash\GeoHash.cs" />
     <Compile Include="Services\ILocationService.cs" />

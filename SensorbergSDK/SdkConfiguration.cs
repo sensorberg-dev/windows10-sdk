@@ -5,7 +5,6 @@
 // All rights reserved.
 
 using System.Diagnostics;
-using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDK
@@ -74,7 +73,7 @@ namespace SensorbergSDK
         public SdkConfiguration()
         {
             AutoStartScanner = true;
-            BackgroundBeaconUuidSpace = Constants.SensorbergUuidSpace;
+            BackgroundBeaconUuidSpace = string.Empty;
         }
     }
 }
