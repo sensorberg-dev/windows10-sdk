@@ -310,30 +310,30 @@ namespace SensorbergSDK.Internal
             {
                 try
                 {
-                if (action.Delay > 0 && !action.ReportImmediately)
-                {
-                    Logger.Debug("SDKEngine: OnBeaconActionResolvedAsync " + e.RequestId + " delay");
-                    // Delay action execution
-                    DateTimeOffset dueTime = DateTimeOffset.Now.AddSeconds((int) action.Delay);
-
-                    await ServiceManager.StorageService.SaveDelayedAction(action, dueTime, e.BeaconPid, action.EventTypeDetectedByDevice, e.Location);
-
-                    if (_appIsOnForeground && (_processDelayedActionsTimer == null || _nextTimeToProcessDelayedActions > dueTime))
+                    if (action.Delay > 0 && !action.ReportImmediately)
                     {
-                        if (_nextTimeToProcessDelayedActions > dueTime)
-                        {
-                            _nextTimeToProcessDelayedActions = dueTime;
-                        }
+                        Logger.Debug("SDKEngine: OnBeaconActionResolvedAsync " + e.RequestId + " delay");
+                        // Delay action execution
+                        DateTimeOffset dueTime = DateTimeOffset.Now.AddSeconds((int) action.Delay);
 
-                        ResetProcessDelayedActionsTimer(dueTime);
+                        await ServiceManager.StorageService.SaveDelayedAction(action, dueTime, e.BeaconPid, action.EventTypeDetectedByDevice, e.Location);
+
+                        if (_appIsOnForeground && (_processDelayedActionsTimer == null || _nextTimeToProcessDelayedActions > dueTime))
+                        {
+                            if (_nextTimeToProcessDelayedActions > dueTime)
+                            {
+                                _nextTimeToProcessDelayedActions = dueTime;
+                            }
+
+                            ResetProcessDelayedActionsTimer(dueTime);
+                        }
                     }
-                }
-                else
-                {
-                    Logger.Debug("SDKEngine: OnBeaconActionResolvedAsync/ExecuteActionAsync " + e.RequestId + " -> Beacon Pid " + e.BeaconPid);
-                    // Execute action immediately
-                    await ExecuteActionAsync(action, e.BeaconPid, e.BeaconEventType, e.Location);
-                }
+                    else
+                    {
+                        Logger.Debug("SDKEngine: OnBeaconActionResolvedAsync/ExecuteActionAsync " + e.RequestId + " -> Beacon Pid " + e.BeaconPid);
+                        // Execute action immediately
+                        await ExecuteActionAsync(action, e.BeaconPid, e.BeaconEventType, e.Location);
+                    }
                 }
                 catch (Exception ex)
                 {

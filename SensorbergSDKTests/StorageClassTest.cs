@@ -14,6 +14,7 @@ using Windows.Storage.Streams;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Internal.Transport;
 using SensorbergSDK.Services;
 using SensorbergSDKTests.Mocks;
@@ -29,6 +30,7 @@ namespace SensorbergSDKTests
         public async Task Setup()
         {
             await TestHelper.ClearFiles("sensorberg-storage");
+            ServiceManager.WriterFactory = new WriterFactory();
             storage = new FileStorage();
         }
 

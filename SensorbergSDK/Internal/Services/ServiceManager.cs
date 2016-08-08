@@ -17,6 +17,7 @@ namespace SensorbergSDK.Internal.Services
         private static IStorageService _storageService;
         private static ISettingsManager _settingsManager;
         private static ILocationService _locationService;
+        private static IWriterFactory _writerFactory;
 
         public static IStorageService StorageService
         {
@@ -93,6 +94,18 @@ namespace SensorbergSDK.Internal.Services
                 if (_locationService == null || !ReadOnlyForTests)
                 {
                     _locationService = value;
+                }
+            }
+        }
+
+        public static IWriterFactory WriterFactory
+        {
+            get { return _writerFactory; }
+            set
+            {
+                if (_writerFactory == null || !ReadOnlyForTests)
+                {
+                    _writerFactory = value;
                 }
             }
         }

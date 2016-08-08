@@ -129,6 +129,9 @@
     <Compile Include="Internal\Data\HistoryEvent.cs" />
     <Compile Include="Internal\Data\SensorbergApplication.cs" />
     <Compile Include="Internal\Data\SerializedAction.cs" />
+    <Compile Include="Internal\Services\IQueuedFileWriter.cs" />
+    <Compile Include="Internal\Services\QueuedFileWriter.cs" />
+    <Compile Include="Internal\Services\WriterFactory.cs" />
     <Compile Include="NGeoHash\GeoHash.cs" />
     <Compile Include="Services\ILocationService.cs" />
     <Compile Include="Services\IResolver.cs" />
@@ -174,6 +177,7 @@
     <Compile Include="Internal\ResolvedActionsEventArgs.cs" />
     <Compile Include="Internal\Scanner.cs" />
     <Compile Include="SDKManager.cs" />
+    <Compile Include="Services\IWriterFactory.cs" />
     <Compile Include="Services\LocationService.cs" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
