@@ -1,6 +1,6 @@
 #!groovy
-def version = "1.0." + env.BUILD_NUMBER + (env.BRANCH_NAME=="master"?"":"-beta");
-def versionVSIX = "1.0." + env.BUILD_NUMBER;
+def version = "1." + (env.BRANCH_NAME == "master" ? ("1." + env.BUILD_NUMBER) : ("0." + env.BUILD_NUMBER + "-beta"));
+def versionVSIX = "1.1." + env.BUILD_NUMBER;
 
 
 node ('Windows') {
@@ -37,7 +37,15 @@ try {
 
 		def vstest = tool 'VSTest'
 		try {
-			bat "\"${vstest}\" /Settings:SensorbergSDKTests\\.runsettings TestProject.appx"
+			try {
+				def myDir = pwd()
+				bat "%USERPROFILE%\\AppData\\Local\\JetBrains\\Installations\\dotCover05\\dotCover.exe cover /TargetExecutable=\""+vstest+"\" /TargetArguments=\""+myDir+"\\TestProject.appx\" /Output=AppCoverageReport.html /ReportType=html"
+			}
+			catch(e) {
+				def sub = env.JOB_NAME+' - Build '+env.BUILD_NUMBER+' - FAILED'
+				emailext body: "${env.JOB_NAME} Test failed with ${e.message}", subject: sub , to: '$DEFAULT_RECIPIENTS'
+				bat "\"${vstest}\" /Settings:SensorbergSDKTests\\.runsettings TestProject.appx"
+			}
 		}
 		catch(e) {
 			def sub = env.JOB_NAME+' - Build '+env.BUILD_NUMBER+' - FAILED'

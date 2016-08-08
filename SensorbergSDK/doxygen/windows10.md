@@ -4,7 +4,7 @@ title: Windows10 SDK Integration
 permalink: /windows10/
 additionalNavigation : [
 { "title" : "Win10 SDK",                "link" : "https://github.com/sensorberg-dev/windows10-sdk" },
-{ "title" : "Win10 Documentation",      "link" : "windows10-sdk/documentation/index.html" },
+{ "title" : "Win10 Documentation",      "link" : "/windows10-sdk/documentation/index.html" },
 { "title" : "Win10 Bugtracker",         "link" : "https://github.com/sensorberg-dev/windows10-sdk/issues" },
 { "title" : "Edit this page",           "link" : "https://github.com/sensorberg-dev/sensorberg-dev.github.io/edit/master/windows10.md" }
 ]
@@ -112,6 +112,7 @@ declared in your `Package.appxmanifest` file:
 ```
 ![capabilities](images/site/capabilities.png)
 
+If you whant to use the location options in the SDK since 1.1 you have to add the location capability.
 
 ### 4. Take SDKManager into use ###
 
@@ -157,7 +158,6 @@ namespace MySensorbergApp
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-
         }
         
         private async void OnBeaconActionResolvedAsync(object sender, BeaconAction e)
@@ -183,3 +183,7 @@ message dialog with the action content.
 It is also highly recommended to ask the user for the permission to enable the
 background task. You can register and unregister the background task using `SDKManager` methods
 `RegisterBackgroundTaskAsync` and `UnregisterBackgroundTask`.
+
+### 5. Showcase App ###
+You can download the app from https://www.microsoft.com/en-us/store/apps/sensorberg-showcase/9nblggh0drgl
+![QR Code Shocase App](https://chart.googleapis.com/chart?cht=qr&chl=https://www.microsoft.com/en-us/store/apps/sensorberg-showcase/9nblggh0drgl&chs=100x100&choe=UTF-8&chld=L|2)

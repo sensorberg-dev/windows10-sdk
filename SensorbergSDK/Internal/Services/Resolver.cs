@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Devices.Geolocation;
 using MetroLog;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Transport;
@@ -17,6 +18,7 @@ namespace SensorbergSDK.Internal.Services
 {
     public class Resolver : IResolver
     {
+        private readonly bool _createdOnForeground;
         private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<Resolver>();
         public event EventHandler<ResolvedActionsEventArgs> ActionsResolved;
         public event EventHandler<string> FailedToResolveActions;
@@ -27,8 +29,9 @@ namespace SensorbergSDK.Internal.Services
         private CancellationTokenSource CancelToken { get; set; }
         public bool SynchronResolver { get; }
 
-        public Resolver(bool synchron)
+        public Resolver(bool synchron, bool createdOnForeground)
         {
+            _createdOnForeground = createdOnForeground;
             SynchronResolver = synchron;
 
             if (!SynchronResolver)
@@ -43,7 +46,7 @@ namespace SensorbergSDK.Internal.Services
 
         public async Task<int> CreateRequest(BeaconEventArgs beaconEventArgs)
         {
-            int requestId = SdkData.Instance.NextId();
+            int requestId = SdkData.NextId();
             Logger.Debug("Resolver: Beacon " + beaconEventArgs.Beacon.Id1 + " " + beaconEventArgs.Beacon.Id2 + " " + beaconEventArgs.Beacon.Id3 + " ---> Request: " + requestId);
             Request request = new Request(beaconEventArgs, requestId);
             if (SynchronResolver)
@@ -100,7 +103,12 @@ namespace SensorbergSDK.Internal.Services
 
         private async Task Resolve(Request request)
         {
-            Logger.Trace("take next request " + request.RequestId);
+            Logger.Trace("take next request " + request?.RequestId);
+            if (request == null)
+            {
+                OnRequestServed(request, RequestResultState.Failed);
+                return;
+            }
             request.TryCount++;
             RequestResultState requestResult;
 
@@ -150,13 +158,13 @@ namespace SensorbergSDK.Internal.Services
             }
         }
 
-        private void OnRequestServed(object sender, RequestResultState e)
+        private async void OnRequestServed(object sender, RequestResultState e)
         {
             Request request = sender as Request;
 
             if (request != null)
             {
-                Logger.Debug("OnRequestServed: Request with ID " + request.RequestId + " was " + e);
+                Logger.Debug("OnRequestServed: Request with ID " + request.RequestId + " was " + e +" "+request.ResolvedActions?.Count);
                 if (e == RequestResultState.Success)
                 {
 
@@ -166,7 +174,7 @@ namespace SensorbergSDK.Internal.Services
                         eventArgs.ResolvedActions = request.ResolvedActions;
                         eventArgs.RequestId = request.RequestId;
                         eventArgs.BeaconEventType = request.BeaconEventArgs.EventType;
-
+                        eventArgs.Location = await ServiceManager.LocationService.GetGeoHashedLocation();
                         if (request.BeaconEventArgs != null && request.BeaconEventArgs.Beacon != null)
                         {
                             eventArgs.BeaconPid = request.BeaconEventArgs.Beacon.Pid;

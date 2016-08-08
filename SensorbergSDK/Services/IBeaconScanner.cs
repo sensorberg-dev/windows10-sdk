@@ -47,5 +47,10 @@ namespace SensorbergSDK.Services
         /// Stops the watcher. The events are unhooked in the callback (OnWatcherStopped).
         /// </summary>
         void StopWatcher();
+
+        /// <summary>
+        /// Reset all states of the beacons, so every beacon gets a new ENTER event.
+        /// </summary>
+        void ResetBeaconState();
     }
 }

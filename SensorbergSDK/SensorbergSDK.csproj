@@ -122,10 +122,15 @@
     <Compile Include="Internal\Data\BackgroundWorkerType.cs" />
     <Compile Include="Internal\Data\BeaconContainer.cs" />
     <Compile Include="Internal\Data\DelayedActionData.cs" />
+    <Compile Include="Internal\Data\DelayedActionHelper.cs" />
     <Compile Include="Internal\Data\FileStorage.cs" />
     <Compile Include="Internal\Data\FileStorageHelper.cs" />
     <Compile Include="Internal\Data\History.cs" />
     <Compile Include="Internal\Data\HistoryEvent.cs" />
+    <Compile Include="Internal\Data\SensorbergApplication.cs" />
+    <Compile Include="Internal\Data\SerializedAction.cs" />
+    <Compile Include="NGeoHash\GeoHash.cs" />
+    <Compile Include="Services\ILocationService.cs" />
     <Compile Include="Services\IResolver.cs" />
     <Compile Include="Internal\Data\UserAgentModel.cs" />
     <Compile Include="Internal\SDKEngine.cs" />
@@ -169,6 +174,7 @@
     <Compile Include="Internal\ResolvedActionsEventArgs.cs" />
     <Compile Include="Internal\Scanner.cs" />
     <Compile Include="SDKManager.cs" />
+    <Compile Include="Services\LocationService.cs" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

@@ -100,32 +100,25 @@ namespace SensorbergSDK.Internal.Data
         /// <summary>
         /// Stores a beacon event to the database.
         /// </summary>
-        /// <param name="eventArgs"></param>
-        public async Task SaveBeaconEventAsync(BeaconEventArgs eventArgs)
+        public async Task SaveBeaconEventAsync(BeaconEventArgs eventArgs, string location)
         {
-            await ServiceManager.StorageService.SaveHistoryEvent(eventArgs.Beacon.Pid, eventArgs.Timestamp, eventArgs.EventType);
+            await ServiceManager.StorageService.SaveHistoryEvent(eventArgs.Beacon.Pid, eventArgs.Timestamp, eventArgs.EventType, location);
         }
 
         /// <summary>
         /// Stores a resolved and executed action to the database.
         /// </summary>
-        /// <param name="eventArgs"></param>
-        /// <param name="beaconAction"></param>
         public async Task SaveExecutedResolvedActionAsync(ResolvedActionsEventArgs eventArgs, BeaconAction beaconAction)
         {
-            await ServiceManager.StorageService.SaveHistoryAction(beaconAction.Uuid, eventArgs.BeaconPid, DateTime.Now, eventArgs.BeaconEventType);
+            await ServiceManager.StorageService.SaveHistoryAction(beaconAction.Uuid, eventArgs.BeaconPid, DateTime.Now, eventArgs.BeaconEventType, eventArgs.Location);
         }
 
         /// <summary>
         /// For convenience.
         /// </summary>
-        /// <param name="beaconAction"></param>
-        /// <param name="beaconPid"></param>
-        /// <param name="beaconEventType"></param>
-        /// <returns></returns>
-        public async Task SaveExecutedResolvedActionAsync(BeaconAction beaconAction, string beaconPid, BeaconEventType beaconEventType)
+        public async Task SaveExecutedResolvedActionAsync(BeaconAction beaconAction, string beaconPid, BeaconEventType beaconEventType, string location)
         {
-            await ServiceManager.StorageService.SaveHistoryAction(beaconAction.Uuid, beaconPid, DateTime.Now, beaconEventType);
+            await ServiceManager.StorageService.SaveHistoryAction(beaconAction.Uuid, beaconPid, DateTime.Now, beaconEventType, location);
         }
 
         /// <summary>

@@ -16,5 +16,6 @@ namespace SensorbergSDK.Internal.Data
         public DateTimeOffset DueTime { get; set; }
         public string BeaconPid { get; set; }
         public BeaconEventType EventTypeDetectedByDevice { get; set; }
+        public string Location { get; set; }
     }
 }

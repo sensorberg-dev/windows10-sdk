@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Devices.Geolocation;
 using Windows.UI.Core;
 using MetroLog;
 using SensorbergSDK.Internal;
@@ -23,12 +24,16 @@ namespace SensorbergSDK
         private static ILogger _logger = LogManagerFactory.DefaultLogManager.GetLogger<SDKManager>();
         public static readonly string DemoApiKey = Constants.DemoApiKey;
         private readonly int _startScannerIntervalInMilliseconds = 2000;
-        private AppSettings _appSettings;
         private static SDKManager _instance;
 
         private readonly BackgroundTaskManager _backgroundTaskManager;
         private Timer _startScannerTimer;
+        private bool _timerHackStop;
 
+        /// <summary>
+        /// Current AppSettings for the app.
+        /// </summary>
+        public AppSettings AppSettings { get; set; }
 
         /// <summary>
         /// Fired when a beacon action has been successfully resolved and is ready to be exeuted.
@@ -117,7 +122,7 @@ namespace SensorbergSDK
         /// </summary>
         public bool IsBackgroundTaskEnabled
         {
-            [DebuggerStepThrough] get { return SdkData.Instance.BackgroundTaskEnabled; }
+            [DebuggerStepThrough] get { return SdkData.BackgroundTaskEnabled; }
         }
 
         /// <summary>
@@ -144,6 +149,9 @@ namespace SensorbergSDK
             [DebuggerStepThrough] get { return ServiceManager.LayoutManager.IsLayoutValid; }
         }
 
+        /// <summary>
+        /// Default settings for the sdk.
+        /// </summary>
         public AppSettings DefaultAppSettings
         {
             [DebuggerStepThrough] get { return SdkEngine.DefaultAppSettings; }
@@ -222,7 +230,29 @@ namespace SensorbergSDK
         /// </summary>
         public async Task InitializeAsync(SdkConfiguration configuration)
         {
-            await InitializeInternal(configuration);
+            _logger.Debug("InitializeAsync");
+            Configuration = configuration;
+
+            SdkEngine.Configuration = configuration;
+
+
+            if (!IsInitialized)
+            {
+                SdkData.ApiKey = configuration.ApiKey;
+                await SdkEngine.InitializeAsync();
+                await InitializeSettingsAsync();
+            }
+
+            if (SdkData.BackgroundTaskEnabled)
+            {
+                _logger.Debug("InitializeAsync#InitializeBackgground");
+                await UpdateBackgroundTaskIfNeededAsync();
+            }
+
+            if (configuration.AutoStartScanner)
+            {
+                StartScanner();
+            }
         }
 
         /// <summary>
@@ -240,7 +270,7 @@ namespace SensorbergSDK
         public async Task InitializeAsync(string apiKey, string timerClassName = null, string advertisementClassName = null, string uuidSpace = Constants.SensorbergUuidSpace,
             bool startScanning = true)
         {
-            await InitializeInternal(new SdkConfiguration()
+            await InitializeAsync(new SdkConfiguration()
             {
                 ApiKey = apiKey,
                 BackgroundTimerClassName = timerClassName,
@@ -252,40 +282,15 @@ namespace SensorbergSDK
             });
         }
 
-        private async Task InitializeInternal(SdkConfiguration configuration)
-        {
-            _logger.Debug("InitializeAsync");
-            Configuration = configuration;
-            SdkData sdkData = SdkData.Instance;
-
-            if (!IsInitialized)
-            {
-                sdkData.ApiKey = configuration.ApiKey;
-                await SdkEngine.InitializeAsync();
-                await InitializeSettingsAsync();
-            }
-
-            if (sdkData.BackgroundTaskEnabled)
-            {
-                _logger.Debug("InitializeAsync#InitializeBackgground");
-                await UpdateBackgroundTaskIfNeededAsync();
-            }
-
-            if (configuration.AutoStartScanner)
-            {
-                StartScanner();
-            }
-        }
-
         private void OnSettingsUpdated(object sender, SettingsEventArgs settingsEventArgs)
         {
-            var oldTimeout = _appSettings.BeaconExitTimeout;
-            var oldRssiThreshold = _appSettings.RssiEnterThreshold;
-            var oldDistanceThreshold = _appSettings.EnterDistanceThreshold;
+            var oldTimeout = AppSettings.BeaconExitTimeout;
+            var oldRssiThreshold = AppSettings.RssiEnterThreshold;
+            var oldDistanceThreshold = AppSettings.EnterDistanceThreshold;
 
-            _appSettings = settingsEventArgs.Settings;
+            AppSettings = settingsEventArgs.Settings;
 
-            bool settingsAreTheSame = _appSettings.BeaconExitTimeout == oldTimeout && _appSettings.RssiEnterThreshold == oldRssiThreshold && _appSettings.EnterDistanceThreshold == oldDistanceThreshold;
+            bool settingsAreTheSame = AppSettings.BeaconExitTimeout == oldTimeout && AppSettings.RssiEnterThreshold == oldRssiThreshold && AppSettings.EnterDistanceThreshold == oldDistanceThreshold;
 
             if (settingsAreTheSame)
             {
@@ -324,7 +329,7 @@ namespace SensorbergSDK
         /// <returns>The registration result.</returns>
         public async Task<BackgroundTaskRegistrationResult> RegisterBackgroundTaskAsync()
         {
-            SdkData.Instance.BackgroundTaskEnabled = true;
+            SdkData.BackgroundTaskEnabled = true;
             return await _backgroundTaskManager.RegisterBackgroundTaskAsync(Configuration);
         }
 
@@ -341,7 +346,7 @@ namespace SensorbergSDK
                 result = await _backgroundTaskManager.UpdateBackgroundTaskAsync(Configuration);
             }
 
-            SdkData.Instance.BackgroundTaskEnabled = true;
+            SdkData.BackgroundTaskEnabled = true;
             return result;
         }
 
@@ -351,7 +356,7 @@ namespace SensorbergSDK
         public void UnregisterBackgroundTask()
         {
             _backgroundTaskManager.UnregisterBackgroundTask();
-            SdkData.Instance.BackgroundTaskEnabled = false;
+            SdkData.BackgroundTaskEnabled = false;
         }
 
         /// <summary>
@@ -364,9 +369,10 @@ namespace SensorbergSDK
             if (Scanner.Status != ScannerStatus.Started)
             {
                 Scanner.BeaconEvent += OnBeaconEventAsync;
+                _timerHackStop = false;
                 InitializeSettingsAsync().ContinueWith(task =>
                 {
-                    Scanner.StartWatcher(Configuration.ManufacturerId, Configuration.BeaconCode, _appSettings.BeaconExitTimeout, _appSettings.RssiEnterThreshold, _appSettings.EnterDistanceThreshold);
+                    Scanner.StartWatcher(Configuration.ManufacturerId, Configuration.BeaconCode, AppSettings.BeaconExitTimeout, AppSettings.RssiEnterThreshold, AppSettings.EnterDistanceThreshold);
                 });
             }
         }
@@ -377,6 +383,11 @@ namespace SensorbergSDK
         public void StopScanner()
         {
             Scanner.StatusChanged -= OnScannerStatusChanged;
+
+            _timerHackStop = true;
+            _startScannerTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+            _startScannerTimer?.Dispose();
+            _startScannerTimer = null;
 
             if (Scanner.Status == ScannerStatus.Started)
             {
@@ -404,7 +415,7 @@ namespace SensorbergSDK
         {
             Debug.WriteLine("SDKManager.OnApplicationVisibilityChanged(): "
                             + (e.Visible ? "To visible" : "To not visible"));
-            SdkData.Instance.AppIsVisible = e.Visible;
+            SdkData.AppIsVisible = e.Visible;
         }
 
         /// <summary>
@@ -442,6 +453,10 @@ namespace SensorbergSDK
 
         private void StartScannerTimerCallback(object state)
         {
+            if (_timerHackStop)
+            {
+                return;
+            }
             if (_startScannerTimer != null)
             {
                 _startScannerTimer.Dispose();
@@ -456,9 +471,9 @@ namespace SensorbergSDK
 
         private async Task InitializeSettingsAsync()
         {
-            if (_appSettings == null)
+            if (AppSettings == null)
             {
-                _appSettings = await ServiceManager.SettingsManager.GetSettings();
+                AppSettings = await ServiceManager.SettingsManager.GetSettings();
                 ServiceManager.SettingsManager.SettingsUpdated += OnSettingsUpdated;
             }
         }

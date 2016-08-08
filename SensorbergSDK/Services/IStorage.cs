@@ -99,7 +99,8 @@ namespace SensorbergSDK.Services
         /// <param name="dueTime">Time of execution.</param>
         /// <param name="beaconPid">Beacon ID that the action triggered.</param>
         /// <param name="eventType">Type of event.</param>
-        Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventType);
+        /// <param name="location">Geolocation of event.</param>
+        Task<bool> SaveDelayedAction(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType eventType, string location);
 
         /// <summary>
         /// Save the state of a beacon. This can be used by the background task to have the last state of a beacon. The method stores only the last state of a beacon.

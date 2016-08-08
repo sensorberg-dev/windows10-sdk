@@ -5,7 +5,6 @@
 // All rights reserved.
 
 using System.Diagnostics;
-using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDK
@@ -45,12 +44,17 @@ namespace SensorbergSDK
         public bool AutoStartScanner { get; set; }
 
         /// <summary>
+        /// Enable or disable the usage of geolocation for the beacon actions.
+        /// </summary>
+        public bool UseLocation { get; set; }
+
+        /// <summary>
         /// Defines an user or advertisement id for collection all the events from a specific user or device.
         /// </summary>
         public string UserId
         {
-            get { return SdkData.Instance.UserId; }
-            set { SdkData.Instance.UserId = value; }
+            get { return SdkData.UserId; }
+            set { SdkData.UserId = value; }
         }
 
         /// <summary>
@@ -69,7 +73,7 @@ namespace SensorbergSDK
         public SdkConfiguration()
         {
             AutoStartScanner = true;
-            BackgroundBeaconUuidSpace = Constants.SensorbergUuidSpace;
+            BackgroundBeaconUuidSpace = string.Empty;
         }
     }
 }

@@ -16,11 +16,11 @@ namespace SensorbergSDK.Internal.Services
         private static ILayoutManager _layoutManager;
         private static IStorageService _storageService;
         private static ISettingsManager _settingsManager;
+        private static ILocationService _locationService;
 
         public static IStorageService StorageService
         {
-            [DebuggerStepThrough]
-            get { return _storageService; }
+            [DebuggerStepThrough] get { return _storageService; }
             [DebuggerStepThrough]
             set
             {
@@ -33,8 +33,7 @@ namespace SensorbergSDK.Internal.Services
 
         public static IApiConnection ApiConnction
         {
-            [DebuggerStepThrough]
-            get { return _apiConnction; }
+            [DebuggerStepThrough] get { return _apiConnction; }
             [DebuggerStepThrough]
             set
             {
@@ -47,8 +46,7 @@ namespace SensorbergSDK.Internal.Services
 
         public static IBeaconScanner BeaconScanner
         {
-            [DebuggerStepThrough]
-            get { return _beaconScanner; }
+            [DebuggerStepThrough] get { return _beaconScanner; }
             [DebuggerStepThrough]
             set
             {
@@ -75,14 +73,26 @@ namespace SensorbergSDK.Internal.Services
 
         public static ISettingsManager SettingsManager
         {
-            [DebuggerStepThrough]
-            get { return _settingsManager; }
+            [DebuggerStepThrough] get { return _settingsManager; }
             [DebuggerStepThrough]
             set
             {
                 if (_settingsManager == null || !ReadOnlyForTests)
                 {
                     _settingsManager = value;
+                }
+            }
+        }
+
+        public static ILocationService LocationService
+        {
+            [DebuggerStepThrough] get { return _locationService; }
+            [DebuggerStepThrough]
+            set
+            {
+                if (_locationService == null || !ReadOnlyForTests)
+                {
+                    _locationService = value;
                 }
             }
         }
@@ -100,6 +110,7 @@ namespace SensorbergSDK.Internal.Services
             _layoutManager = null;
             _storageService = null;
             _settingsManager = null;
+            _locationService = null;
             ReadOnlyForTests = false;
         }
     }

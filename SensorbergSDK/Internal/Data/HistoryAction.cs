@@ -14,7 +14,9 @@ namespace SensorbergSDK.Internal.Data
         [DataMember(Name = "pid")]
         public string BeaconId { get; set; }
         [DataMember(Name = "dt")]
-        public string ActionTime { get; set; } 
+        public string ActionTime { get; set; }
+        [DataMember(Name = "location")]
+        public string Location { get; set; }
         [DataMember(Name = "trigger")]
         public int Trigger { get; set; }
         public bool Delivered { get; set; }

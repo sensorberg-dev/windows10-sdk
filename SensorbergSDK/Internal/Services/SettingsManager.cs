@@ -8,42 +8,37 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using MetroLog;
 using Newtonsoft.Json;
-using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Services;
 
 namespace SensorbergSDK.Internal.Services
 {
+    /// <summary>
+    /// Implementation of the SettingsManager.
+    /// </summary>
     public sealed class SettingsManager: ISettingsManager, IDisposable
     {
         private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<SettingsManager>();
         private const string StorageKey = "app_settings";
         private readonly ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
-        private readonly SdkData _sdkData;
         private Timer _updateSettingsTimer;
-        private AppSettings _lastSettings;
+        public AppSettings AppSettings { get; set; }
 
         public event EventHandler<SettingsEventArgs> SettingsUpdated;
         public AppSettings DefaultAppSettings { get; set; }
 
-
-        public SettingsManager()
-        {
-            _sdkData = SdkData.Instance;
-        }
-
         public async Task<AppSettings> GetSettings(bool forceUpdate = false)
         {
-            if (_lastSettings != null && !forceUpdate)
+            if (AppSettings != null && !forceUpdate)
             {
-                Logger.Debug("SettingsManager returned settings from cache." + _lastSettings);
-                return _lastSettings;
+                Logger.Debug("SettingsManager returned settings from cache." + AppSettings);
+                return AppSettings;
             }
 
             var settings = (await GetSettingsFromApiAsync() ?? GetSettingsFromStorage()) ?? CreateDefaultSettings();
 
             InitTimer(settings.SettingsUpdateInterval);
 
-            _lastSettings = settings;
+            AppSettings = settings;
             return settings;
         }
 
@@ -70,10 +65,9 @@ namespace SensorbergSDK.Internal.Services
 
         private async Task<AppSettings> GetSettingsFromApiAsync()
         {
-
             try
             {
-                var responseMessage = await ServiceManager.ApiConnction.LoadSettings(_sdkData);
+                var responseMessage = await ServiceManager.ApiConnction.LoadSettings();
                 if (string.IsNullOrEmpty(responseMessage))
                 {
                     return null;

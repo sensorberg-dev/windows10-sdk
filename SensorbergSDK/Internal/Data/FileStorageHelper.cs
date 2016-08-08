@@ -23,7 +23,7 @@ namespace SensorbergSDK.Internal.Data
         /// <returns>String representing the HistoryEvent.</returns>
         public static string EventToString(HistoryEvent he)
         {
-            return string.Format("{0},{1},{2},{3}\n", he.BeaconId, DateTimeOffset.Parse(he.EventTime).ToUnixTimeMilliseconds(), he.Trigger, false);
+            return string.Format("{0},{1},{2},{3},{4}\n", he.BeaconId, DateTimeOffset.Parse(he.EventTime).ToUnixTimeMilliseconds(), he.Trigger, false,he.Location);
         }
 
         /// <summary>
@@ -92,6 +92,11 @@ namespace SensorbergSDK.Internal.Data
                     Debug.WriteLine("ERROR: parsing event: " + s);
                 }
             }
+
+            if (ss.Length > 4)
+            {
+                he.Location = ss[4];
+            }
             return he;
         }
 
@@ -107,16 +112,16 @@ namespace SensorbergSDK.Internal.Data
 
         public static string ActionToString(HistoryAction historyAction)
         {
-            return ActionToString(historyAction.EventId, historyAction.BeaconId, DateTimeOffset.Parse(historyAction.ActionTime), historyAction.Trigger, historyAction.Delivered, historyAction.Background);
+            return ActionToString(historyAction.EventId, historyAction.BeaconId, DateTimeOffset.Parse(historyAction.ActionTime), historyAction.Trigger, historyAction.Delivered, historyAction.Background, historyAction.Location);
         }
-        public static string ActionToString(string uuid, string beaconPid, DateTimeOffset timestamp, BeaconEventType beaconEventType)
+        public static string ActionToString(string uuid, string beaconPid, DateTimeOffset timestamp, BeaconEventType beaconEventType, string location)
         {
-            return ActionToString(uuid, beaconPid, timestamp, (int) beaconEventType, false, false);
+            return ActionToString(uuid, beaconPid, timestamp, (int) beaconEventType, false, false, location);
         }
 
-        internal static string ActionToString(string uuid, string beaconPid, DateTimeOffset timestamp, int beaconEventType, bool delivered, bool background)
+        internal static string ActionToString(string uuid, string beaconPid, DateTimeOffset timestamp, int beaconEventType, bool delivered, bool background, string location)
         {
-            return string.Format("{0},{1},{2},{3},{4},{5}\n", uuid, beaconPid, timestamp.ToUnixTimeMilliseconds(), beaconEventType, delivered, background);
+            return string.Format("{0},{1},{2},{3},{4},{5},{6}\n", uuid, beaconPid, timestamp.ToUnixTimeMilliseconds(), beaconEventType, delivered, background, location);
         }
 
         public static List<HistoryAction> ActionsFromStrings(IList<string> strings)
@@ -183,11 +188,19 @@ namespace SensorbergSDK.Internal.Data
             }
             try
             {
-                ha.Background = bool.Parse(ss[ss.Length - 1]);
+                if (ss.Length > 6)
+                {
+                    ha.Background = bool.Parse(ss[5]);
+                }
             }
             catch (FormatException)
             {
                 Debug.WriteLine("ERROR: parsing action: " + s);
+            }
+
+            if (ss.Length > 7)
+            {
+                ha.Location = ss[6];
             }
 
             return ha;
@@ -195,23 +208,23 @@ namespace SensorbergSDK.Internal.Data
 
         public static string DelayedActionToString(DelayedActionHelper delayedActionHelper)
         {
-            return DelayedActionToString(delayedActionHelper.Content, delayedActionHelper.Offset, delayedActionHelper.Executed, delayedActionHelper.Id);
+            return DelayedActionToString(delayedActionHelper.Content, delayedActionHelper.Offset, delayedActionHelper.Executed, delayedActionHelper.Id, delayedActionHelper.Location);
         }
 
-        public static string DelayedActionToString(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType beaconEventType)
+        public static string DelayedActionToString(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType beaconEventType, string location)
         {
-            return DelayedActionToString(action, dueTime, beaconPid, beaconEventType, Guid.NewGuid());
+            return DelayedActionToString(action, dueTime, beaconPid, beaconEventType, Guid.NewGuid(), location);
         }
 
-        public static string DelayedActionToString(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType beaconEventType, Guid guid)
+        public static string DelayedActionToString(ResolvedAction action, DateTimeOffset dueTime, string beaconPid, BeaconEventType beaconEventType, Guid guid, string location)
         {
             string serializeObject = JsonConvert.SerializeObject(new SerializedAction() {Action = action, Time = dueTime, Beacon = beaconPid, Event = beaconEventType});
-            return DelayedActionToString(Convert.ToBase64String(Encoding.UTF8.GetBytes(serializeObject)), dueTime, false, guid.ToString());
+            return DelayedActionToString(Convert.ToBase64String(Encoding.UTF8.GetBytes(serializeObject)), dueTime, false, guid.ToString(), location);
         }
 
-        public static string DelayedActionToString(string action, DateTimeOffset dueTime, bool executed, string guid)
+        public static string DelayedActionToString(string action, DateTimeOffset dueTime, bool executed, string guid, string location)
         {
-            return string.Format("{0},{1},{2},{3}\n", guid, dueTime.ToUnixTimeMilliseconds(), executed, action);
+            return string.Format("{0},{1},{2},{3},{4}\n", guid, dueTime.ToUnixTimeMilliseconds(), executed, action, location);
         }
 
 
@@ -251,6 +264,10 @@ namespace SensorbergSDK.Internal.Data
             dah.Offset = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(ss[1]));
             dah.Executed = bool.Parse(ss[2]);
             dah.Content = ss[3];
+            if (ss.Length > 4)
+            {
+                dah.Location = ss[4];
+            }
             return dah;
         }
 
@@ -274,6 +291,7 @@ namespace SensorbergSDK.Internal.Data
                 data.ResolvedAction.BeaconAction.Payload = JsonObject.Parse(deserializeObject.Action.BeaconAction.PayloadString);
             }
             data.ResolvedAction = deserializeObject.Action;
+            data.Location = delayedActionHelper.Location;
 
             return data;
         }
@@ -337,32 +355,14 @@ namespace SensorbergSDK.Internal.Data
             return action;
         }
 
-        public static HistoryAction ToHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType)
+        public static HistoryAction ToHistoryAction(string uuid, string beaconPid, DateTimeOffset now, BeaconEventType beaconEventType, string location)
         {
-            return new HistoryAction() { BeaconId = beaconPid, ActionTime = now.ToString(History.Timeformat), EventId = uuid, Trigger = (int)beaconEventType };
+            return new HistoryAction() { BeaconId = beaconPid, ActionTime = now.ToString(History.Timeformat), EventId = uuid, Trigger = (int)beaconEventType, Location = location};
         }
 
-        public static HistoryEvent ToHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType)
+        public static HistoryEvent ToHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType, string location)
         {
-            return new HistoryEvent() { BeaconId = pid, EventTime = timestamp.ToString(History.Timeformat), Trigger = (int)eventType };
+            return new HistoryEvent() { BeaconId = pid, EventTime = timestamp.ToString(History.Timeformat), Trigger = (int)eventType, Location = location};
         }
-
-        public class SerializedAction
-        {
-            public ResolvedAction Action { get; set; }
-            public DateTimeOffset Time { get; set; }
-            public string Beacon { get; set; }
-            public BeaconEventType Event { get; set; }
-        }
-
-        public class DelayedActionHelper
-        {
-            public string Id { get; set; }
-            public DateTimeOffset Offset { get; set; }
-            public string Content { get; set; }
-
-            public bool Executed { get; set; }
-        }
-
     }
 }

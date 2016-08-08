@@ -4,6 +4,8 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
+using Windows.Devices.Geolocation;
 using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK.Internal
@@ -48,5 +50,10 @@ namespace SensorbergSDK.Internal
             [DebuggerStepThrough]
             set;
         }
+
+        /// <summary>
+        /// Geohashed location of the user when the action is resolved.
+        /// </summary>
+        public string Location { get; set; }
     }
 }

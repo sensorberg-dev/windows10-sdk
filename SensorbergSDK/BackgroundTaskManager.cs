@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
 using SensorbergSDK.Services;
 using System.Collections.Generic;
+using Windows.UI.Core;
+using Windows.UI.Popups;
+using Windows.UI.Xaml;
 using MetroLog;
 using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
@@ -47,7 +50,7 @@ namespace SensorbergSDK
         {
             foreach (var taskValue in BackgroundTaskRegistration.AllTasks.Values)
             {
-                if (taskValue.Name.Equals(AdvertisementClass) || taskValue.Name.Equals(TimerClass))
+                if (taskValue.Name.StartsWith(AdvertisementClass) || taskValue.Name.Equals(TimerClass))
                 {
                     taskValue.Unregister(true);
                     Logger.Debug("BackgroundTaskManager.UnregisterBackgroundTask(): Unregistered task: " + taskValue.Name);
@@ -82,7 +85,7 @@ namespace SensorbergSDK
 
             foreach (var taskValue in BackgroundTaskRegistration.AllTasks.Values)
             {
-                if (taskValue.Name.Equals(AdvertisementClass))
+                if (taskValue.Name.StartsWith(AdvertisementClass))
                 {
                     taskValue.Progress += OnAdvertisementWatcherBackgroundTaskProgress;
                 }
@@ -97,18 +100,17 @@ namespace SensorbergSDK
         /// <returns>True, if an update is required. False otherwise.</returns>
         public static bool CheckIfBackgroundFilterUpdateIsRequired()
         {
-            SdkData sdkData = SdkData.Instance;
-            bool isRequired = sdkData.BackgroundFilterUpdateRequired;
+            bool isRequired = SdkData.BackgroundFilterUpdateRequired;
 
-            if (!isRequired && !string.IsNullOrEmpty(sdkData.LayoutBeaconId1Hash))
+            if (!isRequired && !string.IsNullOrEmpty(SdkData.LayoutBeaconId1Hash))
             {
                 string upToDateHash = LayoutManager.CreateHashOfBeaconId1SInLayout(ServiceManager.LayoutManager.Layout);
 
                 if (!string.IsNullOrEmpty(upToDateHash)
-                    && !sdkData.LayoutBeaconId1Hash.Equals(upToDateHash))
+                    && !SdkData.LayoutBeaconId1Hash.Equals(upToDateHash))
                 {
-                    sdkData.LayoutBeaconId1Hash = upToDateHash;
-                    sdkData.BackgroundFilterUpdateRequired = true;
+                    SdkData.LayoutBeaconId1Hash = upToDateHash;
+                    SdkData.BackgroundFilterUpdateRequired = true;
                     isRequired = true;
                 }
             }
@@ -189,7 +191,7 @@ namespace SensorbergSDK
             {
                 BackgroundTaskBuilder backgroundTaskBuilder = new BackgroundTaskBuilder();
 
-                backgroundTaskBuilder.Name = AdvertisementClass;
+                backgroundTaskBuilder.Name = AdvertisementClass + Guid.NewGuid();
                 backgroundTaskBuilder.TaskEntryPoint = configuration.BackgroundAdvertisementClassName;
 
                 BluetoothLEAdvertisementWatcherTrigger advertisementWatcherTrigger = new BluetoothLEAdvertisementWatcherTrigger();
@@ -234,26 +236,28 @@ namespace SensorbergSDK
                 {
                     result.Exception = ex;
                     Logger.Error("BackgroundTaskManager.RegisterAdvertisementWatcherBackgroundTask(): Failed to register: ", ex);
+                    if (ex.Message.Contains("0x800710DF)"))
+                    {
+                        await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => await new MessageDialog("Activate Bluetooth for the app").ShowAsync());
+                    }
                 }
 
                 if (result.Success)
                 {
-                    SdkData sdkData = SdkData.Instance;
-
                     // Check if there was a pending filter update
-                    if (sdkData.BackgroundFilterUpdateRequired)
+                    if (SdkData.BackgroundFilterUpdateRequired)
                     {
                         string upToDateHash = LayoutManager.CreateHashOfBeaconId1SInLayout(layoutManager.Layout);
 
-                        if (!string.IsNullOrEmpty(upToDateHash) && sdkData.LayoutBeaconId1Hash.Equals(upToDateHash))
+                        if (!string.IsNullOrEmpty(upToDateHash) && SdkData.LayoutBeaconId1Hash.Equals(upToDateHash))
                         {
                             // Background filter updated successfully
-                            sdkData.BackgroundFilterUpdateRequired = false;
+                            SdkData.BackgroundFilterUpdateRequired = false;
 
                             BackgroundFiltersUpdated?.Invoke(this, null);
                         }
                     }
-                    else if (string.IsNullOrEmpty(sdkData.LayoutBeaconId1Hash))
+                    else if (string.IsNullOrEmpty(SdkData.LayoutBeaconId1Hash))
                     {
                         // This is the first time the background task is registered with valid layout =>
                         // set the hash
@@ -261,7 +265,7 @@ namespace SensorbergSDK
 
                         if (!string.IsNullOrEmpty(upToDateHash))
                         {
-                            sdkData.LayoutBeaconId1Hash = upToDateHash;
+                            SdkData.LayoutBeaconId1Hash = upToDateHash;
                         }
                     }
                 }
@@ -327,7 +331,7 @@ namespace SensorbergSDK
 
             foreach (var taskValue in BackgroundTaskRegistration.AllTasks.Values)
             {
-                if (taskValue.Name.Equals(taskName))
+                if (taskValue.Name.StartsWith(taskName))
                 {
                     return true;
                 }

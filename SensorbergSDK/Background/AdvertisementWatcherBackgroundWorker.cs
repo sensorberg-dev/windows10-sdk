@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Windows.ApplicationModel.Background;
+using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Background;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Utils;
@@ -15,6 +16,7 @@ namespace SensorbergSDK.Background
 {
     public class AdvertisementWatcherBackgroundWorker
     {
+        public event EventHandler<BluetoothError> AdvertisementError;
         public event EventHandler<BeaconAction> BeaconActionResolved
         {
             add { BackgroundEngine.BeaconActionResolved += value; }
@@ -39,6 +41,7 @@ namespace SensorbergSDK.Background
             BackgroundEngine.Finished += OnFinished;
         }
 
+        public bool SuppressBurst { get { return BackgroundEngine.SuppressBurst; } set { BackgroundEngine.SuppressBurst = value; } }
         protected BackgroundEngine BackgroundEngine { get; }
         protected BackgroundTaskDeferral Deferral { get; set; }
 
@@ -49,10 +52,18 @@ namespace SensorbergSDK.Background
             await BackgroundEngine.InitializeAsync();
 
             var triggerDetails = taskInstance.TriggerDetails as BluetoothLEAdvertisementWatcherTriggerDetails;
+
             if (triggerDetails != null)
             {
-                int outOfRangeDb = triggerDetails.SignalStrengthFilter.OutOfRangeThresholdInDBm.HasValue ? triggerDetails.SignalStrengthFilter.OutOfRangeThresholdInDBm.Value : 0;
-                await BackgroundEngine.ResolveBeaconActionsAsync(TriggerDetailsToBeacons(triggerDetails), outOfRangeDb);
+                if (triggerDetails.Error == BluetoothError.RadioNotAvailable)
+                {
+                    AdvertisementError?.Invoke(this, triggerDetails.Error);
+                }
+                else
+                {
+                    int outOfRangeDb = triggerDetails.SignalStrengthFilter.OutOfRangeThresholdInDBm.HasValue ? triggerDetails.SignalStrengthFilter.OutOfRangeThresholdInDBm.Value : 0;
+                    await BackgroundEngine.ResolveBeaconActionsAsync(TriggerDetailsToBeacons(triggerDetails), outOfRangeDb);
+                }
             }
 
             //setting any value to Progress will fire Progress event with UI app
@@ -80,7 +91,7 @@ namespace SensorbergSDK.Background
         {
             if (type == BackgroundWorkerType.AdvertisementWorker)
             {
-                BackgroundEngine.ProcessDelayedActionsAsync().ConfigureAwait(false);
+                BackgroundEngine.ProcessDelayedActionsAsync(false).ConfigureAwait(false);
             }
             else
             {

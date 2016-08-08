@@ -110,50 +110,21 @@ namespace SensorbergSDKTests
             Assert.IsTrue(mockStorage.UndeliveredActions.Count == 0, "Actions were not marked as send");
         }
 
-// no cache available        [TestMethod]
-        public async Task TestHistorActionCacheTest()
-        {
-            IStorageService service = ServiceManager.StorageService;
-            await service.SaveHistoryAction("1", "11", DateTime.Now, BeaconEventType.Enter);
-            await service.SaveHistoryAction("2", "11", DateTime.Now, BeaconEventType.Enter);
-            await service.SaveHistoryAction("3", "11", DateTime.Now, BeaconEventType.Enter);
-            await service.SaveHistoryAction("1", "11", DateTime.Now, BeaconEventType.Enter);
-            await service.SaveHistoryAction("5", "11", DateTime.Now, BeaconEventType.Enter);
-
-            IList<HistoryAction> dbHistoryActions = await service.GetActions("1");
-
-            Assert.AreEqual(2, dbHistoryActions.Count, "Not 2 actions found");
-
-            StorageService serviceInstance = (StorageService) service;
-            IStorage storage = serviceInstance.Storage;
-            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "11", DateTime.Now, BeaconEventType.Enter));
-
-            dbHistoryActions = await service.GetActions("1");
-
-            Assert.AreEqual(2, dbHistoryActions.Count, "Not 2 actions found, cache not worked");
-
-            dbHistoryActions = await service.GetActions("1");
-
-            Assert.AreEqual(2, dbHistoryActions.Count, "Not 2 actions found");
-
-
-            await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("6", "11", DateTime.Now, BeaconEventType.Enter));
-            dbHistoryActions = await service.GetActions("6");
-
-            Assert.AreEqual(1, dbHistoryActions.Count, "Not 1 actions found");
-        }
-
         [TestMethod]
         public async Task TestBackgroundActionsTest()
         {
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.LayoutManager = new LayoutManagerExtend();
 
-            Layout resp = JsonConvert.DeserializeObject<Layout>(await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/raw/mock/mock_layout.json", UriKind.RelativeOrAbsolute))), new JsonSerializerSettings
-            {
-                DateTimeZoneHandling = DateTimeZoneHandling.Utc
-            });
-            resp?.FromJson(await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/raw/mock/layout_request_header.txt", UriKind.RelativeOrAbsolute))), DateTimeOffset.Now);
+            Layout resp =
+                JsonConvert.DeserializeObject<Layout>(
+                    await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/raw/mock/mock_layout.json", UriKind.RelativeOrAbsolute))),
+                    new JsonSerializerSettings
+                    {
+                        DateTimeZoneHandling = DateTimeZoneHandling.Utc
+                    });
+            resp?.FromJson(await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/raw/mock/layout_request_header.txt", UriKind.RelativeOrAbsolute))),
+                DateTimeOffset.Now);
 
             ((LayoutManagerExtend) ServiceManager.LayoutManager).SetLayout(resp);
             ServiceManager.ReadOnlyForTests = true;
@@ -161,13 +132,13 @@ namespace SensorbergSDKTests
             FileStorage storage = new FileStorage {Background = true};
 
             await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("9ded63644e424d758b0218f7c70f2473", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"),
-                BeaconEventType.Enter));
+                BeaconEventType.Enter, "1"));
             await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3f30be2605524f82a9bf0ccb4a81618f", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"),
-                BeaconEventType.Exit));
+                BeaconEventType.Exit, "2"));
             await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("312a8594e07542bd814ecdd17f76538e", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
-                BeaconEventType.EnterExit));
+                BeaconEventType.EnterExit, ""));
             await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("959ea393e3424ab7ad53584a8b789197", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
-                BeaconEventType.EnterExit));
+                BeaconEventType.EnterExit, null));
 
 
             IStorageService storageService = ServiceManager.StorageService;
@@ -176,13 +147,13 @@ namespace SensorbergSDKTests
             Assert.AreEqual(4, beaconActions.Count, "Not 4 actions found");
 
             await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("9ded63644e424d758b0218f7c70f2473", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"),
-                    BeaconEventType.Enter));
+                BeaconEventType.Enter, "1"));
             await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3f30be2605524f82a9bf0ccb4a81618f", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"),
-                    BeaconEventType.Exit));
+                BeaconEventType.Exit, "2"));
             await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("312a8594e07542bd814ecdd17f76538e", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
-                    BeaconEventType.EnterExit));
+                BeaconEventType.EnterExit, ""));
             await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("959ea393e3424ab7ad53584a8b789197", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
-                    BeaconEventType.EnterExit));
+                BeaconEventType.EnterExit, null));
 
             beaconActions = await storageService.GetActionsForForeground();
 
@@ -191,13 +162,13 @@ namespace SensorbergSDKTests
             StorageService service = (StorageService) ServiceManager.StorageService;
             IStorage foregroundStorage = service.Storage;
             await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("4", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"),
-                    BeaconEventType.Enter));
+                BeaconEventType.Enter, "1"));
             await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"),
-                    BeaconEventType.Exit));
+                BeaconEventType.Exit, "2"));
             await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
-                    BeaconEventType.EnterExit));
+                BeaconEventType.EnterExit, ""));
             await foregroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
-                    BeaconEventType.EnterExit));
+                BeaconEventType.EnterExit, null));
 
             IList<HistoryAction> historyActions = await foregroundStorage.GetUndeliveredActions();
 
@@ -205,13 +176,13 @@ namespace SensorbergSDKTests
 
 
             await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("9ded63644e424d758b0218f7c70f2473", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"),
-                    BeaconEventType.Enter));
+                BeaconEventType.Enter, "1"));
             await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3f30be2605524f82a9bf0ccb4a81618f", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"),
-                    BeaconEventType.Exit));
+                BeaconEventType.Exit, "2"));
             await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("312a8594e07542bd814ecdd17f76538e", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
-                    BeaconEventType.EnterExit));
+                BeaconEventType.EnterExit, ""));
             await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("959ea393e3424ab7ad53584a8b789197", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
-                    BeaconEventType.EnterExit));
+                BeaconEventType.EnterExit, null));
 
             await foregroundStorage.SetActionsAsDelivered();
             historyActions = await foregroundStorage.GetUndeliveredActions();
@@ -224,13 +195,13 @@ namespace SensorbergSDKTests
 
 
             await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("9ded63644e424d758b0218f7c70f2473", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"),
-                    BeaconEventType.Enter));
+                BeaconEventType.Enter, "1"));
             await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3f30be2605524f82a9bf0ccb4a81618f", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"),
-                    BeaconEventType.Exit));
+                BeaconEventType.Exit, "2"));
             await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("312a8594e07542bd814ecdd17f76538e", "3", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
-                    BeaconEventType.EnterExit));
+                BeaconEventType.EnterExit, ""));
             await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("959ea393e3424ab7ad53584a8b789197", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
-                    BeaconEventType.EnterExit));
+                BeaconEventType.EnterExit, null));
 
             await foregroundStorage.GetUndeliveredActions();
             await foregroundStorage.SetActionsAsDelivered();
@@ -246,8 +217,8 @@ namespace SensorbergSDKTests
         public async Task TestFileLock()
         {
             IStorageService service = ServiceManager.StorageService;
-            await service.SaveHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter);
-            await service.SaveHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit);
+            await service.SaveHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter, "1");
+            await service.SaveHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit, "2");
 
             StorageFolder folder = await ((FileStorage) ((StorageService) service).Storage).GetFolder(FileStorage.ForegroundActionsFolder);
             StorageFile file = await folder.CreateFileAsync(FileStorage.ActionsFileName, CreationCollisionOption.OpenIfExists);
@@ -259,16 +230,16 @@ namespace SensorbergSDKTests
                     Task.Delay(200);
                     randomAccessStream.Dispose();
                 }).ConfigureAwait(false);
-                await service.SaveHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter);
+                await service.SaveHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter, "1");
             }
             using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
             {
-                await service.SaveHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit);
+                await service.SaveHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit, "1");
             }
             folder = await ((FileStorage) ((StorageService) service).Storage).GetFolder(FileStorage.ForegroundEventsFolder);
             file = await folder.CreateFileAsync("1", CreationCollisionOption.OpenIfExists);
-            await service.SaveHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter);
-            await service.SaveHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit);
+            await service.SaveHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter, "2");
+            await service.SaveHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit, "3");
 
             using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
             {
@@ -277,11 +248,11 @@ namespace SensorbergSDKTests
                     Task.Delay(200);
                     randomAccessStream.Dispose();
                 }).ConfigureAwait(false);
-                await service.SaveHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter);
+                await service.SaveHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter, "12");
             }
             using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
             {
-                await service.SaveHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit);
+                await service.SaveHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit, "123");
             }
         }
     }

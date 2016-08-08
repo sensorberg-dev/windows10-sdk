@@ -21,15 +21,18 @@ using HttpResponseMessage = Windows.Web.Http.HttpResponseMessage;
 
 namespace SensorbergSDK.Internal.Services
 {
+    /// <summary>
+    /// Implementation for the Sensorberg Cloud Backend.
+    /// <see cref="IApiConnection"/>
+    /// </summary>
     public class ApiConnection : IApiConnection
     {
         /// <summary>
         /// Sends a layout request to server and returns the HTTP response, if any.
         /// </summary>
-        /// <param name="data">api key and device id for the request.</param>
         /// <param name="apiId">optional api id, overrides the given id by SDKData.</param>
         /// <returns>A HttpResponseMessage containing the server response or null in case of an error.</returns>
-        public async Task<ResponseMessage> RetrieveLayoutResponse(SdkData data, string apiId = null)
+        public async Task<ResponseMessage> RetrieveLayoutResponse(string apiId = null)
         {
             HttpRequestMessage requestMessage = new HttpRequestMessage();
             HttpBaseProtocolFilter baseProtocolFilter = new HttpBaseProtocolFilter();
@@ -41,10 +44,15 @@ namespace SensorbergSDK.Internal.Services
             requestMessage.RequestUri = new Uri(Constants.LayoutApiUriAsString);
 
             HttpClient apiConnection = new HttpClient(baseProtocolFilter);
-            apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, string.IsNullOrEmpty(apiId) ? data.ApiKey : apiId);
-            apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, data.DeviceId);
+            apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, string.IsNullOrEmpty(apiId) ? SdkData.ApiKey : apiId);
+            apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, SdkData.DeviceId);
+            string geoHash = await ServiceManager.LocationService.GetGeoHashedLocation();
+            if (!string.IsNullOrEmpty(geoHash))
+            {
+                apiConnection.DefaultRequestHeaders.Add(Constants.Xgeo, geoHash);
+            }
             apiConnection.DefaultRequestHeaders.Add(Constants.AdvertisementIdentifierHeader,
-                string.IsNullOrEmpty(data.UserId) ? Windows.System.UserProfile.AdvertisingManager.AdvertisingId : data.UserId);
+                string.IsNullOrEmpty(SdkData.UserId) ? Windows.System.UserProfile.AdvertisingManager.AdvertisingId : SdkData.UserId);
             HttpResponseMessage responseMessage;
 
             try
@@ -64,8 +72,11 @@ namespace SensorbergSDK.Internal.Services
             return new ResponseMessage() { StatusCode = responseMessage.StatusCode, IsSuccess = responseMessage.IsSuccessStatusCode };
         }
 
-
-        public async Task<string> LoadSettings(SdkData sdkData)
+        /// <summary>
+        /// Load the Settings from the backend.
+        /// </summary>
+        /// <returns>Returns a JSON formated string.</returns>
+        public async Task<string> LoadSettings()
         {
             HttpRequestMessage requestMessage = new HttpRequestMessage();
             HttpBaseProtocolFilter baseProtocolFilter = new HttpBaseProtocolFilter();
@@ -74,7 +85,7 @@ namespace SensorbergSDK.Internal.Services
             baseProtocolFilter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
 
             requestMessage.Method = HttpMethod.Get;
-            requestMessage.RequestUri = new Uri(string.Format(Constants.SettingsUri, sdkData.ApiKey));
+            requestMessage.RequestUri = new Uri(string.Format(Constants.SettingsUri, SdkData.ApiKey));
 
             HttpClient httpClient = new HttpClient(baseProtocolFilter);
 
@@ -83,12 +94,16 @@ namespace SensorbergSDK.Internal.Services
             return responseMessage?.Content.ToString();
         }
 
+        /// <summary>
+        /// Sends the given History object to the cloud.
+        /// </summary>
+        /// <param name="history">History object to send.</param>
         public async Task<ResponseMessage> SendHistory(History history)
         {
             System.Net.Http.HttpClient apiConnection = new System.Net.Http.HttpClient();
-            apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, SdkData.Instance.ApiKey);
-            apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, SdkData.Instance.DeviceId);
-            apiConnection.DefaultRequestHeaders.Add(Constants.AdvertisementIdentifierHeader, string.IsNullOrEmpty(SdkData.Instance.UserId) ? Windows.System.UserProfile.AdvertisingManager.AdvertisingId : SdkData.Instance.UserId);
+            apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, SdkData.ApiKey);
+            apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, SdkData.DeviceId);
+            apiConnection.DefaultRequestHeaders.Add(Constants.AdvertisementIdentifierHeader, string.IsNullOrEmpty(SdkData.UserId) ? Windows.System.UserProfile.AdvertisingManager.AdvertisingId : SdkData.UserId);
             apiConnection.DefaultRequestHeaders.TryAddWithoutValidation(Constants.XUserAgent, UserAgentBuilder.BuildUserAgentJson());
             string serializeObject = JsonConvert.SerializeObject(history);
             var content = new StringContent(serializeObject, Encoding.UTF8, "application/json");
@@ -102,6 +117,9 @@ namespace SensorbergSDK.Internal.Services
             return new ResponseMessage() { StatusCode = Convert(responseMessage.StatusCode), IsSuccess = responseMessage.IsSuccessStatusCode };
         }
 
+        /// <summary>
+        /// Helper to convert the status code to the other status code object.
+        /// </summary>
         public static HttpStatusCode Convert(System.Net.HttpStatusCode code)
         {
             switch (code)

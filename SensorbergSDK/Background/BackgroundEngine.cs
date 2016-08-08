@@ -30,6 +30,12 @@ namespace SensorbergSDK.Background
         private readonly IList<BeaconEventArgs> _beaconArgs;
         private AppSettings AppSettings { get; set; }
 
+        /// <summary>
+        /// Property to supress collected bluetooth events.
+        /// </summary>
+        public bool SuppressBurst { get; set; }
+
+
         public event EventHandler<BeaconAction> BeaconActionResolved
         {
             add { SdkEngine.BeaconActionResolved += value; }
@@ -76,7 +82,7 @@ namespace SensorbergSDK.Background
         /// </summary>
         public async Task ResolveBeaconActionsAsync(List<Beacon> beacons, int outOfRangeDb)
         {
-            Logger.Trace("ResolveBeaconActionsAsync");
+            Logger.Trace("ResolveBeaconActionsAsync Count: " + beacons.Count);
 
             Beacons = beacons;
             if (Beacons.Count > 0)
@@ -98,10 +104,13 @@ namespace SensorbergSDK.Background
         /// <summary>
         /// Processes the delayed actions, executes them as necessary and sends history statistics.
         /// </summary>
-        public async Task ProcessDelayedActionsAsync()
+        public async Task ProcessDelayedActionsAsync(bool flushHistory = true)
         {
             await SdkEngine.ProcessDelayedActionsAsync();
-            await SdkEngine.FlushHistory();
+//            if (flushHistory)
+//            {
+                await SdkEngine.FlushHistory();
+//            }
             Finished?.Invoke(this, BackgroundWorkerType.TimedWorker);
         }
 
@@ -116,9 +125,7 @@ namespace SensorbergSDK.Background
             foreach (var beacon in Beacons)
             {
                 BackgroundEvent history = await ServiceManager.StorageService.GetLastEventStateForBeacon(beacon.Pid);
-
-                if (history == null || history.LastEvent == BeaconEventType.Exit ||
-                    (!IsOutOfRange(outOfRangeDb, beacon) && history.EventTime.AddMilliseconds(AppSettings.BeaconExitTimeout) < DateTimeOffset.Now))
+                if (IsValidEnterEvent(history, beacon, outOfRangeDb))
                 {
                     // No history for this beacon. Let's save it and add it to event args array for solving.
                     AddBeaconArgs(beacon, BeaconEventType.Enter);
@@ -134,6 +141,20 @@ namespace SensorbergSDK.Background
                     }
                 }
             }
+        }
+
+        private bool IsValidEnterEvent(BackgroundEvent history, Beacon beacon, int outOfRangeDb)
+        {
+            if (history == null)
+            {
+                return true;
+            }
+
+            if(!SuppressBurst)
+            {
+                return history.LastEvent == BeaconEventType.Exit || !IsOutOfRange(outOfRangeDb, beacon) && history.EventTime.AddMilliseconds(AppSettings.BeaconExitTimeout) < DateTimeOffset.Now;
+            }
+            return !IsOutOfRange(outOfRangeDb, beacon) && history.EventTime.AddMilliseconds(AppSettings.BeaconExitTimeout) < DateTimeOffset.Now;
         }
 
         private static bool IsOutOfRange(int outOfRangeDb, Beacon beacon)

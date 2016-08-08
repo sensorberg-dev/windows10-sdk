@@ -67,7 +67,7 @@ namespace SensorbergSDK
 
         private ushort _id2;
         /// <summary>
-        /// Id2 of the beacon as string representation.
+        /// Id2 of the beacon as string representation (Major).
         /// </summary>
         [DataMember]
         public ushort Id2
@@ -90,7 +90,7 @@ namespace SensorbergSDK
 
         private ushort _id3;
         /// <summary>
-        /// Id3 of the beacon as string representation.
+        /// Id3 of the beacon as string representation (Minor).
         /// </summary>
         [DataMember]
         public ushort Id3

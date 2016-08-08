@@ -164,8 +164,6 @@ namespace SensorbergSDK.Internal
         /// <summary>
         /// Notifies any listeners about the beacon event.
         /// </summary>
-        /// <param name="beacon"></param>
-        /// <param name="eventType"></param>
         public void NotifyBeaconEvent(Beacon beacon, BeaconEventType eventType)
         {
             BeaconEvent?.Invoke(this, new BeaconEventArgs() {Beacon = beacon, EventType = eventType});
@@ -175,7 +173,6 @@ namespace SensorbergSDK.Internal
         /// Checks the list of beacons for old beacons. If old enough beacons are found, an
         /// exit event for them is generated and they are removed from the list.
         /// </summary>
-        /// <param name="state"></param>
         private void CheckListForOldBeacons(object state)
         {
             List<Beacon> beacons = _beaconsContainer.RemoveBeaconsBasedOnAge(_beaconExitTimeout);
@@ -207,8 +204,6 @@ namespace SensorbergSDK.Internal
         /// If the advertisement came from a beacon, a Beacon instance is created based on the
         /// received data. A new beacon is added to the list and an existing one is only updated.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
         private void OnAdvertisementReceived(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
         {
             Logger.Debug("Scanner: Advertisement received " + args.Timestamp.ToString("HH:mm:ss.fff"));
@@ -263,6 +258,14 @@ namespace SensorbergSDK.Internal
             }
 
             StatusChanged?.Invoke(this, _status);
+        }
+
+        /// <summary>
+        /// Reset all states of the beacons, so every beacon gets a new ENTER event.
+        /// </summary>
+        public void ResetBeaconState()
+        {
+            _beaconsContainer.Clean();
         }
 
         public void Dispose()

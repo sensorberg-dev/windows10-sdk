@@ -23,6 +23,10 @@ namespace SensorbergSDK.Services
         /// Returns the default settings for the app.
         /// </summary>
         AppSettings DefaultAppSettings { get; set; }
+        /// <summary>
+        /// Returns the current settings for the app.
+        /// </summary>
+        AppSettings AppSettings { get; set; }
 
         /// <summary>
         /// Returns the settings of the app. If needed they will received from the backend.

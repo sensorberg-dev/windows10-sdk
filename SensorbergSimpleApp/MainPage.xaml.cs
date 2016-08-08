@@ -73,7 +73,8 @@ namespace SensorbergSimpleApp
                     ManufacturerId = ManufacturerId,
                     BeaconCode = BeaconCode,
                     BackgroundTimerClassName = "SimpleAppBackgroundTask.SimpleAppTimerBackgroundTask",
-                    BackgroundAdvertisementClassName = "SimpleAppBackgroundTask.AdvertisementBackgroundTask"
+                    BackgroundAdvertisementClassName = "SimpleAppBackgroundTask.AdvertisementBackgroundTask",
+                    UseLocation = true
                 });
 
             bool backgroundTaskEnabledAndRegistered =
