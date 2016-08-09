@@ -6,17 +6,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Security.Cryptography;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using MetroLog;
 
 namespace SensorbergSDK.Internal.Services
 {
-    public class QueuedFileWriter: IQueuedFileWriter
+    public class QueuedFileWriter : IQueuedFileWriter
     {
         private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<QueuedFileWriter>();
+        private static readonly IBuffer LINE_END = CryptographicBuffer.ConvertStringToBinary("\n", BinaryStringEncoding.Utf8);
+        private Semaphore _semaphore = new Semaphore(1,1);
+
+        public event Action QueueEmpty;
 
         private readonly IStorageFolder _folder;
         private readonly string _fileName;
@@ -34,6 +41,7 @@ namespace SensorbergSDK.Internal.Services
 
         public async Task WriteLine(string line)
         {
+            Logger.Trace("Append line: {0}", line);
             if (string.IsNullOrEmpty(line))
             {
                 return;
@@ -41,6 +49,7 @@ namespace SensorbergSDK.Internal.Services
             Queue.Add(line);
             if (_runningTask == null || _runningTask.Status == TaskStatus.Canceled || _runningTask.Status == TaskStatus.Faulted || _runningTask.Status == TaskStatus.RanToCompletion)
             {
+                Logger.Trace("Start writer");
                 CancelToken = new CancellationTokenSource();
                 (_runningTask = Task.Run(WriteLines, CancelToken.Token)).ConfigureAwait(false);
             }
@@ -48,42 +57,91 @@ namespace SensorbergSDK.Internal.Services
 
         private async Task WriteLines()
         {
-            if (_storageFile == null)
+            await CheckFileInitialization();
+            while (Queue.Count != 0)
             {
-                _storageFile = await _folder.CreateFileAsync(_fileName, CreationCollisionOption.OpenIfExists);
-            }
-            do
-            {
-                List<string> listToWrite = Queue;
                 try
                 {
-                    lock (_lockObject)
+                    _semaphore.WaitOne();
+                    using (IRandomAccessStream stream = await _storageFile.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
                     {
-                        //if can locked, no read operation waiting
-                        Queue = new List<string>();
+                        stream.Seek(stream.Size);
+                        Logger.Trace("Write lines {0}", Queue[0]);
+                        for (int i = 0; i < 10 && Queue.Count != 0; i++)
+                        {
+                            await stream.WriteAsync(CryptographicBuffer.ConvertStringToBinary(Queue[0], BinaryStringEncoding.Utf8));
+                            await stream.WriteAsync(LINE_END);
+                            await stream.FlushAsync();
+                            Queue.RemoveAt(0);
+                        }
                     }
-                    await FileIO.AppendLinesAsync(_storageFile, listToWrite);
                 }
                 catch (Exception e)
                 {
                     Logger.Error("Error while writing", e);
-                    Queue.AddRange(listToWrite);
                 }
+                finally
+                {
+                    Logger.Trace("Write end");
+                    _semaphore.Release();
+                }
+            }
 
-            } while (Queue.Count != 0);
+            _runningTask = null;
+            QueueEmpty?.Invoke();
+        }
+
+        private async Task CheckFileInitialization()
+        {
+            if (_storageFile == null)
+            {
+                _storageFile = await _folder.CreateFileAsync(_fileName, CreationCollisionOption.OpenIfExists);
+            }
         }
 
         public async Task<List<string>> ReadLines()
         {
-            List<string> queue;
-            lock (_lockObject)
-            {
-                //if can locked, no write operation steals the queue
-                queue = Queue;
-            }
-            queue.AddRange(await FileIO.ReadLinesAsync(_storageFile));
+            return await InternalReadLines();
+        }
 
-            return queue;
+        private async Task<List<string>> InternalReadLines(bool ignoreSemaphore = false, int retryCount = 3)
+        {
+            if (retryCount < 0)
+            {
+                return null;
+            }
+            await CheckFileInitialization();
+
+            try
+            {
+                if (!ignoreSemaphore)
+                {
+                    _semaphore.WaitOne();
+                }
+                Logger.Trace("Read");
+                List<string> queue = Queue;
+                queue.AddRange(await FileIO.ReadLinesAsync(await _folder.CreateFileAsync(_fileName, CreationCollisionOption.OpenIfExists)));
+                return queue;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                await Task.Delay((int)Math.Pow(10, 3 - retryCount)*10);
+                return await InternalReadLines(true, --retryCount);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Error while reading lines", ex);
+                throw new IOException();
+            }
+            finally
+            {
+                Logger.Trace("Read end");
+                if (!ignoreSemaphore)
+                {
+                    _semaphore.Release();
+                }
+            }
+            return new List<string>();
         }
 
         public Task Clear()
@@ -94,6 +152,12 @@ namespace SensorbergSDK.Internal.Services
         public Task RewriteFile(Action<List<string>, List<string>> action)
         {
             throw new NotImplementedException();
+        }
+
+        public void Dispose()
+        {
+            CancelToken?.Cancel();
+            CancelToken?.Dispose();
         }
     }
 }

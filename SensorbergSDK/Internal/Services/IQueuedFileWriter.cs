@@ -14,8 +14,12 @@ namespace SensorbergSDK.Internal.Services
     /// <summary>
     /// Interface to write many lines to one file to avoid concurrent issues.
     /// </summary>
-    public interface IQueuedFileWriter
+    public interface IQueuedFileWriter: IDisposable
     {
+        /// <summary>
+        /// Event for notification on empty queue.
+        /// </summary>
+        event Action QueueEmpty;
         /// <summary>
         /// Write the given line to the file.
         /// </summary>

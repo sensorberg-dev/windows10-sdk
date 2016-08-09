@@ -264,7 +264,7 @@ namespace SensorbergSDK.Internal.Data
         {
             Logger.Trace("GetActions {0}", uuid);
             List<HistoryAction> returnActions = new List<HistoryAction>();
-            IList<HistoryAction> actions = await GetUndeliveredActions(false);
+            IList<HistoryAction> actions = await GetActions(false);
 
             foreach (HistoryAction historyAction in actions)
             {
@@ -272,26 +272,6 @@ namespace SensorbergSDK.Internal.Data
                 {
                     returnActions.Add(historyAction);
                 }
-            }
-            try
-            {/*
-                StorageFolder folder = await GetFolder(ForegroundActionsFolder, true);
-                StorageFile storageFile = await folder.GetFileAsync(ActionsFileName);
-                List<HistoryAction> actionsFromStrings = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(storageFile));*/
-                List<HistoryAction> actionsFromStrings = FileStorageHelper.ActionsFromStrings(await historyActionWriter.ReadLines());
-                foreach (HistoryAction historyAction in actionsFromStrings)
-                {
-                    if (historyAction.EventId == uuid)
-                    {
-                        returnActions.Add(historyAction);
-                    }
-                }
-            }
-            catch (SEHException)
-            {
-            }
-            catch (FileNotFoundException)
-            {
             }
             Logger.Trace("GetActions {0} End", uuid);
             return returnActions;
