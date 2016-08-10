@@ -535,6 +535,7 @@ namespace SensorbergSDKTests
         public async Task GetBackgroundActionsFromBackgroundinForegroundTest()
         {
             IStorage foregroundStorage = storage;
+            await foregroundStorage.InitStorage();
             IStorage backgroundStorage = new FileStorage() {Background = true};
             await backgroundStorage.InitStorage();
 
@@ -601,7 +602,7 @@ namespace SensorbergSDKTests
             StorageFolder folder = await ((FileStorage) storage).GetFolder(FileStorage.ForegroundActionsFolder);
             StorageFile file = await folder.CreateFileAsync(FileStorage.ActionsFileName, CreationCollisionOption.OpenIfExists);
             IRandomAccessStream randomAccessStream;
-            using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
+            /*using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
             {
                 Task.Run(() =>
                 {
@@ -614,7 +615,7 @@ namespace SensorbergSDKTests
             {
                 Assert.IsFalse(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit, null)));
                 randomAccessStream.Dispose();
-            }
+            }*/
             folder = await ((FileStorage) storage).GetFolder(FileStorage.ForegroundEventsFolder);
             file = await folder.CreateFileAsync("1", CreationCollisionOption.OpenIfExists);
             Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter, "1")));

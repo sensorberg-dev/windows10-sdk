@@ -47,9 +47,15 @@ namespace SensorbergSDK.Internal.Services
                 return;
             }
             Queue.Add(line);
+            StartWorker();
+        }
+
+        private void StartWorker()
+        {
             if (_runningTask == null || _runningTask.Status == TaskStatus.Canceled || _runningTask.Status == TaskStatus.Faulted || _runningTask.Status == TaskStatus.RanToCompletion)
             {
                 Logger.Trace("Start writer");
+                CancelToken?.Dispose();
                 CancelToken = new CancellationTokenSource();
                 (_runningTask = Task.Run(WriteLines, CancelToken.Token)).ConfigureAwait(false);
             }
@@ -57,12 +63,12 @@ namespace SensorbergSDK.Internal.Services
 
         private async Task WriteLines()
         {
-            await CheckFileInitialization();
             while (Queue.Count != 0)
             {
                 try
                 {
                     _semaphore.WaitOne();
+                    await CheckFileInitialization();
                     using (IRandomAccessStream stream = await _storageFile.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
                     {
                         stream.Seek(stream.Size);
@@ -119,7 +125,7 @@ namespace SensorbergSDK.Internal.Services
                     _semaphore.WaitOne();
                 }
                 Logger.Trace("Read");
-                List<string> queue = Queue;
+                List<string> queue = new List<string>(Queue);
                 queue.AddRange(await FileIO.ReadLinesAsync(await _folder.CreateFileAsync(_fileName, CreationCollisionOption.OpenIfExists)));
                 return queue;
             }
@@ -131,7 +137,6 @@ namespace SensorbergSDK.Internal.Services
             catch (Exception ex)
             {
                 Logger.Error("Error while reading lines", ex);
-                throw new IOException();
             }
             finally
             {
@@ -144,14 +149,35 @@ namespace SensorbergSDK.Internal.Services
             return new List<string>();
         }
 
-        public Task Clear()
+        public async Task Clear()
         {
-            throw new System.NotImplementedException();
+            try
+            {
+                CancelToken?.Cancel();
+                CancelToken?.Dispose();
+                CancelToken = null;
+                _semaphore.WaitOne();
+                Queue = new List<string>();
+                await _storageFile.DeleteAsync();
+                _storageFile = null;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
         }
 
-        public Task RewriteFile(Action<List<string>, List<string>> action)
+        public async Task RewriteFile(Action<List<string>, List<string>> action)
         {
-            throw new NotImplementedException();
+            CancelToken?.Cancel();
+            List<string> list = await InternalReadLines(true);
+
+            await Clear();
+            List<string> newList = new List<string>();
+            action(list, newList);
+
+            Queue.AddRange(newList);
+            StartWorker();
         }
 
         public void Dispose()

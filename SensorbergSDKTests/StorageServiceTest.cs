@@ -33,6 +33,7 @@ namespace SensorbergSDKTests
             ServiceManager.LayoutManager = new LayoutManager();
             ServiceManager.StorageService = new StorageServiceExtend();
             ServiceManager.SettingsManager = new SettingsManager();
+            ServiceManager.WriterFactory = new WriterFactory();
             ServiceManager.ReadOnlyForTests = true;
 
 

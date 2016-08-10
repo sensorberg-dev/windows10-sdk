@@ -136,6 +136,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(list.Count, collection.Count, "Not 40 elements");
             CollectionAssert.AreEqual(list, collection);
         }
+
         [TestMethod]
         public async Task TestReadWriteFile()
         {
@@ -147,6 +148,60 @@ namespace SensorbergSDKTests
                 list.Add(i.ToString());
             }
             Assert.IsNotNull(await fileWriter.ReadLines());
+        }
+
+        [TestMethod]
+        public async Task TestClear()
+        {
+            TaskCompletionSource<bool> source = new TaskCompletionSource<bool>();
+
+            IQueuedFileWriter fileWriter = new QueuedFileWriter(ApplicationData.Current.LocalFolder, "test.txt");
+            await fileWriter.WriteLine("1");
+            await fileWriter.WriteLine("2");
+            await fileWriter.WriteLine("3");
+            fileWriter.QueueEmpty += () => source.SetResult(true);
+            await fileWriter.WriteLine("4");
+            await source.Task;
+            List<string> list = new List<string>() { "1", "2", "3", "4" };
+            List<string> collection = (await FileIO.ReadLinesAsync(await ApplicationData.Current.LocalFolder.CreateFileAsync("test.txt", CreationCollisionOption.OpenIfExists))).ToList();
+            Assert.AreEqual(list.Count, collection.Count, "Not 4 elements");
+            CollectionAssert.AreEqual(list, collection);
+
+            await fileWriter.Clear();
+            collection = (await FileIO.ReadLinesAsync(await ApplicationData.Current.LocalFolder.CreateFileAsync("test.txt", CreationCollisionOption.OpenIfExists))).ToList();
+            Assert.AreEqual(0, collection.Count, "Not 0 elements");
+
+            collection = await fileWriter.ReadLines();
+            Assert.AreEqual(0, collection.Count, "Not 0 elements");
+        }
+
+        [TestMethod]
+        public async Task TestRewrite()
+        {
+            TaskCompletionSource<bool> source1 = new TaskCompletionSource<bool>();
+
+            IQueuedFileWriter fileWriter = new QueuedFileWriter(ApplicationData.Current.LocalFolder, "test.txt");
+            await fileWriter.WriteLine("1");
+            await fileWriter.WriteLine("2");
+            await fileWriter.WriteLine("3");
+            fileWriter.QueueEmpty += () => source1.TrySetResult(true);
+            await fileWriter.WriteLine("4");
+            await source1.Task;
+            List<string> list = new List<string>() { "1", "2", "3", "4" };
+            List<string> collection = (await FileIO.ReadLinesAsync(await ApplicationData.Current.LocalFolder.CreateFileAsync("test.txt", CreationCollisionOption.OpenIfExists))).ToList();
+            Assert.AreEqual(list.Count, collection.Count, "Not 4 elements");
+            CollectionAssert.AreEqual(list, collection);
+
+            TaskCompletionSource<bool> source2 = new TaskCompletionSource<bool>();
+            await fileWriter.RewriteFile((l, l2) =>
+            {
+                fileWriter.QueueEmpty += () => source2.TrySetResult(true);
+                l2.AddRange(new List<string>() {"1", "2"});
+            });
+
+            await source2.Task;
+            collection = (await FileIO.ReadLinesAsync(await ApplicationData.Current.LocalFolder.CreateFileAsync("test.txt", CreationCollisionOption.OpenIfExists))).ToList();
+            Assert.AreEqual(2, collection.Count, "Not 2 elements");
         }
     }
 }

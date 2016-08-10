@@ -42,7 +42,7 @@ namespace SensorbergSDK.Internal.Data
         public const string ForegroundEventsFolder = ForegroundFolder + Serperator + EventsFolderName;
         private readonly string[] _eventFolders = new string[] {BackgroundEventsFolder, ForegroundEventsFolder};
         private readonly string[] _actionFolders = new string[] {BackgroundActionsFolder, ForegroundActionsFolder};
-        private IQueuedFileWriter historyActionWriter;
+        private IQueuedFileWriter foregroundHistoryActionWriter;
 
         public bool Background { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
@@ -59,19 +59,16 @@ namespace SensorbergSDK.Internal.Data
             StorageFolder foregroundActions = await foreground.CreateFolderAsync(ActionsFolderName, CreationCollisionOption.OpenIfExists);
             await foreground.CreateFolderAsync(EventsFolderName, CreationCollisionOption.OpenIfExists);
             await foreground.CreateFolderAsync(SettingsFolderName, CreationCollisionOption.OpenIfExists);
-            if (!Background)
-            {
-                historyActionWriter = ServiceManager.WriterFactory.CreateNew(foregroundActions, ActionsFileName);
-            }
+            foregroundHistoryActionWriter = ServiceManager.WriterFactory.CreateNew(foregroundActions, ActionsFileName);
         }
 
         public async Task CleanDatabase()
         {
             try
             {
-                if (historyActionWriter != null)
+                if (foregroundHistoryActionWriter != null)
                 {
-                    await historyActionWriter.Clear();
+                    await foregroundHistoryActionWriter.Clear();
                 }
                 StorageFolder folder = ApplicationData.Current.LocalFolder;
                 StorageFolder root = await folder.CreateFolderAsync(RootFolder, CreationCollisionOption.OpenIfExists);
@@ -139,7 +136,7 @@ namespace SensorbergSDK.Internal.Data
                     }
                 }
             }
-            await historyActionWriter.RewriteFile((lines, linesToWrite) =>
+            await foregroundHistoryActionWriter.RewriteFile((lines, linesToWrite) =>
             {
                 List<HistoryAction> fileActions = FileStorageHelper.ActionsFromStrings(lines);
                 fileActions.RemoveAll(a => a.Delivered && a.ActionTime.CompareTo(minDateTime) < 0);
@@ -185,36 +182,49 @@ namespace SensorbergSDK.Internal.Data
 
         public async Task SetActionsAsDelivered()
         {
-            foreach (string currentfolder in _actionFolders)
+            StorageFolder folder = await GetFolder(BackgroundActionsFolder, true);
+            StorageFile deliveredActionsFile = await folder.CreateFileAsync(ActionsFileName, CreationCollisionOption.OpenIfExists);
+            IReadOnlyList<StorageFolder> folders = await folder.GetFoldersAsync();
+            foreach (StorageFolder storageFolder in folders)
             {
-                StorageFolder folder = await GetFolder(currentfolder, true);
-                StorageFile deliveredActionsFile = await folder.CreateFileAsync(ActionsFileName, CreationCollisionOption.OpenIfExists);
-                IReadOnlyList<StorageFolder> folders = await folder.GetFoldersAsync();
-                foreach (StorageFolder storageFolder in folders)
+                IReadOnlyList<StorageFile> files = await storageFolder.GetFilesAsync();
+
+                //ignore unlocked folders
+                if (files.FirstOrDefault(f => f.Name == FolderLockFile) == null)
                 {
-                    IReadOnlyList<StorageFile> files = await storageFolder.GetFilesAsync();
-
-                    //ignore unlocked folders
-                    if (files.FirstOrDefault(f => f.Name == FolderLockFile) == null)
-                    {
-                        continue;
-                    }
-
-                    StorageFile actionFile = files.FirstOrDefault(f => f.Name == ActionsFileName);
-                    if (actionFile != null)
-                    {
-                        List<HistoryAction> actions = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(actionFile));
-
-                        List<string> stringActions = new List<string>();
-                        foreach (HistoryAction historyAction in actions)
-                        {
-                            historyAction.Delivered = true;
-                            stringActions.Add(FileStorageHelper.ActionToString(historyAction));
-                        }
-                        await FileIO.AppendLinesAsync(deliveredActionsFile, stringActions);
-                    }
-                    await storageFolder.DeleteAsync();
+                    continue;
                 }
+
+                StorageFile actionFile = files.FirstOrDefault(f => f.Name == ActionsFileName);
+                if (actionFile != null)
+                {
+                    List<HistoryAction> actions = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(actionFile));
+
+                    List<string> stringActions = new List<string>();
+                    foreach (HistoryAction historyAction in actions)
+                    {
+                        historyAction.Delivered = true;
+                        stringActions.Add(FileStorageHelper.ActionToString(historyAction));
+                    }
+                    await FileIO.AppendLinesAsync(deliveredActionsFile, stringActions);
+                }
+                await storageFolder.DeleteAsync();
+            }
+
+            if (foregroundHistoryActionWriter != null)
+            {
+                await foregroundHistoryActionWriter.RewriteFile((l, l2) =>
+                {
+                    foreach (string s in l)
+                    {
+                        HistoryAction action = FileStorageHelper.ActionFromString(s);
+                        if (action != null)
+                        {
+                            action.Delivered = true;
+                            l2.Add(FileStorageHelper.ActionToString(action));
+                        }
+                    }
+                });
             }
         }
 
@@ -222,17 +232,17 @@ namespace SensorbergSDK.Internal.Data
         {
             try
             {
+                action.Background = Background;
                 string actionToString = FileStorageHelper.ActionToString(action);
                 if (Background)
                 {
                     StorageFolder folder = await GetFolder(Background ? BackgroundActionsFolder : ForegroundActionsFolder);
                     StorageFile file = await folder.CreateFileAsync(ActionsFileName, CreationCollisionOption.OpenIfExists);
-                    action.Background = Background;
                     return await RetryAppending(file, actionToString);
                 }
                 else
                 {
-                    await historyActionWriter.WriteLine(actionToString);
+                    await foregroundHistoryActionWriter.WriteLine(actionToString);
                     return true;
                 }
             }
@@ -281,7 +291,6 @@ namespace SensorbergSDK.Internal.Data
         {
             return (await GetActions(uuid)).FirstOrDefault();
         }
-
 
 
         public async Task<IList<DelayedActionData>> GetDelayedActions()
@@ -593,12 +602,15 @@ namespace SensorbergSDK.Internal.Data
                 {
                 }
             }
-            List<HistoryAction> foreGroundfileActions = FileStorageHelper.ActionsFromStrings(await historyActionWriter.ReadLines());
-            if (foreGroundfileActions != null)
+            if (foregroundHistoryActionWriter != null)
             {
-                foreach (HistoryAction historyAction in foreGroundfileActions)
+                List<HistoryAction> foreGroundfileActions = FileStorageHelper.ActionsFromStrings(await foregroundHistoryActionWriter.ReadLines());
+                if (foreGroundfileActions != null)
                 {
-                    actions.Add(historyAction);
+                    foreach (HistoryAction historyAction in foreGroundfileActions)
+                    {
+                        actions.Add(historyAction);
+                    }
                 }
             }
 
