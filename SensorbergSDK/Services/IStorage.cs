@@ -37,7 +37,7 @@ namespace SensorbergSDK.Services
         /// Marks all delivered HistoryEvents as delivered.
         /// </summary>
         /// <returns></returns>
-        Task SetEventsAsDelivered();
+        Task SetEventsAsDelivered(IList<HistoryEvent> sendEvents);
 
         /// <summary>
         /// Marks all delivered HistoryActions as delivered.

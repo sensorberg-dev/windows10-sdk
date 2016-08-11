@@ -17,9 +17,7 @@ namespace SensorbergSDKTests
         [TestInitialize]
         public async Task Setup()
         {
-            ApplicationData.Current.LocalSettings.DeleteContainer(EventHistory.KeyHistoryevents);
-            ApplicationData.Current.RoamingSettings.DeleteContainer(EventHistory.KeyFireOnlyOnceActions);
-            await TestHelper.ClearFiles("sensorberg-storage");
+            await TestHelper.Clear();
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();

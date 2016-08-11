@@ -21,6 +21,7 @@ namespace SensorbergSDKTests
         [TestInitialize]
         public async Task TestSetup()
         {
+            await TestHelper.Clear();
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.LayoutManager = new MockLayoutManager();

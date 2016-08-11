@@ -126,7 +126,7 @@ namespace SensorbergSDK.Internal.Services
                     {
                         if (history.Events != null && history.Events.Count > 0)
                         {
-                            await Storage.SetEventsAsDelivered();
+                            await Storage.SetEventsAsDelivered(history.Events);
                         }
 
                         if (history.Actions != null && history.Actions.Count > 0)

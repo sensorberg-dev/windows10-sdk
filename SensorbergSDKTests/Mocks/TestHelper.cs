@@ -8,11 +8,19 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
+using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDKTests.Mocks
 {
     public class TestHelper
     {
+        public static async Task Clear()
+        {
+            ApplicationData.Current.LocalSettings.DeleteContainer(EventHistory.KeyHistoryevents);
+            ApplicationData.Current.RoamingSettings.DeleteContainer(EventHistory.KeyFireOnlyOnceActions);
+            await ClearFiles("sensorberg-storage");
+        }
+
         public static async Task ClearFiles(string folder)
         {
             try

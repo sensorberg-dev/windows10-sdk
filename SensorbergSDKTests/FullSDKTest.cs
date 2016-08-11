@@ -26,8 +26,9 @@ namespace SensorbergSDKTests
         private const ushort BeaconCode = 0x0215;
 
         [TestInitialize]
-        public void Setup()
+        public async Task Setup()
         {
+            await TestHelper.Clear();
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();

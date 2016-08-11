@@ -17,8 +17,9 @@ namespace SensorbergSDKTests
     public class UnitTestResponse
     {
         [TestInitialize]
-        public void TestSetup()
+        public async Task TestSetup()
         {
+            await TestHelper.Clear();
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.StorageService = new StorageService() {Storage = new MockStorage()};

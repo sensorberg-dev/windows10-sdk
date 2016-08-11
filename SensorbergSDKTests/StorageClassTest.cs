@@ -29,7 +29,7 @@ namespace SensorbergSDKTests
         [TestInitialize]
         public async Task Setup()
         {
-            await TestHelper.ClearFiles("sensorberg-storage");
+            await TestHelper.Clear();
             ServiceManager.WriterFactory = new WriterFactory();
             storage = new FileStorage();
         }
@@ -281,7 +281,7 @@ namespace SensorbergSDKTests
 
 
 
-            await storage.SetEventsAsDelivered();
+            await storage.SetEventsAsDelivered(historyEvents);
 
             historyEvents = await storage.GetUndeliveredEvents();
             Assert.AreEqual(0, historyEvents.Count, "not all events as delivered marked");
@@ -300,7 +300,7 @@ namespace SensorbergSDKTests
 
             IList<HistoryEvent> historyEvents = await storage.GetUndeliveredEvents();
             Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("3", DateTimeOffset.Parse("2016-04-16T17:00:00.000+0000"), BeaconEventType.Enter, "12")));
-            await storage.SetEventsAsDelivered();
+            await storage.SetEventsAsDelivered(historyEvents);
 
             historyEvents = await storage.GetUndeliveredEvents();
             Assert.AreEqual(1, historyEvents.Count, "the new event is missing");
@@ -321,14 +321,15 @@ namespace SensorbergSDKTests
             Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "3", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, "")));
             Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("3", "2", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.EnterExit, null)));
 
-            Assert.AreEqual(4, (await storage.GetUndeliveredEvents()).Count, "not enough Undelivered Events found");
+            var historyEvents = await storage.GetUndeliveredEvents();
+            Assert.AreEqual(4, historyEvents.Count, "not enough Undelivered Events found");
             Assert.AreEqual(4, (await storage.GetUndeliveredActions()).Count, "not enough Undelivered Actions found");
 
-            await storage.SetEventsAsDelivered();
+            await storage.SetEventsAsDelivered(historyEvents);
             await storage.SetActionsAsDelivered();
 
-
-            Assert.AreEqual(0, (await storage.GetUndeliveredEvents()).Count, "Undelivered Events found");
+            historyEvents = await storage.GetUndeliveredEvents();
+            Assert.AreEqual(0, historyEvents.Count, "Undelivered Events found");
             Assert.AreEqual(0, (await storage.GetUndeliveredActions()).Count, "Undelivered Actions found");
 
             await storage.CleanDatabase();
@@ -348,7 +349,8 @@ namespace SensorbergSDKTests
 
             await storage.CleanDatabase();
 
-            Assert.AreEqual(0, (await storage.GetUndeliveredEvents()).Count, "Undelivered Events found");
+            historyEvents = await storage.GetUndeliveredEvents();
+            Assert.AreEqual(0, historyEvents.Count, "Undelivered Events found");
             Assert.AreEqual(0, (await storage.GetUndeliveredActions()).Count, "Undelivered Actions found");
         }
 
@@ -369,7 +371,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual("2016-04-16T15:00:00.000+00:00", historyEvent.EventTime, "Wrong date");
             Assert.AreEqual((int) BeaconEventType.Exit, historyEvent.Trigger, "Wrong trigger");
 
-            await foregroundStorage.SetEventsAsDelivered();
+            await foregroundStorage.SetEventsAsDelivered(historyEvents);
 
             historyEvents = await foregroundStorage.GetUndeliveredEvents();
             Assert.AreEqual(0, historyEvents.Count, "not all events as delivered marked");
@@ -389,7 +391,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual("2016-04-15T15:00:00.000+00:00", historyEvent.EventTime, "Wrong date");
             Assert.AreEqual((int) BeaconEventType.Exit, historyEvent.Trigger, "Wrong trigger");
 
-            await backgroundStorage.SetEventsAsDelivered();
+            await backgroundStorage.SetEventsAsDelivered(historyEvents);
 
             historyEvents = await backgroundStorage.GetUndeliveredEvents();
             Assert.AreEqual(0, historyEvents.Count, "not all events as delivered marked");
@@ -438,7 +440,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual((int) BeaconEventType.Exit, historyEvent.Trigger, "Wrong trigger");
 
 
-            await backgroundStorage.SetEventsAsDelivered();
+            await backgroundStorage.SetEventsAsDelivered(historyEvents);
             historyEvents = await backgroundStorage.GetUndeliveredEvents();
             Assert.AreEqual(0, historyEvents.Count, "not all events as delivered marked - background");
 
@@ -590,51 +592,6 @@ namespace SensorbergSDKTests
             historyActions = await backgroundStorage.GetUndeliveredActions();
             Assert.AreEqual(0, historyActions.Count, "not all actions as delivered marked");
 
-        }
-
-        [TestMethod]
-        public async Task TestFileLock()
-        {
-            await storage.InitStorage();
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter, "1")));
-            Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit, "2")));
-
-            StorageFolder folder = await ((FileStorage) storage).GetFolder(FileStorage.ForegroundActionsFolder);
-            StorageFile file = await folder.CreateFileAsync(FileStorage.ActionsFileName, CreationCollisionOption.OpenIfExists);
-            IRandomAccessStream randomAccessStream;
-            /*using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
-            {
-                Task.Run(() =>
-                {
-                    Task.Delay(200);
-                    randomAccessStream.Dispose();
-                }).ConfigureAwait(false);
-                await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter, ""));
-            }
-            using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
-            {
-                Assert.IsFalse(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("2", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit, null)));
-                randomAccessStream.Dispose();
-            }*/
-            folder = await ((FileStorage) storage).GetFolder(FileStorage.ForegroundEventsFolder);
-            file = await folder.CreateFileAsync("1", CreationCollisionOption.OpenIfExists);
-            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter, "1")));
-            Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit, "2")));
-
-            using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
-            {
-                Task.Run(() =>
-                {
-                    Task.Delay(200);
-                    randomAccessStream.Dispose();
-                }).ConfigureAwait(false);
-                await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), BeaconEventType.Enter, "1"));
-            }
-            using (randomAccessStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
-            {
-                Assert.IsFalse(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2016-04-16T15:00:00.000+0000"), BeaconEventType.Exit, "2")));
-                randomAccessStream.Dispose();
-            }
         }
 
         [TestMethod]

@@ -22,7 +22,7 @@ namespace SensorbergSDKTests
         [TestInitialize]
         public async Task Setup()
         {
-            await TestHelper.ClearFiles("sensorberg-storage");
+            await TestHelper.Clear();
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
@@ -89,7 +89,7 @@ namespace SensorbergSDKTests
 
             IList<BeaconAction> result = await action.Task;
 
-            Assert.AreEqual(3, result.Count, "Not 3 action found");
+            Assert.AreEqual(4, result.Count, "Not 4 action found");
         }
 
         [TestMethod]

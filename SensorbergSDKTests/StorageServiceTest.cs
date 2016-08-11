@@ -26,7 +26,7 @@ namespace SensorbergSDKTests
         [TestInitialize]
         public async Task Setup()
         {
-            await TestHelper.ClearFiles("sensorberg-storage");
+            await TestHelper.Clear();
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
