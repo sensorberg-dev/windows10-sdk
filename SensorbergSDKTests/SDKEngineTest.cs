@@ -34,6 +34,7 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
+        [Timeout(10000)]
         public async Task ResolveBackgroundBeaconsSingleAction()
         {
             LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;

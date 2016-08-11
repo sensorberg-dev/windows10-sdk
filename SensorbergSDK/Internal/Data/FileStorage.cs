@@ -43,6 +43,7 @@ namespace SensorbergSDK.Internal.Data
         private readonly string[] _eventFolders = new string[] {BackgroundEventsFolder, ForegroundEventsFolder};
         private readonly string[] _actionFolders = new string[] {BackgroundActionsFolder, ForegroundActionsFolder};
         private IQueuedFileWriter foregroundHistoryActionWriter;
+//        private IQueuedFileWriter foregroundHistoryEventWriter;
 
         public bool Background { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
@@ -57,9 +58,10 @@ namespace SensorbergSDK.Internal.Data
             await background.CreateFolderAsync(EventsFolderName, CreationCollisionOption.OpenIfExists);
             await background.CreateFolderAsync(SettingsFolderName, CreationCollisionOption.OpenIfExists);
             StorageFolder foregroundActions = await foreground.CreateFolderAsync(ActionsFolderName, CreationCollisionOption.OpenIfExists);
-            await foreground.CreateFolderAsync(EventsFolderName, CreationCollisionOption.OpenIfExists);
+            StorageFolder foregroundEvents = await foreground.CreateFolderAsync(EventsFolderName, CreationCollisionOption.OpenIfExists);
             await foreground.CreateFolderAsync(SettingsFolderName, CreationCollisionOption.OpenIfExists);
             foregroundHistoryActionWriter = ServiceManager.WriterFactory.CreateNew(foregroundActions, ActionsFileName);
+//            foregroundHistoryEventWriter = ServiceManager.WriterFactory.CreateNew(foregroundEvents, eve)
         }
 
         public async Task CleanDatabase()
@@ -257,6 +259,7 @@ namespace SensorbergSDK.Internal.Data
         {
             try
             {
+                Logger.Trace("SaveHistoryEvents " + he.BeaconId);
                 StorageFolder folder = await GetFolder(Background ? BackgroundEventsFolder : ForegroundEventsFolder);
                 StorageFile file = await folder.CreateFileAsync(he.BeaconId, CreationCollisionOption.OpenIfExists);
                 string eventToString = FileStorageHelper.EventToString(he);
@@ -268,30 +271,6 @@ namespace SensorbergSDK.Internal.Data
             }
             return false;
         }
-
-
-        public async Task<IList<HistoryAction>> GetActions(string uuid)
-        {
-            Logger.Trace("GetActions {0}", uuid);
-            List<HistoryAction> returnActions = new List<HistoryAction>();
-            IList<HistoryAction> actions = await GetActions(false);
-
-            foreach (HistoryAction historyAction in actions)
-            {
-                if (historyAction.EventId == uuid)
-                {
-                    returnActions.Add(historyAction);
-                }
-            }
-            Logger.Trace("GetActions {0} End", uuid);
-            return returnActions;
-        }
-
-        public async Task<HistoryAction> GetAction(string uuid)
-        {
-            return (await GetActions(uuid)).FirstOrDefault();
-        }
-
 
         public async Task<IList<DelayedActionData>> GetDelayedActions()
         {

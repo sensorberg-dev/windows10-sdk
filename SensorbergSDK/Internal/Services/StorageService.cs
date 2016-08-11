@@ -301,16 +301,6 @@ namespace SensorbergSDK.Internal.Services
             }
         }
 
-        public async Task<IList<HistoryAction>> GetActions(string uuid, bool forceUpdate = false)
-        {
-            return await Storage.GetActions(uuid);
-        }
-
-        public async Task<HistoryAction> GetAction(string uuid, bool forceUpdate = false)
-        {
-            return (await GetActions(uuid, forceUpdate)).FirstOrDefault();
-        }
-
         public async Task CleanupDatabase()
         {
             await Storage.CleanupDatabase();

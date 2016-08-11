@@ -37,7 +37,7 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
-//        [Timeout(10000)]
+        [Timeout(10000)]
         public async Task ResolveBackgroundEvent()
         {
             logger.Debug("ResolveBackgroundEvent - Start");

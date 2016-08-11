@@ -57,19 +57,6 @@ namespace SensorbergSDK.Services
         Task<bool> SaveHistoryEvents(HistoryEvent he);
 
         /// <summary>
-        /// Returns all HistoryActions that are fired by that action UUID.
-        /// </summary>
-        /// <param name="uuid">UUID of the Action.</param>
-        /// <returns>List of HistoryActions.</returns>
-        Task<IList<HistoryAction>> GetActions(string uuid);
-
-        /// <summary>
-        /// Returns a HistoryAction that is fired by an action with that given UUID.
-        /// </summary>
-        /// <param name="uuid">UUID of the action.</param>
-        Task<HistoryAction> GetAction(string uuid);
-
-        /// <summary>
         /// Cleans old entries from the database.
         /// </summary>
         Task CleanupDatabase();

@@ -67,22 +67,6 @@ namespace SensorbergSDK.Services
         Task<bool> SaveHistoryEvent(string pid, DateTimeOffset timestamp, BeaconEventType eventType, string location);
 
         /// <summary>
-        /// Get all triggered actions by the given action uuid.
-        /// </summary>
-        /// <param name="uuid">uuid from the action to search.</param>
-        /// <param name="forceUpdate">Force to ignore any cache.</param>
-        /// <returns>List of found actions.</returns>
-        Task<IList<HistoryAction>> GetActions(string uuid, bool forceUpdate = false);
-
-        /// <summary>
-        /// Get the first triggered action by the given action uuid.
-        /// </summary>
-        /// <param name="uuid">uuid from the action to search.</param>
-        /// <param name="forceUpdate">Force to ignore any cache.</param>
-        /// <returns>The first found action or null.</returns>
-        Task<HistoryAction> GetAction(string uuid, bool forceUpdate = false);
-
-        /// <summary>
         /// Cleans old entries from the database.
         /// </summary>
         Task CleanupDatabase();

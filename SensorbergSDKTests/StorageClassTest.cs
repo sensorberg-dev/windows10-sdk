@@ -228,7 +228,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual("2016-04-16T14:00:00.000+00:00", action.ActionTime, "not same date");
 
 
-            HistoryAction dbHistoryAction = await storage.GetAction("2");
+           /* HistoryAction dbHistoryAction = await storage.GetAction("2");
             Assert.AreEqual((int) BeaconEventType.Exit, dbHistoryAction.Trigger, "not same type");
             Assert.AreEqual("2", dbHistoryAction.BeaconId, "not same pid");
             Assert.AreEqual("2", dbHistoryAction.EventId, "not same eid");
@@ -251,7 +251,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"), DateTimeOffset.Parse(dbHistoryAction.ActionTime), "not same date");
 
             Assert.AreEqual(0, (await storage.GetActions("")).Count, "fails on empty id");
-            Assert.AreEqual(0, (await storage.GetActions("1231312312")).Count, "fails on unkown id");
+            Assert.AreEqual(0, (await storage.GetActions("1231312312")).Count, "fails on unkown id");*/
 
             await storage.SetActionsAsDelivered();
 
@@ -259,8 +259,8 @@ namespace SensorbergSDKTests
             Assert.AreEqual(0, historyActions.Count, "not all actions as delivered marked");
 
 
-            Assert.IsNotNull(await storage.GetActions("3"), "no delivered message found");
-            Assert.AreEqual(2, (await storage.GetActions("3")).Count, "not all actions as delivered marked from eid 3 found");
+//            Assert.IsNotNull(await storage.GetActions("3"), "no delivered message found");
+//            Assert.AreEqual(2, (await storage.GetActions("3")).Count, "not all actions as delivered marked from eid 3 found");
         }
 
         [TestMethod]
@@ -333,7 +333,7 @@ namespace SensorbergSDKTests
 
             await storage.CleanDatabase();
 
-            Assert.AreEqual(0, (await storage.GetActions("1")).Count, "remaining Actions found");
+//            Assert.AreEqual(0, (await storage.GetActions("1")).Count, "remaining Actions found");
 
 
             Assert.IsTrue(await storage.SaveHistoryEvents(FileStorageHelper.ToHistoryEvent("1", DateTimeOffset.Parse("2015-04-16T14:00:00.000+0000"), BeaconEventType.Enter, "1")));
@@ -473,25 +473,25 @@ namespace SensorbergSDKTests
             Assert.AreEqual("2", action.EventId, "not same eid");
             Assert.AreEqual("2016-04-16T13:00:00.000+00:00", action.ActionTime, "not same date");
 
-            HistoryAction dbHistoryAction = await foregroundStorage.GetAction("2");
-            Assert.AreEqual((int) BeaconEventType.Exit, dbHistoryAction.Trigger, "not same type");
-            Assert.AreEqual("2", dbHistoryAction.BeaconId, "not same pid");
-            Assert.AreEqual("2", dbHistoryAction.EventId, "not same eid");
-            Assert.AreEqual(DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), DateTimeOffset.Parse(dbHistoryAction.ActionTime), "not same date");
+//            HistoryAction dbHistoryAction = await foregroundStorage.GetAction("2");
+//            Assert.AreEqual((int) BeaconEventType.Exit, dbHistoryAction.Trigger, "not same type");
+//            Assert.AreEqual("2", dbHistoryAction.BeaconId, "not same pid");
+//            Assert.AreEqual("2", dbHistoryAction.EventId, "not same eid");
+//            Assert.AreEqual(DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), DateTimeOffset.Parse(dbHistoryAction.ActionTime), "not same date");
 
 
-            IList<HistoryAction> dbHistoryActions = await foregroundStorage.GetActions("3");
-            Assert.AreEqual(2, dbHistoryActions.Count, "Not 2 actions");
+//            IList<HistoryAction> dbHistoryActions = await foregroundStorage.GetActions("3");
+//            Assert.AreEqual(2, dbHistoryActions.Count, "Not 2 actions");
 
-            Assert.AreEqual(0, (await foregroundStorage.GetActions("")).Count, "fails on empty id");
-            Assert.AreEqual(0, (await foregroundStorage.GetActions("1231312312")).Count, "fails on unkown id");
+//            Assert.AreEqual(0, (await foregroundStorage.GetActions("")).Count, "fails on empty id");
+//            Assert.AreEqual(0, (await foregroundStorage.GetActions("1231312312")).Count, "fails on unkown id");
 
             await foregroundStorage.SetActionsAsDelivered();
             historyActions = await foregroundStorage.GetUndeliveredActions();
             Assert.AreEqual(0, historyActions.Count, "not all actions as delivered marked");
 
 
-            Assert.IsNotNull(await foregroundStorage.GetActions("3"), "no delivered message found");
+//            Assert.IsNotNull(await foregroundStorage.GetActions("3"), "no delivered message found");
 
             Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("4", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter, "1")));
             Assert.IsTrue(await backgroundStorage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("5", "2", DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), BeaconEventType.Exit, "2")));
@@ -513,18 +513,18 @@ namespace SensorbergSDKTests
             Assert.AreEqual("2016-04-16T13:00:00.000+00:00", action.ActionTime, "not same date");
 
 
-            dbHistoryAction = await backgroundStorage.GetAction("5");
-            Assert.AreEqual((int) BeaconEventType.Exit, dbHistoryAction.Trigger, "not same type");
-            Assert.AreEqual("2", dbHistoryAction.BeaconId, "not same pid");
-            Assert.AreEqual("5", dbHistoryAction.EventId, "not same eid");
-            Assert.AreEqual(DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), DateTimeOffset.Parse(dbHistoryAction.ActionTime), "not same date");
+//            dbHistoryAction = await backgroundStorage.GetAction("5");
+//            Assert.AreEqual((int) BeaconEventType.Exit, dbHistoryAction.Trigger, "not same type");
+//            Assert.AreEqual("2", dbHistoryAction.BeaconId, "not same pid");
+//            Assert.AreEqual("5", dbHistoryAction.EventId, "not same eid");
+//            Assert.AreEqual(DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), DateTimeOffset.Parse(dbHistoryAction.ActionTime), "not same date");
 
 
-            dbHistoryActions = await backgroundStorage.GetActions("6");
-            Assert.AreEqual(2, dbHistoryActions.Count, "Not 2 actions");
+//            dbHistoryActions = await backgroundStorage.GetActions("6");
+//            Assert.AreEqual(2, dbHistoryActions.Count, "Not 2 actions");
 
-            Assert.AreEqual(0, (await backgroundStorage.GetActions("")).Count, "fails on empty id");
-            Assert.AreEqual(0, (await backgroundStorage.GetActions("1231312312")).Count, "fails on unkown id");
+//            Assert.AreEqual(0, (await backgroundStorage.GetActions("")).Count, "fails on empty id");
+//            Assert.AreEqual(0, (await backgroundStorage.GetActions("1231312312")).Count, "fails on unkown id");
 
             await backgroundStorage.SetActionsAsDelivered();
             historyActions = await backgroundStorage.GetUndeliveredActions();
@@ -566,24 +566,24 @@ namespace SensorbergSDKTests
             historyActions = await foregroundStorage.GetUndeliveredActions();
             Assert.AreEqual(16, historyActions.Count, "Not 16 actions");
 
-            HistoryAction dbHistoryAction = await backgroundStorage.GetAction("5");
-            Assert.AreEqual((int) BeaconEventType.Exit, dbHistoryAction.Trigger, "not same type");
-            Assert.AreEqual("2", dbHistoryAction.BeaconId, "not same pid");
-            Assert.AreEqual("5", dbHistoryAction.EventId, "not same eid");
-            Assert.AreEqual(DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), DateTimeOffset.Parse(dbHistoryAction.ActionTime), "not same date");
+//            HistoryAction dbHistoryAction = await backgroundStorage.GetAction("5");
+//            Assert.AreEqual((int) BeaconEventType.Exit, dbHistoryAction.Trigger, "not same type");
+//            Assert.AreEqual("2", dbHistoryAction.BeaconId, "not same pid");
+//            Assert.AreEqual("5", dbHistoryAction.EventId, "not same eid");
+//            Assert.AreEqual(DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), DateTimeOffset.Parse(dbHistoryAction.ActionTime), "not same date");
 
-            dbHistoryAction = await foregroundStorage.GetAction("5");
-            Assert.AreEqual((int) BeaconEventType.Exit, dbHistoryAction.Trigger, "not same type");
-            Assert.AreEqual("2", dbHistoryAction.BeaconId, "not same pid");
-            Assert.AreEqual("5", dbHistoryAction.EventId, "not same eid");
-            Assert.AreEqual(DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), DateTimeOffset.Parse(dbHistoryAction.ActionTime), "not same date");
+//            dbHistoryAction = await foregroundStorage.GetAction("5");
+//            Assert.AreEqual((int) BeaconEventType.Exit, dbHistoryAction.Trigger, "not same type");
+//            Assert.AreEqual("2", dbHistoryAction.BeaconId, "not same pid");
+//            Assert.AreEqual("5", dbHistoryAction.EventId, "not same eid");
+//            Assert.AreEqual(DateTimeOffset.Parse("2016-04-16T13:00:00.000+0000"), DateTimeOffset.Parse(dbHistoryAction.ActionTime), "not same date");
 
 
-            IList<HistoryAction> dbHistoryActions = await backgroundStorage.GetActions("6");
-            Assert.AreEqual(4, dbHistoryActions.Count, "Not 4 actions");
+//            IList<HistoryAction> dbHistoryActions = await backgroundStorage.GetActions("6");
+//            Assert.AreEqual(4, dbHistoryActions.Count, "Not 4 actions");
 
-            dbHistoryActions = await foregroundStorage.GetActions("6");
-            Assert.AreEqual(4, dbHistoryActions.Count, "Not 4 actions");
+//            dbHistoryActions = await foregroundStorage.GetActions("6");
+//            Assert.AreEqual(4, dbHistoryActions.Count, "Not 4 actions");
 
 
             await foregroundStorage.SetActionsAsDelivered();
@@ -679,8 +679,8 @@ namespace SensorbergSDKTests
         {
             await storage.InitStorage();
             await storage.GetActionsForForeground();
-            await storage.GetAction("1");
-            await storage.GetActions("asd");
+//            await storage.GetAction("1");
+//            await storage.GetActions("asd");
             await storage.GetDelayedActions();
             await storage.GetLastEventStateForBeacon("123");
             await storage.GetUndeliveredActions();
@@ -702,7 +702,7 @@ namespace SensorbergSDKTests
 
             await storage.CleanupDatabase();
 
-            Assert.AreEqual(0, (await storage.GetActions("1")).Count, "Action found, not all actions where removed");
+//            Assert.AreEqual(0, (await storage.GetActions("1")).Count, "Action found, not all actions where removed");
 
 
             Assert.IsTrue(await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("1", "1", DateTimeOffset.Parse("2016-04-16T12:00:00.000+0000"), BeaconEventType.Enter, "1")));
@@ -718,7 +718,7 @@ namespace SensorbergSDKTests
 
             await storage.CleanupDatabase();
 
-            Assert.AreEqual(1, (await storage.GetActions("1")).Count, "Not 1 action found");
+//            Assert.AreEqual(1, (await storage.GetActions("1")).Count, "Not 1 action found");
 
         }
     }
