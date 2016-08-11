@@ -134,6 +134,7 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
+        [Timeout(10000)]
         public async Task BeaconMultipleEnteredOneFired()
         {
             MockBeaconScanner scanner = (MockBeaconScanner) ServiceManager.BeaconScanner;

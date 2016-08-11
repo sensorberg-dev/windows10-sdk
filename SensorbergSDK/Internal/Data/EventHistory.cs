@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Storage;
 using MetroLog;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Internal.Transport;
@@ -15,14 +16,27 @@ namespace SensorbergSDK.Internal.Data
     /// <summary>
     /// Event storage. It stores all past beacon events and actions associated with the events.
     /// </summary>
-    public sealed class EventHistory : IDisposable
+    public sealed class EventHistory
     {
+        public const string KeyHistoryevents = "historyEvents";
+        public const string KeyFireOnlyOnceActions = "fire_only_once_actions";
         private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<EventHistory>();
-        private readonly AutoResetEvent _asyncWaiter;
+        private ApplicationDataContainer lastEvents;
+        private ApplicationDataContainer firedActions;
 
         public EventHistory()
         {
-            _asyncWaiter = new AutoResetEvent(true);
+            if (!ApplicationData.Current.LocalSettings.Containers.ContainsKey(KeyHistoryevents))
+            {
+                ApplicationData.Current.LocalSettings.CreateContainer(KeyHistoryevents,ApplicationDataCreateDisposition.Always);
+            }
+            lastEvents = ApplicationData.Current.LocalSettings.Containers[KeyHistoryevents];
+
+            if (!ApplicationData.Current.RoamingSettings.Containers.ContainsKey(KeyFireOnlyOnceActions))
+            {
+                ApplicationData.Current.RoamingSettings.CreateContainer(KeyFireOnlyOnceActions, ApplicationDataCreateDisposition.Always);
+            }
+            firedActions = ApplicationData.Current.RoamingSettings.Containers[KeyFireOnlyOnceActions];
         }
 
         /// <summary>
@@ -31,31 +45,24 @@ namespace SensorbergSDK.Internal.Data
         /// </summary>
         /// <param name="resolvedAction"></param>
         /// <returns>True ,if action type is SendOnlyOnce, and it has been shown already. Otherwise false.</returns>
-        public async Task<bool> CheckSendOnlyOnceAsync(ResolvedAction resolvedAction)
+        public bool CheckSendOnlyOnceAsync(ResolvedAction resolvedAction)
         {
             Logger.Trace("CheckSendOnlyOnceAsync {0}", resolvedAction.BeaconAction.Id);
-            bool sendonlyOnce = false;
 
             if (resolvedAction.SendOnlyOnce)
             {
-                try
+                if (firedActions.Values.ContainsKey(resolvedAction.BeaconAction.Uuid))
                 {
-                    _asyncWaiter.WaitOne();
-                    HistoryAction dbHistoryAction = await ServiceManager.StorageService.GetAction(resolvedAction.BeaconAction.Uuid);
-
-                    if (dbHistoryAction != null)
-                    {
-                        sendonlyOnce = true;
-                    }
-
+                    return true;
                 }
-                finally
+                else
                 {
-                    _asyncWaiter.Set();
+                    firedActions.Values[resolvedAction.BeaconAction.Uuid] = true;
+                    return false;
                 }
             }
 
-            return sendonlyOnce;
+            return false;
         }
 
         /// <summary>
@@ -64,37 +71,23 @@ namespace SensorbergSDK.Internal.Data
         /// </summary>
         /// <param name="resolvedAction"></param>
         /// <returns>True only if action should be supressed.</returns>
-        public async Task<bool> ShouldSupressAsync(ResolvedAction resolvedAction)
+        public bool ShouldSupressAsync(ResolvedAction resolvedAction)
         {
             Logger.Trace("ShouldSupressAsync {0}", resolvedAction.BeaconAction.Id);
+            bool retVal = false;
 
             if (resolvedAction.SuppressionTime > 0)
             {
-                try
+                if (lastEvents.Values.ContainsKey(resolvedAction.BeaconAction.Uuid))
                 {
-                    _asyncWaiter.WaitOne();
-                    IList<HistoryAction> dbHistoryActions = await ServiceManager.StorageService.GetActions(resolvedAction.BeaconAction.Uuid);
-
-                    if (dbHistoryActions != null)
+                    if ((long)lastEvents.Values[resolvedAction.BeaconAction.Uuid] + resolvedAction.SuppressionTime*1000 > DateTimeOffset.Now.ToUnixTimeMilliseconds())
                     {
-                        foreach (var dbHistoryAction in dbHistoryActions)
-                        {
-                            var actionTimestamp = DateTimeOffset.Parse(dbHistoryAction.ActionTime).AddSeconds(resolvedAction.SuppressionTime);
-
-                            if (actionTimestamp > DateTimeOffset.Now)
-                            {
-                                return true;
-                            }
-                        }
+                        retVal = true;
                     }
                 }
-                finally
-                {
-                    _asyncWaiter.Set();
-                }
+                lastEvents.Values[resolvedAction.BeaconAction.Uuid] = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             }
-
-            return false;
+            return retVal;
         }
 
         /// <summary>
@@ -127,11 +120,6 @@ namespace SensorbergSDK.Internal.Data
         public async Task FlushHistoryAsync()
         {
             await ServiceManager.StorageService.FlushHistory();
-        }
-
-        public void Dispose()
-        {
-            _asyncWaiter?.Dispose();
         }
     }
 }

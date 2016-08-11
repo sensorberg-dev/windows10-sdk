@@ -100,6 +100,7 @@ namespace SensorbergSDK.Internal
             ServiceManager.StorageService = new StorageService(createdOnForeground);
             ServiceManager.SettingsManager = new SettingsManager();
             ServiceManager.LocationService = _locationService = new LocationService();
+            ServiceManager.WriterFactory = new WriterFactory();
 
             _appIsOnForeground = createdOnForeground;
             Resolver = new Resolver(!createdOnForeground, createdOnForeground);
@@ -242,8 +243,8 @@ namespace SensorbergSDK.Internal
             try
             {
                 Logger.Debug("SDKEngine: ExecuteActionAsync " + beaconPid + " BeaconEventType: " + beaconEventType);
-                bool checkOnlyOnce = await _eventHistory.CheckSendOnlyOnceAsync(resolvedAction);
-                bool shouldSupress = await _eventHistory.ShouldSupressAsync(resolvedAction);
+                bool checkOnlyOnce = _eventHistory.CheckSendOnlyOnceAsync(resolvedAction);
+                bool shouldSupress = _eventHistory.ShouldSupressAsync(resolvedAction);
 
                 Logger.Trace("SDKEngine: ExecuteActionAsync " + beaconPid + " checkOnlyOnce: " + checkOnlyOnce + " shouldSupress:" + shouldSupress);
                 if (!shouldSupress && !checkOnlyOnce && resolvedAction.IsInsideTimeframes(DateTimeOffset.Now))

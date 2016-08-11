@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Windows.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
@@ -16,6 +17,8 @@ namespace SensorbergSDKTests
         [TestInitialize]
         public async Task Setup()
         {
+            ApplicationData.Current.LocalSettings.DeleteContainer(EventHistory.KeyHistoryevents);
+            ApplicationData.Current.RoamingSettings.DeleteContainer(EventHistory.KeyFireOnlyOnceActions);
             await TestHelper.ClearFiles("sensorberg-storage");
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
@@ -51,11 +54,16 @@ namespace SensorbergSDKTests
             await eventHistory.SaveBeaconEventAsync(args, null);
             await eventHistory.SaveExecutedResolvedActionAsync(resolvedActionEventArgs, beaconaction1);
             await eventHistory.SaveExecutedResolvedActionAsync(resolvedActionEventArgs, beaconaction3);
+
+            eventHistory.ShouldSupressAsync(res1);
+            eventHistory.ShouldSupressAsync(res3);
+
             await Task.Delay(2000);
 
-            bool shouldSupress1 = await eventHistory.ShouldSupressAsync(res1);
-            bool shouldSupress2 = await eventHistory.ShouldSupressAsync(res2);
-            bool shouldSupress3 = await eventHistory.ShouldSupressAsync(res3);
+
+            bool shouldSupress1 = eventHistory.ShouldSupressAsync(res1);
+            bool shouldSupress2 = eventHistory.ShouldSupressAsync(res2);
+            bool shouldSupress3 = eventHistory.ShouldSupressAsync(res3);
 
             Assert.IsTrue(shouldSupress1);
             Assert.IsFalse(shouldSupress2);

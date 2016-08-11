@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Devices.Geolocation;
 using MetroLog;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Transport;
