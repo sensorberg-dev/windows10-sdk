@@ -42,7 +42,7 @@ namespace SensorbergSDK.Services
         /// <summary>
         /// Marks all delivered HistoryActions as delivered.
         /// </summary>
-        Task SetActionsAsDelivered();
+        Task SetActionsAsDelivered(IList<HistoryAction> sendActions);
 
         /// <summary>
         /// Store the given HistoryAction.

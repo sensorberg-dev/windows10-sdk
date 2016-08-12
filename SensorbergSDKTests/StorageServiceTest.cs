@@ -185,7 +185,7 @@ namespace SensorbergSDKTests
             await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("959ea393e3424ab7ad53584a8b789197", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
                 BeaconEventType.EnterExit, null));
 
-            await foregroundStorage.SetActionsAsDelivered();
+            await foregroundStorage.SetActionsAsDelivered(new List<HistoryAction>());
             historyActions = await foregroundStorage.GetUndeliveredActions();
             Assert.AreEqual(4, historyActions.Count, "Not 4 history actions found");
 
@@ -204,8 +204,8 @@ namespace SensorbergSDKTests
             await storage.SaveHistoryAction(FileStorageHelper.ToHistoryAction("959ea393e3424ab7ad53584a8b789197", "2", DateTimeOffset.Parse("2016-04-16T14:00:00.000+0000"),
                 BeaconEventType.EnterExit, null));
 
-            await foregroundStorage.GetUndeliveredActions();
-            await foregroundStorage.SetActionsAsDelivered();
+            historyActions = await foregroundStorage.GetUndeliveredActions();
+            await foregroundStorage.SetActionsAsDelivered(historyActions);
             historyActions = await foregroundStorage.GetUndeliveredActions();
             Assert.AreEqual(0, historyActions.Count, "Not 0 history actions found");
 

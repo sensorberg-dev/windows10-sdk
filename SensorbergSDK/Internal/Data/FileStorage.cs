@@ -197,7 +197,7 @@ namespace SensorbergSDK.Internal.Data
             return await GetUndeliveredActions(true);
         }
 
-        public async Task SetActionsAsDelivered()
+        public async Task SetActionsAsDelivered(IList<HistoryAction> sendActions)
         {
             StorageFolder folder = await GetFolder(BackgroundActionsFolder, true);
             StorageFile deliveredActionsFile = await folder.CreateFileAsync(ActionsFileName, CreationCollisionOption.OpenIfExists);
@@ -235,10 +235,9 @@ namespace SensorbergSDK.Internal.Data
                     foreach (string s in l)
                     {
                         HistoryAction action = FileStorageHelper.ActionFromString(s);
-                        if (action != null)
+                        if(!sendActions.Contains(action))
                         {
-                            action.Delivered = true;
-                            l2.Add(FileStorageHelper.ActionToString(action));
+                            l2.Add(s);
                         }
                     }
                 });

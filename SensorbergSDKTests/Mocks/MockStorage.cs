@@ -40,7 +40,7 @@ namespace SensorbergSDKTests.Mocks
             UndeliveredEvents?.Clear();
         }
 
-        public async Task SetActionsAsDelivered()
+        public async Task SetActionsAsDelivered(IList<HistoryAction> sendActions)
         {
             UndeliveredActions?.Clear();
         }

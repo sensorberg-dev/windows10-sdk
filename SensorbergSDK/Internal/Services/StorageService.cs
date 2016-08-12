@@ -131,7 +131,7 @@ namespace SensorbergSDK.Internal.Services
 
                         if (history.Actions != null && history.Actions.Count > 0)
                         {
-                            await Storage.SetActionsAsDelivered();
+                            await Storage.SetActionsAsDelivered(history.Actions);
                         }
                         return true;
                     }

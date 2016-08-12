@@ -158,7 +158,10 @@ namespace SensorbergSDK.Internal.Services
                 CancelToken = null;
                 _semaphore.WaitOne();
                 Queue = new List<string>();
-                await _storageFile.DeleteAsync();
+                if (_storageFile != null)
+                {
+                    await _storageFile.DeleteAsync();
+                }
                 _storageFile = null;
             }
             finally
