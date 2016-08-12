@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 using MetroLog;
+using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Internal.Transport;
 using SensorbergSDK.Services;
 
@@ -29,6 +30,7 @@ namespace SensorbergSDK.Internal.Data
         private const string SettingsFolderName = "settings";
         private const string FolderLockFile = "folderlock";
         public const string ActionsFileName = "actions.ini";
+        public const string EventsFileName = "events.ini";
         private const string DelayedActionsFileName = "delayedactions.ini";
         private const string Serperator = "\\";
         private const string RootFolder = "sensorberg-storage";
@@ -39,8 +41,8 @@ namespace SensorbergSDK.Internal.Data
         private const string BackgroundSettingsFolder = BackgroundFolder + Serperator + SettingsFolderName;
         public const string ForegroundActionsFolder = ForegroundFolder + Serperator + ActionsFolderName;
         public const string ForegroundEventsFolder = ForegroundFolder + Serperator + EventsFolderName;
-        private readonly string[] _eventFolders = new string[] {BackgroundEventsFolder, ForegroundEventsFolder};
-        private readonly string[] _actionFolders = new string[] {BackgroundActionsFolder, ForegroundActionsFolder};
+        private IQueuedFileWriter _foregroundHistoryActionWriter;
+        private IQueuedFileWriter _foregroundHistoryEventWriter;
 
         public bool Background { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
@@ -54,15 +56,25 @@ namespace SensorbergSDK.Internal.Data
             await background.CreateFolderAsync(ActionsFolderName, CreationCollisionOption.OpenIfExists);
             await background.CreateFolderAsync(EventsFolderName, CreationCollisionOption.OpenIfExists);
             await background.CreateFolderAsync(SettingsFolderName, CreationCollisionOption.OpenIfExists);
-            await foreground.CreateFolderAsync(ActionsFolderName, CreationCollisionOption.OpenIfExists);
-            await foreground.CreateFolderAsync(EventsFolderName, CreationCollisionOption.OpenIfExists);
+            StorageFolder foregroundActions = await foreground.CreateFolderAsync(ActionsFolderName, CreationCollisionOption.OpenIfExists);
+            StorageFolder foregroundEvents = await foreground.CreateFolderAsync(EventsFolderName, CreationCollisionOption.OpenIfExists);
             await foreground.CreateFolderAsync(SettingsFolderName, CreationCollisionOption.OpenIfExists);
+            _foregroundHistoryActionWriter = ServiceManager.WriterFactory.CreateNew(foregroundActions, ActionsFileName);
+            _foregroundHistoryEventWriter = ServiceManager.WriterFactory.CreateNew(foregroundEvents, EventsFileName);
         }
 
         public async Task CleanDatabase()
         {
             try
             {
+                if (_foregroundHistoryActionWriter != null)
+                {
+                    await _foregroundHistoryActionWriter.Clear();
+                }
+                if (_foregroundHistoryEventWriter != null)
+                {
+                    await _foregroundHistoryEventWriter.Clear();
+                }
                 StorageFolder folder = ApplicationData.Current.LocalFolder;
                 StorageFolder root = await folder.CreateFolderAsync(RootFolder, CreationCollisionOption.OpenIfExists);
                 await root.DeleteAsync();
@@ -79,9 +91,8 @@ namespace SensorbergSDK.Internal.Data
         public async Task CleanupDatabase()
         {
             string minDateTime = DateTime.Now.AddDays(-1).ToString(History.Timeformat);
-            foreach (string currentfolder in _actionFolders)
             {
-                StorageFolder folder = await GetFolder(currentfolder, true);
+                StorageFolder folder = await GetFolder(BackgroundActionsFolder, true);
                 IReadOnlyList<IStorageItem> folders = await folder.GetItemsAsync();
                 foreach (IStorageItem storageItem in folders)
                 {
@@ -130,6 +141,15 @@ namespace SensorbergSDK.Internal.Data
                     }
                 }
             }
+            await _foregroundHistoryActionWriter.RewriteFile((lines, linesToWrite) =>
+            {
+                List<HistoryAction> fileActions = FileStorageHelper.ActionsFromStrings(lines);
+                fileActions.RemoveAll(a => a.Delivered && a.ActionTime.CompareTo(minDateTime) < 0);
+                foreach (HistoryAction historyAction in fileActions)
+                {
+                    linesToWrite.Add(FileStorageHelper.ActionToString(historyAction));
+                }
+            });
             //Events are deleted when delivered so no cleanup need
         }
 
@@ -139,11 +159,10 @@ namespace SensorbergSDK.Internal.Data
         }
 
 
-        public async Task SetEventsAsDelivered()
+        public async Task SetEventsAsDelivered(IList<HistoryEvent> sendEvents)
         {
-            foreach (string currentfolder in _eventFolders)
             {
-                StorageFolder folder = await GetFolder(currentfolder, true);
+                StorageFolder folder = await GetFolder(BackgroundEventsFolder, true);
                 IReadOnlyList<StorageFolder> folders = await folder.GetFoldersAsync();
                 foreach (StorageFolder storageFolder in folders)
                 {
@@ -157,6 +176,17 @@ namespace SensorbergSDK.Internal.Data
                     await storageFolder.DeleteAsync();
                 }
             }
+            await _foregroundHistoryEventWriter.RewriteFile((l, l2) =>
+            {
+                foreach (string s in l)
+                {
+                    HistoryEvent e = FileStorageHelper.EventFromString(s);
+                    if (!sendEvents.Contains(e))
+                    {
+                        l2.Add(s);
+                    }
+                }
+            });
         }
 
 
@@ -165,38 +195,50 @@ namespace SensorbergSDK.Internal.Data
             return await GetUndeliveredActions(true);
         }
 
-        public async Task SetActionsAsDelivered()
+        public async Task SetActionsAsDelivered(IList<HistoryAction> sendActions)
         {
-            foreach (string currentfolder in _actionFolders)
+            StorageFolder folder = await GetFolder(BackgroundActionsFolder, true);
+            StorageFile deliveredActionsFile = await folder.CreateFileAsync(ActionsFileName, CreationCollisionOption.OpenIfExists);
+            IReadOnlyList<StorageFolder> folders = await folder.GetFoldersAsync();
+            foreach (StorageFolder storageFolder in folders)
             {
-                StorageFolder folder = await GetFolder(currentfolder, true);
-                StorageFile deliveredActionsFile = await folder.CreateFileAsync(ActionsFileName, CreationCollisionOption.OpenIfExists);
-                IReadOnlyList<StorageFolder> folders = await folder.GetFoldersAsync();
-                foreach (StorageFolder storageFolder in folders)
+                IReadOnlyList<StorageFile> files = await storageFolder.GetFilesAsync();
+
+                //ignore unlocked folders
+                if (files.FirstOrDefault(f => f.Name == FolderLockFile) == null)
                 {
-                    IReadOnlyList<StorageFile> files = await storageFolder.GetFilesAsync();
-
-                    //ignore unlocked folders
-                    if (files.FirstOrDefault(f => f.Name == FolderLockFile) == null)
-                    {
-                        continue;
-                    }
-
-                    StorageFile actionFile = files.FirstOrDefault(f => f.Name == ActionsFileName);
-                    if (actionFile != null)
-                    {
-                        List<HistoryAction> actions = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(actionFile));
-
-                        List<string> stringActions = new List<string>();
-                        foreach (HistoryAction historyAction in actions)
-                        {
-                            historyAction.Delivered = true;
-                            stringActions.Add(FileStorageHelper.ActionToString(historyAction));
-                        }
-                        await FileIO.AppendLinesAsync(deliveredActionsFile, stringActions);
-                    }
-                    await storageFolder.DeleteAsync();
+                    continue;
                 }
+
+                StorageFile actionFile = files.FirstOrDefault(f => f.Name == ActionsFileName);
+                if (actionFile != null)
+                {
+                    List<HistoryAction> actions = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(actionFile));
+
+                    List<string> stringActions = new List<string>();
+                    foreach (HistoryAction historyAction in actions)
+                    {
+                        historyAction.Delivered = true;
+                        stringActions.Add(FileStorageHelper.ActionToString(historyAction));
+                    }
+                    await FileIO.AppendLinesAsync(deliveredActionsFile, stringActions);
+                }
+                await storageFolder.DeleteAsync();
+            }
+
+            if (_foregroundHistoryActionWriter != null)
+            {
+                await _foregroundHistoryActionWriter.RewriteFile((l, l2) =>
+                {
+                    foreach (string s in l)
+                    {
+                        HistoryAction action = FileStorageHelper.ActionFromString(s);
+                        if(!sendActions.Contains(action))
+                        {
+                            l2.Add(s);
+                        }
+                    }
+                });
             }
         }
 
@@ -204,11 +246,19 @@ namespace SensorbergSDK.Internal.Data
         {
             try
             {
-                StorageFolder folder = await GetFolder(Background ? BackgroundActionsFolder : ForegroundActionsFolder);
-                StorageFile file = await folder.CreateFileAsync(ActionsFileName, CreationCollisionOption.OpenIfExists);
                 action.Background = Background;
                 string actionToString = FileStorageHelper.ActionToString(action);
-                return await RetryAppending(file, actionToString);
+                if (Background)
+                {
+                    StorageFolder folder = await GetFolder(Background ? BackgroundActionsFolder : ForegroundActionsFolder);
+                    StorageFile file = await folder.CreateFileAsync(ActionsFileName, CreationCollisionOption.OpenIfExists);
+                    return await RetryAppending(file, actionToString);
+                }
+                else
+                {
+                    await _foregroundHistoryActionWriter.WriteLine(actionToString);
+                    return true;
+                }
             }
             catch (Exception e)
             {
@@ -221,10 +271,19 @@ namespace SensorbergSDK.Internal.Data
         {
             try
             {
-                StorageFolder folder = await GetFolder(Background ? BackgroundEventsFolder : ForegroundEventsFolder);
-                StorageFile file = await folder.CreateFileAsync(he.BeaconId, CreationCollisionOption.OpenIfExists);
                 string eventToString = FileStorageHelper.EventToString(he);
-                return await RetryAppending(file, eventToString);
+                Logger.Trace("SaveHistoryEvents " + he.BeaconId);
+                if (Background)
+                {
+                    StorageFolder folder = await GetFolder(Background ? BackgroundEventsFolder : ForegroundEventsFolder);
+                    StorageFile file = await folder.CreateFileAsync(he.BeaconId, CreationCollisionOption.OpenIfExists);
+                    return await RetryAppending(file, eventToString);
+                }
+                else
+                {
+                    await _foregroundHistoryEventWriter.WriteLine(eventToString);
+                    return true;
+                }
             }
             catch (Exception e)
             {
@@ -232,50 +291,6 @@ namespace SensorbergSDK.Internal.Data
             }
             return false;
         }
-
-
-        public async Task<IList<HistoryAction>> GetActions(string uuid)
-        {
-            Logger.Trace("GetActions {0}", uuid);
-            List<HistoryAction> returnActions = new List<HistoryAction>();
-            IList<HistoryAction> actions = await GetUndeliveredActions(false);
-
-            foreach (HistoryAction historyAction in actions)
-            {
-                if (historyAction.EventId == uuid)
-                {
-                    returnActions.Add(historyAction);
-                }
-            }
-            try
-            {
-                StorageFolder folder = await GetFolder(ForegroundActionsFolder, true);
-                StorageFile storageFile = await folder.GetFileAsync(ActionsFileName);
-                List<HistoryAction> actionsFromStrings = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(storageFile));
-                foreach (HistoryAction historyAction in actionsFromStrings)
-                {
-                    if (historyAction.EventId == uuid)
-                    {
-                        returnActions.Add(historyAction);
-                    }
-                }
-            }
-            catch (SEHException)
-            {
-            }
-            catch (FileNotFoundException)
-            {
-            }
-            Logger.Trace("GetActions {0} End", uuid);
-            return returnActions;
-        }
-
-        public async Task<HistoryAction> GetAction(string uuid)
-        {
-            return (await GetActions(uuid)).FirstOrDefault();
-        }
-
-
 
         public async Task<IList<DelayedActionData>> GetDelayedActions()
         {
@@ -491,13 +506,12 @@ namespace SensorbergSDK.Internal.Data
             return await folder.CreateFolderAsync(DateTime.UtcNow.ToString("yyyy-MM-dd-HHmmss"), CreationCollisionOption.OpenIfExists);
         }
 
-        private async Task<IList<HistoryEvent>>  GetUndeliveredEvents(bool lockFolder)
+        private async Task<IList<HistoryEvent>> GetUndeliveredEvents(bool lockFolder)
         {
             IList<HistoryEvent> events = new List<HistoryEvent>();
 
-            foreach (string currentfolder in _eventFolders)
             {
-                StorageFolder folder = await GetFolder(currentfolder);
+                StorageFolder folder = await GetFolder(BackgroundEventsFolder);
                 if (lockFolder)
                 {
                     await CreateEventMarker(folder);
@@ -533,60 +547,80 @@ namespace SensorbergSDK.Internal.Data
                     }
                 }
             }
+            List<string> list = await _foregroundHistoryEventWriter.ReadLines();
+            foreach (string s in list)
+            {
+                HistoryEvent historyEvent = FileStorageHelper.EventFromString(s);
+                if (historyEvent != null && !historyEvent.Delivered)
+                {
+                    events.Add(historyEvent);
+                }
+            }
 
             return events;
         }
 
         private async Task<IList<HistoryAction>> GetUndeliveredActions(bool lockFolder)
         {
+            return (await GetActions(lockFolder)).Where(a => !a.Delivered).ToList();
+        }
+
+        private async Task<IList<HistoryAction>> GetActions(bool lockFolder)
+        {
             IList<HistoryAction> actions = new List<HistoryAction>();
 
-            foreach (string currentfolder in _actionFolders)
+            StorageFolder folder = await GetFolder(BackgroundActionsFolder);
+            if (lockFolder)
             {
-                StorageFolder folder = await GetFolder(currentfolder);
-                if (lockFolder)
+                await CreateEventMarker(folder);
+            }
+            StorageFolder parentFolder = await folder.GetParentAsync();
+            IReadOnlyList<StorageFolder> folders = await parentFolder.GetFoldersAsync();
+            foreach (StorageFolder storageFolder in folders)
+            {
+                try
                 {
-                    await CreateEventMarker(folder);
+                    IReadOnlyList<StorageFile> files = await storageFolder.GetFilesAsync();
+                    StorageFile first = null;
+                    foreach (var f in files)
+                    {
+                        if (f.Name == ActionsFileName)
+                        {
+                            first = f;
+                            break;
+                        }
+                    }
+                    if (first != null)
+                    {
+                        List<HistoryAction> fileActions = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(first));
+                        if (fileActions != null)
+                        {
+                            foreach (HistoryAction historyAction in fileActions)
+                            {
+                                actions.Add(historyAction);
+                            }
+                        }
+                    }
                 }
-                StorageFolder parentFolder = await folder.GetParentAsync();
-                IReadOnlyList<StorageFolder> folders = await parentFolder.GetFoldersAsync();
-                foreach (StorageFolder storageFolder in folders)
+                catch (SEHException)
                 {
-                    try
+                }
+                catch (FileNotFoundException)
+                {
+                }
+            }
+            if (_foregroundHistoryActionWriter != null)
+            {
+                List<HistoryAction> foreGroundfileActions = FileStorageHelper.ActionsFromStrings(await _foregroundHistoryActionWriter.ReadLines());
+                if (foreGroundfileActions != null)
+                {
+                    foreach (HistoryAction historyAction in foreGroundfileActions)
                     {
-                        IReadOnlyList<StorageFile> files = await storageFolder.GetFilesAsync();
-                        StorageFile first = null;
-                        foreach (var f in files)
-                        {
-                            if (f.Name == ActionsFileName)
-                            {
-                                first = f;
-                                break;
-                            }
-                        }
-                        if (first != null)
-                        {
-                            List<HistoryAction> fileActions = FileStorageHelper.ActionsFromStrings(await FileIO.ReadLinesAsync(first));
-                            if (fileActions != null)
-                            {
-                                foreach (HistoryAction historyAction in fileActions)
-                                {
-                                    if (!historyAction.Delivered)
-                                    {
-                                        actions.Add(historyAction);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    catch (SEHException)
-                    {
-                    }
-                    catch (FileNotFoundException)
-                    {
+                        actions.Add(historyAction);
                     }
                 }
             }
+
             return actions;
         }
 

@@ -22,17 +22,19 @@ namespace SensorbergSDKTests
         [TestInitialize]
         public async Task Setup()
         {
-            await TestHelper.ClearFiles("sensorberg-storage");
+            await TestHelper.Clear();
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
             ServiceManager.LayoutManager = new LayoutManager();
             ServiceManager.SettingsManager = new SettingsManager();
             ServiceManager.StorageService = new StorageService();
+            ServiceManager.WriterFactory = new WriterFactory();
             ServiceManager.ReadOnlyForTests = true;
         }
 
         [TestMethod]
+        [Timeout(10000)]
         public async Task ResolveBackgroundBeaconsSingleAction()
         {
             LayoutManager layoutManager = (LayoutManager) ServiceManager.LayoutManager;
@@ -87,7 +89,7 @@ namespace SensorbergSDKTests
 
             IList<BeaconAction> result = await action.Task;
 
-            Assert.AreEqual(3, result.Count, "Not 3 action found");
+            Assert.AreEqual(4, result.Count, "Not 4 action found");
         }
 
         [TestMethod]

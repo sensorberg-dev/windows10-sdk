@@ -6,7 +6,6 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Devices.Geolocation;
 using Windows.UI.Core;
 using MetroLog;
 using SensorbergSDK.Internal;
@@ -241,6 +240,8 @@ namespace SensorbergSDK
                 SdkData.ApiKey = configuration.ApiKey;
                 await SdkEngine.InitializeAsync();
                 await InitializeSettingsAsync();
+                Scanner.StatusChanged += OnScannerStatusChanged;
+                Scanner.BeaconEvent += OnBeaconEventAsync;
             }
 
             if (SdkData.BackgroundTaskEnabled)
@@ -364,11 +365,8 @@ namespace SensorbergSDK
         /// </summary>
         public void StartScanner()
         {
-            Scanner.StatusChanged += OnScannerStatusChanged;
-
             if (Scanner.Status != ScannerStatus.Started)
             {
-                Scanner.BeaconEvent += OnBeaconEventAsync;
                 _timerHackStop = false;
                 InitializeSettingsAsync().ContinueWith(task =>
                 {
@@ -382,8 +380,6 @@ namespace SensorbergSDK
         /// </summary>
         public void StopScanner()
         {
-            Scanner.StatusChanged -= OnScannerStatusChanged;
-
             _timerHackStop = true;
             _startScannerTimer?.Change(Timeout.Infinite, Timeout.Infinite);
             _startScannerTimer?.Dispose();
@@ -391,7 +387,6 @@ namespace SensorbergSDK
 
             if (Scanner.Status == ScannerStatus.Started)
             {
-                Scanner.BeaconEvent -= OnBeaconEventAsync;
                 Scanner.StopWatcher();
             }
         }
@@ -442,8 +437,6 @@ namespace SensorbergSDK
 
             if (e != ScannerStatus.Started)
             {
-                Scanner.BeaconEvent -= OnBeaconEventAsync;
-
                 if (Configuration.AutoStartScanner)
                 {
                     _startScannerTimer = new Timer(StartScannerTimerCallback, null, _startScannerIntervalInMilliseconds, Timeout.Infinite);

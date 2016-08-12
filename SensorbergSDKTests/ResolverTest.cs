@@ -25,7 +25,7 @@ namespace SensorbergSDKTests
         [TestInitialize]
         public async Task Setup()
         {
-            await TestHelper.ClearFiles("sensorberg-storage");
+            await TestHelper.Clear();
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
@@ -59,7 +59,7 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
-        [Timeout(1000)]
+//        [Timeout(1000)]
         public async Task ResolveMultipleAction()
         {
             IResolver resolver = new Resolver(true, false);

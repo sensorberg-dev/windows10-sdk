@@ -37,12 +37,12 @@ namespace SensorbergSDK.Services
         /// Marks all delivered HistoryEvents as delivered.
         /// </summary>
         /// <returns></returns>
-        Task SetEventsAsDelivered();
+        Task SetEventsAsDelivered(IList<HistoryEvent> sendEvents);
 
         /// <summary>
         /// Marks all delivered HistoryActions as delivered.
         /// </summary>
-        Task SetActionsAsDelivered();
+        Task SetActionsAsDelivered(IList<HistoryAction> sendActions);
 
         /// <summary>
         /// Store the given HistoryAction.
@@ -55,19 +55,6 @@ namespace SensorbergSDK.Services
         /// </summary>
         /// <param name="he">Event to store.</param>
         Task<bool> SaveHistoryEvents(HistoryEvent he);
-
-        /// <summary>
-        /// Returns all HistoryActions that are fired by that action UUID.
-        /// </summary>
-        /// <param name="uuid">UUID of the Action.</param>
-        /// <returns>List of HistoryActions.</returns>
-        Task<IList<HistoryAction>> GetActions(string uuid);
-
-        /// <summary>
-        /// Returns a HistoryAction that is fired by an action with that given UUID.
-        /// </summary>
-        /// <param name="uuid">UUID of the action.</param>
-        Task<HistoryAction> GetAction(string uuid);
 
         /// <summary>
         /// Cleans old entries from the database.

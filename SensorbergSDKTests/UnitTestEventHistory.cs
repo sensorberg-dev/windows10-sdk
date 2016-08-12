@@ -16,7 +16,7 @@ namespace SensorbergSDKTests
         [TestInitialize]
         public async Task Setup()
         {
-            await TestHelper.ClearFiles("sensorberg-storage");
+            await TestHelper.Clear();
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
@@ -51,11 +51,16 @@ namespace SensorbergSDKTests
             await eventHistory.SaveBeaconEventAsync(args, null);
             await eventHistory.SaveExecutedResolvedActionAsync(resolvedActionEventArgs, beaconaction1);
             await eventHistory.SaveExecutedResolvedActionAsync(resolvedActionEventArgs, beaconaction3);
+
+            eventHistory.ShouldSupressAsync(res1);
+            eventHistory.ShouldSupressAsync(res3);
+
             await Task.Delay(2000);
 
-            bool shouldSupress1 = await eventHistory.ShouldSupressAsync(res1);
-            bool shouldSupress2 = await eventHistory.ShouldSupressAsync(res2);
-            bool shouldSupress3 = await eventHistory.ShouldSupressAsync(res3);
+
+            bool shouldSupress1 = eventHistory.ShouldSupressAsync(res1);
+            bool shouldSupress2 = eventHistory.ShouldSupressAsync(res2);
+            bool shouldSupress3 = eventHistory.ShouldSupressAsync(res3);
 
             Assert.IsTrue(shouldSupress1);
             Assert.IsFalse(shouldSupress2);

@@ -145,7 +145,7 @@ namespace NGeoHash.Portable
                     hashValue = 0;
                 }
             }
-            return string.Join("", chars.ToArray());
+            return string.Join(string.Empty, chars.ToArray());
         }
 
 /**
