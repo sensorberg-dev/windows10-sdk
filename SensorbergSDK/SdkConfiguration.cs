@@ -4,7 +4,9 @@
 // 
 // All rights reserved.
 
+using System;
 using System.Diagnostics;
+using SensorbergSDK.Internal;
 using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDK
@@ -14,6 +16,8 @@ namespace SensorbergSDK
     /// </summary>
     public class SdkConfiguration
     {
+        private string _resolverUri;
+
         /// <summary>
         /// ApiKey to connect to the Sensorberg Backend. See https://manage.sensorberg.com/#/applications for the key.
         /// </summary>
@@ -68,12 +72,39 @@ namespace SensorbergSDK
         public ushort BeaconCode { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
         /// <summary>
+        /// Sets the uri for the resolver. If it is set all related uris will recreated.
+        /// </summary>
+        public string ResolverUri
+        {
+            get { return _resolverUri; }
+            set
+            {
+                if (!value.StartsWith("http"))
+                {
+                    value = "https://" + value;
+                }
+                if (!value.EndsWith("/"))
+                {
+                    value = value + "/";
+                }
+                _resolverUri = value;
+                LayoutUri = value + "layout";
+                SettingsUri = value + "applications/{0}/settings/windows10/";
+            }
+        }
+
+        public string LayoutUri { get; set; }
+        public string DeviceId { get; set; }
+        public string SettingsUri { get; set; }
+
+        /// <summary>
         /// Creates a new object that starts automatic the scanner and collect every beacon contains the sensorberg uuids.
         /// </summary>
         public SdkConfiguration()
         {
             AutoStartScanner = true;
             BackgroundBeaconUuidSpace = string.Empty;
+            ResolverUri = Constants.ResolverUri;
         }
     }
 }

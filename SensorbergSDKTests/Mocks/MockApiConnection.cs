@@ -11,6 +11,7 @@ using Windows.Web.Http;
 using SensorbergSDK.Internal.Services;
 using SensorbergSDK.Services;
 using System.Collections.Generic;
+using SensorbergSDK;
 using SensorbergSDK.Internal.Data;
 
 namespace SensorbergSDKTests.Mocks
@@ -39,6 +40,8 @@ namespace SensorbergSDKTests.Mocks
             return await Windows.Storage.FileIO.ReadTextAsync(await Windows.Storage.StorageFile.GetFileFromApplicationUriAsync(uri));
         }
 
+
+        public SdkConfiguration Configuration { get; set; }
 
         public async Task<ResponseMessage> RetrieveLayoutResponse(string apiId = null)
         {

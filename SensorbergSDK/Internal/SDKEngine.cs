@@ -83,6 +83,7 @@ namespace SensorbergSDK.Internal
             {
                 _configuration = value;
                 ServiceManager.LocationService.Configuration = _configuration;
+                ServiceManager.ApiConnction.Configuration = _configuration;
             }
         }
 
