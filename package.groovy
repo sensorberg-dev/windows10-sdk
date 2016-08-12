@@ -1,5 +1,5 @@
-def version = "1." + (env.BRANCH_NAME == "master" ? ("1." + env.BUILD_NUMBER) : ("0." + env.BUILD_NUMBER + "-beta"));
-def versionVSIX = "1.1." + env.BUILD_NUMBER;
+def version = "1." + (env.BRANCH_NAME == "master" ? ("2." + env.BUILD_NUMBER) : ("1." + env.BUILD_NUMBER + "-beta"));
+def versionVSIX = "1.2." + env.BUILD_NUMBER;
 
 echo "version-"+version
 echo "VSIX Version-"+versionVSIX
