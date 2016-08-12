@@ -72,7 +72,6 @@ namespace SensorbergSDK.Internal.Services
                     using (IRandomAccessStream stream = await _storageFile.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.AllowOnlyReaders))
                     {
                         stream.Seek(stream.Size);
-                        Logger.Trace("Write lines {0}", Queue[0]);
                         for (int i = 0; i < 10 && Queue.Count != 0; i++)
                         {
                             await stream.WriteAsync(CryptographicBuffer.ConvertStringToBinary(Queue[0], BinaryStringEncoding.Utf8));

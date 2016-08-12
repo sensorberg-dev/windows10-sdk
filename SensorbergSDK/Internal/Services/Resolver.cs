@@ -17,7 +17,6 @@ namespace SensorbergSDK.Internal.Services
 {
     public class Resolver : IResolver
     {
-        private readonly bool _createdOnForeground;
         private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<Resolver>();
         public event EventHandler<ResolvedActionsEventArgs> ActionsResolved;
         public event EventHandler<string> FailedToResolveActions;
@@ -28,9 +27,8 @@ namespace SensorbergSDK.Internal.Services
         private CancellationTokenSource CancelToken { get; set; }
         public bool SynchronResolver { get; }
 
-        public Resolver(bool synchron, bool createdOnForeground)
+        public Resolver(bool synchron)
         {
-            _createdOnForeground = createdOnForeground;
             SynchronResolver = synchron;
 
             if (!SynchronResolver)
