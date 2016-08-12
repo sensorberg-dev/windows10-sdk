@@ -6,8 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Security.Cryptography;
@@ -17,6 +15,9 @@ using MetroLog;
 
 namespace SensorbergSDK.Internal.Services
 {
+    /// <summary>
+    /// Queued writer class to avoid exceptions on file locks while reading and writing.
+    /// </summary>
     public class QueuedFileWriter : IQueuedFileWriter
     {
         private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<QueuedFileWriter>();
@@ -31,7 +32,6 @@ namespace SensorbergSDK.Internal.Services
         private List<string> Queue { get; set; } = new List<string>();
         private Task _runningTask;
         private CancellationTokenSource CancelToken { get; set; }
-        private object _lockObject = new object();
 
         public QueuedFileWriter(IStorageFolder folder, string fileName)
         {

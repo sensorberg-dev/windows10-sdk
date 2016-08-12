@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Data.Json;
-using Windows.Storage;
-using Windows.Storage.Streams;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal.Data;

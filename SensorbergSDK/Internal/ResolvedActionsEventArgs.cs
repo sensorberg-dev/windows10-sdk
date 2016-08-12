@@ -4,8 +4,6 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading.Tasks;
-using Windows.Devices.Geolocation;
 using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDK.Internal

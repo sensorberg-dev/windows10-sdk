@@ -90,7 +90,6 @@ namespace SensorbergSDK.Internal
         /// Creates a new Engine object.
         /// </summary>
         /// <param name="createdOnForeground">bool for indication if the engine works on foreground.</param>
-        /// <param name="configuration">Configuration used for the engine.</param>
         public SdkEngine(bool createdOnForeground)
         {
             ServiceManager.Clear();
