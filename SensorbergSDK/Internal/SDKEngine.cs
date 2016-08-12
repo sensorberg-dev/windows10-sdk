@@ -102,7 +102,7 @@ namespace SensorbergSDK.Internal
             ServiceManager.WriterFactory = new WriterFactory();
 
             _appIsOnForeground = createdOnForeground;
-            Resolver = new Resolver(!createdOnForeground, createdOnForeground);
+            Resolver = new Resolver(!createdOnForeground);
             _eventHistory = new EventHistory();
             _nextTimeToProcessDelayedActions = DateTimeOffset.MaxValue;
             UnresolvedActionCount = 0;
