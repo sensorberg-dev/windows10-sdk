@@ -9,6 +9,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
 using SensorbergSDK.Internal.Data;
+using SensorbergSDK.Internal.Services;
 
 namespace SensorbergSDKTests.Mocks
 {

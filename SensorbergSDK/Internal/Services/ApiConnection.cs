@@ -27,12 +27,13 @@ namespace SensorbergSDK.Internal.Services
     /// </summary>
     public class ApiConnection : IApiConnection
     {
+        public SdkConfiguration Configuration { get; set; }
         /// <summary>
         /// Sends a layout request to server and returns the HTTP response, if any.
         /// </summary>
         /// <param name="apiId">optional api id, overrides the given id by SDKData.</param>
         /// <returns>A HttpResponseMessage containing the server response or null in case of an error.</returns>
-        public async Task<ResponseMessage> RetrieveLayoutResponse(string apiId = null)
+        public async Task<ResponseMessage> RetrieveLayoutResponse(string apiId)
         {
             HttpRequestMessage requestMessage = new HttpRequestMessage();
             HttpBaseProtocolFilter baseProtocolFilter = new HttpBaseProtocolFilter();
@@ -41,10 +42,10 @@ namespace SensorbergSDK.Internal.Services
             baseProtocolFilter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
 
             requestMessage.Method = HttpMethod.Get;
-            requestMessage.RequestUri = new Uri(Constants.LayoutApiUriAsString);
+            requestMessage.RequestUri = new Uri(Configuration.LayoutUri);
 
             HttpClient apiConnection = new HttpClient(baseProtocolFilter);
-            apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, string.IsNullOrEmpty(apiId) ? SdkData.ApiKey : apiId);
+            apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, string.IsNullOrEmpty(apiId)? Configuration.ApiKey:apiId);
             apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, SdkData.DeviceId);
             string geoHash = await ServiceManager.LocationService.GetGeoHashedLocation();
             if (!string.IsNullOrEmpty(geoHash))
@@ -85,7 +86,7 @@ namespace SensorbergSDK.Internal.Services
             baseProtocolFilter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
 
             requestMessage.Method = HttpMethod.Get;
-            requestMessage.RequestUri = new Uri(string.Format(Constants.SettingsUri, SdkData.ApiKey));
+            requestMessage.RequestUri = new Uri(string.Format(Configuration.SettingsUri, Configuration.ApiKey));
 
             HttpClient httpClient = new HttpClient(baseProtocolFilter);
 
@@ -101,14 +102,14 @@ namespace SensorbergSDK.Internal.Services
         public async Task<ResponseMessage> SendHistory(History history)
         {
             System.Net.Http.HttpClient apiConnection = new System.Net.Http.HttpClient();
-            apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, SdkData.ApiKey);
+            apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, Configuration.ApiKey);
             apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, SdkData.DeviceId);
-            apiConnection.DefaultRequestHeaders.Add(Constants.AdvertisementIdentifierHeader, string.IsNullOrEmpty(SdkData.UserId) ? Windows.System.UserProfile.AdvertisingManager.AdvertisingId : SdkData.UserId);
+            apiConnection.DefaultRequestHeaders.Add(Constants.AdvertisementIdentifierHeader, string.IsNullOrEmpty(Configuration.UserId) ? Windows.System.UserProfile.AdvertisingManager.AdvertisingId : Configuration.UserId);
             apiConnection.DefaultRequestHeaders.TryAddWithoutValidation(Constants.XUserAgent, UserAgentBuilder.BuildUserAgentJson());
             string serializeObject = JsonConvert.SerializeObject(history);
             var content = new StringContent(serializeObject, Encoding.UTF8, "application/json");
 
-            System.Net.Http.HttpResponseMessage responseMessage = await apiConnection.PostAsync(new Uri(Constants.LayoutApiUriAsString), content);
+            System.Net.Http.HttpResponseMessage responseMessage = await apiConnection.PostAsync(new Uri(Configuration.LayoutUri), content);
 
             if (responseMessage.IsSuccessStatusCode)
             {

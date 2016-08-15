@@ -237,7 +237,6 @@ namespace SensorbergSDK
 
             if (!IsInitialized)
             {
-                SdkData.ApiKey = configuration.ApiKey;
                 await SdkEngine.InitializeAsync();
                 await InitializeSettingsAsync();
                 Scanner.StatusChanged += OnScannerStatusChanged;

@@ -46,31 +46,6 @@ namespace SensorbergSDK.Internal.Data
             }
         }
 
-        public static string ApiKey
-        {
-            [DebuggerStepThrough]
-            get
-            {
-                string apiKey = string.Empty;
-
-                if (ApplicationData.Current.LocalSettings.Values.ContainsKey(KeySensorbergSdkApiKey))
-                {
-                    apiKey = ApplicationData.Current.LocalSettings.Values[KeySensorbergSdkApiKey].ToString();
-                }
-
-                return apiKey;
-            }
-            [DebuggerStepThrough]
-            set
-            {
-                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey(KeySensorbergSdkApiKey)
-                    || !ApplicationData.Current.LocalSettings.Values[KeySensorbergSdkApiKey].Equals(value))
-                {
-                    ApplicationData.Current.LocalSettings.Values[KeySensorbergSdkApiKey] = value;
-                }
-            }
-        }
-
         public static string DeviceId
         {
             [DebuggerStepThrough]
