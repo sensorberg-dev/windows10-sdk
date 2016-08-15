@@ -94,7 +94,6 @@ namespace SensorbergSDK
         }
 
         public string LayoutUri { get; set; }
-        public string DeviceId { get { return SdkData.DeviceId; } set { SdkData.UserId = value; } }
         public string SettingsUri { get; set; }
 
         /// <summary>

@@ -46,7 +46,7 @@ namespace SensorbergSDK.Internal.Services
 
             HttpClient apiConnection = new HttpClient(baseProtocolFilter);
             apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, string.IsNullOrEmpty(apiId)? Configuration.ApiKey:apiId);
-            apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, Configuration.DeviceId);
+            apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, SdkData.DeviceId);
             string geoHash = await ServiceManager.LocationService.GetGeoHashedLocation();
             if (!string.IsNullOrEmpty(geoHash))
             {
@@ -102,9 +102,9 @@ namespace SensorbergSDK.Internal.Services
         public async Task<ResponseMessage> SendHistory(History history)
         {
             System.Net.Http.HttpClient apiConnection = new System.Net.Http.HttpClient();
-            apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, SdkData.ApiKey);
+            apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, Configuration.ApiKey);
             apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, SdkData.DeviceId);
-            apiConnection.DefaultRequestHeaders.Add(Constants.AdvertisementIdentifierHeader, string.IsNullOrEmpty(SdkData.UserId) ? Windows.System.UserProfile.AdvertisingManager.AdvertisingId : SdkData.UserId);
+            apiConnection.DefaultRequestHeaders.Add(Constants.AdvertisementIdentifierHeader, string.IsNullOrEmpty(Configuration.UserId) ? Windows.System.UserProfile.AdvertisingManager.AdvertisingId : Configuration.UserId);
             apiConnection.DefaultRequestHeaders.TryAddWithoutValidation(Constants.XUserAgent, UserAgentBuilder.BuildUserAgentJson());
             string serializeObject = JsonConvert.SerializeObject(history);
             var content = new StringContent(serializeObject, Encoding.UTF8, "application/json");
