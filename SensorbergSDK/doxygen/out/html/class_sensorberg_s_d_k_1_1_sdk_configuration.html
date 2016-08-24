@@ -123,6 +123,9 @@ Properties</h2></td></tr>
 <tr class="memitem:a336a72dbeefccefcddd7b66a45afe972"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_sdk_configuration.html#a336a72dbeefccefcddd7b66a45afe972">AutoStartScanner</a><code> [get, set]</code></td></tr>
 <tr class="memdesc:a336a72dbeefccefcddd7b66a45afe972"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines if the beacon scanner should automaticly start.  <a href="#a336a72dbeefccefcddd7b66a45afe972">More...</a><br /></td></tr>
 <tr class="separator:a336a72dbeefccefcddd7b66a45afe972"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acce776130833d8918301a7dd3b9f3ac1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_sdk_configuration.html#acce776130833d8918301a7dd3b9f3ac1">UseLocation</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:acce776130833d8918301a7dd3b9f3ac1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enable or disable the usage of geolocation for the beacon actions.  <a href="#acce776130833d8918301a7dd3b9f3ac1">More...</a><br /></td></tr>
+<tr class="separator:acce776130833d8918301a7dd3b9f3ac1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4396c5079e94dc3889139f52888e92ba"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_sdk_configuration.html#a4396c5079e94dc3889139f52888e92ba">UserId</a><code> [get, set]</code></td></tr>
 <tr class="memdesc:a4396c5079e94dc3889139f52888e92ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines an user or advertisement id for collection all the events from a specific user or device.  <a href="#a4396c5079e94dc3889139f52888e92ba">More...</a><br /></td></tr>
 <tr class="separator:a4396c5079e94dc3889139f52888e92ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -132,6 +135,13 @@ Properties</h2></td></tr>
 <tr class="memitem:ad465933dda707461413e47edfc8341e5"><td class="memItemLeft" align="right" valign="top">ushort&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_sdk_configuration.html#ad465933dda707461413e47edfc8341e5">BeaconCode</a><code> [get, set]</code></td></tr>
 <tr class="memdesc:ad465933dda707461413e47edfc8341e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">The beacon code to filter beacons that are being watched.  <a href="#ad465933dda707461413e47edfc8341e5">More...</a><br /></td></tr>
 <tr class="separator:ad465933dda707461413e47edfc8341e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a68c3b4bb49649aebdcfd98f8f39cd96b"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_sdk_configuration.html#a68c3b4bb49649aebdcfd98f8f39cd96b">ResolverUri</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a68c3b4bb49649aebdcfd98f8f39cd96b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the uri for the resolver. If it is set all related uris will recreated.  <a href="#a68c3b4bb49649aebdcfd98f8f39cd96b">More...</a><br /></td></tr>
+<tr class="separator:a68c3b4bb49649aebdcfd98f8f39cd96b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8975e50fbbbd1f58f4bdd1ad46fcadc2"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_sdk_configuration.html#a8975e50fbbbd1f58f4bdd1ad46fcadc2">LayoutUri</a><code> [get, set]</code></td></tr>
+<tr class="separator:a8975e50fbbbd1f58f4bdd1ad46fcadc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff79cc7d13af8715cecf271bc6ed4163"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_sdk_configuration.html#aff79cc7d13af8715cecf271bc6ed4163">SettingsUri</a><code> [get, set]</code></td></tr>
+<tr class="separator:aff79cc7d13af8715cecf271bc6ed4163"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Defines the configuration for the SDK. </p>
@@ -286,6 +296,26 @@ Properties</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a8975e50fbbbd1f58f4bdd1ad46fcadc2"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">string SensorbergSDK.SdkConfiguration.LayoutUri</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">get</span><span class="mlabel">set</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a16c2b895a376281c4fe26875c27717f0"></a>
 <div class="memitem">
 <div class="memproto">
@@ -305,6 +335,70 @@ Properties</h2></td></tr>
 </div><div class="memdoc">
 
 <p>The manufacturer ID to filter beacons that are being watched. </p>
+
+</div>
+</div>
+<a class="anchor" id="a68c3b4bb49649aebdcfd98f8f39cd96b"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">string SensorbergSDK.SdkConfiguration.ResolverUri</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">get</span><span class="mlabel">set</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Sets the uri for the resolver. If it is set all related uris will recreated. </p>
+
+</div>
+</div>
+<a class="anchor" id="aff79cc7d13af8715cecf271bc6ed4163"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">string SensorbergSDK.SdkConfiguration.SettingsUri</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">get</span><span class="mlabel">set</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="acce776130833d8918301a7dd3b9f3ac1"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool SensorbergSDK.SdkConfiguration.UseLocation</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">get</span><span class="mlabel">set</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Enable or disable the usage of geolocation for the beacon actions. </p>
 
 </div>
 </div>

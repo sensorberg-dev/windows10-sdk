@@ -139,8 +139,8 @@ namespace SensorbergSDK.Internal
                         _bluetoothLeAdvertisementWatcher.SignalStrengthFilter = new BluetoothSignalStrengthFilter() { InRangeThresholdInDBm = rssiEnterThreshold.Value };
                     }
                     _bluetoothLeAdvertisementWatcher.AdvertisementFilter.Advertisement.ManufacturerData.Add(_bluetoothLeManufacturerData);
-                    _bluetoothLeAdvertisementWatcher.SignalStrengthFilter.SamplingInterval = TimeSpan.FromMilliseconds(0);
-                    _bluetoothLeAdvertisementWatcher.SignalStrengthFilter.OutOfRangeTimeout = TimeSpan.FromMilliseconds(_beaconExitTimeout);
+//                    _bluetoothLeAdvertisementWatcher.SignalStrengthFilter.SamplingInterval = TimeSpan.FromMilliseconds(0);
+//                    _bluetoothLeAdvertisementWatcher.SignalStrengthFilter.OutOfRangeTimeout = TimeSpan.FromMilliseconds(_beaconExitTimeout);
                     _bluetoothLeAdvertisementWatcher.ScanningMode = BluetoothLEScanningMode.Active;
                 }
 

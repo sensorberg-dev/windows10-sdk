@@ -74,9 +74,12 @@ namespace SensorbergSDK.Internal.Services
                         stream.Seek(stream.Size);
                         for (int i = 0; i < 10 && Queue.Count != 0; i++)
                         {
-                            await stream.WriteAsync(CryptographicBuffer.ConvertStringToBinary(Queue[0], BinaryStringEncoding.Utf8));
-                            await stream.WriteAsync(LINE_END);
-                            await stream.FlushAsync();
+                            if (Queue[0] != null)
+                            {
+                                await stream.WriteAsync(CryptographicBuffer.ConvertStringToBinary(Queue[0], BinaryStringEncoding.Utf8));
+                                await stream.WriteAsync(LINE_END);
+                                await stream.FlushAsync();
+                            }
                             Queue.RemoveAt(0);
                         }
                     }
@@ -178,14 +181,7 @@ namespace SensorbergSDK.Internal.Services
             List<string> newList = new List<string>();
             action(list, newList);
 
-            foreach (string s in newList)
-            {
-                if (!string.IsNullOrEmpty(s))
-                {
-                    Queue.Add(s);
-                }
-            }
-//            Queue.AddRange(newList);
+            Queue.AddRange(newList);
             StartWorker();
         }
 

@@ -1,4 +1,7 @@
 var searchData=
 [
-  ['notificationutils_2ecs',['NotificationUtils.cs',['../_notification_utils_8cs.html',1,'']]]
+  ['layout_2ecs',['Layout.cs',['../_layout_8cs.html',1,'']]],
+  ['layoutmanager_2ecs',['LayoutManager.cs',['../_layout_manager_8cs.html',1,'']]],
+  ['layoutresult_2ecs',['LayoutResult.cs',['../_layout_result_8cs.html',1,'']]],
+  ['locationservice_2ecs',['LocationService.cs',['../_location_service_8cs.html',1,'']]]
 ];

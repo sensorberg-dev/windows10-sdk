@@ -119,15 +119,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a8c9323e16374d97833a4684bcde6f681"><td class="memItemLeft" align="right" valign="top">async Task&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_background_1_1_background_engine.html#a8c9323e16374d97833a4684bcde6f681">ResolveBeaconActionsAsync</a> (List&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_beacon.html">Beacon</a> &gt; beacons, int outOfRangeDb)</td></tr>
 <tr class="memdesc:a8c9323e16374d97833a4684bcde6f681"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resolves beacons, which triggered the background task.  <a href="#a8c9323e16374d97833a4684bcde6f681">More...</a><br /></td></tr>
 <tr class="separator:a8c9323e16374d97833a4684bcde6f681"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4719707549c027dc34bf50c715030793"><td class="memItemLeft" align="right" valign="top">async Task&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_background_1_1_background_engine.html#a4719707549c027dc34bf50c715030793">ProcessDelayedActionsAsync</a> ()</td></tr>
-<tr class="memdesc:a4719707549c027dc34bf50c715030793"><td class="mdescLeft">&#160;</td><td class="mdescRight">Processes the delayed actions, executes them as necessary and sends history statistics.  <a href="#a4719707549c027dc34bf50c715030793">More...</a><br /></td></tr>
-<tr class="separator:a4719707549c027dc34bf50c715030793"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad93da92afaeadb7d34f0f4301ce89072"><td class="memItemLeft" align="right" valign="top">async Task&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_background_1_1_background_engine.html#ad93da92afaeadb7d34f0f4301ce89072">ProcessDelayedActionsAsync</a> (bool flushHistory=true)</td></tr>
+<tr class="memdesc:ad93da92afaeadb7d34f0f4301ce89072"><td class="mdescLeft">&#160;</td><td class="mdescRight">Processes the delayed actions, executes them as necessary and sends history statistics.  <a href="#ad93da92afaeadb7d34f0f4301ce89072">More...</a><br /></td></tr>
+<tr class="separator:ad93da92afaeadb7d34f0f4301ce89072"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adb53e731a3bdf6df43934379efeda1a1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_background_1_1_background_engine.html#adb53e731a3bdf6df43934379efeda1a1">Dispose</a> ()</td></tr>
 <tr class="memdesc:adb53e731a3bdf6df43934379efeda1a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finishes background processing and releases all resources.  <a href="#adb53e731a3bdf6df43934379efeda1a1">More...</a><br /></td></tr>
 <tr class="separator:adb53e731a3bdf6df43934379efeda1a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="properties"></a>
 Properties</h2></td></tr>
+<tr class="memitem:ad73f5edc3895ad6e9bf7cfd5c9ed18c4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_background_1_1_background_engine.html#ad73f5edc3895ad6e9bf7cfd5c9ed18c4">SuppressBurst</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:ad73f5edc3895ad6e9bf7cfd5c9ed18c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Property to supress collected bluetooth events.  <a href="#ad73f5edc3895ad6e9bf7cfd5c9ed18c4">More...</a><br /></td></tr>
+<tr class="separator:ad73f5edc3895ad6e9bf7cfd5c9ed18c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a511eb01c10a3eca01b96c8529bbed2be"><td class="memItemLeft" align="right" valign="top">EventHandler&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_beacon_action.html">BeaconAction</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_background_1_1_background_engine.html#a511eb01c10a3eca01b96c8529bbed2be">BeaconActionResolved</a></td></tr>
 <tr class="separator:a511eb01c10a3eca01b96c8529bbed2be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a94152a1d9b2028dd91a19b2a50f5dd90"><td class="memItemLeft" align="right" valign="top">EventHandler&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_background_1_1_background_engine.html#a94152a1d9b2028dd91a19b2a50f5dd90">FailedToResolveBeaconAction</a></td></tr>
@@ -193,14 +196,15 @@ Events</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a4719707549c027dc34bf50c715030793"></a>
+<a class="anchor" id="ad93da92afaeadb7d34f0f4301ce89072"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">async Task SensorbergSDK.Background.BackgroundEngine.ProcessDelayedActionsAsync </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>flushHistory</em> = <code>true</code></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -296,6 +300,28 @@ Events</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ad73f5edc3895ad6e9bf7cfd5c9ed18c4"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool SensorbergSDK.Background.BackgroundEngine.SuppressBurst</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">get</span><span class="mlabel">set</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Property to supress collected bluetooth events. </p>
 
 </div>
 </div>
