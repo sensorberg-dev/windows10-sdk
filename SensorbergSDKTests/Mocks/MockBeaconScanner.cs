@@ -17,6 +17,7 @@ namespace SensorbergSDKTests.Mocks
         public event EventHandler<ScannerStatus> StatusChanged;
         public event EventHandler<BeaconEventArgs> BeaconEvent;
         public ScannerStatus Status { get; }
+        public bool DisableFilter { get; set; }
 
         public void StartWatcher(ushort manufacturerId, ushort beaconCode, ulong beaconExitTimeout, short? rssiEnterThreshold, ulong? enterDistanceThreshold)
         {
@@ -27,6 +28,11 @@ namespace SensorbergSDKTests.Mocks
         }
 
         public void ResetBeaconState()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool FilterBeaconByUuid(Beacon beacon)
         {
             throw new NotImplementedException();
         }
