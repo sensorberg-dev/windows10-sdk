@@ -178,7 +178,14 @@ namespace SensorbergSDK.Internal.Services
             List<string> newList = new List<string>();
             action(list, newList);
 
-            Queue.AddRange(newList);
+            foreach (string s in newList)
+            {
+                if (!string.IsNullOrEmpty(s))
+                {
+                    Queue.Add(s);
+                }
+            }
+//            Queue.AddRange(newList);
             StartWorker();
         }
 

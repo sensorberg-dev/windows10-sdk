@@ -390,6 +390,10 @@ namespace SensorbergSDK.Internal
             _getLayoutTimer?.Dispose();
             _processDelayedActionsTimer?.Dispose();
             _updateVisibilityTimer?.Dispose();
+            if (ServiceManager.SettingsManager != null)
+            {
+                ServiceManager.SettingsManager.AppSettings=null;
+            }
 
             if (IsInitialized)
             {

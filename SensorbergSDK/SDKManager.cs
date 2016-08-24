@@ -199,6 +199,10 @@ namespace SensorbergSDK
             ServiceManager.BeaconScanner.StopWatcher();
             _instance?.UnregisterBackgroundTask();
             _instance?.SdkEngine.Dispose();
+            if (_instance != null)
+            {
+                _instance.AppSettings = null;
+            }
             _instance = null;
         }
 
@@ -465,7 +469,7 @@ namespace SensorbergSDK
         {
             if (AppSettings == null)
             {
-                AppSettings = await ServiceManager.SettingsManager.GetSettings();
+                AppSettings = await ServiceManager.SettingsManager.GetSettings(true);
                 ServiceManager.SettingsManager.SettingsUpdated += OnSettingsUpdated;
             }
         }
