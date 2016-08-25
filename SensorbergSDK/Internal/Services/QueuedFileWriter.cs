@@ -74,7 +74,7 @@ namespace SensorbergSDK.Internal.Services
                         stream.Seek(stream.Size);
                         for (int i = 0; i < 10 && Queue.Count != 0; i++)
                         {
-                            if (Queue[0] != null)
+                            if (!string.IsNullOrEmpty(Queue[0]))
                             {
                                 await stream.WriteAsync(CryptographicBuffer.ConvertStringToBinary(Queue[0], BinaryStringEncoding.Utf8));
                                 await stream.WriteAsync(LINE_END);
