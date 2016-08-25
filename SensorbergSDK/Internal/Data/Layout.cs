@@ -100,9 +100,9 @@ namespace SensorbergSDK.Internal.Data
 
             foreach (ResolvedAction item in ResolvedActions)
             {
-                if (item.BeaconPids.Contains(pid)
-                    && (item.EventTypeDetectedByDevice == eventType || item.EventTypeDetectedByDevice == BeaconEventType.EnterExit))
-                { 
+                if (item.BeaconPids.Contains(pid) && (item.EventTypeDetectedByDevice == eventType ||
+                                                      (item.EventTypeDetectedByDevice == BeaconEventType.EnterExit && (eventType == BeaconEventType.Enter || eventType == BeaconEventType.Exit))))
+                {
                     actions.Add(item);
                 }
             }

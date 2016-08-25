@@ -65,11 +65,6 @@ namespace SensorbergSDK.Internal
         /// </summary>
         public IResolver Resolver { [DebuggerStepThrough] get; }
 
-        /// <summary>
-        /// Current count of unresolved actions.
-        /// </summary>
-        public int UnresolvedActionCount { [DebuggerStepThrough] get; [DebuggerStepThrough] private set; }
-
         public string UserId
         {
             [DebuggerStepThrough] get { return SdkData.UserId; }
@@ -106,7 +101,6 @@ namespace SensorbergSDK.Internal
             Resolver = new Resolver(!createdOnForeground);
             _eventHistory = new EventHistory();
             _nextTimeToProcessDelayedActions = DateTimeOffset.MaxValue;
-            UnresolvedActionCount = 0;
         }
 
         /// <summary>
@@ -189,12 +183,11 @@ namespace SensorbergSDK.Internal
             {
                 return;
             }
-            Logger.Debug("SDKEngine: resolve beacon " + eventArgs.Beacon.Id1 + " " + eventArgs.Beacon.Id2 + " " + eventArgs.Beacon.Id3 + " " + eventArgs.EventType);
-            if (IsInitialized && eventArgs.EventType != BeaconEventType.None)
+            if (IsInitialized)
             {
-                UnresolvedActionCount++;
                 string location = await _locationService.GetGeoHashedLocation();
-                await _eventHistory.SaveBeaconEventAsync(eventArgs, location);
+                eventArgs.Location = location;
+                //TODO await _eventHistory.SaveBeaconEventAsync(eventArgs, location);
                 await Resolver.CreateRequest(eventArgs);
             }
         }
@@ -301,7 +294,6 @@ namespace SensorbergSDK.Internal
 
         private async void OnBeaconActionResolvedAsync(object sender, ResolvedActionsEventArgs e)
         {
-            UnresolvedActionCount--;
             if (e == null || e.ResolvedActions == null || e.ResolvedActions.Count == 0)
             {
                 return;

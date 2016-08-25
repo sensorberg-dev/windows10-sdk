@@ -107,6 +107,12 @@ namespace SensorbergSDK.Internal.Services
                 return;
             }
             request.TryCount++;
+
+            if (request.BeaconEventArgs.EventType == BeaconEventType.Unknown)
+            {
+                
+            }
+
             RequestResultState requestResult;
 
             try

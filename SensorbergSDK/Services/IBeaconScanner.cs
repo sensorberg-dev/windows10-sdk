@@ -54,11 +54,6 @@ namespace SensorbergSDK.Services
         void StopWatcher();
 
         /// <summary>
-        /// Reset all states of the beacons, so every beacon gets a new ENTER event.
-        /// </summary>
-        void ResetBeaconState();
-
-        /// <summary>
         /// Filter the given beacon.
         /// </summary>
         /// <returns>Returns true if the beacon should processed.</returns>
