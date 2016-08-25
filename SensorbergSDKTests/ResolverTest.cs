@@ -50,7 +50,7 @@ namespace SensorbergSDKTests
             await resolver.CreateRequest(new BeaconEventArgs()
             {
                 Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929},
-                EventType = BeaconEventType.Enter
+//                EventType = BeaconEventType.Enter
             });
 
             IList<ResolvedAction> result = await action.Task;
@@ -59,7 +59,7 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
-//        [Timeout(1000)]
+        [Timeout(1000)]
         public async Task ResolveMultipleAction()
         {
             IResolver resolver = new Resolver(true);
@@ -71,7 +71,7 @@ namespace SensorbergSDKTests
             await resolver.CreateRequest(new BeaconEventArgs()
             {
                 Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff0003", Id2 = 48869, Id3 = 21321},
-                EventType = BeaconEventType.Enter
+//                EventType = BeaconEventType.Enter
             });
 
             IList<ResolvedAction> result = await action.Task;
@@ -92,7 +92,7 @@ namespace SensorbergSDKTests
             await resolver.CreateRequest(new BeaconEventArgs()
             {
                 Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff1234", Id2 = 39178, Id3 = 30929},
-                EventType = BeaconEventType.Enter
+//                EventType = BeaconEventType.Enter
             });
 
             IList<ResolvedAction> result = await action.Task;
@@ -154,7 +154,7 @@ namespace SensorbergSDKTests
                 await resolver.CreateRequest(new BeaconEventArgs()
                 {
                     Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929},
-                    EventType = BeaconEventType.Enter
+//                    EventType = BeaconEventType.Enter
                 });
             }
             if (await Task.WhenAny(requestReady.Task, Task.Delay(500000)) == requestReady.Task)
@@ -216,7 +216,7 @@ namespace SensorbergSDKTests
                 await resolver.CreateRequest(new BeaconEventArgs()
                 {
                     Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929},
-                    EventType = BeaconEventType.Enter
+//                    EventType = BeaconEventType.Enter
                 });
             }
 
@@ -264,7 +264,7 @@ namespace SensorbergSDKTests
                 await resolver.CreateRequest(new BeaconEventArgs()
                 {
                     Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929},
-                    EventType = BeaconEventType.Enter
+//                    EventType = BeaconEventType.Enter
                 });
             }
 
@@ -299,7 +299,7 @@ namespace SensorbergSDKTests
                 await resolver.CreateRequest(new BeaconEventArgs()
                 {
                     Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929},
-                    EventType = BeaconEventType.Enter
+//                    EventType = BeaconEventType.Enter
                 });
             }
 
@@ -313,6 +313,89 @@ namespace SensorbergSDKTests
             {
                 Assert.Fail("Timout2");
             }
+        }
+
+        [TestMethod]
+        [Timeout(3000)]
+        public async Task TestEnterExitEvent()
+        {
+            IResolver resolver = new Resolver(true);
+            TaskCompletionSource<IList<ResolvedAction>> enterAction = new TaskCompletionSource<IList<ResolvedAction>>();
+            TaskCompletionSource<IList<ResolvedAction>> exitAction = new TaskCompletionSource<IList<ResolvedAction>>();
+            resolver.ActionsResolved += (sender, args) =>
+            {
+                if (args.BeaconEventType == BeaconEventType.Enter)
+                {
+                    enterAction.SetResult(args.ResolvedActions);
+                }
+                if (args.BeaconEventType == BeaconEventType.Exit)
+                {
+                    exitAction.SetResult(args.ResolvedActions);
+                }
+
+            };
+            await resolver.CreateRequest(new BeaconEventArgs()
+            {
+                Beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 },
+            });
+            //Modify timer 
+            await resolver.CreateRequest(new BeaconEventArgs()
+            {
+                Beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 },
+            });
+
+            IList<ResolvedAction> result = await enterAction.Task;
+
+            Assert.AreEqual(1, result.Count, "Not 1 action found");
+
+            result = await exitAction.Task;
+
+            Assert.AreEqual(1, result.Count, "Not 1 action found");
+        }
+
+        [TestMethod]
+        [Timeout(3000)]
+        public async Task TestMultipleEnterExitEvent()
+        {
+            IResolver resolver = new Resolver(true);
+
+            int enterCounter = 0;
+            int exitCounter = 0;
+            resolver.ActionsResolved += (sender, args) =>
+            {
+                if (args.BeaconEventType == BeaconEventType.Enter)
+                {
+                    enterCounter++;
+                }
+                if (args.BeaconEventType == BeaconEventType.Exit)
+                {
+                    exitCounter++;
+                }
+
+            };
+            await resolver.CreateRequest(new BeaconEventArgs()
+            {
+                Beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 },
+            });
+            await resolver.CreateRequest(new BeaconEventArgs()
+            {
+                Beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 },
+            });
+            await resolver.CreateRequest(new BeaconEventArgs()
+            {
+                Beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 },
+            });
+            //Modify timer 
+            await resolver.CreateRequest(new BeaconEventArgs()
+            {
+                Beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 },
+            });
+
+
+            Assert.AreEqual(1, enterCounter, "Not 1 enter action found");
+
+
+            Assert.AreEqual(1, exitCounter, "Not 1 exit action found");
         }
     }
 }
