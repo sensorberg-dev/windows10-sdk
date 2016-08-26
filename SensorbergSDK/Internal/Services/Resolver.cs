@@ -23,10 +23,16 @@ namespace SensorbergSDK.Internal.Services
         public event Action Finished;
         private Task WorkerTask { get; set; }
 
-        public Queue<Request> RequestQueue { get;}
+        public Queue<Request> RequestQueue { get; }
         private CancellationTokenSource CancelToken { get; set; }
         public bool SynchronResolver { get; }
         public BeaconManager BeaconManager { get; set; }
+
+        public ulong BeaconExitTimeout
+        {
+            get { return (ulong) BeaconManager.ExitTimeout; }
+            set { BeaconManager.ExitTimeout = (long) value; }
+        }
 
         public Resolver(bool synchron)
         {
@@ -34,8 +40,9 @@ namespace SensorbergSDK.Internal.Services
 
             if (!SynchronResolver)
             {
-                RequestQueue= new Queue<Request>();
+                RequestQueue = new Queue<Request>();
             }
+            BeaconManager = new BeaconManager((long) Constants.DefaultBeaconExitTimeout);
         }
 
         public void Dispose()
@@ -105,14 +112,19 @@ namespace SensorbergSDK.Internal.Services
             Logger.Trace("take next request " + request?.RequestId);
             if (request == null)
             {
-                OnRequestServed(request, RequestResultState.Failed);
+                FailedToResolveActions?.Invoke(this, "request is null");
                 return;
             }
             request.TryCount++;
 
             if (request.BeaconEventArgs.EventType == BeaconEventType.Unknown)
             {
-                
+                request.BeaconEventArgs.EventType = BeaconManager.ResolveBeaconState(request.BeaconEventArgs.Beacon);
+            }
+
+            if (request.BeaconEventArgs.EventType == BeaconEventType.None)
+            {
+                return;
             }
 
             RequestResultState requestResult;
@@ -139,8 +151,9 @@ namespace SensorbergSDK.Internal.Services
                 {
                     if (request.TryCount >= request.MaxNumberOfRetries)
                     {
-                        // The maximum number of retries has been exceeded => fail
-                        OnRequestServed(request, requestResult);
+                        Logger.Info("OnRequestServed: Request with ID " + request.RequestId + " failed");
+
+                        FailedToResolveActions?.Invoke(this, request.ErrorMessage);
                     }
                     else
                     {
@@ -157,22 +170,6 @@ namespace SensorbergSDK.Internal.Services
                 }
                 case RequestResultState.Success:
                 {
-                    OnRequestServed(request, requestResult);
-                    break;
-                }
-            }
-        }
-
-        private async void OnRequestServed(object sender, RequestResultState e)
-        {
-            Request request = sender as Request;
-
-            if (request != null)
-            {
-                Logger.Debug("OnRequestServed: Request with ID " + request.RequestId + " was " + e +" "+request.ResolvedActions?.Count);
-                if (e == RequestResultState.Success)
-                {
-
                     if (ActionsResolved != null)
                     {
                         ResolvedActionsEventArgs eventArgs = new ResolvedActionsEventArgs();
@@ -187,14 +184,10 @@ namespace SensorbergSDK.Internal.Services
 
                         ActionsResolved(this, eventArgs);
                     }
-                }
-                else if (e == RequestResultState.Failed)
-                {
-                    Logger.Info("OnRequestServed: Request with ID " + request.RequestId + " failed");
-
-                    FailedToResolveActions?.Invoke(this, request.ErrorMessage);
+                    break;
                 }
             }
         }
+
     }
 }

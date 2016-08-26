@@ -15,7 +15,7 @@ namespace SensorbergSDK.Internal
     public class BeaconManager
     {
         protected Dictionary<Beacon, DateTimeOffset> KnownBeacons { get; } = new Dictionary<Beacon, DateTimeOffset>();
-        private long ExitTimeout { get; set; }
+        public long ExitTimeout { get; set; }
 
         public BeaconManager(long exitTimeout)
         {

@@ -127,6 +127,7 @@ namespace SensorbergSDK.Internal
                 {
                     Logger.Debug("InitializeAsync#Foreground");
                     AppSettings = await ServiceManager.SettingsManager.GetSettings();
+                    Resolver.BeaconExitTimeout = AppSettings.BeaconExitTimeout;
                     ServiceManager.SettingsManager.SettingsUpdated += OnSettingsUpdated;
 
                     var historyTimeSpan = TimeSpan.FromMilliseconds(AppSettings.HistoryUploadInterval);
@@ -156,6 +157,7 @@ namespace SensorbergSDK.Internal
         private void OnSettingsUpdated(object sender, SettingsEventArgs settingsEventArgs)
         {
             AppSettings = settingsEventArgs.Settings;
+            Resolver.BeaconExitTimeout = AppSettings.BeaconExitTimeout;
 
             var historyIntervalTimeSpan = TimeSpan.FromMilliseconds(AppSettings.HistoryUploadInterval);
             _flushHistoryTimer?.Change(historyIntervalTimeSpan, historyIntervalTimeSpan);

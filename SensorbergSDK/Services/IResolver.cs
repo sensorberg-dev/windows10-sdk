@@ -30,5 +30,10 @@ namespace SensorbergSDK.Services
         /// Event thats fired on failed actions.
         /// </summary>
         event EventHandler<string> FailedToResolveActions;
+
+        /// <summary>
+        /// Sets the timeout for exit events.
+        /// </summary>
+        ulong BeaconExitTimeout { get; set; }
     }
 }

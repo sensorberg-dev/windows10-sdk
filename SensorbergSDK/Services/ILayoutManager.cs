@@ -24,7 +24,7 @@ namespace SensorbergSDK.Services
         /// Validates the request against the layout.
         /// </summary>
         /// <param name="currentRequest">Request to validate.</param>
-        Task<RequestResultState> ExecuteRequestAsync(Request currentRequest);
+//        Task<RequestResultState> ExecuteRequestAsync(Request currentRequest);
 
         /// <summary>
         /// Invalidates the layout, so a new will received next time.
