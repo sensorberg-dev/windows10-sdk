@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SensorbergSDK;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Transport;
 using SensorbergSDK.Services;
@@ -15,6 +16,8 @@ namespace SensorbergSDKTests.Mocks
 {
     public class MockLayoutManager:ILayoutManager
     {
+        private Layout _layout = new MockLayout();
+
         public async Task<RequestResultState> ExecuteRequestAsync(Request currentRequest)
         {
             FailToken token = new FailToken();
@@ -31,7 +34,13 @@ namespace SensorbergSDKTests.Mocks
         }
 
         public bool IsLayoutValid { get; }
-        public Layout Layout { get; set; }
+
+        public Layout Layout
+        {
+            get { return _layout; }
+            set { }
+        }
+
         public bool FindOneAction { get; set; }
 
         public async Task<bool> VerifyLayoutAsync(bool forceUpdate = false)
@@ -46,5 +55,13 @@ namespace SensorbergSDKTests.Mocks
         }
 
         public event Action<Request,FailToken> ShouldFail;
+    }
+
+    internal class MockLayout:Layout
+    {
+        public new IList<ResolvedAction> GetResolvedActionsForPidAndEvent(string pid, BeaconEventType eventType)
+        {
+            return new List<ResolvedAction>() {new ResolvedAction()};
+        }
     }
 }

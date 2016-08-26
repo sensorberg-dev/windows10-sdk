@@ -16,7 +16,7 @@ namespace SensorbergSDK.Internal.Data
     /// Represents a layout with beacons and actions associated with them.
     /// </summary>
     [DataContract]
-    public sealed class Layout
+    public class Layout
     {
         private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<Layout>();
         private const string KeyMaxAge = "max-age";

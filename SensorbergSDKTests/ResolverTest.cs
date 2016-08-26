@@ -233,7 +233,7 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
-        [Timeout(500000)]
+        [Timeout(5000)]
         public async Task MultipleRequestBlocksQueueTest()
         {
             MockLayoutManager layoutManager = new MockLayoutManager();

@@ -127,11 +127,26 @@ namespace SensorbergSDK.Internal.Services
                 return;
             }
 
-            RequestResultState requestResult;
+            RequestResultState requestResult = RequestResultState.Failed;
 
             try
             {
-                requestResult = await ServiceManager.LayoutManager.ExecuteRequestAsync(request);
+                Logger.Debug("LayoutManager.InternalExecuteRequestAsync(): Request ID is " + request.RequestId);
+
+                if (request.BeaconEventArgs?.Beacon != null && await ServiceManager.LayoutManager.VerifyLayoutAsync() && ServiceManager.LayoutManager.Layout != null)
+                {
+                    request.ResolvedActions = ServiceManager.LayoutManager.Layout.GetResolvedActionsForPidAndEvent(request.BeaconEventArgs.Beacon.Pid, request.BeaconEventArgs.EventType);
+
+                    foreach (ResolvedAction resolvedAction in request.ResolvedActions)
+                    {
+                        if (resolvedAction != null && resolvedAction.BeaconAction != null)
+                        {
+                            resolvedAction.BeaconAction.Id = request.RequestId;
+                        }
+                    }
+
+                    requestResult = RequestResultState.Success;
+                }
             }
             catch (ArgumentNullException ex)
             {
