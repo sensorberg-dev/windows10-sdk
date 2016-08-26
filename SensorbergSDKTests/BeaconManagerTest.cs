@@ -4,9 +4,12 @@
 // 
 // All rights reserved.
 
+using System;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using SensorbergSDK;
 using SensorbergSDK.Internal;
+using SensorbergSDKTests.Mocks;
 
 namespace SensorbergSDKTests
 {
@@ -16,8 +19,42 @@ namespace SensorbergSDKTests
         [TestMethod]
         public void TestDetectEnterExit()
         {
-            BeaconManager manager = new BeaconManager();
-            Assert.AreEqual(BeaconEventType.Enter,manager.ResolveBeaconState(new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 }));
+            BeaconManager manager = new BeaconManager(500);
+            Beacon beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929};
+            Assert.AreEqual(BeaconEventType.Enter, manager.ResolveBeaconState(beacon));
+
+            Task.Delay(1000);
+            Assert.AreEqual(1, manager.ResolveBeaconExits().Count);
+            Assert.AreEqual(0, manager.ResolveBeaconExits().Count);
+
+
+            Assert.AreEqual(BeaconEventType.Enter, manager.ResolveBeaconState(beacon));
+
+            Assert.AreEqual(1, manager.ResolveBeaconExits().Count);
+            Assert.AreEqual(0, manager.ResolveBeaconExits().Count);
+        }
+
+        [TestMethod]
+        public void TestDetectMultipleEnterExit()
+        {
+            BeaconManager manager = new BeaconManager(500);
+            Beacon beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 };
+            Assert.AreEqual(BeaconEventType.Enter, manager.ResolveBeaconState(beacon));
+            Assert.AreEqual(BeaconEventType.None, manager.ResolveBeaconState(beacon));
+            Assert.AreEqual(BeaconEventType.None, manager.ResolveBeaconState(beacon));
+            Assert.AreEqual(BeaconEventType.None, manager.ResolveBeaconState(beacon));
+
+            Assert.AreEqual(1, manager.ResolveBeaconExits().Count);
+            Assert.AreEqual(0, manager.ResolveBeaconExits().Count);
+
+
+            Assert.AreEqual(BeaconEventType.Enter, manager.ResolveBeaconState(beacon));
+            Assert.AreEqual(BeaconEventType.None, manager.ResolveBeaconState(beacon));
+            Assert.AreEqual(BeaconEventType.None, manager.ResolveBeaconState(beacon));
+            Assert.AreEqual(BeaconEventType.None, manager.ResolveBeaconState(beacon));
+
+            Assert.AreEqual(1, manager.ResolveBeaconExits().Count);
+            Assert.AreEqual(0, manager.ResolveBeaconExits().Count);
         }
     }
 }

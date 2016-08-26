@@ -26,6 +26,7 @@ namespace SensorbergSDK.Internal.Services
         public Queue<Request> RequestQueue { get;}
         private CancellationTokenSource CancelToken { get; set; }
         public bool SynchronResolver { get; }
+        public BeaconManager BeaconManager { get; set; }
 
         public Resolver(bool synchron)
         {
@@ -36,6 +37,7 @@ namespace SensorbergSDK.Internal.Services
                 RequestQueue= new Queue<Request>();
             }
         }
+
         public void Dispose()
         {
             CancelToken?.Dispose();

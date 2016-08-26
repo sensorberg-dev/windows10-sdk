@@ -116,11 +116,11 @@
     <Compile Include="ApiKeyHelper.cs" />
     <Compile Include="BackgroundTaskManager.cs" />
     <Compile Include="BeaconAction.cs" />
+    <Compile Include="Internal\BeaconManager.cs" />
     <Compile Include="Internal\Constants.cs" />
     <Compile Include="AppSettings.cs" />
     <Compile Include="Internal\Data\BackgroundEvent.cs" />
     <Compile Include="Internal\Data\BackgroundWorkerType.cs" />
-    <Compile Include="Internal\Data\BeaconContainer.cs" />
     <Compile Include="Internal\Data\DelayedActionData.cs" />
     <Compile Include="Internal\Data\DelayedActionHelper.cs" />
     <Compile Include="Internal\Data\FileStorage.cs" />

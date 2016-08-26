@@ -14,11 +14,43 @@ namespace SensorbergSDK.Internal
     /// </summary>
     public class BeaconManager
     {
-        protected Dictionary<string, DateTimeOffset> KnownBeacons { get; } = new Dictionary<string, DateTimeOffset>();
+        protected Dictionary<Beacon, DateTimeOffset> KnownBeacons { get; } = new Dictionary<Beacon, DateTimeOffset>();
+        private long ExitTimeout { get; set; }
+
+        public BeaconManager(long exitTimeout)
+        {
+            ExitTimeout = exitTimeout;
+        }
 
         public BeaconEventType ResolveBeaconState(Beacon b)
         {
-            return BeaconEventType.Unknown;
+            if (KnownBeacons.ContainsKey(b))
+            {
+                KnownBeacons[b] = DateTimeOffset.Now;
+                return BeaconEventType.None;
+            }
+            KnownBeacons[b] = DateTimeOffset.Now;
+            return BeaconEventType.Enter;
+        }
+
+        public List<Beacon> ResolveBeaconExits()
+        {
+            DateTimeOffset end = DateTimeOffset.Now.AddMilliseconds(-ExitTimeout);
+            List<Beacon> removeBeacons = new List<Beacon>();
+            foreach (KeyValuePair<Beacon, DateTimeOffset> beacon in KnownBeacons)
+            {
+                if (beacon.Value > end)
+                {
+                    removeBeacons.Add(beacon.Key);
+                }
+            }
+
+            foreach (Beacon b in removeBeacons)
+            {
+                KnownBeacons.Remove(b);
+            }
+
+            return removeBeacons;
         }
     }
 }

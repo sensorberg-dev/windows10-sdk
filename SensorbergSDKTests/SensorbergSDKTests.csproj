@@ -112,6 +112,7 @@
   <ItemGroup>
     <Compile Include="AppSettingsTest.cs" />
     <Compile Include="BackgroundEngineTest.cs" />
+    <Compile Include="BeaconManagerTest.cs" />
     <Compile Include="FileStorageHelperTest.cs" />
     <Compile Include="FullSDKTest.cs" />
     <Compile Include="IntegrationTest.cs" />
@@ -123,6 +124,7 @@
     <Compile Include="Mocks\MockBeaconScanner.cs" />
     <Compile Include="Mocks\MockLayoutManager.cs" />
     <Compile Include="Mocks\MockStorage.cs" />
+    <Compile Include="Mocks\TestBeaconManager.cs" />
     <Compile Include="Mocks\TestHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueueFileWriterTest.cs" />

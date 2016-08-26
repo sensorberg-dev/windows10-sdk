@@ -357,7 +357,8 @@ namespace SensorbergSDKTests
         [Timeout(3000)]
         public async Task TestMultipleEnterExitEvent()
         {
-            IResolver resolver = new Resolver(true);
+            TestBeaconManager testBeaconManager = new TestBeaconManager(10000);
+            IResolver resolver = new Resolver(true) {BeaconManager = testBeaconManager};
 
             int enterCounter = 0;
             int exitCounter = 0;
@@ -373,22 +374,23 @@ namespace SensorbergSDKTests
                 }
 
             };
+            Beacon beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 };
             await resolver.CreateRequest(new BeaconEventArgs()
             {
-                Beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 },
+                Beacon = beacon,
             });
             await resolver.CreateRequest(new BeaconEventArgs()
             {
-                Beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 },
+                Beacon = beacon,
             });
             await resolver.CreateRequest(new BeaconEventArgs()
             {
-                Beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 },
+                Beacon = beacon,
             });
-            //Modify timer 
+            testBeaconManager.SetTime(beacon, DateTimeOffset.MinValue);
             await resolver.CreateRequest(new BeaconEventArgs()
             {
-                Beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 },
+                Beacon = beacon,
             });
 
 
