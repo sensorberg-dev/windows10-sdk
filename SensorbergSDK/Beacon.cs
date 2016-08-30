@@ -250,5 +250,31 @@ namespace SensorbergSDK
                 Distance = BeaconFactory.CalculateDistanceFromRssi(rawSignalStrengthInDBm, measuredPower);
             }
         }
+        private bool Equals(Beacon other)
+        {
+            return string.Equals(Pid, other.Pid);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            return obj is Beacon && Equals((Beacon)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (Pid != null ? Pid.GetHashCode() : 0);
+        }
+
+        public static bool operator ==(Beacon left, Beacon right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(Beacon left, Beacon right)
+        {
+            return !Equals(left, right);
+        }
     }
 }

@@ -30,7 +30,7 @@ namespace SensorbergSDKTests
             await TestHelper.Clear();
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
-            ServiceManager.ApiConnction = new MockApiConnection();
+            ServiceManager.ApiConnction = new MockApiConnection() { MockSettings = "{\"revision\":0,\"settings\":{\"scanner.backgroundWaitTime\":120000, \"scanner.exitTimeoutMillis\":500}}" };
             ServiceManager.BeaconScanner = new MockBeaconScanner();
             ServiceManager.SettingsManager = new SettingsManager();
             ServiceManager.StorageService = new StorageService() {Storage = new MockStorage()};
@@ -178,20 +178,22 @@ namespace SensorbergSDKTests
 
 
         [TestMethod]
-        [Timeout(10000)]
+        [Timeout(90000)]
         public async Task MultipleEventsFired()
         {
             SDKManager sdkManager = SDKManager.Instance();
             int resolvedAction = 0;
             sdkManager.BeaconActionResolved += (sender, action) => resolvedAction++;
             await sdkManager.InitializeAsync(new SdkConfiguration() {ApiKey = ApiKey, ManufacturerId = ManufacturerId, BeaconCode = BeaconCode});
+            
+            sdkManager.SdkEngine.Resolver.BeaconExitTimeout = 500;
 
             TaskCompletionSource<bool> actionResolved = new TaskCompletionSource<bool>();
             int requestCount = 0;
-            int REQUEST_COUNT = 1000;
+            int REQUEST_COUNT = 10;
             ((Resolver) sdkManager.SdkEngine.Resolver).Finished += () =>
             {
-                if (requestCount >= REQUEST_COUNT)
+                if (requestCount >= REQUEST_COUNT-1)
                 {
                     actionResolved.SetResult(true);
                 }
@@ -200,18 +202,18 @@ namespace SensorbergSDKTests
             MockBeaconScanner scanner = (MockBeaconScanner) ServiceManager.BeaconScanner;
             for (; requestCount < REQUEST_COUNT; requestCount++)
             {
-                scanner.NotifyBeaconEvent(new Beacon() {Id1 = "7367672374000000ffff0000ffff0006", Id2 = 23430, Id3 = 28018},
-                    requestCount%2 == 0 ? BeaconEventType.Enter : BeaconEventType.Exit);
+                scanner.NotifyBeaconEvent(new Beacon() {Id1 = "7367672374000000ffff0000ffff0006", Id2 = 23430, Id3 = 28018}, BeaconEventType.Unknown);
+                await Task.Delay(1500);
             }
 
-            bool result = await actionResolved.Task;
+            await actionResolved.Task;
 
             await ServiceManager.StorageService.FlushHistory();
 
             MockApiConnection connection = (MockApiConnection) ServiceManager.ApiConnction;
             Assert.AreEqual(REQUEST_COUNT, requestCount);
             Assert.AreEqual(REQUEST_COUNT, connection.HistoryEvents.Count);
-            Assert.AreEqual(REQUEST_COUNT/2, connection.HistoryActions.Count);
+            Assert.AreEqual(REQUEST_COUNT, connection.HistoryActions.Count);
         }
     }
 }

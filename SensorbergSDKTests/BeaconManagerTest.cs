@@ -17,33 +17,35 @@ namespace SensorbergSDKTests
     public class BeaconManagerTest
     {
         [TestMethod]
-        public void TestDetectEnterExit()
+        public async Task TestDetectEnterExit()
         {
-            BeaconManager manager = new BeaconManager(500);
+            BeaconManager manager = new BeaconManager(200);
             Beacon beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929};
             Assert.AreEqual(BeaconEventType.Enter, manager.ResolveBeaconState(beacon));
 
-            Task.Delay(1000);
+            await Task.Delay(1000);
             Assert.AreEqual(1, manager.ResolveBeaconExits().Count);
             Assert.AreEqual(0, manager.ResolveBeaconExits().Count);
 
 
             Assert.AreEqual(BeaconEventType.Enter, manager.ResolveBeaconState(beacon));
 
+            await Task.Delay(1000);
             Assert.AreEqual(1, manager.ResolveBeaconExits().Count);
             Assert.AreEqual(0, manager.ResolveBeaconExits().Count);
         }
 
         [TestMethod]
-        public void TestDetectMultipleEnterExit()
+        public async Task TestDetectMultipleEnterExit()
         {
-            BeaconManager manager = new BeaconManager(500);
+            BeaconManager manager = new BeaconManager(200);
             Beacon beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 };
             Assert.AreEqual(BeaconEventType.Enter, manager.ResolveBeaconState(beacon));
             Assert.AreEqual(BeaconEventType.None, manager.ResolveBeaconState(beacon));
             Assert.AreEqual(BeaconEventType.None, manager.ResolveBeaconState(beacon));
             Assert.AreEqual(BeaconEventType.None, manager.ResolveBeaconState(beacon));
 
+            await Task.Delay(1000);
             Assert.AreEqual(1, manager.ResolveBeaconExits().Count);
             Assert.AreEqual(0, manager.ResolveBeaconExits().Count);
 
@@ -53,6 +55,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(BeaconEventType.None, manager.ResolveBeaconState(beacon));
             Assert.AreEqual(BeaconEventType.None, manager.ResolveBeaconState(beacon));
 
+            await Task.Delay(1000);
             Assert.AreEqual(1, manager.ResolveBeaconExits().Count);
             Assert.AreEqual(0, manager.ResolveBeaconExits().Count);
         }

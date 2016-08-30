@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using MetroLog;
 
 namespace SensorbergSDK.Internal
 {
@@ -14,6 +15,7 @@ namespace SensorbergSDK.Internal
     /// </summary>
     public class BeaconManager
     {
+        private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<BeaconManager>();
         protected Dictionary<Beacon, DateTimeOffset> KnownBeacons { get; } = new Dictionary<Beacon, DateTimeOffset>();
         public long ExitTimeout { get; set; }
 
@@ -24,33 +26,41 @@ namespace SensorbergSDK.Internal
 
         public BeaconEventType ResolveBeaconState(Beacon b)
         {
-            if (KnownBeacons.ContainsKey(b))
+            lock (KnownBeacons)
             {
+                if (KnownBeacons.ContainsKey(b))
+                {
+                    KnownBeacons[b] = DateTimeOffset.Now;
+                    return BeaconEventType.None;
+                }
                 KnownBeacons[b] = DateTimeOffset.Now;
-                return BeaconEventType.None;
             }
-            KnownBeacons[b] = DateTimeOffset.Now;
             return BeaconEventType.Enter;
         }
 
         public List<Beacon> ResolveBeaconExits()
         {
-            DateTimeOffset end = DateTimeOffset.Now.AddMilliseconds(-ExitTimeout);
-            List<Beacon> removeBeacons = new List<Beacon>();
-            foreach (KeyValuePair<Beacon, DateTimeOffset> beacon in KnownBeacons)
+            Logger.Trace("ResolveBeaconExists");
+            lock (KnownBeacons)
             {
-                if (beacon.Value > end)
+                DateTimeOffset temp = DateTimeOffset.Now;
+                DateTimeOffset end = DateTimeOffset.Now.AddMilliseconds(-ExitTimeout);
+                List<Beacon> removeBeacons = new List<Beacon>();
+                foreach (KeyValuePair<Beacon, DateTimeOffset> beacon in KnownBeacons)
                 {
-                    removeBeacons.Add(beacon.Key);
+                    Logger.Trace("ResolveBeaconExists " + (beacon.Value < end));
+                    if (beacon.Value < end)
+                    {
+                        removeBeacons.Add(beacon.Key);
+                    }
                 }
-            }
 
-            foreach (Beacon b in removeBeacons)
-            {
-                KnownBeacons.Remove(b);
+                foreach (Beacon b in removeBeacons)
+                {
+                    KnownBeacons.Remove(b);
+                }
+                return removeBeacons;
             }
-
-            return removeBeacons;
         }
     }
 }

@@ -323,6 +323,7 @@ namespace SensorbergSDK
 
                 SdkEngine.Dispose();
             }
+            AppSettings = null;
             Dispose();
         }
 

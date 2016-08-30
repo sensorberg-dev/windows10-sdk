@@ -98,8 +98,7 @@ namespace SensorbergSDK.Internal
             ServiceManager.WriterFactory = new WriterFactory();
 
             _appIsOnForeground = createdOnForeground;
-            Resolver = new Resolver(!createdOnForeground);
-            _eventHistory = new EventHistory();
+            Resolver = new Resolver(!createdOnForeground) {EventHistory = _eventHistory = new EventHistory()};
             _nextTimeToProcessDelayedActions = DateTimeOffset.MaxValue;
         }
 
@@ -189,7 +188,6 @@ namespace SensorbergSDK.Internal
             {
                 string location = await _locationService.GetGeoHashedLocation();
                 eventArgs.Location = location;
-                //TODO await _eventHistory.SaveBeaconEventAsync(eventArgs, location);
                 await Resolver.CreateRequest(eventArgs);
             }
         }

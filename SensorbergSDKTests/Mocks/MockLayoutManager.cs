@@ -14,17 +14,16 @@ using SensorbergSDK.Services;
 
 namespace SensorbergSDKTests.Mocks
 {
-    public class MockLayoutManager:ILayoutManager
+    public class MockLayoutManager : ILayoutManager
     {
-        private Layout _layout = new MockLayout();
+        private MockLayout _layout = new MockLayout();
 
         public async Task<RequestResultState> ExecuteRequestAsync(Request currentRequest)
         {
             FailToken token = new FailToken();
-            ShouldFail?.Invoke(currentRequest, token);
             if (FindOneAction)
             {
-                currentRequest.ResolvedActions = new List<ResolvedAction>() { new ResolvedAction() };
+                currentRequest.ResolvedActions = new List<ResolvedAction>() {new ResolvedAction()};
             }
             return token.Fail ? RequestResultState.Failed : RequestResultState.Success;
         }
@@ -49,19 +48,35 @@ namespace SensorbergSDKTests.Mocks
         }
 
         public event EventHandler<bool> LayoutValidityChanged;
+
         public ResolvedAction GetAction(string uuid)
         {
             throw new NotImplementedException();
         }
 
-        public event Action<Request,FailToken> ShouldFail;
+        public event Action<Request, FailToken> ShouldFail
+        {
+            add { _layout.ShouldFail += value; }
+            remove { _layout.ShouldFail -= value; }
+        }
     }
 
     internal class MockLayout:Layout
     {
-        public new IList<ResolvedAction> GetResolvedActionsForPidAndEvent(string pid, BeaconEventType eventType)
+        public override IList<ResolvedAction> GetResolvedActionsForPidAndEvent(Request request)
         {
+            if (ShouldFail != null)
+            {
+                FailToken token = new FailToken();
+                ShouldFail(request, token);
+                if (token.Fail)
+                {
+                    return null;
+                }
+            }
             return new List<ResolvedAction>() {new ResolvedAction()};
         }
+
+        public event Action<Request, FailToken> ShouldFail;
     }
 }

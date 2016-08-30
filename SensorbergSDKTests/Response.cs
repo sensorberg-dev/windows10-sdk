@@ -44,7 +44,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(2, resp.AccountBeaconId1S.Count);
             Assert.AreEqual(5, resp.ResolvedActions.Count);
 
-            IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent("7367672374000000ffff0000ffff13370133701337", BeaconEventType.Enter);
+            IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent(TestHelper.ToRequest("7367672374000000ffff0000ffff1337",1337, 1337, BeaconEventType.Enter));
             Assert.IsNotNull(list);
             Assert.AreEqual(3, list.Count);
         }
@@ -67,7 +67,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(1, resp.AccountBeaconId1S.Count);
             Assert.AreEqual(1, resp.ResolvedActions.Count);
 
-            IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent("7367672374000000ffff0000ffff00070800800005", BeaconEventType.Exit);
+            IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent(TestHelper.ToRequest("7367672374000000ffff0000ffff0007", 8008, 5, BeaconEventType.Exit));
             Assert.IsNotNull(list);
             Assert.AreEqual(1, list.Count);
 
@@ -95,7 +95,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(1, resp.AccountBeaconId1S.Count);
             Assert.AreEqual(1, resp.ResolvedActions.Count);
 
-            IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent("7367672374000000ffff0000ffff00070800800005", BeaconEventType.Exit);
+            IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent(TestHelper.ToRequest("7367672374000000ffff0000ffff0007", 8008, 5, BeaconEventType.Exit));
             Assert.IsNotNull(list);
             Assert.AreEqual(1, list.Count);
 
@@ -123,7 +123,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(1, resp.AccountBeaconId1S.Count);
             Assert.AreEqual(1, resp.ResolvedActions.Count);
 
-            IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent("7367672374000000ffff0000ffff00070800800005", BeaconEventType.Exit);
+            IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent(TestHelper.ToRequest("7367672374000000ffff0000ffff0007", 8008, 5, BeaconEventType.Exit));
             Assert.IsNotNull(list);
             Assert.AreEqual(1, list.Count);
 
@@ -151,7 +151,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(1, resp.AccountBeaconId1S.Count);
             Assert.AreEqual(1, resp.ResolvedActions.Count);
 
-            IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent("7367672374000000ffff0000ffff00070800800005", BeaconEventType.Exit);
+            IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent(TestHelper.ToRequest("7367672374000000ffff0000ffff0007", 8008, 5, BeaconEventType.Exit));
             Assert.IsNotNull(list);
             Assert.AreEqual(1, list.Count);
 
@@ -179,7 +179,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(1, resp.AccountBeaconId1S.Count);
             Assert.AreEqual(1, resp.ResolvedActions.Count);
 
-            IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent("7367672374000000ffff0000ffff00070800800005", BeaconEventType.Exit);
+            IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent(TestHelper.ToRequest("7367672374000000ffff0000ffff0007", 8008, 5, BeaconEventType.Exit));
             Assert.IsNotNull(list);
             Assert.AreEqual(1, list.Count);
 
@@ -205,7 +205,7 @@ namespace SensorbergSDKTests
             Assert.AreEqual(1, resp.AccountBeaconId1S.Count);
             Assert.AreEqual(1, resp.ResolvedActions.Count);
 
-            IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent("7367672374000000ffff0000ffff00070800800005", BeaconEventType.Exit);
+            IList<ResolvedAction> list = resp.GetResolvedActionsForPidAndEvent(TestHelper.ToRequest("7367672374000000ffff0000ffff0007", 8008, 5, BeaconEventType.Exit));
         }
     }
 }

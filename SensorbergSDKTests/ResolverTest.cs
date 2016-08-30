@@ -50,7 +50,7 @@ namespace SensorbergSDKTests
             await resolver.CreateRequest(new BeaconEventArgs()
             {
                 Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929},
-//                EventType = BeaconEventType.Enter
+                EventType = BeaconEventType.Unknown
             });
 
             IList<ResolvedAction> result = await action.Task;
@@ -71,7 +71,7 @@ namespace SensorbergSDKTests
             await resolver.CreateRequest(new BeaconEventArgs()
             {
                 Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff0003", Id2 = 48869, Id3 = 21321},
-//                EventType = BeaconEventType.Enter
+                EventType = BeaconEventType.Unknown
             });
 
             IList<ResolvedAction> result = await action.Task;
@@ -92,7 +92,7 @@ namespace SensorbergSDKTests
             await resolver.CreateRequest(new BeaconEventArgs()
             {
                 Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff1234", Id2 = 39178, Id3 = 30929},
-//                EventType = BeaconEventType.Enter
+                EventType = BeaconEventType.Unknown
             });
 
             IList<ResolvedAction> result = await action.Task;
@@ -154,7 +154,7 @@ namespace SensorbergSDKTests
                 await resolver.CreateRequest(new BeaconEventArgs()
                 {
                     Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929},
-//                    EventType = BeaconEventType.Enter
+                    EventType = BeaconEventType.Unknown
                 });
             }
             if (await Task.WhenAny(requestReady.Task, Task.Delay(500000)) == requestReady.Task)
@@ -216,7 +216,7 @@ namespace SensorbergSDKTests
                 await resolver.CreateRequest(new BeaconEventArgs()
                 {
                     Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929},
-//                    EventType = BeaconEventType.Enter
+                    EventType = BeaconEventType.Unknown
                 });
             }
 
@@ -233,7 +233,7 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
-        [Timeout(5000)]
+//        [Timeout(5000)]
         public async Task MultipleRequestBlocksQueueTest()
         {
             MockLayoutManager layoutManager = new MockLayoutManager();
@@ -263,8 +263,8 @@ namespace SensorbergSDKTests
             {
                 await resolver.CreateRequest(new BeaconEventArgs()
                 {
-                    Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929},
-//                    EventType = BeaconEventType.Enter
+                    Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = (ushort) (39178+i), Id3 = 30929},
+                    EventType = BeaconEventType.Unknown
                 });
             }
 
@@ -299,7 +299,7 @@ namespace SensorbergSDKTests
                 await resolver.CreateRequest(new BeaconEventArgs()
                 {
                     Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929},
-//                    EventType = BeaconEventType.Enter
+                    EventType = BeaconEventType.Unknown
                 });
             }
 
@@ -316,10 +316,11 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
-        [Timeout(3000)]
+//        [Timeout(5000)]
         public async Task TestEnterExitEvent()
         {
-            IResolver resolver = new Resolver(true);
+            Resolver resolver = new Resolver(true);
+            resolver.BeaconManager.ExitTimeout = 20;
             TaskCompletionSource<IList<ResolvedAction>> enterAction = new TaskCompletionSource<IList<ResolvedAction>>();
             TaskCompletionSource<IList<ResolvedAction>> exitAction = new TaskCompletionSource<IList<ResolvedAction>>();
             resolver.ActionsResolved += (sender, args) =>
@@ -337,12 +338,13 @@ namespace SensorbergSDKTests
             await resolver.CreateRequest(new BeaconEventArgs()
             {
                 Beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 },
+                EventType = BeaconEventType.Unknown
             });
-            //Modify timer 
-            await resolver.CreateRequest(new BeaconEventArgs()
-            {
-                Beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 },
-            });
+            await Task.Delay(2000);
+//            await resolver.CreateRequest(new BeaconEventArgs()
+//            {
+//                Beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 },
+//            });
 
             IList<ResolvedAction> result = await enterAction.Task;
 
@@ -354,11 +356,11 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
-        [Timeout(3000)]
+//        [Timeout(3000)]
         public async Task TestMultipleEnterExitEvent()
         {
-            TestBeaconManager testBeaconManager = new TestBeaconManager(10000);
-            IResolver resolver = new Resolver(true) {BeaconManager = testBeaconManager};
+            Resolver resolver = new Resolver(true);
+            resolver.BeaconManager.ExitTimeout = 100;
 
             int enterCounter = 0;
             int exitCounter = 0;
@@ -378,23 +380,29 @@ namespace SensorbergSDKTests
             await resolver.CreateRequest(new BeaconEventArgs()
             {
                 Beacon = beacon,
+                EventType = BeaconEventType.Unknown
             });
             await resolver.CreateRequest(new BeaconEventArgs()
             {
                 Beacon = beacon,
+                EventType = BeaconEventType.Unknown
             });
             await resolver.CreateRequest(new BeaconEventArgs()
             {
                 Beacon = beacon,
+                EventType = BeaconEventType.Unknown
             });
-            testBeaconManager.SetTime(beacon, DateTimeOffset.MinValue);
+
+            await Task.Delay(1000);
+
             await resolver.CreateRequest(new BeaconEventArgs()
             {
                 Beacon = beacon,
+                EventType = BeaconEventType.Unknown
             });
 
 
-            Assert.AreEqual(1, enterCounter, "Not 1 enter action found");
+            Assert.AreEqual(2, enterCounter, "Not 2 enter action found");
 
 
             Assert.AreEqual(1, exitCounter, "Not 1 exit action found");
