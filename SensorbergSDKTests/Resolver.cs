@@ -40,7 +40,7 @@ namespace SensorbergSDKTests
             beacon.Id3 = 27189;
 
             args.Beacon = beacon;
-            args.EventType = BeaconEventType.Enter;
+            args.EventType = BeaconEventType.Unknown;
             res.ActionsResolved += Res_ActionResolved;
             await res.CreateRequest(args);
             _manualEvent.WaitOne();

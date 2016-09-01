@@ -93,7 +93,7 @@ namespace SensorbergSDK.Internal.Transport
         {
             return Layout?.ResolvedActions.FirstOrDefault(r => r.BeaconAction.Uuid == uuid);
         }
-
+        /*
         /// <summary>
         /// Executes the given request.
         /// </summary>
@@ -119,7 +119,7 @@ namespace SensorbergSDK.Internal.Transport
                 resultState = RequestResultState.Success;
             }
             return resultState;
-        }
+        }*/
 
 
         /// <summary>

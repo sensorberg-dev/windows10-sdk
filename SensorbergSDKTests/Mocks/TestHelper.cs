@@ -8,8 +8,10 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
+using SensorbergSDK;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Services;
+using SensorbergSDK.Internal.Transport;
 
 namespace SensorbergSDKTests.Mocks
 {
@@ -28,10 +30,11 @@ namespace SensorbergSDKTests.Mocks
             {
                 await ClearFiles(await ApplicationData.Current.LocalFolder.GetFolderAsync(folder));
             }
-            catch (FileNotFoundException )
+            catch (FileNotFoundException)
             {
             }
         }
+
         public static async Task ClearFiles(StorageFolder folder)
         {
             try
@@ -60,7 +63,14 @@ namespace SensorbergSDKTests.Mocks
                 StorageFile storageFile = await ApplicationData.Current.LocalFolder.GetFileAsync(keyLayoutContent);
                 await storageFile.DeleteAsync();
             }
-            catch (Exception) { }
+            catch (Exception)
+            {
+            }
+        }
+
+        public static Request ToRequest(string uuid, ushort man, ushort beaconId, BeaconEventType type)
+        {
+            return new Request(new BeaconEventArgs() {Beacon = new Beacon() {Id1 = uuid, Id2 = man, Id3 = beaconId }, EventType = type}, SdkData.NextId());
         }
     }
 }

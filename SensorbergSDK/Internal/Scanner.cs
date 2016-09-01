@@ -43,10 +43,8 @@ namespace SensorbergSDK.Internal
         /// </summary>
         public event EventHandler<Beacon> BeaconNotSeenForAWhile;
 
-        private readonly BeaconContainer _beaconsContainer;
         private BluetoothLEAdvertisementWatcher _bluetoothLeAdvertisementWatcher;
         private BluetoothLEManufacturerData _bluetoothLeManufacturerData;
-        private Timer _beaconListRefreshTimer;
         private Timer _notifyStartedDelayTimer;
 
         private ulong _beaconExitTimeout;
@@ -78,12 +76,6 @@ namespace SensorbergSDK.Internal
 
                     if (_status == ScannerStatus.Started)
                     {
-                        if (_beaconListRefreshTimer == null)
-                        {
-                            _beaconListRefreshTimer = new Timer(CheckListForOldBeacons, null,
-                                Constants.BeaconsListRefreshIntervalInMilliseconds, Constants.BeaconsListRefreshIntervalInMilliseconds);
-                        }
-
                         // Delay the notification in case there is an immediate error (e.g. when
                         // the bluetooth is not turned on the device.
                         _notifyStartedDelayTimer = new Timer(OnNotifyStartedDelayTimeout, null, 500, Timeout.Infinite);
@@ -106,7 +98,6 @@ namespace SensorbergSDK.Internal
         public Scanner()
         {
             _status = ScannerStatus.Stopped;
-            _beaconsContainer = new BeaconContainer();
         }
 
         /// <summary>
@@ -170,40 +161,11 @@ namespace SensorbergSDK.Internal
         /// <summary>
         /// Notifies any listeners about the beacon event.
         /// </summary>
-        public void NotifyBeaconEvent(Beacon beacon, BeaconEventType eventType)
+        public void NotifyBeaconEvent(Beacon beacon)
         {
-            BeaconEvent?.Invoke(this, new BeaconEventArgs() {Beacon = beacon, EventType = eventType});
+            BeaconEvent?.Invoke(this, new BeaconEventArgs() {Beacon = beacon, EventType = BeaconEventType.Unknown});
         }
 
-        /// <summary>
-        /// Checks the list of beacons for old beacons. If old enough beacons are found, an
-        /// exit event for them is generated and they are removed from the list.
-        /// </summary>
-        private void CheckListForOldBeacons(object state)
-        {
-            List<Beacon> beacons = _beaconsContainer.RemoveBeaconsBasedOnAge(_beaconExitTimeout);
-
-            foreach (Beacon beacon in beacons)
-            {
-                NotifyBeaconEvent(beacon, BeaconEventType.Exit);
-            }
-
-            beacons = _beaconsContainer.BeaconsBasedOnAge(_beaconExitTimeout);
-
-            if (BeaconNotSeenForAWhile != null)
-            {
-                foreach (Beacon beacon in beacons)
-                {
-                    BeaconNotSeenForAWhile(this, beacon);
-                }
-            }
-
-            if (Status != ScannerStatus.Started && _beaconsContainer.Count == 0 && _beaconListRefreshTimer != null)
-            {
-                _beaconListRefreshTimer.Dispose();
-                _beaconListRefreshTimer = null;
-            }
-        }
 
         /// <summary>
         /// Triggered when the watcher receives an advertisement.
@@ -226,19 +188,7 @@ namespace SensorbergSDK.Internal
                 {
                     return;
                 }
-
-                bool isExistingBeacon = _beaconsContainer.TryUpdate(beacon);
-                Logger.Trace("Scanner: beacon exists:" + isExistingBeacon + " " + beacon.Id1 + " " + beacon.Id2 + " " + beacon.Id3);
-                if (isExistingBeacon)
-                {
-                    NotifyBeaconEvent(beacon, BeaconEventType.None);
-
-                }
-                else
-                {
-                    _beaconsContainer.Add(beacon);
-                    NotifyBeaconEvent(beacon, BeaconEventType.Enter);
-                }
+                NotifyBeaconEvent(beacon);
             }
         }
 
@@ -291,17 +241,8 @@ namespace SensorbergSDK.Internal
             StatusChanged?.Invoke(this, _status);
         }
 
-        /// <summary>
-        /// Reset all states of the beacons, so every beacon gets a new ENTER event.
-        /// </summary>
-        public void ResetBeaconState()
-        {
-            _beaconsContainer.Clean();
-        }
-
         public void Dispose()
         {
-            _beaconListRefreshTimer?.Dispose();
             _notifyStartedDelayTimer?.Dispose();
         }
     }

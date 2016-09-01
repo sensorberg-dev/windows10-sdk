@@ -547,16 +547,18 @@ namespace SensorbergSDK.Internal.Data
                     }
                 }
             }
-            List<string> list = await ForegroundHistoryEventWriter.ReadLines();
-            foreach (string s in list)
+            if (ForegroundHistoryEventWriter != null)
             {
-                HistoryEvent historyEvent = FileStorageHelper.EventFromString(s);
-                if (historyEvent != null && !historyEvent.Delivered)
+                List<string> list = await ForegroundHistoryEventWriter.ReadLines();
+                foreach (string s in list)
                 {
-                    events.Add(historyEvent);
+                    HistoryEvent historyEvent = FileStorageHelper.EventFromString(s);
+                    if (historyEvent != null && !historyEvent.Delivered)
+                    {
+                        events.Add(historyEvent);
+                    }
                 }
             }
-
             return events;
         }
 

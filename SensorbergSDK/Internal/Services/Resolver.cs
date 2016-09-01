@@ -15,17 +15,30 @@ using SensorbergSDK.Services;
 
 namespace SensorbergSDK.Internal.Services
 {
-    public class Resolver : IResolver
+    public class Resolver : IResolver, IDisposable
     {
         private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<Resolver>();
         public event EventHandler<ResolvedActionsEventArgs> ActionsResolved;
         public event EventHandler<string> FailedToResolveActions;
         public event Action Finished;
         private Task WorkerTask { get; set; }
+        private Timer _exitTimer;
 
-        public Queue<Request> RequestQueue { get;}
+        public Queue<Request> RequestQueue { get; }
         private CancellationTokenSource CancelToken { get; set; }
         public bool SynchronResolver { get; }
+        public BeaconManager BeaconManager { get; set; }
+
+        public ulong BeaconExitTimeout
+        {
+            get { return (ulong) BeaconManager.ExitTimeout; }
+            set
+            {
+                BeaconManager.ExitTimeout = (long) value;
+            }
+        }
+
+        public EventHistory EventHistory { get; set; }
 
         public Resolver(bool synchron)
         {
@@ -33,12 +46,26 @@ namespace SensorbergSDK.Internal.Services
 
             if (!SynchronResolver)
             {
-                RequestQueue= new Queue<Request>();
+                RequestQueue = new Queue<Request>();
+            }
+            BeaconManager = new BeaconManager((long) Constants.DefaultBeaconExitTimeout);
+            _exitTimer = new Timer(ExitTimerTick, null, 0, 1000);
+        }
+
+        private Semaphore _timerSemaphore = new Semaphore(1,1);
+        private async void ExitTimerTick(object state)
+        {
+            List<Beacon> beaconExits = BeaconManager.ResolveBeaconExits();
+            foreach (Beacon beacon in beaconExits)
+            {
+                await CreateRequest(new BeaconEventArgs() { Beacon = beacon, EventType = BeaconEventType.Exit });
             }
         }
+
         public void Dispose()
         {
             CancelToken?.Dispose();
+            _exitTimer?.Dispose();
         }
 
         public async Task<int> CreateRequest(BeaconEventArgs beaconEventArgs)
@@ -100,18 +127,51 @@ namespace SensorbergSDK.Internal.Services
 
         private async Task Resolve(Request request)
         {
-            Logger.Trace("take next request " + request?.RequestId);
+            Logger.Trace("take next request " + request?.RequestId + " "+request?.BeaconEventArgs.EventType);
             if (request == null)
             {
-                OnRequestServed(request, RequestResultState.Failed);
+                FailedToResolveActions?.Invoke(this, "request is null");
                 return;
             }
             request.TryCount++;
-            RequestResultState requestResult;
+
+            if (request.BeaconEventArgs.EventType == BeaconEventType.Unknown)
+            {
+                request.BeaconEventArgs.EventType = BeaconManager.ResolveBeaconState(request.BeaconEventArgs.Beacon);
+            }
+            Logger.Trace("request resolved " + request.BeaconEventArgs.EventType);
+
+            if (request.BeaconEventArgs.EventType == BeaconEventType.None)
+            {
+                return;
+            }
+
+            if (request.BeaconEventArgs.EventType == BeaconEventType.Enter && EventHistory != null)
+            {
+                await EventHistory.SaveBeaconEventAsync(request.BeaconEventArgs, request.BeaconEventArgs.Location);
+            }
+
+
+            RequestResultState requestResult = RequestResultState.Failed;
 
             try
             {
-                requestResult = await ServiceManager.LayoutManager.ExecuteRequestAsync(request);
+                Logger.Debug("LayoutManager.InternalExecuteRequestAsync(): Request ID is " + request.RequestId);
+
+                if (request.BeaconEventArgs?.Beacon != null && await ServiceManager.LayoutManager.VerifyLayoutAsync() && ServiceManager.LayoutManager.Layout != null)
+                {
+                    request.ResolvedActions = ServiceManager.LayoutManager.Layout.GetResolvedActionsForPidAndEvent(request);
+
+                    foreach (ResolvedAction resolvedAction in request.ResolvedActions)
+                    {
+                        if (resolvedAction != null && resolvedAction.BeaconAction != null)
+                        {
+                            resolvedAction.BeaconAction.Id = request.RequestId;
+                        }
+                    }
+
+                    requestResult = RequestResultState.Success;
+                }
             }
             catch (ArgumentNullException ex)
             {
@@ -131,8 +191,9 @@ namespace SensorbergSDK.Internal.Services
                 {
                     if (request.TryCount >= request.MaxNumberOfRetries)
                     {
-                        // The maximum number of retries has been exceeded => fail
-                        OnRequestServed(request, requestResult);
+                        Logger.Info("OnRequestServed: Request with ID " + request.RequestId + " failed");
+
+                        FailedToResolveActions?.Invoke(this, request.ErrorMessage);
                     }
                     else
                     {
@@ -149,22 +210,6 @@ namespace SensorbergSDK.Internal.Services
                 }
                 case RequestResultState.Success:
                 {
-                    OnRequestServed(request, requestResult);
-                    break;
-                }
-            }
-        }
-
-        private async void OnRequestServed(object sender, RequestResultState e)
-        {
-            Request request = sender as Request;
-
-            if (request != null)
-            {
-                Logger.Debug("OnRequestServed: Request with ID " + request.RequestId + " was " + e +" "+request.ResolvedActions?.Count);
-                if (e == RequestResultState.Success)
-                {
-
                     if (ActionsResolved != null)
                     {
                         ResolvedActionsEventArgs eventArgs = new ResolvedActionsEventArgs();
@@ -179,14 +224,10 @@ namespace SensorbergSDK.Internal.Services
 
                         ActionsResolved(this, eventArgs);
                     }
-                }
-                else if (e == RequestResultState.Failed)
-                {
-                    Logger.Info("OnRequestServed: Request with ID " + request.RequestId + " failed");
-
-                    FailedToResolveActions?.Invoke(this, request.ErrorMessage);
+                    break;
                 }
             }
         }
+
     }
 }
