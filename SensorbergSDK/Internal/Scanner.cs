@@ -188,21 +188,7 @@ namespace SensorbergSDK.Internal
                 {
                     return;
                 }
-                    NotifyBeaconEvent(beacon);
-                /*
-                bool isExistingBeacon = _beaconsContainer.TryUpdate(beacon);
-                Logger.Trace("Scanner: beacon exists:" + isExistingBeacon + " " + beacon.Id1 + " " + beacon.Id2 + " " + beacon.Id3 + " aux:" + beacon.Aux + " pow:" + beacon.MeasuredPower + " db:" +
-                             beacon.RawSignalStrengthInDBm);
-                if (isExistingBeacon)
-                {
-                    NotifyBeaconEvent(beacon, BeaconEventType.None);
-
-                }
-                else
-                {
-                    _beaconsContainer.Add(beacon);
-                    NotifyBeaconEvent(beacon, BeaconEventType.Enter);
-                }*/
+                NotifyBeaconEvent(beacon);
             }
         }
 

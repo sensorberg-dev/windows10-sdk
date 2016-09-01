@@ -15,7 +15,6 @@ namespace SensorbergSDK.Internal
     /// </summary>
     public class BeaconManager
     {
-        private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<BeaconManager>();
         protected Dictionary<Beacon, DateTimeOffset> KnownBeacons { get; } = new Dictionary<Beacon, DateTimeOffset>();
         public long ExitTimeout { get; set; }
 
@@ -40,7 +39,6 @@ namespace SensorbergSDK.Internal
 
         public List<Beacon> ResolveBeaconExits()
         {
-            Logger.Trace("ResolveBeaconExists");
             lock (KnownBeacons)
             {
                 DateTimeOffset temp = DateTimeOffset.Now;
@@ -48,7 +46,6 @@ namespace SensorbergSDK.Internal
                 List<Beacon> removeBeacons = new List<Beacon>();
                 foreach (KeyValuePair<Beacon, DateTimeOffset> beacon in KnownBeacons)
                 {
-                    Logger.Trace("ResolveBeaconExists " + (beacon.Value < end));
                     if (beacon.Value < end)
                     {
                         removeBeacons.Add(beacon.Key);
