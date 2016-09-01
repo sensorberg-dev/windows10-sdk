@@ -33,7 +33,7 @@ namespace SensorbergSDK.Internal
         /// <summary>
         /// Default values for api settings. All time values are in miliseconds.
         /// </summary>
-        public const ulong DefaultSettingsUpdateInterval = 86400000;
+        public const ulong DefaultSettingsUpdateInterval = 43200000;
         public const ulong DefaultBeaconExitTimeout = 10000;
         public const ulong DefaultHistoryUploadInterval = 5*60*1000;
         public const ulong DefaultLayoutUpdateInterval = 3600000;
