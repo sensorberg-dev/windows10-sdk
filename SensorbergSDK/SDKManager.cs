@@ -35,6 +35,11 @@ namespace SensorbergSDK
         public AppSettings AppSettings { get; set; }
 
         /// <summary>
+        /// Provide the status information about the sdk.
+        /// </summary>
+        public SdkStatus Status { get; } = new SdkStatus();
+
+        /// <summary>
         /// Fired when a beacon action has been successfully resolved and is ready to be exeuted.
         /// </summary>
         public event EventHandler<BeaconAction> BeaconActionResolved

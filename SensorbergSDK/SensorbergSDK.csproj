@@ -133,6 +133,7 @@
     <Compile Include="Internal\Services\QueuedFileWriter.cs" />
     <Compile Include="Internal\Services\WriterFactory.cs" />
     <Compile Include="NGeoHash\GeoHash.cs" />
+    <Compile Include="SdkStatus.cs" />
     <Compile Include="Services\ILocationService.cs" />
     <Compile Include="Services\IResolver.cs" />
     <Compile Include="Internal\Data\UserAgentModel.cs" />

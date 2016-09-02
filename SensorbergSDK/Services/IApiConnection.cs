@@ -16,6 +16,8 @@ namespace SensorbergSDK.Services
     public interface IApiConnection
     {
         SdkConfiguration Configuration { set; }
+        NetworkResult LastCallResult { get; }
+
         /// <summary>
         /// Sends a layout request to server and returns the HTTP response, if any.
         /// </summary>
