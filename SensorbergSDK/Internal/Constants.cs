@@ -24,6 +24,7 @@ namespace SensorbergSDK.Internal
         public const int ActionTypeUrlMessage = 1;
         public const int ActionTypeVisitWebsite = 2;
         public const int ActionTypeInApp = 3;
+        public const int ActionTypeSilent = 4;
 
         public const int Id1LengthWithoutDashes = 32;
         public const int MinimumLayoutContentLength = 10; // Arbitrary value to make sure that empty layouts are not validated

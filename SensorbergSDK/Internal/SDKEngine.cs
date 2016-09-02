@@ -235,7 +235,7 @@ namespace SensorbergSDK.Internal
         {
             try
             {
-                Logger.Debug("SDKEngine: ExecuteActionAsync " + beaconPid + " BeaconEventType: " + beaconEventType);
+                Logger.Debug("SDKEngine: ExecuteActionAsync " + beaconPid + " BeaconEventType: " + beaconEventType + " type: " + resolvedAction?.BeaconAction.Type);
                 bool checkOnlyOnce = _eventHistory.CheckSendOnlyOnceAsync(resolvedAction);
                 bool shouldSupress = _eventHistory.ShouldSupressAsync(resolvedAction);
 
@@ -245,7 +245,10 @@ namespace SensorbergSDK.Internal
                     Logger.Trace("SDKEngine: ExecuteActionAsync " + beaconPid + " action resolved");
                     await _eventHistory.SaveExecutedResolvedActionAsync(resolvedAction.BeaconAction, beaconPid, beaconEventType, location);
 
-                    BeaconActionResolved?.Invoke(this, resolvedAction.BeaconAction);
+                    if (resolvedAction.BeaconAction.Type != BeaconActionType.Silent)
+                    {
+                        BeaconActionResolved?.Invoke(this, resolvedAction.BeaconAction);
+                    }
                 }
                 else
                 {

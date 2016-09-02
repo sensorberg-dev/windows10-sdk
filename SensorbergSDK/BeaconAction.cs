@@ -21,7 +21,8 @@ namespace SensorbergSDK
     {
         UrlMessage = Constants.ActionTypeUrlMessage,
         VisitWebsite = Constants.ActionTypeVisitWebsite,
-        InApp = Constants.ActionTypeInApp
+        InApp = Constants.ActionTypeInApp,
+        Silent = Constants.ActionTypeSilent,
     }
 
     /// <summary>
