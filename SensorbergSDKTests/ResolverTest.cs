@@ -121,7 +121,7 @@ namespace SensorbergSDKTests
             await resolver.CreateRequest(new BeaconEventArgs()
             {
                 Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929},
-                EventType = BeaconEventType.Enter
+                EventType = BeaconEventType.Unknown
             });
 
             ResolvedActionsEventArgs state = await requestReady.Task;
@@ -233,7 +233,7 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
-//        [Timeout(5000)]
+        [Timeout(5000)]
         public async Task MultipleRequestBlocksQueueTest()
         {
             MockLayoutManager layoutManager = new MockLayoutManager();
@@ -316,7 +316,7 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
-//        [Timeout(5000)]
+        [Timeout(5000)]
         public async Task TestEnterExitEvent()
         {
             Resolver resolver = new Resolver(true);
@@ -406,6 +406,75 @@ namespace SensorbergSDKTests
 
 
             Assert.AreEqual(1, exitCounter, "Not 1 exit action found");
+        }
+
+        [TestMethod]
+        [Timeout(6000)]
+        public async Task TestBeaconEventExitChange()
+        {
+            Resolver resolver = new Resolver(true);
+            resolver.BeaconManager.ExitTimeout = 1000;
+            TaskCompletionSource<IList<ResolvedAction>> enterAction = new TaskCompletionSource<IList<ResolvedAction>>();
+            TaskCompletionSource<IList<ResolvedAction>> exitAction = new TaskCompletionSource<IList<ResolvedAction>>();
+            EventHandler<ResolvedActionsEventArgs> resolverOnActionsResolved = (sender, args) =>
+            {
+                if (args.BeaconEventType == BeaconEventType.Enter)
+                {
+                    enterAction.SetResult(args.ResolvedActions);
+                }
+                if (args.BeaconEventType == BeaconEventType.Exit)
+                {
+                    exitAction.SetResult(args.ResolvedActions);
+                }
+
+            };
+            resolver.ActionsResolved += resolverOnActionsResolved;
+            await resolver.CreateRequest(new BeaconEventArgs()
+            {
+                Beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 },
+                EventType = BeaconEventType.Unknown
+            });
+            await Task.Delay(1500);
+            IList<ResolvedAction> result = await enterAction.Task;
+
+            Assert.AreEqual(1, result.Count, "Not 1 action found");
+
+            result = await exitAction.Task;
+
+            Assert.AreEqual(1, result.Count, "Not 1 action found");
+            resolver.ActionsResolved -= resolverOnActionsResolved;
+
+
+            resolver.BeaconManager.ExitTimeout = 100;
+
+            enterAction = new TaskCompletionSource<IList<ResolvedAction>>();
+            exitAction = new TaskCompletionSource<IList<ResolvedAction>>();
+            resolverOnActionsResolved = (sender, args) =>
+            {
+                if (args.BeaconEventType == BeaconEventType.Enter)
+                {
+                    enterAction.SetResult(args.ResolvedActions);
+                }
+                if (args.BeaconEventType == BeaconEventType.Exit)
+                {
+                    exitAction.SetResult(args.ResolvedActions);
+                }
+
+            };
+            resolver.ActionsResolved += resolverOnActionsResolved;
+            await resolver.CreateRequest(new BeaconEventArgs()
+            {
+                Beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0004", Id2 = 39178, Id3 = 30929 },
+                EventType = BeaconEventType.Unknown
+            });
+            await Task.Delay(300);
+             result = await enterAction.Task;
+
+            Assert.AreEqual(1, result.Count, "Not 1 action found");
+
+            result = await exitAction.Task;
+
+            Assert.AreEqual(1, result.Count, "Not 1 action found");
         }
     }
 }

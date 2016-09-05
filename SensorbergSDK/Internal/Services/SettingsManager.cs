@@ -54,7 +54,7 @@ namespace SensorbergSDK.Internal.Services
             _updateSettingsTimer = new Timer(OnTimerTick,null, interval, interval);
         }
 
-        private async void OnTimerTick(object state)
+        public async void OnTimerTick(object state)
         {
             var settings = await GetSettings(true);
             if (SettingsUpdated != null && settings != null)
