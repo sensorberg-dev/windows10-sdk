@@ -356,7 +356,7 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
-//        [Timeout(3000)]
+        [Timeout(3000)]
         public async Task TestMultipleEnterExitEvent()
         {
             Resolver resolver = new Resolver(true);

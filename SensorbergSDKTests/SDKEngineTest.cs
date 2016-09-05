@@ -28,7 +28,7 @@ namespace SensorbergSDKTests
             ServiceManager.ApiConnction = new MockApiConnection();
             ServiceManager.LayoutManager = new LayoutManager();
             ServiceManager.SettingsManager = new SettingsManager();
-            ServiceManager.StorageService = new StorageService();
+            ServiceManager.StorageService = new StorageService() {};
             ServiceManager.WriterFactory = new WriterFactory();
             ServiceManager.ReadOnlyForTests = true;
         }
@@ -125,6 +125,42 @@ namespace SensorbergSDKTests
             else
             {
                 //timeout is fine
+            }
+        }
+
+
+        [TestMethod]
+        public async Task TestSilentCampaign()
+        {
+            ((MockApiConnection) ServiceManager.ApiConnction).LayoutFile = "mock/mock_silent_layout.json";
+            ServiceManager.ReadOnlyForTests = false;
+            MockStorage storage = new MockStorage();
+            ServiceManager.StorageService = new StorageService() {Storage = storage};
+            ServiceManager.ReadOnlyForTests = true;
+
+            SdkEngine engine = new SdkEngine(false);
+            await engine.InitializeAsync();
+
+            TaskCompletionSource<bool> action = new TaskCompletionSource<bool>();
+            engine.BeaconActionResolved += (sender, args) =>
+            {
+                action.SetResult(true);
+            };
+            await
+                engine.ResolveBeaconAction(new BeaconEventArgs()
+                {
+                    Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff4321", Id2 = 39178, Id3 = 30929},
+                    EventType = BeaconEventType.Enter
+                });
+
+            if (await Task.WhenAny(action.Task, Task.Delay(500)) == action.Task)
+            {
+                Assert.Fail("no action should fired");
+            }
+            else
+            {
+                Assert.AreEqual(1, storage.UndeliveredActions.Count, "Not 1 undlivered action");
+                Assert.AreEqual(1, storage.UndeliveredEvents.Count, "Not 1 undlivered event");
             }
         }
     }

@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
+using MetroLog;
 using Newtonsoft.Json;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Utils;
@@ -27,6 +28,7 @@ namespace SensorbergSDK.Internal.Services
     /// </summary>
     public class ApiConnection : IApiConnection
     {
+        private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<ApiConnection>();
         public SdkConfiguration Configuration { get; set; }
         public NetworkResult LastCallResult { get; set; }
 
@@ -37,6 +39,7 @@ namespace SensorbergSDK.Internal.Services
         /// <returns>A HttpResponseMessage containing the server response or null in case of an error.</returns>
         public async Task<ResponseMessage> RetrieveLayoutResponse(string apiId)
         {
+            Logger.Trace("RetrieveLayoutResponse");
             HttpRequestMessage requestMessage = new HttpRequestMessage();
             HttpBaseProtocolFilter baseProtocolFilter = new HttpBaseProtocolFilter();
 
@@ -68,6 +71,7 @@ namespace SensorbergSDK.Internal.Services
                 return new ResponseMessage() {IsSuccess = false};
             }
 
+            Logger.Trace("RetrieveLayoutResponse HTTPCode: {0}", responseMessage.StatusCode);
             if (responseMessage.IsSuccessStatusCode)
             {
                 LastCallResult = NetworkResult.Success;
@@ -93,6 +97,7 @@ namespace SensorbergSDK.Internal.Services
         {
             try
             {
+                Logger.Trace("LoadSettings");
                 HttpRequestMessage requestMessage = new HttpRequestMessage();
                 HttpBaseProtocolFilter baseProtocolFilter = new HttpBaseProtocolFilter();
 
@@ -106,11 +111,13 @@ namespace SensorbergSDK.Internal.Services
 
 
                 var responseMessage = await httpClient.SendRequestAsync(requestMessage);
+                Logger.Trace("LoadSettings HTTPCode: {0}", responseMessage.StatusCode);
                 LastCallResult = responseMessage.IsSuccessStatusCode ? NetworkResult.Success : NetworkResult.UnknownError;
                 return responseMessage?.Content.ToString();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Logger.Error("LoadSettings Error", ex);
                 LastCallResult = NetworkResult.NetworkError;
                 return null;
             }
@@ -124,6 +131,7 @@ namespace SensorbergSDK.Internal.Services
         {
             try
             {
+                Logger.Trace("SendHistory");
                 System.Net.Http.HttpClient apiConnection = new System.Net.Http.HttpClient();
                 apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, Configuration.ApiKey);
                 apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, SdkData.DeviceId);
@@ -135,7 +143,7 @@ namespace SensorbergSDK.Internal.Services
 
                 System.Net.Http.HttpResponseMessage responseMessage = await apiConnection.PostAsync(new Uri(Configuration.LayoutUri), content);
 
-
+                Logger.Trace("SendHistory HttpCode: {0}", responseMessage.StatusCode);
                 if (responseMessage.IsSuccessStatusCode)
                 {
                     LastCallResult = NetworkResult.Success;
@@ -150,8 +158,9 @@ namespace SensorbergSDK.Internal.Services
                 LastCallResult = NetworkResult.UnknownError;
                 return new ResponseMessage() {StatusCode = Convert(responseMessage.StatusCode), IsSuccess = responseMessage.IsSuccessStatusCode};
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Logger.Error("SendHistory Error", ex);
                 LastCallResult = NetworkResult.NetworkError;
                 return new ResponseMessage() {IsSuccess = false};
             }
