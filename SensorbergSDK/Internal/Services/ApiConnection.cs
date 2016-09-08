@@ -141,7 +141,7 @@ namespace SensorbergSDK.Internal.Services
                 string serializeObject = JsonConvert.SerializeObject(history);
                 var content = new StringContent(serializeObject, Encoding.UTF8, "application/json");
 
-                System.Net.Http.HttpResponseMessage responseMessage = await apiConnection.PostAsync(new Uri(Configuration.LayoutUri), content);
+                    System.Net.Http.HttpResponseMessage responseMessage = await apiConnection.PostAsync(new Uri(Configuration.LayoutUri), content);
 
                 Logger.Trace("SendHistory HttpCode: {0}", responseMessage.StatusCode);
                 if (responseMessage.IsSuccessStatusCode)

@@ -1,0 +1,160 @@
+﻿<UserControl
+    x:Class="SensorbergControlLibrary.Controls.SettingsControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:data="using:SensorbergSDK.Internal.Data"
+    xmlns:converters="using:SensorbergControlLibrary.Converters"
+    mc:Ignorable="d"
+    d:DesignHeight="800"
+    d:DesignWidth="400">
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:InvertValueConverter x:Key="InvertValueConverter" />
+    </UserControl.Resources>
+
+    <Grid MaxWidth="400">
+        <StackPanel HorizontalAlignment="Stretch">
+            <!-- Background task settings -->
+            <Grid Margin="0,12,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width=".7*" />
+                    <ColumnDefinition Width=".3*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock
+                    x:Uid="BackgroundTask"
+                    HorizontalAlignment="Left"
+                    Style="{ThemeResource TitleTextBlockStyle}" />
+                <ToggleSwitch
+                    x:Name="enableBackgroundTaskSwitch"
+                    Grid.Column="1"
+                    Margin="0,-6,-60,0"
+                    HorizontalAlignment="Right"
+                    IsOn="{x:Bind Model.ShouldRegisterBackgroundTask, Mode=TwoWay}" 
+                                Toggled="OnEnableBackgroundTaskSwitchToggledAsync"/>
+            </Grid>
+            <Grid Margin="0,-6,0,0"
+                  Visibility="{x:Bind Model.ShouldRegisterBackgroundTask, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock
+                    x:Uid="bgTaskStatusOk"
+                    Style="{ThemeResource BodyTextBlockStyle}"
+                    Opacity="0.8"
+                    Foreground="Green"
+                    FontWeight="ExtraLight"
+                    FontStyle="Italic"
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind Model.IsBackgroundTaskRegistered, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                <TextBlock
+                    x:Uid="bgTaskStatusNotRegistered"
+                    Style="{ThemeResource BodyTextBlockStyle}"
+                    Foreground="Red"
+                    FontWeight="ExtraLight"
+                    FontStyle="Italic"
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind Model.IsBackgroundTaskRegistered, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}" />
+            </Grid>
+
+            <!-- API key settings -->
+            <TextBlock
+                x:Uid="enterApiKey"
+                Margin="0,6,0,0"
+                Style="{ThemeResource BodyTextBlockStyle}"
+                FontWeight="ExtraLight" />
+            <TextBox
+                x:Name="apiKeyTextBox"
+                Margin="0,6,0,0"
+                HorizontalAlignment="Stretch"
+                Text="{x:Bind Model.ApiKey, Mode=TwoWay}"
+                IsEnabled="{x:Bind Model.IsValidatingOrFetchingApiKey, Mode=OneWay, Converter={StaticResource InvertValueConverter}}" />
+            <!--            <Grid Margin="0,6,0,0">-->
+            <!--                <Grid.ColumnDefinitions>-->
+            <!--                    <ColumnDefinition Width=".5*" />-->
+            <!--                    <ColumnDefinition Width=".5*" />-->
+            <!--                </Grid.ColumnDefinitions>-->
+            <!--                <TextBlock-->
+            <!--                    x:Uid="apiKeyNotValidated"-->
+            <!--                    HorizontalAlignment="Left"-->
+            <!--                    Style="{ThemeResource BodyTextBlockStyle}"-->
+            <!--                    Foreground="Red"-->
+            <!--                    FontWeight="ExtraLight"-->
+            <!--                    FontStyle="Italic"-->
+            <!--                    Visibility="{x:Bind Model.IsApiKeyValid, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}" />-->
+            <!--                <TextBlock-->
+            <!--                    x:Uid="apiKeyIsValid"-->
+            <!--                    HorizontalAlignment="Left"-->
+            <!--                    Style="{ThemeResource BodyTextBlockStyle}"-->
+            <!--                    Foreground="Green"-->
+            <!--                    FontWeight="ExtraLight"-->
+            <!--                    FontStyle="Italic"-->
+            <!--                    Opacity="0.8"-->
+            <!--                    Visibility="{x:Bind Model.IsApiKeyValid, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />-->
+            <Button x:Uid="ValidateApiKey"
+                    Margin="0,18,0,0"
+                    Click="OnValidateApiKeyButtonClicked" />
+            <!--            IsEnabled="{x:Bind Model.IsApiKeyValid, Mode=OneWay, Converter={StaticResource InvertValueConverter}}"-->
+            <!--            </Grid>-->
+            <StackPanel
+                Visibility="{x:Bind Model.IsScannerAvailable, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock
+                    x:Uid="or"
+                    Margin="0,12,0,0"
+                    Style="{ThemeResource BodyTextBlockStyle}"
+                    HorizontalAlignment="Center" />
+                <Button x:Name="scanApiKeyButton"
+                        Margin="0,6,0,0"
+                        x:Uid="scanApiKeyFromQrCode"
+                        Content="scanning for QR code..."
+                        HorizontalAlignment="Center"
+                        IsEnabled="{x:Bind Model.IsValidatingOrFetchingApiKey, Mode=OneWay, Converter={StaticResource InvertValueConverter}}"
+                        Click="OnScanApiQrCodeButtonClicked" />
+            </StackPanel>
+            <TextBlock
+                x:Uid="or"
+                Margin="0,12,0,0"
+                Style="{ThemeResource BodyTextBlockStyle}"
+                HorizontalAlignment="Center" />
+            <TextBlock
+                x:Uid="email"
+                Margin="0,6,0,0"
+                Style="{ThemeResource BodyTextBlockStyle}"
+                FontWeight="ExtraLight" />
+            <TextBox
+                x:Name="emailTextBox"
+                Margin="0,6,0,0"
+                Text="{x:Bind Model.Email, Mode=TwoWay}"
+                IsEnabled="{x:Bind Model.IsValidatingOrFetchingApiKey, Mode=OneWay, Converter={StaticResource InvertValueConverter}}" />
+            <TextBlock
+                x:Uid="password"
+                Margin="0,12,0,0"
+                Style="{ThemeResource BodyTextBlockStyle}"
+                FontWeight="ExtraLight" />
+            <PasswordBox
+                x:Name="passwordBox"
+                Margin="0,6,0,0"
+                Password="{x:Bind Model.Password, Mode=TwoWay}"
+                IsEnabled="{x:Bind Model.IsValidatingOrFetchingApiKey, Mode=OneWay, Converter={StaticResource InvertValueConverter}}" />
+            <Button
+                x:Uid="fetchApiKey"
+                x:Name="fetchApiKeyButton"
+                Margin="0,18,0,0"
+                IsEnabled="{x:Bind Model.IsValidatingOrFetchingApiKey, Mode=OneWay, Converter={StaticResource InvertValueConverter}}"
+                Click="OnFetchApiKeyButtonClickedAsync" />
+            <TextBlock Text="{x:Bind Model.ApiKeyErrorMessage, Mode=OneWay}"
+                       Visibility="{x:Bind Model.ShowApiKeyErrorMessage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                       Foreground="Red" />
+            <StackPanel Margin="10"
+                        Visibility="{x:Bind Model.ShowApiKeySelection, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock Text="Select the application to use:" />
+                <ComboBox Name="appCombobox" ItemsSource="{x:Bind Model.Applications, Mode=OneWay}"
+                          SelectedItem="{x:Bind Model.Application, Mode=TwoWay}" Margin="0,10,0,0">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="data:SensorbergApplication">
+                            <TextBlock Text="{x:Bind AppName}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>

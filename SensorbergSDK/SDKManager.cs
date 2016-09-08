@@ -208,7 +208,6 @@ namespace SensorbergSDK
             {
                 _instance.AppSettings = null;
             }
-            _instance = null;
         }
 
         /// <summary>
@@ -238,6 +237,7 @@ namespace SensorbergSDK
         /// </summary>
         public async Task InitializeAsync(SdkConfiguration configuration)
         {
+            Status.IsApiKeyValid = false;
             _logger.Debug("InitializeAsync");
             Configuration = configuration;
 
@@ -248,6 +248,7 @@ namespace SensorbergSDK
             {
                 await SdkEngine.InitializeAsync();
                 await InitializeSettingsAsync();
+                Status.IsApiKeyValid = ServiceManager.LayoutManager.IsLayoutValid;
                 Scanner.StatusChanged += OnScannerStatusChanged;
                 Scanner.BeaconEvent += OnBeaconEventAsync;
             }
