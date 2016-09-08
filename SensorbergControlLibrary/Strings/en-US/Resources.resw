@@ -180,7 +180,7 @@
   <data name="scanningForQrCode.Content" xml:space="preserve">
     <value>scanning for QR code...</value>
   </data>
-  <data name="unknownApiKeyValidationError" xml:space="preserve">
+  <data name="UnknownApiKeyValidationError" xml:space="preserve">
     <value>Could not validate the API key due to unknown error.</value>
   </data>
   <data name="unknownFetchApiKeyError" xml:space="preserve">

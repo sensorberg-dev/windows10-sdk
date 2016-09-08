@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Resources;
@@ -20,7 +21,7 @@ namespace SensorbergControlLibrary.Model
     public class SettingsControlModel : INotifyPropertyChanged
     {
         public event Action<string> ApiKeyChanged;
-        private ResourceLoader loader = new ResourceLoader();
+        private ResourceLoader loader = new ResourceLoader("ms-appx:///SensorbergControlLibrary/Resources");
         private List<SensorbergApplication> _applications;
         private bool _showApiKeySelection;
         private string _apiKeyErrorMessage;

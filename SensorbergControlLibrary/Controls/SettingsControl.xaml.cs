@@ -56,7 +56,6 @@ namespace SensorbergControlLibrary.Controls
                 if (!result.Success)
                 {
                     (sender as ToggleSwitch).IsOn = false;
-
                 }
             }
             else
