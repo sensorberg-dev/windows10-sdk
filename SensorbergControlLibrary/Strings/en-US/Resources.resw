@@ -157,7 +157,7 @@
     <value>Failed to start Bluetooth LE advertisement watcher</value>
   </data>
   <data name="fetchApiKey.Content" xml:space="preserve">
-    <value>fetch API key</value>
+    <value>Login</value>
   </data>
   <data name="invalidApiKey" xml:space="preserve">
     <value>The API key is invalid.</value>
@@ -215,5 +215,8 @@
   </data>
   <data name="bgTaskStatusOk.Text" xml:space="preserve">
     <value>Background Task registered</value>
+  </data>
+  <data name="QRCodeDescription.Text" xml:space="preserve">
+    <value>If you do not have your API Key, you can scan the QR code instead.</value>
   </data>
 </root>

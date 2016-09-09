@@ -37,7 +37,7 @@ namespace SensorbergSDK
         /// <summary>
         /// Provide the status information about the sdk.
         /// </summary>
-        public SdkStatus Status { get; } = new SdkStatus();
+        public SdkStatus Status { get; private set; }
 
         /// <summary>
         /// Fired when a beacon action has been successfully resolved and is ready to be exeuted.
@@ -216,6 +216,7 @@ namespace SensorbergSDK
         private SDKManager()
         {
             SdkEngine = new SdkEngine(true);
+            Status = new SdkStatus();
             _backgroundTaskManager = new BackgroundTaskManager();
             _backgroundTaskManager.RegisterOnProgressEventHandler();
         }

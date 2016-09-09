@@ -97,10 +97,9 @@
             <StackPanel
                 Visibility="{x:Bind Model.IsScannerAvailable, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                 <TextBlock
-                    x:Uid="or"
+                    x:Uid="QRCodeDescription"
                     Margin="0,12,0,0"
-                    Style="{ThemeResource BodyTextBlockStyle}"
-                    HorizontalAlignment="Center" />
+                    Style="{ThemeResource BodyTextBlockStyle}" />
                 <Button x:Name="scanApiKeyButton"
                         Margin="0,6,0,0"
                         x:Uid="scanApiKeyFromQrCode"
@@ -109,11 +108,6 @@
                         IsEnabled="{x:Bind Model.IsValidatingOrFetchingApiKey, Mode=OneWay, Converter={StaticResource InvertValueConverter}}"
                         Click="OnScanApiQrCodeButtonClicked" />
             </StackPanel>
-            <TextBlock
-                x:Uid="or"
-                Margin="0,12,0,0"
-                Style="{ThemeResource BodyTextBlockStyle}"
-                HorizontalAlignment="Center" />
             <TextBlock
                 x:Uid="email"
                 Margin="0,6,0,0"
