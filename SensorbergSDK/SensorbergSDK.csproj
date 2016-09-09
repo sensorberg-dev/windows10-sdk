@@ -116,6 +116,23 @@
     <Compile Include="ApiKeyHelper.cs" />
     <Compile Include="BackgroundTaskManager.cs" />
     <Compile Include="BeaconAction.cs" />
+    <Compile Include="Controls\AdvertiserControl.xaml.cs">
+      <DependentUpon>AdvertiserControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\BeaconDetailsControl.xaml.cs">
+      <DependentUpon>BeaconDetailsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ScannerControl.xaml.cs">
+      <DependentUpon>ScannerControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SettingsControl.xaml.cs">
+      <DependentUpon>SettingsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\BeaconActionToColorConverter.cs" />
+    <Compile Include="Converters\BoolNullToBoolConverter.cs" />
+    <Compile Include="Converters\BoolToAdvertisingButtonTextConverter.cs" />
+    <Compile Include="Converters\BoolToVisibilityConverter.cs" />
+    <Compile Include="Converters\InvertValueConverter.cs" />
     <Compile Include="Internal\BeaconManager.cs" />
     <Compile Include="Internal\Constants.cs" />
     <Compile Include="AppSettings.cs" />
@@ -132,6 +149,10 @@
     <Compile Include="Internal\Services\IQueuedFileWriter.cs" />
     <Compile Include="Internal\Services\QueuedFileWriter.cs" />
     <Compile Include="Internal\Services\WriterFactory.cs" />
+    <Compile Include="Model\AdvertiserControlModel.cs" />
+    <Compile Include="Model\BeaconDetailsItem.cs" />
+    <Compile Include="Model\BeaconDetailsModel.cs" />
+    <Compile Include="Model\SettingsControlModel.cs" />
     <Compile Include="NGeoHash\GeoHash.cs" />
     <Compile Include="SdkStatus.cs" />
     <Compile Include="Services\ILocationService.cs" />
@@ -179,6 +200,27 @@
     <Compile Include="SDKManager.cs" />
     <Compile Include="Services\IWriterFactory.cs" />
     <Compile Include="Services\LocationService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Controls\AdvertiserControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\BeaconDetailsControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\ScannerControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\SettingsControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Include="Strings\en-US\Resources.resw" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
