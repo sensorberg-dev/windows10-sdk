@@ -39,7 +39,7 @@ namespace SensorbergSDKTests
         public async Task TestApiKeyValidation()
         {
             SdkStatus status = new SdkStatus();
-            Assert.IsTrue(await status.IsApiKeyValid(), "ApiKey is not valid");
+            Assert.IsTrue(await status.CheckApiKeysValid(), "ApiKey is not valid");
         }
 
         [TestMethod]
@@ -47,20 +47,20 @@ namespace SensorbergSDKTests
         {
             SdkStatus status = new SdkStatus();
             SdkConfiguration.ApiKey = "123";
-            Assert.IsFalse(await status.IsApiKeyValid(), "ApiKey is not invalid");
+            Assert.IsFalse(await status.CheckApiKeysValid(), "ApiKey is not invalid");
         }
 
         [TestMethod]
         public async Task TestBackendStatus()
         {
             SdkStatus status = new SdkStatus();
-            Assert.IsTrue(await status.IsResolverReachable(), "Resolver reachable failed");
+            Assert.IsTrue(await status.CheckResolversReachable(), "Resolver reachable failed");
             ((MockApiConnection) ServiceManager.ApiConnction).FailNetwork = true;
             try { await ServiceManager.ApiConnction.LoadSettings(); } catch (Exception) { }
-            Assert.IsFalse(await status.IsResolverReachable(), "Unreachable Resolver reachable failed");
+            Assert.IsFalse(await status.CheckResolversReachable(), "Unreachable Resolver reachable failed");
             ((MockApiConnection) ServiceManager.ApiConnction).FailNetwork = false;
             await ServiceManager.ApiConnction.LoadSettings();
-            Assert.IsTrue(await status.IsResolverReachable(), "Resolver reachable failed");
+            Assert.IsTrue(await status.CheckResolversReachable(), "Resolver reachable failed");
         }
     }
 }
