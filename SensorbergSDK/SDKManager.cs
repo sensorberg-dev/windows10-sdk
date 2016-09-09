@@ -37,7 +37,7 @@ namespace SensorbergSDK
         /// <summary>
         /// Provide the status information about the sdk.
         /// </summary>
-        public SdkStatus Status { get; } = new SdkStatus();
+        public SdkStatus Status { get; private set; }
 
         /// <summary>
         /// Fired when a beacon action has been successfully resolved and is ready to be exeuted.
@@ -208,7 +208,6 @@ namespace SensorbergSDK
             {
                 _instance.AppSettings = null;
             }
-            _instance = null;
         }
 
         /// <summary>
@@ -217,6 +216,7 @@ namespace SensorbergSDK
         private SDKManager()
         {
             SdkEngine = new SdkEngine(true);
+            Status = new SdkStatus();
             _backgroundTaskManager = new BackgroundTaskManager();
             _backgroundTaskManager.RegisterOnProgressEventHandler();
         }
@@ -238,6 +238,7 @@ namespace SensorbergSDK
         /// </summary>
         public async Task InitializeAsync(SdkConfiguration configuration)
         {
+            Status.IsApiKeyValid = false;
             _logger.Debug("InitializeAsync");
             Configuration = configuration;
 
@@ -248,6 +249,7 @@ namespace SensorbergSDK
             {
                 await SdkEngine.InitializeAsync();
                 await InitializeSettingsAsync();
+                Status.IsApiKeyValid = ServiceManager.LayoutManager.IsLayoutValid;
                 Scanner.StatusChanged += OnScannerStatusChanged;
                 Scanner.BeaconEvent += OnBeaconEventAsync;
             }

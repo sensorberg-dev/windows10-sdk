@@ -17,12 +17,12 @@ namespace SensorbergSDK.Services
     public class LocationService : ILocationService
     {
         private const int HashLength = 6;
-        private Geolocator _locator;
+        public Geolocator Locator { get;  }
         public SdkConfiguration Configuration { get; set; }
 
         public LocationService()
         {
-            _locator = new Geolocator();
+            Locator = new Geolocator();
         }
 
         public async Task Initialize()
@@ -48,7 +48,7 @@ namespace SensorbergSDK.Services
         {
             if (Configuration != null && Configuration.UseLocation)
             {
-                return await _locator.GetGeopositionAsync();
+                return await Locator.GetGeopositionAsync();
             }
             return null;
         }
