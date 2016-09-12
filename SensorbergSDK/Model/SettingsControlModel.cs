@@ -33,6 +33,7 @@ namespace SensorbergControlLibrary.Model
         private bool _showApiKeyErrorMessage;
         private bool _shouldRegisterBackgroundTask;
         private bool _isBackgroundTaskRegistered;
+        private bool _areActionsEnabled;
 
         public bool ShowApiKeyErrorMessage
         {
@@ -164,6 +165,16 @@ namespace SensorbergControlLibrary.Model
             set
             {
                 _shouldRegisterBackgroundTask = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool AreActionsEnabled
+        {
+            get { return _areActionsEnabled; }
+            set
+            {
+                _areActionsEnabled = value;
                 OnPropertyChanged();
             }
         }

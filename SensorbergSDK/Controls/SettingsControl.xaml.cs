@@ -18,6 +18,7 @@ namespace SensorbergControlLibrary.Controls
     {
         private ResourceLoader loader = new ResourceLoader();
         public static readonly DependencyProperty ApiKeyProperty = DependencyProperty.Register("ApiKey", typeof(string), typeof(SettingsControl), new PropertyMetadata(default(string)));
+        public static readonly DependencyProperty BeaconNotificationEnableProperty = DependencyProperty.Register("BeaconNotificationEnable", typeof(bool), typeof(SettingsControl), new PropertyMetadata(default(bool)));
         private SettingsControlModel Model { get; } = new SettingsControlModel();
 
         public string ApiKey
@@ -26,15 +27,30 @@ namespace SensorbergControlLibrary.Controls
             set { Model.ApiKey = value; }
         }
 
+        public bool BeaconNotificationEnable
+        {
+            get { return Model.AreActionsEnabled; }
+            set { Model.AreActionsEnabled = value; }
+        }
+
         public event Action<string> ApiKeyChanged
         {
             add { Model.ApiKeyChanged += value; }
             remove { Model.ApiKeyChanged -= value; }
         }
 
+        public event Action<bool> BeaconNotificationChanged;
+
         public SettingsControl()
         {
             InitializeComponent();
+            Model.PropertyChanged += (sender, args) =>
+            {
+                if (args.PropertyName == "AreActionsEnabled")
+                {
+                    BeaconNotificationChanged?.Invoke(Model.AreActionsEnabled);
+                }
+            };
         }
 
         private async void OnValidateApiKeyButtonClicked(object sender, RoutedEventArgs e)

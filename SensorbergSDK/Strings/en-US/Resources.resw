@@ -219,4 +219,7 @@
   <data name="QRCodeDescription.Text" xml:space="preserve">
     <value>If you do not have your API Key, you can scan the QR code instead.</value>
   </data>
+  <data name="BeaconActions.Text" xml:space="preserve">
+    <value>Beacon Notificatins</value>
+  </data>
 </root>
