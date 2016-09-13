@@ -8,36 +8,7 @@ try {
 
     stage 'nuget restore'
     bat '"C:\\Program Files (x86)\\NuGet\\Visual Studio 2015\\nuget.exe" restore SensorbergAll.sln'
-	
-    stage 'patch files'
-    def mani = readFile encoding: 'UTF-8', file: 'VSIX_Packaging/source.extension.vsixmanifest'
-    mani = mani.replaceAll('0\\.5', versionVSIX);
-    println(mani)
-    writeFile encoding: 'UTF-8', file: 'VSIX_Packaging/source.extension.vsixmanifest', text: mani
-    
-	
-    def ass = readFile encoding: 'UTF-8', file: 'SensorbergSDK/Properties/AssemblyInfo.cs'
-    ass = ass.replaceAll('1\\.0\\.0\\.1', versionVSIX);
-    println(ass)
-    writeFile encoding: 'UTF-8', file: 'SensorbergSDK/Properties/AssemblyInfo.cs', text: ass
-    
-    def sdkMani = readFile encoding: 'UTF-8', file: 'VSIX_Packaging/SDKManifest.xml'
-    sdkMani = sdkMani.replaceAll('0\\.5', version);
-    println(sdkMani)
-    writeFile encoding: 'UTF-8', file: 'VSIX_Packaging/SDKManifest.xml', text: sdkMani
-    
-    
-    def releaseNotes = readFile encoding: 'UTF-8', file: 'VSIX_Packaging/ReleaseNotes.txt'
-    releaseNotes = releaseNotes.replaceAll('0\\.5', version).replaceAll('\\$date', new Date().format("dd 'of' MMM yyyy HH:mm"));
-    println(releaseNotes)
-    writeFile encoding: 'UTF-8', file: 'VSIX_Packaging/ReleaseNotes.txt', text: releaseNotes
-    
-    def nugetPackageText = readFile encoding: 'UTF-8', file: 'SensorbergSDK/nuget/SensorbergSDK.nuspec.tmpl'
-    nugetPackageText = nugetPackageText.replaceAll('0\\.6\\.7-alpha', version)
-    println(nugetPackageText)
-    writeFile encoding: 'UTF-8', file: 'SensorbergSDK/nuget/SensorbergSDK.nuspec', text: nugetPackageText
-	
-	
+
     def msbuild = tool 'Main';
     
     stage 'build AnyCPU'
@@ -59,6 +30,12 @@ try {
     writeFile encoding: 'UTF-8', file: 'VSIX_Packaging/source.extension.vsixmanifest', text: mani
     
     
+    def ass = readFile encoding: 'UTF-8', file: 'SensorbergSDK/Properties/AssemblyInfo.cs'
+    ass = ass.replaceAll('1\\.0\\.0\\.1', versionVSIX);
+    println(ass)
+    writeFile encoding: 'UTF-8', file: 'SensorbergSDK/Properties/AssemblyInfo.cs', text: ass
+	
+	
     def sdkMani = readFile encoding: 'UTF-8', file: 'VSIX_Packaging/SDKManifest.xml'
     sdkMani = sdkMani.replaceAll('0\\.5', version);
     println(sdkMani)
