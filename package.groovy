@@ -11,18 +11,6 @@ try {
 
     def msbuild = tool 'Main';
     
-    stage 'build AnyCPU'
-    bat "\"${msbuild}\" /p:Platform=AnyCPU /p:Configuration=Release SensorbergSDK/SensorbergSDK.csproj"
-    
-    stage 'build arm'
-    bat "\"${msbuild}\" /p:Platform=ARM /p:Configuration=Release SensorbergSDK/SensorbergSDK.csproj"
-
-    stage 'build x64'
-    bat "\"${msbuild}\" /p:Platform=x64 /p:Configuration=Release SensorbergSDK/SensorbergSDK.csproj"
-
-    stage 'build x86'
-    bat "\"${msbuild}\" /p:Platform=x86 /p:Configuration=Release SensorbergSDK/SensorbergSDK.csproj"
-    
     stage 'patch files'
     def mani = readFile encoding: 'UTF-8', file: 'VSIX_Packaging/source.extension.vsixmanifest'
     mani = mani.replaceAll('0\\.5', versionVSIX);
@@ -51,6 +39,19 @@ try {
     nugetPackageText = nugetPackageText.replaceAll('0\\.6\\.7-alpha', version)
     println(nugetPackageText)
     writeFile encoding: 'UTF-8', file: 'SensorbergSDK/nuget/SensorbergSDK.nuspec', text: nugetPackageText
+	
+    stage 'build AnyCPU'
+    bat "\"${msbuild}\" /p:Platform=AnyCPU /p:Configuration=Release SensorbergSDK/SensorbergSDK.csproj"
+    
+    stage 'build arm'
+    bat "\"${msbuild}\" /p:Platform=ARM /p:Configuration=Release SensorbergSDK/SensorbergSDK.csproj"
+
+    stage 'build x64'
+    bat "\"${msbuild}\" /p:Platform=x64 /p:Configuration=Release SensorbergSDK/SensorbergSDK.csproj"
+
+    stage 'build x86'
+    bat "\"${msbuild}\" /p:Platform=x86 /p:Configuration=Release SensorbergSDK/SensorbergSDK.csproj"
+    
 
     stage 'package vsix'
     bat "\"${msbuild}\" VSIX_Packaging.sln"
