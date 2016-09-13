@@ -25,7 +25,7 @@ namespace SensorbergSDK.Internal.Services
         private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<StorageService>();
         private const string KeyLayoutHeaders = "layout_headers";
         private const string KeyLayoutContent = "layout_content.cache"; // Cache file
-        private const string KeyLayoutRetrievedTime = "layout_retrieved_time";
+        public const string KeyLayoutRetrievedTime = "layout_retrieved_time";
         private const int MaxRetries = 2;
 
         public int RetryCount { get; set; } = 3;

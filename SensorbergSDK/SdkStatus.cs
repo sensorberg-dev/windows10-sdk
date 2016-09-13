@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Windows.Devices.Geolocation;
 using Windows.Devices.Radios;
 using Windows.Media.Streaming.Adaptive;
+using Windows.Storage;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using SensorbergSDK.Internal.Services;
@@ -30,6 +31,7 @@ namespace SensorbergSDK
         private bool? _isLocationEnabled;
         private bool? _isApiKeyValid;
         private bool? _isResolverReachable;
+        private DateTimeOffset _lastUpdate;
 
         public SdkStatus()
         {
@@ -55,7 +57,10 @@ namespace SensorbergSDK
             }
         }
 
-        public string Version
+        /// <summary>
+        /// Version of the SDK.
+        /// </summary>
+        public string SDKVersion
         {
             get
             {
@@ -65,12 +70,18 @@ namespace SensorbergSDK
             }
         }
 
+        /// <summary>
+        /// Check for ApiKey validation.
+        /// </summary>
         public async Task<bool> CheckApiKeysValid()
         {
             ApiKeyHelper helper = new ApiKeyHelper();
             return IsApiKeyValid = await helper.ValidateApiKey(null) == ApiKeyValidationResult.Valid;
         }
 
+        /// <summary>
+        /// Check for reachability of resolver.
+        /// </summary>
         public async Task<bool> CheckResolversReachable()
         {
             if (ServiceManager.ApiConnction == null)
@@ -88,6 +99,9 @@ namespace SensorbergSDK
             return IsResolverReachable = result != NetworkResult.NetworkError && result != NetworkResult.UnknownError;
         }
 
+        /// <summary>
+        /// If bluetooth is enabled.
+        /// </summary>
         public bool IsBluetoothEnabled
         {
             get
@@ -106,6 +120,10 @@ namespace SensorbergSDK
             }
         }
 
+        /// <summary>
+        /// Check for bluetooth status and update property.
+        /// </summary>
+        /// <returns></returns>
         private async Task<bool> CheckIsBluetoothEnabled()
         {
             var radios = await Radio.GetRadiosAsync();
@@ -113,6 +131,10 @@ namespace SensorbergSDK
             return IsBluetoothEnabled = bluetoothRadio != null && bluetoothRadio.State == RadioState.On;
         }
 
+
+        /// <summary>
+        /// ApiKey validation state.
+        /// </summary>
         public bool IsApiKeyValid
         {
             get
@@ -131,6 +153,9 @@ namespace SensorbergSDK
             }
         }
 
+        /// <summary>
+        /// Resolver reachable state.
+        /// </summary>
         public bool IsResolverReachable
         {
             get
@@ -149,6 +174,9 @@ namespace SensorbergSDK
             }
         }
 
+        /// <summary>
+        /// Location enable state.
+        /// </summary>
         public bool IsLocationEnabled
         {
             get
@@ -167,12 +195,30 @@ namespace SensorbergSDK
             }
         }
 
+        /// <summary>
+        /// Check for location permissions.
+        /// </summary>
+        /// <returns></returns>
         private async Task<bool> CheckLocationEnabled()
         {
             var accessStatus = await Geolocator.RequestAccessAsync();
             return
                 IsLocationEnabled =
-                    accessStatus == GeolocationAccessStatus.Allowed && ServiceManager.LocationService.Locator.LocationStatus != PositionStatus.NotAvailable && ServiceManager.LocationService.Locator.LocationStatus != PositionStatus.Disabled ;
+                    accessStatus == GeolocationAccessStatus.Allowed && ServiceManager.LocationService.Locator.LocationStatus != PositionStatus.NotAvailable &&
+                    ServiceManager.LocationService.Locator.LocationStatus != PositionStatus.Disabled;
+        }
+
+        /// <summary>
+        /// Last update time of layout.
+        /// </summary>
+        public DateTimeOffset LastUpdate
+        {
+            get { return _lastUpdate; }
+            set
+            {
+                _lastUpdate = value;
+                OnPropertyChanged();
+            }
         }
 
 
@@ -182,6 +228,15 @@ namespace SensorbergSDK
             await CheckApiKeysValid();
             await CheckIsBluetoothEnabled();
             await CheckResolversReachable();
+            CheckLastLayoutUpdate();
+        }
+
+        private void CheckLastLayoutUpdate()
+        {
+            if (ApplicationData.Current.LocalSettings.Values.ContainsKey(StorageService.KeyLayoutRetrievedTime))
+            {
+                LastUpdate = (DateTimeOffset) ApplicationData.Current.LocalSettings.Values[StorageService.KeyLayoutRetrievedTime];
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
