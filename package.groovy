@@ -17,7 +17,7 @@ try {
     
 	
     def ass = readFile encoding: 'UTF-8', file: 'SensorbergSDK/Properties/AssemblyInfo.cs'
-    ass = ass.replaceAll('AssemblyVersion("1\\.0\\.0\\.0")', 'AssemblyVersion("' + versionVSIX + '")');
+    ass = ass.replaceAll('1\\.0\\.0\\.1', versionVSIX);
     println(ass)
     writeFile encoding: 'UTF-8', file: 'SensorbergSDK/Properties/AssemblyInfo.cs', text: ass
     
