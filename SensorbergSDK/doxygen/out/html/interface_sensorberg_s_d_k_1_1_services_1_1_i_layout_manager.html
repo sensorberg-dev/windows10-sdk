@@ -112,11 +112,8 @@ Inheritance diagram for SensorbergSDK.Services.ILayoutManager:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a27312dafdadfb0764b183256850b83a2"><td class="memItemLeft" align="right" valign="top">Task&lt; <a class="el" href="namespace_sensorberg_s_d_k_1_1_internal_1_1_transport.html#a248274c72eb808de4c9c10c553657760">RequestResultState</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_layout_manager.html#a27312dafdadfb0764b183256850b83a2">ExecuteRequestAsync</a> (<a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_transport_1_1_request.html">Request</a> currentRequest)</td></tr>
-<tr class="memdesc:a27312dafdadfb0764b183256850b83a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates the request against the layout.  <a href="#a27312dafdadfb0764b183256850b83a2">More...</a><br /></td></tr>
-<tr class="separator:a27312dafdadfb0764b183256850b83a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a62623b9415091f7e2a95a8cf9ad7600a"><td class="memItemLeft" align="right" valign="top">Task&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_layout_manager.html#a62623b9415091f7e2a95a8cf9ad7600a">InvalidateLayout</a> ()</td></tr>
-<tr class="memdesc:a62623b9415091f7e2a95a8cf9ad7600a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Invalidates the layout, so a new will received next time.  <a href="#a62623b9415091f7e2a95a8cf9ad7600a">More...</a><br /></td></tr>
+<tr class="memdesc:a62623b9415091f7e2a95a8cf9ad7600a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates the request against the layout.  <a href="#a62623b9415091f7e2a95a8cf9ad7600a">More...</a><br /></td></tr>
 <tr class="separator:a62623b9415091f7e2a95a8cf9ad7600a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac0b777c8525b8df8db1e8e903d669bdc"><td class="memItemLeft" align="right" valign="top">Task&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_layout_manager.html#ac0b777c8525b8df8db1e8e903d669bdc">VerifyLayoutAsync</a> (bool forceUpdate=false)</td></tr>
 <tr class="memdesc:ac0b777c8525b8df8db1e8e903d669bdc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verify the currenty layout and update if needed.  <a href="#ac0b777c8525b8df8db1e8e903d669bdc">More...</a><br /></td></tr>
@@ -143,32 +140,6 @@ Events</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Abstraction for the layout manager, to handle all actions about the layout. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="a27312dafdadfb0764b183256850b83a2"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">Task&lt;<a class="el" href="namespace_sensorberg_s_d_k_1_1_internal_1_1_transport.html#a248274c72eb808de4c9c10c553657760">RequestResultState</a>&gt; SensorbergSDK.Services.ILayoutManager.ExecuteRequestAsync </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_transport_1_1_request.html">Request</a>&#160;</td>
-          <td class="paramname"><em>currentRequest</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Validates the request against the layout. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">currentRequest</td><td>Request to validate.</td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p>Implemented in <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_transport_1_1_layout_manager.html#acc4ff16bf83c742d1edd9ac61e42a41a">SensorbergSDK.Internal.Transport.LayoutManager</a>.</p>
-
-</div>
-</div>
 <a class="anchor" id="aaaeb45a610323f20d3adb38316fa2f41"></a>
 <div class="memitem">
 <div class="memproto">
@@ -208,6 +179,13 @@ Events</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Validates the request against the layout. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">currentRequest</td><td>Request to validate.</td></tr>
+  </table>
+  </dd>
+</dl>
 <p>Invalidates the layout, so a new will received next time. </p>
 <dl class="section return"><dt>Returns</dt><dd></dd></dl>
 

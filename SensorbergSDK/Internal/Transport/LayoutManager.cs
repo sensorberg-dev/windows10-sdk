@@ -93,34 +93,6 @@ namespace SensorbergSDK.Internal.Transport
         {
             return Layout?.ResolvedActions.FirstOrDefault(r => r.BeaconAction.Uuid == uuid);
         }
-        /*
-        /// <summary>
-        /// Executes the given request.
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns>The result state (success or failure).</returns>
-        public async Task<RequestResultState> ExecuteRequestAsync(Request request)
-        {
-            Logger.Debug("LayoutManager.InternalExecuteRequestAsync(): Request ID is " + request.RequestId);
-            RequestResultState resultState = RequestResultState.Failed;
-
-            if (request.BeaconEventArgs != null && request.BeaconEventArgs.Beacon != null && await VerifyLayoutAsync(false))
-            {
-                request.ResolvedActions = Layout.GetResolvedActionsForPidAndEvent(request.BeaconEventArgs.Beacon.Pid, request.BeaconEventArgs.EventType);
-
-                foreach (ResolvedAction resolvedAction in request.ResolvedActions)
-                {
-                    if (resolvedAction != null && resolvedAction.BeaconAction != null)
-                    {
-                        resolvedAction.BeaconAction.Id = request.RequestId;
-                    }
-                }
-
-                resultState = RequestResultState.Success;
-            }
-            return resultState;
-        }*/
-
 
         /// <summary>
         /// Creates a hash string based on the beacon ID1s in the given layout.

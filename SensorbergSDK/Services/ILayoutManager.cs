@@ -20,16 +20,10 @@ namespace SensorbergSDK.Services
         /// Event for changes on the validity of the layout.
         /// </summary>
         event EventHandler<bool> LayoutValidityChanged;
-        /// <summary>
-        /// Validates the request against the layout.
-        /// </summary>
-        /// <param name="currentRequest">Request to validate.</param>
-//        Task<RequestResultState> ExecuteRequestAsync(Request currentRequest);
 
         /// <summary>
         /// Invalidates the layout, so a new will received next time.
         /// </summary>
-        /// <returns></returns>
         Task InvalidateLayout();
 
         /// <summary>

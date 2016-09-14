@@ -1,17 +1,17 @@
 ﻿<UserControl
-    x:Class="SensorbergControlLibrary.Controls.AdvertiserControl"
+    x:Class="SensorbergSDK.Controls.AdvertiserControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:converters="using:SensorbergControlLibrary.Converters"
+    xmlns:converters1="using:SensorbergControlLibrary.Converters"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
     <UserControl.Resources>
-        <converters:InvertValueConverter x:Key="InvertValueConverter" />
-        <converters:BoolToAdvertisingButtonTextConverter x:Key="AdvertisingButtonTextConverter" />
+        <converters1:InvertValueConverter x:Key="InvertValueConverter" />
+        <converters1:BoolToAdvertisingButtonTextConverter x:Key="AdvertisingButtonTextConverter" />
     </UserControl.Resources>
     <Grid MinWidth="320">
         <StackPanel>
