@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using MetroLog;
 using SensorbergControlLibrary.Model;
-using SensorbergSDK;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
-namespace SensorbergControlLibrary.Controls
+namespace SensorbergSDK.Controls
 {
     public sealed partial class ScannerControl : UserControl
     {

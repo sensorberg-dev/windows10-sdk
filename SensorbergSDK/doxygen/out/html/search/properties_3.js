@@ -6,6 +6,6 @@ var searchData=
   ['delivered',['Delivered',['../class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_action.html#a27c55150f0bea4b2f38e51a51729d106',1,'SensorbergSDK.Internal.Data.HistoryAction.Delivered()'],['../class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_event.html#a26313b112e1fee19ef489b581d4542f6',1,'SensorbergSDK.Internal.Data.HistoryEvent.Delivered()']]],
   ['devicetimestamp',['DeviceTimestamp',['../class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history.html#acfd830b5e28c2d92856391080b93c805',1,'SensorbergSDK::Internal::Data::History']]],
   ['disablefilter',['DisableFilter',['../class_sensorberg_s_d_k_1_1_internal_1_1_scanner.html#a2a872d1d9cad832764e21febd67bd684',1,'SensorbergSDK.Internal.Scanner.DisableFilter()'],['../interface_sensorberg_s_d_k_1_1_services_1_1_i_beacon_scanner.html#ae32958b0acf6dc157bfaeb72bb128a9c',1,'SensorbergSDK.Services.IBeaconScanner.DisableFilter()']]],
-  ['distance',['Distance',['../class_sensorberg_s_d_k_1_1_beacon.html#ab424b38678179cad973bceab2825ff21',1,'SensorbergSDK::Beacon']]],
+  ['distance',['Distance',['../class_sensorberg_s_d_k_1_1_beacon.html#ab424b38678179cad973bceab2825ff21',1,'SensorbergSDK.Beacon.Distance()'],['../class_sensorberg_control_library_1_1_model_1_1_beacon_details_item.html#a46b7aab70a0dc192676490e88234d4b5',1,'SensorbergControlLibrary.Model.BeaconDetailsItem.Distance()']]],
   ['duetime',['DueTime',['../class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_delayed_action_data.html#a4fccebd0fecb3ec534342b92c18fdf1a',1,'SensorbergSDK::Internal::Data::DelayedActionData']]]
 ];

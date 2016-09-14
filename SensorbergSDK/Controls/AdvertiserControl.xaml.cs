@@ -5,11 +5,10 @@ using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using SensorbergControlLibrary.Model;
-using SensorbergSDK;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
-namespace SensorbergControlLibrary.Controls
+namespace SensorbergSDK.Controls
 {
     public sealed partial class AdvertiserControl : UserControl
     {

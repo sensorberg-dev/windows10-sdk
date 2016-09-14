@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Resources;

@@ -4,7 +4,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using SensorbergControlLibrary.Model;
 
-namespace SensorbergControlLibrary.Controls
+namespace SensorbergSDK.Controls
 {
     public sealed partial class BeaconDetailsControl : UserControl, INotifyPropertyChanged
     {

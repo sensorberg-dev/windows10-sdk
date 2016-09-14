@@ -16,7 +16,7 @@ The above copyright notice and this permission notice shall be included in all c
 using System;
 using System.Collections.Generic;
 
-namespace NGeoHash.Portable
+namespace SensorbergSDK.NGeoHash
 {
     
     public class Coordinates 

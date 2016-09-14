@@ -130,6 +130,8 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_s_d_k_manager.html">SDKManager</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The main interface of Sensorberg SDK.  <a href="class_sensorberg_s_d_k_1_1_s_d_k_manager.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_sdk_status.html">SdkStatus</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -152,14 +154,19 @@ Enumerations</h2></td></tr>
 <tr class="separator:ab6375cb4f7515869ff7177be5075c684"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a80d64e5f2c43f81ec1600bb840de13f0"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_sensorberg_s_d_k.html#a80d64e5f2c43f81ec1600bb840de13f0">BeaconActionType</a> { <a class="el" href="namespace_sensorberg_s_d_k.html#a80d64e5f2c43f81ec1600bb840de13f0a8bf2fa421b7f61949f4d355d9da20ef0">BeaconActionType.UrlMessage</a> = Constants.ActionTypeUrlMessage, 
 <a class="el" href="namespace_sensorberg_s_d_k.html#a80d64e5f2c43f81ec1600bb840de13f0aa55c6d5ffb898cc4fea491a871877d99">BeaconActionType.VisitWebsite</a> = Constants.ActionTypeVisitWebsite, 
-<a class="el" href="namespace_sensorberg_s_d_k.html#a80d64e5f2c43f81ec1600bb840de13f0a48ba724e9e08843a8b4199da2a5206ae">BeaconActionType.InApp</a> = Constants.ActionTypeInApp
+<a class="el" href="namespace_sensorberg_s_d_k.html#a80d64e5f2c43f81ec1600bb840de13f0a48ba724e9e08843a8b4199da2a5206ae">BeaconActionType.InApp</a> = Constants.ActionTypeInApp, 
+<a class="el" href="namespace_sensorberg_s_d_k.html#a80d64e5f2c43f81ec1600bb840de13f0a1e3332b2cd20d2d3db407a20f6913d0d">BeaconActionType.Silent</a> = Constants.ActionTypeSilent
  }<tr class="memdesc:a80d64e5f2c43f81ec1600bb840de13f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of BeaconAction.  <a href="namespace_sensorberg_s_d_k.html#a80d64e5f2c43f81ec1600bb840de13f0">More...</a><br /></td></tr>
 </td></tr>
 <tr class="separator:a80d64e5f2c43f81ec1600bb840de13f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7ea8798ecd56d788dddca91566685a6d"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6d">BeaconEventType</a> { <a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6da6adf97f83acf6453d4a6a4b1070f3754">BeaconEventType.None</a>, 
+<tr class="memitem:a7ea8798ecd56d788dddca91566685a6d"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6d">BeaconEventType</a> { <br />
+&#160;&#160;<a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6da6adf97f83acf6453d4a6a4b1070f3754">BeaconEventType.None</a>, 
 <a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6daf1851d5600eae616ee802a31ac74701b">BeaconEventType.Enter</a>, 
 <a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6dafef46e5063ce3dc78b8ae64fa474241d">BeaconEventType.Exit</a>, 
-<a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6da8134ec62848ee25a13286d19f683d41e">BeaconEventType.EnterExit</a>
+<a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6da8134ec62848ee25a13286d19f683d41e">BeaconEventType.EnterExit</a>, 
+<br />
+&#160;&#160;<a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6da88183b946cc5f0e8c96b2e66e1c74a7e">BeaconEventType.Unknown</a>
+<br />
  }<tr class="memdesc:a7ea8798ecd56d788dddca91566685a6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Beacon event type.  <a href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6d">More...</a><br /></td></tr>
 </td></tr>
 <tr class="separator:a7ea8798ecd56d788dddca91566685a6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -221,6 +228,8 @@ Enumerations</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a class="anchor" id="a80d64e5f2c43f81ec1600bb840de13f0a48ba724e9e08843a8b4199da2a5206ae"></a>InApp&#160;</td><td class="fielddoc">
 </td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a80d64e5f2c43f81ec1600bb840de13f0a1e3332b2cd20d2d3db407a20f6913d0d"></a>Silent&#160;</td><td class="fielddoc">
+</td></tr>
 </table>
 
 </div>
@@ -255,6 +264,9 @@ Enumerations</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a class="anchor" id="a7ea8798ecd56d788dddca91566685a6da8134ec62848ee25a13286d19f683d41e"></a>EnterExit&#160;</td><td class="fielddoc">
 <p>This we get from the server when the trigger can be both. </p>
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a7ea8798ecd56d788dddca91566685a6da88183b946cc5f0e8c96b2e66e1c74a7e"></a>Unknown&#160;</td><td class="fielddoc">
+<p>The type is not detected. </p>
 </td></tr>
 </table>
 
