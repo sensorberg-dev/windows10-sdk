@@ -15,6 +15,9 @@ namespace SensorbergControlLibrary.Controls
     {
         private const char HexStringSeparator = '-';
         private const int BeaconId1LengthWithoutDashes = 32;
+        private const UInt16 ManufacturerId = 0x004c;
+        private const UInt16 BeaconCode = 0x0215;
+
 
         public event Action<string> ShowInformationalMessage;
         private readonly Advertiser _advertiser;
@@ -24,6 +27,8 @@ namespace SensorbergControlLibrary.Controls
         {
             InitializeComponent();
             _advertiser = new Advertiser();
+            _advertiser.ManufacturerId = ManufacturerId;
+            _advertiser.BeaconCode = BeaconCode;
         }
 
         private async void OnToggleAdvertizingButtonClickedAsync(object sender, RoutedEventArgs e)
