@@ -9,9 +9,8 @@ using Windows.UI;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 using SensorbergSDK;
-using SensorbergSDK.Internal.Transport;
 
-namespace TrackAndTraceApp.Converters
+namespace SensorbergControlLibrary.Converters
 {
     public class BeaconActionToColorConverter: IValueConverter
     {

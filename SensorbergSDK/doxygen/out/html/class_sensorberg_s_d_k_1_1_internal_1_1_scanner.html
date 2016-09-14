@@ -121,15 +121,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ae1a5186ef1e7d3a8cc81c0aa4b88bf5c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_scanner.html#ae1a5186ef1e7d3a8cc81c0aa4b88bf5c">StopWatcher</a> ()</td></tr>
 <tr class="memdesc:ae1a5186ef1e7d3a8cc81c0aa4b88bf5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stops the watcher. The events are unhooked in the callback (OnWatcherStopped).  <a href="#ae1a5186ef1e7d3a8cc81c0aa4b88bf5c">More...</a><br /></td></tr>
 <tr class="separator:ae1a5186ef1e7d3a8cc81c0aa4b88bf5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a06af4eaebcfea17d47ca0b13a5084ae5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_scanner.html#a06af4eaebcfea17d47ca0b13a5084ae5">NotifyBeaconEvent</a> (<a class="el" href="class_sensorberg_s_d_k_1_1_beacon.html">Beacon</a> beacon, <a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6d">BeaconEventType</a> eventType)</td></tr>
-<tr class="memdesc:a06af4eaebcfea17d47ca0b13a5084ae5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Notifies any listeners about the beacon event.  <a href="#a06af4eaebcfea17d47ca0b13a5084ae5">More...</a><br /></td></tr>
-<tr class="separator:a06af4eaebcfea17d47ca0b13a5084ae5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6888564b740e6328e451163f2b5c97e8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_scanner.html#a6888564b740e6328e451163f2b5c97e8">NotifyBeaconEvent</a> (<a class="el" href="class_sensorberg_s_d_k_1_1_beacon.html">Beacon</a> beacon)</td></tr>
+<tr class="memdesc:a6888564b740e6328e451163f2b5c97e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Notifies any listeners about the beacon event.  <a href="#a6888564b740e6328e451163f2b5c97e8">More...</a><br /></td></tr>
+<tr class="separator:a6888564b740e6328e451163f2b5c97e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab0862db5e808e085a983c17eba365dc4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_scanner.html#ab0862db5e808e085a983c17eba365dc4">FilterBeaconByUuid</a> (<a class="el" href="class_sensorberg_s_d_k_1_1_beacon.html">Beacon</a> beacon)</td></tr>
 <tr class="memdesc:ab0862db5e808e085a983c17eba365dc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Filter the given beacon.  <a href="#ab0862db5e808e085a983c17eba365dc4">More...</a><br /></td></tr>
 <tr class="separator:ab0862db5e808e085a983c17eba365dc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a30dfbe6cb6d7b5b6cb4239c2383e720d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_scanner.html#a30dfbe6cb6d7b5b6cb4239c2383e720d">ResetBeaconState</a> ()</td></tr>
-<tr class="memdesc:a30dfbe6cb6d7b5b6cb4239c2383e720d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset all states of the beacons, so every beacon gets a new ENTER event.  <a href="#a30dfbe6cb6d7b5b6cb4239c2383e720d">More...</a><br /></td></tr>
-<tr class="separator:a30dfbe6cb6d7b5b6cb4239c2383e720d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a81df530d933a3f330df599b463834e2a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_scanner.html#a81df530d933a3f330df599b463834e2a">Dispose</a> ()</td></tr>
 <tr class="separator:a81df530d933a3f330df599b463834e2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -225,7 +222,7 @@ Events</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a06af4eaebcfea17d47ca0b13a5084ae5"></a>
+<a class="anchor" id="a6888564b740e6328e451163f2b5c97e8"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -233,42 +230,13 @@ Events</h2></td></tr>
           <td class="memname">void SensorbergSDK.Internal.Scanner.NotifyBeaconEvent </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="class_sensorberg_s_d_k_1_1_beacon.html">Beacon</a>&#160;</td>
-          <td class="paramname"><em>beacon</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramname"><em>beacon</em></td><td>)</td>
           <td></td>
-          <td class="paramtype"><a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6d">BeaconEventType</a>&#160;</td>
-          <td class="paramname"><em>eventType</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Notifies any listeners about the beacon event. </p>
-
-</div>
-</div>
-<a class="anchor" id="a30dfbe6cb6d7b5b6cb4239c2383e720d"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void SensorbergSDK.Internal.Scanner.ResetBeaconState </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Reset all states of the beacons, so every beacon gets a new ENTER event. </p>
-
-<p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_beacon_scanner.html#a6f11f945bc4fbaedc5acf1589b7f5d80">SensorbergSDK.Services.IBeaconScanner</a>.</p>
 
 </div>
 </div>

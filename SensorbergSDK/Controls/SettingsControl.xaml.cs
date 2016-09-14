@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Windows.ApplicationModel.Resources;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -7,12 +6,10 @@ using Microsoft.Practices.Unity;
 using Prism.Unity.Windows;
 using Prism.Windows.Navigation;
 using SensorbergControlLibrary.Model;
-using SensorbergSDK;
-using SensorbergSDK.Internal.Services;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
-namespace SensorbergControlLibrary.Controls
+namespace SensorbergSDK.Controls
 {
     public sealed partial class SettingsControl : UserControl
     {

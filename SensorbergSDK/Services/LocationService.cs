@@ -7,7 +7,7 @@
 using System;
 using System.Threading.Tasks;
 using Windows.Devices.Geolocation;
-using NGeoHash.Portable;
+using SensorbergSDK.NGeoHash;
 
 namespace SensorbergSDK.Services
 {

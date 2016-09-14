@@ -1,18 +1,20 @@
 var searchData=
 [
-  ['unknown',['Unknown',['../namespace_sensorberg_s_d_k_1_1_internal_1_1_data.html#ae19cf949b1869265982e360e2a70a735a88183b946cc5f0e8c96b2e66e1c74a7e',1,'SensorbergSDK::Internal::Data']]],
+  ['unknown',['Unknown',['../namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6da88183b946cc5f0e8c96b2e66e1c74a7e',1,'SensorbergSDK.Unknown()'],['../namespace_sensorberg_s_d_k_1_1_internal_1_1_data.html#ae19cf949b1869265982e360e2a70a735a88183b946cc5f0e8c96b2e66e1c74a7e',1,'SensorbergSDK.Internal.Data.Unknown()']]],
   ['unknownerror',['UnknownError',['../namespace_sensorberg_s_d_k.html#a8a74a516e4e2da1f29b8908944baa598abfaef30f1c8011c5cefa38ae470fb7aa',1,'SensorbergSDK.UnknownError()'],['../namespace_sensorberg_s_d_k.html#ab6375cb4f7515869ff7177be5075c684abfaef30f1c8011c5cefa38ae470fb7aa',1,'SensorbergSDK.UnknownError()']]],
   ['unregisterbackgroundtask',['UnregisterBackgroundTask',['../class_sensorberg_s_d_k_1_1_background_task_manager.html#abce70367222709957f45fb810071dadf',1,'SensorbergSDK.BackgroundTaskManager.UnregisterBackgroundTask()'],['../class_sensorberg_s_d_k_1_1_s_d_k_manager.html#ae619f3f8789db06c38ed68de4f9dad0c',1,'SensorbergSDK.SDKManager.UnregisterBackgroundTask()']]],
   ['unregisteronprogresseventhandler',['UnRegisterOnProgressEventHandler',['../class_sensorberg_s_d_k_1_1_background_task_manager.html#a697ce2ef35742d674f5c1431658f7128',1,'SensorbergSDK::BackgroundTaskManager']]],
-  ['unresolvedactioncount',['UnresolvedActionCount',['../class_sensorberg_s_d_k_1_1_internal_1_1_sdk_engine.html#ae9342ff20d0d4b9b263817e552b28052',1,'SensorbergSDK::Internal::SdkEngine']]],
+  ['update',['Update',['../class_sensorberg_control_library_1_1_model_1_1_beacon_details_item.html#a3782608f0e0aa55d59f789341eb34a3b',1,'SensorbergControlLibrary::Model::BeaconDetailsItem']]],
   ['updatebackgroundtaskasync',['UpdateBackgroundTaskAsync',['../class_sensorberg_s_d_k_1_1_background_task_manager.html#a41ee43ea5b251f46b99125298e54b504',1,'SensorbergSDK::BackgroundTaskManager']]],
   ['updatebackgroundtaskifneededasync',['UpdateBackgroundTaskIfNeededAsync',['../class_sensorberg_s_d_k_1_1_s_d_k_manager.html#a8b0fc67e9be67bf39e3be010ca3c95e7',1,'SensorbergSDK::SDKManager']]],
   ['updatecacheasync',['UpdateCacheAsync',['../class_sensorberg_s_d_k_1_1_internal_1_1_sdk_engine.html#ac1311ba7ce31340831bd903d2a7e1bc4',1,'SensorbergSDK::Internal::SdkEngine']]],
+  ['updatelastseen',['UpdateLastSeen',['../class_sensorberg_control_library_1_1_model_1_1_beacon_details_item.html#a3c4fdde6eae864709175f64291aa34ff',1,'SensorbergControlLibrary::Model::BeaconDetailsItem']]],
   ['url',['Url',['../class_sensorberg_s_d_k_1_1_beacon_action.html#a70f7252f04934abfda6cfe92f8c2b937',1,'SensorbergSDK::BeaconAction']]],
   ['urlmessage',['UrlMessage',['../namespace_sensorberg_s_d_k.html#a80d64e5f2c43f81ec1600bb840de13f0a8bf2fa421b7f61949f4d355d9da20ef0',1,'SensorbergSDK']]],
   ['uselocation',['UseLocation',['../class_sensorberg_s_d_k_1_1_sdk_configuration.html#acce776130833d8918301a7dd3b9f3ac1',1,'SensorbergSDK::SdkConfiguration']]],
   ['useragentbuilder_2ecs',['UserAgentBuilder.cs',['../_user_agent_builder_8cs.html',1,'']]],
   ['useragentmodel_2ecs',['UserAgentModel.cs',['../_user_agent_model_8cs.html',1,'']]],
   ['userid',['UserId',['../class_sensorberg_s_d_k_1_1_internal_1_1_sdk_engine.html#a00bfef926decaba40bdbd55f2d93c2ac',1,'SensorbergSDK.Internal.SdkEngine.UserId()'],['../class_sensorberg_s_d_k_1_1_sdk_configuration.html#a4396c5079e94dc3889139f52888e92ba',1,'SensorbergSDK.SdkConfiguration.UserId()']]],
-  ['uuid',['Uuid',['../class_sensorberg_s_d_k_1_1_beacon_action.html#aff524ac06d21ce2cc608803dd5293f32',1,'SensorbergSDK::BeaconAction']]]
+  ['uuid',['Uuid',['../class_sensorberg_s_d_k_1_1_beacon_action.html#aff524ac06d21ce2cc608803dd5293f32',1,'SensorbergSDK.BeaconAction.Uuid()'],['../class_sensorberg_control_library_1_1_model_1_1_beacon_details_item.html#a97588935253fa6d23d0565b280af316c',1,'SensorbergControlLibrary.Model.BeaconDetailsItem.UUID()']]],
+  ['uuidmap',['UUIDMap',['../class_sensorberg_control_library_1_1_model_1_1_beacon_details_item.html#aeba0d6bf0a26176332aa8a5501081b9f',1,'SensorbergControlLibrary::Model::BeaconDetailsItem']]]
 ];
