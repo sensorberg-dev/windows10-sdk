@@ -15,10 +15,13 @@ namespace SensorbergSDK.Services
     /// </summary>
     public interface IApiConnection
     {
+        SdkConfiguration Configuration { set; }
+        NetworkResult LastCallResult { get; }
+
         /// <summary>
         /// Sends a layout request to server and returns the HTTP response, if any.
         /// </summary>
-        /// <param name="apiId">optional api id, overrides the given id by SDKData.</param>
+        /// <param name="apiId">optional api id, overrides the given id by SdkConfiguration.</param>
         /// <returns>A HttpResponseMessage containing the server response or null in case of an error.</returns>
         Task<ResponseMessage> RetrieveLayoutResponse(string apiId = null);
 

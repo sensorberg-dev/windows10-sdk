@@ -17,16 +17,14 @@ namespace SensorbergSDK.Internal
 
         public const string DemoApiKey = "04a709a208c83e2bc0ec66871c46d35af49efde5151032b3e865768bbf878db8";
 
-        public const string LayoutApiUriAsString = "https://resolver.sensorberg.com/layout";
-        public const string ApiUrlTemplate = "https://connect.sensorberg.com/api/beacon/resolve/?proximityId={0}&major={1}&minor={2}&event={3}&deviceId={4}";
-        public const string FilterUrlTemplate = "https://connect.sensorberg.com/api/application/{0}/uuids";
-        public const string SettingsUri = "https://resolver.sensorberg.com/applications/{0}/settings/windows10/";
+        public const string ResolverUri = "https://resolver.sensorberg.com/";
 
         public const string SensorbergUuidSpace = "7367672374000000ffff0000ffff00";
 
         public const int ActionTypeUrlMessage = 1;
         public const int ActionTypeVisitWebsite = 2;
         public const int ActionTypeInApp = 3;
+        public const int ActionTypeSilent = 4;
 
         public const int Id1LengthWithoutDashes = 32;
         public const int MinimumLayoutContentLength = 10; // Arbitrary value to make sure that empty layouts are not validated
@@ -36,7 +34,7 @@ namespace SensorbergSDK.Internal
         /// <summary>
         /// Default values for api settings. All time values are in miliseconds.
         /// </summary>
-        public const ulong DefaultSettingsUpdateInterval = 86400000;
+        public const ulong DefaultSettingsUpdateInterval = 43200000;
         public const ulong DefaultBeaconExitTimeout = 10000;
         public const ulong DefaultHistoryUploadInterval = 5*60*1000;
         public const ulong DefaultLayoutUpdateInterval = 3600000;

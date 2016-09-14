@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
+using MetroLog;
 using Newtonsoft.Json;
 using SensorbergSDK.Internal.Data;
 using SensorbergSDK.Internal.Utils;
@@ -27,13 +28,18 @@ namespace SensorbergSDK.Internal.Services
     /// </summary>
     public class ApiConnection : IApiConnection
     {
+        private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<ApiConnection>();
+        public SdkConfiguration Configuration { get; set; }
+        public NetworkResult LastCallResult { get; set; }
+
         /// <summary>
         /// Sends a layout request to server and returns the HTTP response, if any.
         /// </summary>
         /// <param name="apiId">optional api id, overrides the given id by SDKData.</param>
         /// <returns>A HttpResponseMessage containing the server response or null in case of an error.</returns>
-        public async Task<ResponseMessage> RetrieveLayoutResponse(string apiId = null)
+        public async Task<ResponseMessage> RetrieveLayoutResponse(string apiId)
         {
+            Logger.Trace("RetrieveLayoutResponse");
             HttpRequestMessage requestMessage = new HttpRequestMessage();
             HttpBaseProtocolFilter baseProtocolFilter = new HttpBaseProtocolFilter();
 
@@ -41,10 +47,10 @@ namespace SensorbergSDK.Internal.Services
             baseProtocolFilter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
 
             requestMessage.Method = HttpMethod.Get;
-            requestMessage.RequestUri = new Uri(Constants.LayoutApiUriAsString);
+            requestMessage.RequestUri = new Uri(Configuration.LayoutUri);
 
             HttpClient apiConnection = new HttpClient(baseProtocolFilter);
-            apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, string.IsNullOrEmpty(apiId) ? SdkData.ApiKey : apiId);
+            apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, string.IsNullOrEmpty(apiId) ? Configuration.ApiKey : apiId);
             apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, SdkData.DeviceId);
             string geoHash = await ServiceManager.LocationService.GetGeoHashedLocation();
             if (!string.IsNullOrEmpty(geoHash))
@@ -54,23 +60,34 @@ namespace SensorbergSDK.Internal.Services
             apiConnection.DefaultRequestHeaders.Add(Constants.AdvertisementIdentifierHeader,
                 string.IsNullOrEmpty(SdkData.UserId) ? Windows.System.UserProfile.AdvertisingManager.AdvertisingId : SdkData.UserId);
             HttpResponseMessage responseMessage;
-
             try
             {
                 responseMessage = await apiConnection.SendRequestAsync(requestMessage);
             }
             catch (Exception ex)
             {
+                LastCallResult = NetworkResult.NetworkError;
                 System.Diagnostics.Debug.WriteLine("LayoutManager.RetrieveLayoutResponseAsync(): Failed to send HTTP request: " + ex.Message);
-                return new ResponseMessage() {IsSuccess = false };
+                return new ResponseMessage() {IsSuccess = false};
             }
 
+            Logger.Trace("RetrieveLayoutResponse HTTPCode: {0}", responseMessage.StatusCode);
             if (responseMessage.IsSuccessStatusCode)
             {
-                return new ResponseMessage() {Content = responseMessage.Content.ToString(), Header = responseMessage.Headers.ToString(), StatusCode = responseMessage.StatusCode, IsSuccess = responseMessage.IsSuccessStatusCode};
+                LastCallResult = NetworkResult.Success;
+                return new ResponseMessage()
+                {
+                    Content = responseMessage.Content.ToString(),
+                    Header = responseMessage.Headers.ToString(),
+                    StatusCode = responseMessage.StatusCode,
+                    IsSuccess = responseMessage.IsSuccessStatusCode
+                };
             }
-            return new ResponseMessage() { StatusCode = responseMessage.StatusCode, IsSuccess = responseMessage.IsSuccessStatusCode };
+            LastCallResult = NetworkResult.UnknownError;
+
+            return new ResponseMessage() {StatusCode = responseMessage.StatusCode, IsSuccess = responseMessage.IsSuccessStatusCode};
         }
+
 
         /// <summary>
         /// Load the Settings from the backend.
@@ -78,20 +95,32 @@ namespace SensorbergSDK.Internal.Services
         /// <returns>Returns a JSON formated string.</returns>
         public async Task<string> LoadSettings()
         {
-            HttpRequestMessage requestMessage = new HttpRequestMessage();
-            HttpBaseProtocolFilter baseProtocolFilter = new HttpBaseProtocolFilter();
+            try
+            {
+                Logger.Trace("LoadSettings");
+                HttpRequestMessage requestMessage = new HttpRequestMessage();
+                HttpBaseProtocolFilter baseProtocolFilter = new HttpBaseProtocolFilter();
 
-            baseProtocolFilter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
-            baseProtocolFilter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
+                baseProtocolFilter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
+                baseProtocolFilter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
 
-            requestMessage.Method = HttpMethod.Get;
-            requestMessage.RequestUri = new Uri(string.Format(Constants.SettingsUri, SdkData.ApiKey));
+                requestMessage.Method = HttpMethod.Get;
+                requestMessage.RequestUri = new Uri(string.Format(Configuration.SettingsUri, Configuration.ApiKey));
 
-            HttpClient httpClient = new HttpClient(baseProtocolFilter);
+                HttpClient httpClient = new HttpClient(baseProtocolFilter);
 
 
-            var responseMessage = await httpClient.SendRequestAsync(requestMessage);
-            return responseMessage?.Content.ToString();
+                var responseMessage = await httpClient.SendRequestAsync(requestMessage);
+                Logger.Trace("LoadSettings HTTPCode: {0}", responseMessage.StatusCode);
+                LastCallResult = responseMessage.IsSuccessStatusCode ? NetworkResult.Success : NetworkResult.UnknownError;
+                return responseMessage?.Content.ToString();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("LoadSettings Error", ex);
+                LastCallResult = NetworkResult.NetworkError;
+                return null;
+            }
         }
 
         /// <summary>
@@ -100,21 +129,41 @@ namespace SensorbergSDK.Internal.Services
         /// <param name="history">History object to send.</param>
         public async Task<ResponseMessage> SendHistory(History history)
         {
-            System.Net.Http.HttpClient apiConnection = new System.Net.Http.HttpClient();
-            apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, SdkData.ApiKey);
-            apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, SdkData.DeviceId);
-            apiConnection.DefaultRequestHeaders.Add(Constants.AdvertisementIdentifierHeader, string.IsNullOrEmpty(SdkData.UserId) ? Windows.System.UserProfile.AdvertisingManager.AdvertisingId : SdkData.UserId);
-            apiConnection.DefaultRequestHeaders.TryAddWithoutValidation(Constants.XUserAgent, UserAgentBuilder.BuildUserAgentJson());
-            string serializeObject = JsonConvert.SerializeObject(history);
-            var content = new StringContent(serializeObject, Encoding.UTF8, "application/json");
-
-            System.Net.Http.HttpResponseMessage responseMessage = await apiConnection.PostAsync(new Uri(Constants.LayoutApiUriAsString), content);
-
-            if (responseMessage.IsSuccessStatusCode)
+            try
             {
-                return new ResponseMessage() { Content = responseMessage.Content.ToString(), Header = responseMessage.Headers.ToString(), StatusCode = Convert(responseMessage.StatusCode), IsSuccess = responseMessage.IsSuccessStatusCode };
+                Logger.Trace("SendHistory");
+                System.Net.Http.HttpClient apiConnection = new System.Net.Http.HttpClient();
+                apiConnection.DefaultRequestHeaders.Add(Constants.XApiKey, Configuration.ApiKey);
+                apiConnection.DefaultRequestHeaders.Add(Constants.Xiid, SdkData.DeviceId);
+                apiConnection.DefaultRequestHeaders.Add(Constants.AdvertisementIdentifierHeader,
+                    string.IsNullOrEmpty(Configuration.UserId) ? Windows.System.UserProfile.AdvertisingManager.AdvertisingId : Configuration.UserId);
+                apiConnection.DefaultRequestHeaders.TryAddWithoutValidation(Constants.XUserAgent, UserAgentBuilder.BuildUserAgentJson());
+                string serializeObject = JsonConvert.SerializeObject(history);
+                var content = new StringContent(serializeObject, Encoding.UTF8, "application/json");
+
+                    System.Net.Http.HttpResponseMessage responseMessage = await apiConnection.PostAsync(new Uri(Configuration.LayoutUri), content);
+
+                Logger.Trace("SendHistory HttpCode: {0}", responseMessage.StatusCode);
+                if (responseMessage.IsSuccessStatusCode)
+                {
+                    LastCallResult = NetworkResult.Success;
+                    return new ResponseMessage()
+                    {
+                        Content = responseMessage.Content.ToString(),
+                        Header = responseMessage.Headers.ToString(),
+                        StatusCode = Convert(responseMessage.StatusCode),
+                        IsSuccess = responseMessage.IsSuccessStatusCode
+                    };
+                }
+                LastCallResult = NetworkResult.UnknownError;
+                return new ResponseMessage() {StatusCode = Convert(responseMessage.StatusCode), IsSuccess = responseMessage.IsSuccessStatusCode};
             }
-            return new ResponseMessage() { StatusCode = Convert(responseMessage.StatusCode), IsSuccess = responseMessage.IsSuccessStatusCode };
+            catch (Exception ex)
+            {
+                Logger.Error("SendHistory Error", ex);
+                LastCallResult = NetworkResult.NetworkError;
+                return new ResponseMessage() {IsSuccess = false};
+            }
         }
 
         /// <summary>

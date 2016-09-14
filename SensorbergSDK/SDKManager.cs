@@ -6,7 +6,6 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Devices.Geolocation;
 using Windows.UI.Core;
 using MetroLog;
 using SensorbergSDK.Internal;
@@ -34,6 +33,11 @@ namespace SensorbergSDK
         /// Current AppSettings for the app.
         /// </summary>
         public AppSettings AppSettings { get; set; }
+
+        /// <summary>
+        /// Provide the status information about the sdk.
+        /// </summary>
+        public SdkStatus Status { get; private set; }
 
         /// <summary>
         /// Fired when a beacon action has been successfully resolved and is ready to be exeuted.
@@ -200,7 +204,10 @@ namespace SensorbergSDK
             ServiceManager.BeaconScanner.StopWatcher();
             _instance?.UnregisterBackgroundTask();
             _instance?.SdkEngine.Dispose();
-            _instance = null;
+            if (_instance != null)
+            {
+                _instance.AppSettings = null;
+            }
         }
 
         /// <summary>
@@ -209,6 +216,7 @@ namespace SensorbergSDK
         private SDKManager()
         {
             SdkEngine = new SdkEngine(true);
+            Status = new SdkStatus();
             _backgroundTaskManager = new BackgroundTaskManager();
             _backgroundTaskManager.RegisterOnProgressEventHandler();
         }
@@ -230,6 +238,7 @@ namespace SensorbergSDK
         /// </summary>
         public async Task InitializeAsync(SdkConfiguration configuration)
         {
+            Status.IsApiKeyValid = false;
             _logger.Debug("InitializeAsync");
             Configuration = configuration;
 
@@ -238,9 +247,11 @@ namespace SensorbergSDK
 
             if (!IsInitialized)
             {
-                SdkData.ApiKey = configuration.ApiKey;
                 await SdkEngine.InitializeAsync();
                 await InitializeSettingsAsync();
+                Status.IsApiKeyValid = ServiceManager.LayoutManager.IsLayoutValid;
+                Scanner.StatusChanged += OnScannerStatusChanged;
+                Scanner.BeaconEvent += OnBeaconEventAsync;
             }
 
             if (SdkData.BackgroundTaskEnabled)
@@ -319,6 +330,7 @@ namespace SensorbergSDK
 
                 SdkEngine.Dispose();
             }
+            AppSettings = null;
             Dispose();
         }
 
@@ -364,11 +376,8 @@ namespace SensorbergSDK
         /// </summary>
         public void StartScanner()
         {
-            Scanner.StatusChanged += OnScannerStatusChanged;
-
             if (Scanner.Status != ScannerStatus.Started)
             {
-                Scanner.BeaconEvent += OnBeaconEventAsync;
                 _timerHackStop = false;
                 InitializeSettingsAsync().ContinueWith(task =>
                 {
@@ -382,8 +391,6 @@ namespace SensorbergSDK
         /// </summary>
         public void StopScanner()
         {
-            Scanner.StatusChanged -= OnScannerStatusChanged;
-
             _timerHackStop = true;
             _startScannerTimer?.Change(Timeout.Infinite, Timeout.Infinite);
             _startScannerTimer?.Dispose();
@@ -391,7 +398,6 @@ namespace SensorbergSDK
 
             if (Scanner.Status == ScannerStatus.Started)
             {
-                Scanner.BeaconEvent -= OnBeaconEventAsync;
                 Scanner.StopWatcher();
             }
         }
@@ -442,8 +448,6 @@ namespace SensorbergSDK
 
             if (e != ScannerStatus.Started)
             {
-                Scanner.BeaconEvent -= OnBeaconEventAsync;
-
                 if (Configuration.AutoStartScanner)
                 {
                     _startScannerTimer = new Timer(StartScannerTimerCallback, null, _startScannerIntervalInMilliseconds, Timeout.Infinite);
@@ -473,7 +477,7 @@ namespace SensorbergSDK
         {
             if (AppSettings == null)
             {
-                AppSettings = await ServiceManager.SettingsManager.GetSettings();
+                AppSettings = await ServiceManager.SettingsManager.GetSettings(true);
                 ServiceManager.SettingsManager.SettingsUpdated += OnSettingsUpdated;
             }
         }

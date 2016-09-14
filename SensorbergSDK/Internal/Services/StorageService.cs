@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -26,7 +25,7 @@ namespace SensorbergSDK.Internal.Services
         private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<StorageService>();
         private const string KeyLayoutHeaders = "layout_headers";
         private const string KeyLayoutContent = "layout_content.cache"; // Cache file
-        private const string KeyLayoutRetrievedTime = "layout_retrieved_time";
+        public const string KeyLayoutRetrievedTime = "layout_retrieved_time";
         private const int MaxRetries = 2;
 
         public int RetryCount { get; set; } = 3;
@@ -126,12 +125,12 @@ namespace SensorbergSDK.Internal.Services
                     {
                         if (history.Events != null && history.Events.Count > 0)
                         {
-                            await Storage.SetEventsAsDelivered();
+                            await Storage.SetEventsAsDelivered(history.Events);
                         }
 
                         if (history.Actions != null && history.Actions.Count > 0)
                         {
-                            await Storage.SetActionsAsDelivered();
+                            await Storage.SetActionsAsDelivered(history.Actions);
                         }
                         return true;
                     }
@@ -299,16 +298,6 @@ namespace SensorbergSDK.Internal.Services
             {
                 return await SaveHistoryEventRetry(pid, timestamp, eventType, location, --retry);
             }
-        }
-
-        public async Task<IList<HistoryAction>> GetActions(string uuid, bool forceUpdate = false)
-        {
-            return await Storage.GetActions(uuid);
-        }
-
-        public async Task<HistoryAction> GetAction(string uuid, bool forceUpdate = false)
-        {
-            return (await GetActions(uuid, forceUpdate)).FirstOrDefault();
         }
 
         public async Task CleanupDatabase()

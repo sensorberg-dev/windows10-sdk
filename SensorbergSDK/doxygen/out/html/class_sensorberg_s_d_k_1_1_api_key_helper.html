@@ -108,15 +108,23 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a212eac4b2a0695819949bb13c06b8486"><td class="memItemLeft" align="right" valign="top">async Task&lt; <a class="el" href="namespace_sensorberg_s_d_k.html#ab6375cb4f7515869ff7177be5075c684">NetworkResult</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_api_key_helper.html#a212eac4b2a0695819949bb13c06b8486">FetchApiKeyAsync</a> (string email, string password)</td></tr>
 <tr class="memdesc:a212eac4b2a0695819949bb13c06b8486"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tries to fetch the API key from the server matching the given credentials.  <a href="#a212eac4b2a0695819949bb13c06b8486">More...</a><br /></td></tr>
 <tr class="separator:a212eac4b2a0695819949bb13c06b8486"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e948eb5e9503d90825d741faffa3148"><td class="memItemLeft" align="right" valign="top">async Task&lt; <a class="el" href="namespace_sensorberg_s_d_k.html#ab6375cb4f7515869ff7177be5075c684">NetworkResult</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_api_key_helper.html#a7e948eb5e9503d90825d741faffa3148">Login</a> (string email, string password)</td></tr>
+<tr class="memdesc:a7e948eb5e9503d90825d741faffa3148"><td class="mdescLeft">&#160;</td><td class="mdescRight">Execute a login on the backend.  <a href="#a7e948eb5e9503d90825d741faffa3148">More...</a><br /></td></tr>
+<tr class="separator:a7e948eb5e9503d90825d741faffa3148"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="properties"></a>
 Properties</h2></td></tr>
+<tr class="memitem:a913f2106137089cd3463459c427d24d9"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_api_key_helper.html#a913f2106137089cd3463459c427d24d9">AuthToken</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a913f2106137089cd3463459c427d24d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">AuthToken for the Sensorberg backend.  <a href="#a913f2106137089cd3463459c427d24d9">More...</a><br /></td></tr>
+<tr class="separator:a913f2106137089cd3463459c427d24d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3d06ac7563dfff6d29e761bc9ab7b229"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_api_key_helper.html#a3d06ac7563dfff6d29e761bc9ab7b229">ApiKey</a><code> [get, set]</code></td></tr>
 <tr class="memdesc:a3d06ac7563dfff6d29e761bc9ab7b229"><td class="mdescLeft">&#160;</td><td class="mdescRight">Received ApiKey.  <a href="#a3d06ac7563dfff6d29e761bc9ab7b229">More...</a><br /></td></tr>
 <tr class="separator:a3d06ac7563dfff6d29e761bc9ab7b229"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2cc9c1378e37f0809cb639b09347c183"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_api_key_helper.html#a2cc9c1378e37f0809cb639b09347c183">ApplicationName</a><code> [get, set]</code></td></tr>
 <tr class="memdesc:a2cc9c1378e37f0809cb639b09347c183"><td class="mdescLeft">&#160;</td><td class="mdescRight">Application Name.  <a href="#a2cc9c1378e37f0809cb639b09347c183">More...</a><br /></td></tr>
 <tr class="separator:a2cc9c1378e37f0809cb639b09347c183"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aecf20c51901304ab9791f16db14d107b"><td class="memItemLeft" align="right" valign="top">List&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_sensorberg_application.html">SensorbergApplication</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_api_key_helper.html#aecf20c51901304ab9791f16db14d107b">Applications</a><code> [get, set]</code></td></tr>
+<tr class="separator:aecf20c51901304ab9791f16db14d107b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Helper class to receive the api key from the sensorberg plattform or validate it. </p>
@@ -154,6 +162,34 @@ Properties</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The fetching operation result. If successful, the API key is placed in the ApiKey property of this class.</dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a7e948eb5e9503d90825d741faffa3148"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">async Task&lt;<a class="el" href="namespace_sensorberg_s_d_k.html#ab6375cb4f7515869ff7177be5075c684">NetworkResult</a>&gt; SensorbergSDK.ApiKeyHelper.Login </td>
+          <td>(</td>
+          <td class="paramtype">string&#160;</td>
+          <td class="paramname"><em>email</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">string&#160;</td>
+          <td class="paramname"><em>password</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Execute a login on the backend. </p>
 
 </div>
 </div>
@@ -224,6 +260,48 @@ Properties</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Application Name. </p>
+
+</div>
+</div>
+<a class="anchor" id="aecf20c51901304ab9791f16db14d107b"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">List&lt;<a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_sensorberg_application.html">SensorbergApplication</a>&gt; SensorbergSDK.ApiKeyHelper.Applications</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">get</span><span class="mlabel">set</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a913f2106137089cd3463459c427d24d9"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">string SensorbergSDK.ApiKeyHelper.AuthToken</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">get</span><span class="mlabel">set</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>AuthToken for the Sensorberg backend. </p>
 
 </div>
 </div>

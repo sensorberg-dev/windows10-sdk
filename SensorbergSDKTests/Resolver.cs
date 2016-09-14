@@ -15,13 +15,14 @@ namespace SensorbergSDKTests
     {
         ManualResetEvent _manualEvent = new ManualResetEvent(false);
         Beacon beacon = new Beacon();
-        Resolver res = new Resolver(false,false);
+        Resolver res = new Resolver(false);
         BeaconEventArgs args = new BeaconEventArgs();
         ResolvedActionsEventArgs _e = null;
 
         [TestInitialize]
         public async Task TestSetup()
         {
+            await TestHelper.Clear();
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.LayoutManager = new MockLayoutManager() {FindOneAction = true};
@@ -34,13 +35,12 @@ namespace SensorbergSDKTests
         [TestMethod]
         public async Task resolver_test()
         {
-            SdkData.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
             beacon.Id1 = "7367672374000000ffff0000ffff0006";
             beacon.Id2 = 59242;
             beacon.Id3 = 27189;
 
             args.Beacon = beacon;
-            args.EventType = BeaconEventType.Enter;
+            args.EventType = BeaconEventType.Unknown;
             res.ActionsResolved += Res_ActionResolved;
             await res.CreateRequest(args);
             _manualEvent.WaitOne();

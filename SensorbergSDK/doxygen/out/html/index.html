@@ -87,6 +87,18 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </blockquote>
 <h1>Integration</h1>
 <p>For Integration instructions please visit our developer hub Windows SDK page and <a href="https://developer.sensorberg.com/windows10/">developer.sensorberg.com/windows10</a></p>
+<h1>Scripts</h1>
+<ul>
+<li>Jenkinsfile - Build script for the Jenkins Pipeline Pluing to create the SDK</li>
+<li>Jenkinsfile-package - Build script for the Jenkins Pipeline Pluing to package the SDK</li>
+<li>package.groovy - Groovy Script for the creation of nuget and VSIX package, is used in Jenkinsfile and Jenkinsfile-package</li>
+<li>createnuget.bat - Batch Script for creation of the nuget file using the spec file from <code><a class="el" href="namespace_sensorberg_s_d_k.html">SensorbergSDK</a>\nuget\SensorbergSDK.nuspec</code>, is used in the package.groovy</li>
+</ul>
+<h1>Documentation</h1>
+<ul>
+<li>SensorbergSDK/doxygen - Folder contains doxygen configuration and output</li>
+<li><a href="http://sensorberg-dev.github.io/windows10-sdk/documentation/">Available under developer.sensorberg.com</a></li>
+</ul>
 <h1>Dependencies</h1>
 <ul>
 <li>Visual Studio 2015</li>

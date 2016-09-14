@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['timedbackgroundworker',['TimedBackgroundWorker',['../class_sensorberg_s_d_k_1_1_background_1_1_timed_background_worker.html',1,'SensorbergSDK::Background']]],
-  ['timeframe',['Timeframe',['../class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_timeframe.html',1,'SensorbergSDK::Internal::Data']]]
+  ['queuedfilewriter',['QueuedFileWriter',['../class_sensorberg_s_d_k_1_1_internal_1_1_services_1_1_queued_file_writer.html',1,'SensorbergSDK::Internal::Services']]]
 ];

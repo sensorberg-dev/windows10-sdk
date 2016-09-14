@@ -19,6 +19,8 @@ namespace SensorbergSDK.Services
         /// </summary>
         SdkConfiguration Configuration { get; set; }
 
+        Geolocator Locator { get; }
+
         /// <summary>
         /// Initialize the Locationservice.
         /// </summary>

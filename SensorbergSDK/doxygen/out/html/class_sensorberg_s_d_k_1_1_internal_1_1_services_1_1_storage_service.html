@@ -125,18 +125,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a8ee61892424e0d80bfe687fc4b5bea56"><td class="memItemLeft" align="right" valign="top">async Task&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_layout.html">Layout</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_services_1_1_storage_service.html#a8ee61892424e0d80bfe687fc4b5bea56">LoadLayoutFromLocalStorage</a> ()</td></tr>
 <tr class="memdesc:a8ee61892424e0d80bfe687fc4b5bea56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tries to load the layout from the local storage.  <a href="#a8ee61892424e0d80bfe687fc4b5bea56">More...</a><br /></td></tr>
 <tr class="separator:a8ee61892424e0d80bfe687fc4b5bea56"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a549f75c580daee8dec4c383445103e9a"><td class="memItemLeft" align="right" valign="top">async Task&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_services_1_1_storage_service.html#a549f75c580daee8dec4c383445103e9a">SaveHistoryAction</a> (string uuid, string beaconPid, DateTimeOffset now, <a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6d">BeaconEventType</a> beaconEventType)</td></tr>
-<tr class="memdesc:a549f75c580daee8dec4c383445103e9a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores a resolved and executed action to the database.  <a href="#a549f75c580daee8dec4c383445103e9a">More...</a><br /></td></tr>
-<tr class="separator:a549f75c580daee8dec4c383445103e9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8dbf82b4803c7643dbb7873cae3e0a40"><td class="memItemLeft" align="right" valign="top">async Task&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_services_1_1_storage_service.html#a8dbf82b4803c7643dbb7873cae3e0a40">SaveHistoryEvent</a> (string pid, DateTimeOffset timestamp, <a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6d">BeaconEventType</a> eventType)</td></tr>
-<tr class="memdesc:a8dbf82b4803c7643dbb7873cae3e0a40"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores a beacon event to the database.  <a href="#a8dbf82b4803c7643dbb7873cae3e0a40">More...</a><br /></td></tr>
-<tr class="separator:a8dbf82b4803c7643dbb7873cae3e0a40"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a811d1c4248c76698e0b9d529d0388d5a"><td class="memItemLeft" align="right" valign="top">async Task&lt; IList&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_action.html">HistoryAction</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_services_1_1_storage_service.html#a811d1c4248c76698e0b9d529d0388d5a">GetActions</a> (string uuid, bool forceUpdate=false)</td></tr>
-<tr class="memdesc:a811d1c4248c76698e0b9d529d0388d5a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get all triggered actions by the given action uuid.  <a href="#a811d1c4248c76698e0b9d529d0388d5a">More...</a><br /></td></tr>
-<tr class="separator:a811d1c4248c76698e0b9d529d0388d5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a57af2482f73f0974b162323b82a15d83"><td class="memItemLeft" align="right" valign="top">async Task&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_action.html">HistoryAction</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_services_1_1_storage_service.html#a57af2482f73f0974b162323b82a15d83">GetAction</a> (string uuid, bool forceUpdate=false)</td></tr>
-<tr class="memdesc:a57af2482f73f0974b162323b82a15d83"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the first triggered action by the given action uuid.  <a href="#a57af2482f73f0974b162323b82a15d83">More...</a><br /></td></tr>
-<tr class="separator:a57af2482f73f0974b162323b82a15d83"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a521b2fd33368702cb9078e313a6a5dec"><td class="memItemLeft" align="right" valign="top">async Task&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_services_1_1_storage_service.html#a521b2fd33368702cb9078e313a6a5dec">SaveHistoryAction</a> (string uuid, string beaconPid, DateTimeOffset now, <a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6d">BeaconEventType</a> beaconEventType, string location)</td></tr>
+<tr class="memdesc:a521b2fd33368702cb9078e313a6a5dec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores a resolved and executed action to the database.  <a href="#a521b2fd33368702cb9078e313a6a5dec">More...</a><br /></td></tr>
+<tr class="separator:a521b2fd33368702cb9078e313a6a5dec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab7129bbfee9763ea27dfb0ad23af157f"><td class="memItemLeft" align="right" valign="top">async Task&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_services_1_1_storage_service.html#ab7129bbfee9763ea27dfb0ad23af157f">SaveHistoryEvent</a> (string pid, DateTimeOffset timestamp, <a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6d">BeaconEventType</a> eventType, string location)</td></tr>
+<tr class="memdesc:ab7129bbfee9763ea27dfb0ad23af157f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores a beacon event to the database.  <a href="#ab7129bbfee9763ea27dfb0ad23af157f">More...</a><br /></td></tr>
+<tr class="separator:ab7129bbfee9763ea27dfb0ad23af157f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa173fadb624cc57afe324e1bc23d6e91"><td class="memItemLeft" align="right" valign="top">async Task&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_services_1_1_storage_service.html#aa173fadb624cc57afe324e1bc23d6e91">CleanupDatabase</a> ()</td></tr>
 <tr class="memdesc:aa173fadb624cc57afe324e1bc23d6e91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cleans old entries from the database.  <a href="#aa173fadb624cc57afe324e1bc23d6e91">More...</a><br /></td></tr>
 <tr class="separator:aa173fadb624cc57afe324e1bc23d6e91"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -146,9 +140,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:abedbcc1bc023f7e1507a66998263bd3a"><td class="memItemLeft" align="right" valign="top">async Task&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_services_1_1_storage_service.html#abedbcc1bc023f7e1507a66998263bd3a">SetDelayedActionAsExecuted</a> (string id)</td></tr>
 <tr class="memdesc:abedbcc1bc023f7e1507a66998263bd3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mark delayed action as executed.  <a href="#abedbcc1bc023f7e1507a66998263bd3a">More...</a><br /></td></tr>
 <tr class="separator:abedbcc1bc023f7e1507a66998263bd3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab178ca02a64233aea4a902c387630ddb"><td class="memItemLeft" align="right" valign="top">async Task&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_services_1_1_storage_service.html#ab178ca02a64233aea4a902c387630ddb">SaveDelayedAction</a> (<a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_transport_1_1_resolved_action.html">ResolvedAction</a> action, DateTimeOffset dueTime, string beaconPid, <a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6d">BeaconEventType</a> eventType)</td></tr>
-<tr class="memdesc:ab178ca02a64233aea4a902c387630ddb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Store a new delayed action.  <a href="#ab178ca02a64233aea4a902c387630ddb">More...</a><br /></td></tr>
-<tr class="separator:ab178ca02a64233aea4a902c387630ddb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff2e4c8a48515344b59300e9ed40f376"><td class="memItemLeft" align="right" valign="top">async Task&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_services_1_1_storage_service.html#aff2e4c8a48515344b59300e9ed40f376">SaveDelayedAction</a> (<a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_transport_1_1_resolved_action.html">ResolvedAction</a> action, DateTimeOffset dueTime, string beaconPid, <a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6d">BeaconEventType</a> eventType, string location)</td></tr>
+<tr class="memdesc:aff2e4c8a48515344b59300e9ed40f376"><td class="mdescLeft">&#160;</td><td class="mdescRight">Store a new delayed action.  <a href="#aff2e4c8a48515344b59300e9ed40f376">More...</a><br /></td></tr>
+<tr class="separator:aff2e4c8a48515344b59300e9ed40f376"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae3a182df9588bf35d1c1f37fcdabb1b6"><td class="memItemLeft" align="right" valign="top">async Task&lt; <a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_background_event.html">BackgroundEvent</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_services_1_1_storage_service.html#ae3a182df9588bf35d1c1f37fcdabb1b6">GetLastEventStateForBeacon</a> (string pid)</td></tr>
 <tr class="memdesc:ae3a182df9588bf35d1c1f37fcdabb1b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the last state of the beacon.  <a href="#ae3a182df9588bf35d1c1f37fcdabb1b6">More...</a><br /></td></tr>
 <tr class="separator:ae3a182df9588bf35d1c1f37fcdabb1b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -226,82 +220,6 @@ Properties</h2></td></tr>
 <p>Sends the full history in the cloud. </p>
 
 <p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage_service.html#a8a391c239d5b019d5c9f7d634f8a56f2">SensorbergSDK.Services.IStorageService</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a57af2482f73f0974b162323b82a15d83"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">async Task&lt;<a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_action.html">HistoryAction</a>&gt; SensorbergSDK.Internal.Services.StorageService.GetAction </td>
-          <td>(</td>
-          <td class="paramtype">string&#160;</td>
-          <td class="paramname"><em>uuid</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>forceUpdate</em> = <code>false</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get the first triggered action by the given action uuid. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">uuid</td><td>uuid from the action to search.</td></tr>
-    <tr><td class="paramname">forceUpdate</td><td>Force to ignore any cache.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>The first found action or null.</dd></dl>
-
-<p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage_service.html#a8acbe9385498fb8a80b58de7255eef85">SensorbergSDK.Services.IStorageService</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a811d1c4248c76698e0b9d529d0388d5a"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">async Task&lt;IList&lt;<a class="el" href="class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_history_action.html">HistoryAction</a>&gt; &gt; SensorbergSDK.Internal.Services.StorageService.GetActions </td>
-          <td>(</td>
-          <td class="paramtype">string&#160;</td>
-          <td class="paramname"><em>uuid</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>forceUpdate</em> = <code>false</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get all triggered actions by the given action uuid. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">uuid</td><td>uuid from the action to search.</td></tr>
-    <tr><td class="paramname">forceUpdate</td><td>Force to ignore any cache.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>List of found actions.</dd></dl>
-
-<p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage_service.html#ad02e0f49081718caf76ec7b0c7f521ec">SensorbergSDK.Services.IStorageService</a>.</p>
 
 </div>
 </div>
@@ -491,7 +409,7 @@ Properties</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ab178ca02a64233aea4a902c387630ddb"></a>
+<a class="anchor" id="aff2e4c8a48515344b59300e9ed40f376"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -517,7 +435,13 @@ Properties</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6d">BeaconEventType</a>&#160;</td>
-          <td class="paramname"><em>eventType</em>&#160;</td>
+          <td class="paramname"><em>eventType</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">string&#160;</td>
+          <td class="paramname"><em>location</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -534,15 +458,16 @@ Properties</h2></td></tr>
     <tr><td class="paramname">dueTime</td><td>Time of execution.</td></tr>
     <tr><td class="paramname">beaconPid</td><td><a class="el" href="class_sensorberg_s_d_k_1_1_beacon.html" title="Representation of a beacon, incl. of there properties. ">Beacon</a> ID that the action triggered.</td></tr>
     <tr><td class="paramname">eventType</td><td>Type of event.</td></tr>
+    <tr><td class="paramname">location</td><td>Location of the event.</td></tr>
   </table>
   </dd>
 </dl>
 
-<p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage_service.html#a46bb44301f9a2ebbd533572bba409d3e">SensorbergSDK.Services.IStorageService</a>.</p>
+<p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage_service.html#af1a3af3358eb9805e79fa50f0ccad9d3">SensorbergSDK.Services.IStorageService</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a549f75c580daee8dec4c383445103e9a"></a>
+<a class="anchor" id="a521b2fd33368702cb9078e313a6a5dec"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -568,7 +493,13 @@ Properties</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6d">BeaconEventType</a>&#160;</td>
-          <td class="paramname"><em>beaconEventType</em>&#160;</td>
+          <td class="paramname"><em>beaconEventType</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">string&#160;</td>
+          <td class="paramname"><em>location</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -580,11 +511,11 @@ Properties</h2></td></tr>
 
 <p>Stores a resolved and executed action to the database. </p>
 
-<p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage_service.html#a8c75df477829e5b7c132f41e27dcc5d4">SensorbergSDK.Services.IStorageService</a>.</p>
+<p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage_service.html#a234038459532118147cf0230d9f9db66">SensorbergSDK.Services.IStorageService</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a8dbf82b4803c7643dbb7873cae3e0a40"></a>
+<a class="anchor" id="ab7129bbfee9763ea27dfb0ad23af157f"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -604,7 +535,13 @@ Properties</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="namespace_sensorberg_s_d_k.html#a7ea8798ecd56d788dddca91566685a6d">BeaconEventType</a>&#160;</td>
-          <td class="paramname"><em>eventType</em>&#160;</td>
+          <td class="paramname"><em>eventType</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">string&#160;</td>
+          <td class="paramname"><em>location</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -616,7 +553,7 @@ Properties</h2></td></tr>
 
 <p>Stores a beacon event to the database. </p>
 
-<p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage_service.html#aec2f9bdb1cf45a9a8fd30f4e4f054094">SensorbergSDK.Services.IStorageService</a>.</p>
+<p>Implements <a class="el" href="interface_sensorberg_s_d_k_1_1_services_1_1_i_storage_service.html#a632cb51db3db982cf01f94a82d43c6eb">SensorbergSDK.Services.IStorageService</a>.</p>
 
 </div>
 </div>

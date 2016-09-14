@@ -116,11 +116,28 @@
     <Compile Include="ApiKeyHelper.cs" />
     <Compile Include="BackgroundTaskManager.cs" />
     <Compile Include="BeaconAction.cs" />
+    <Compile Include="Controls\AdvertiserControl.xaml.cs">
+      <DependentUpon>AdvertiserControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\BeaconDetailsControl.xaml.cs">
+      <DependentUpon>BeaconDetailsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ScannerControl.xaml.cs">
+      <DependentUpon>ScannerControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SettingsControl.xaml.cs">
+      <DependentUpon>SettingsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\BeaconActionToColorConverter.cs" />
+    <Compile Include="Converters\BoolNullToBoolConverter.cs" />
+    <Compile Include="Converters\BoolToAdvertisingButtonTextConverter.cs" />
+    <Compile Include="Converters\BoolToVisibilityConverter.cs" />
+    <Compile Include="Converters\InvertValueConverter.cs" />
+    <Compile Include="Internal\BeaconManager.cs" />
     <Compile Include="Internal\Constants.cs" />
     <Compile Include="AppSettings.cs" />
     <Compile Include="Internal\Data\BackgroundEvent.cs" />
     <Compile Include="Internal\Data\BackgroundWorkerType.cs" />
-    <Compile Include="Internal\Data\BeaconContainer.cs" />
     <Compile Include="Internal\Data\DelayedActionData.cs" />
     <Compile Include="Internal\Data\DelayedActionHelper.cs" />
     <Compile Include="Internal\Data\FileStorage.cs" />
@@ -129,7 +146,15 @@
     <Compile Include="Internal\Data\HistoryEvent.cs" />
     <Compile Include="Internal\Data\SensorbergApplication.cs" />
     <Compile Include="Internal\Data\SerializedAction.cs" />
+    <Compile Include="Internal\Services\IQueuedFileWriter.cs" />
+    <Compile Include="Internal\Services\QueuedFileWriter.cs" />
+    <Compile Include="Internal\Services\WriterFactory.cs" />
+    <Compile Include="Model\AdvertiserControlModel.cs" />
+    <Compile Include="Model\BeaconDetailsItem.cs" />
+    <Compile Include="Model\BeaconDetailsModel.cs" />
+    <Compile Include="Model\SettingsControlModel.cs" />
     <Compile Include="NGeoHash\GeoHash.cs" />
+    <Compile Include="SdkStatus.cs" />
     <Compile Include="Services\ILocationService.cs" />
     <Compile Include="Services\IResolver.cs" />
     <Compile Include="Internal\Data\UserAgentModel.cs" />
@@ -162,7 +187,6 @@
     <Compile Include="Internal\Utils\BeaconFactory.cs" />
     <Compile Include="Internal\Utils\Helper.cs" />
     <Compile Include="Internal\Transport\Request.cs" />
-    <Compile Include="Internal\Transport\RequestQueue.cs" />
     <Compile Include="Internal\Transport\ResolvedAction.cs" />
     <Compile Include="Internal\Data\Layout.cs" />
     <Compile Include="Internal\Transport\LayoutManager.cs" />
@@ -174,7 +198,32 @@
     <Compile Include="Internal\ResolvedActionsEventArgs.cs" />
     <Compile Include="Internal\Scanner.cs" />
     <Compile Include="SDKManager.cs" />
+    <Compile Include="Services\IWriterFactory.cs" />
     <Compile Include="Services\LocationService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Controls\AdvertiserControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\BeaconDetailsControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\ScannerControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\SettingsControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Include="Strings\en-US\Resources.resw" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\default.rd.xml" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

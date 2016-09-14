@@ -24,8 +24,9 @@ namespace SensorbergSDKTests
         private const int OUT_OF_RANGE_DB = -128;
 
         [TestInitialize]
-        public void Setup()
+        public async Task Setup()
         {
+            await TestHelper.Clear();
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
@@ -37,7 +38,7 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
-        [Timeout(5000)]
+//        [Timeout(10000)]
         public async Task ResolveBackgroundEvent()
         {
             logger.Debug("ResolveBackgroundEvent - Start");
@@ -63,7 +64,7 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
-        [Timeout(2000)]
+//        [Timeout(2000)]
         public async Task ResolveBackgroundEventSingle()
         {
             logger.Debug("ResolveBackgroundEventSingle - Start");
@@ -96,7 +97,7 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
-        [Timeout(2000)]
+//        [Timeout(2000)]
         public async Task ResolveBackgroundEventSupress()
         {
             logger.Debug("ResolveBackgroundEventSupress - Start");

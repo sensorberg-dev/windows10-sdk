@@ -4,5 +4,6 @@ var searchData=
   ['payload',['Payload',['../class_sensorberg_s_d_k_1_1_beacon_action.html#a1c1dc92557939292ea8cc1529d37125f',1,'SensorbergSDK::BeaconAction']]],
   ['payloadstring',['PayloadString',['../class_sensorberg_s_d_k_1_1_beacon_action.html#ab6a7c96c22947265da90ab0161646102',1,'SensorbergSDK::BeaconAction']]],
   ['pid',['Pid',['../class_sensorberg_s_d_k_1_1_beacon.html#aef585c794831c87e9d3c521e18d28997',1,'SensorbergSDK::Beacon']]],
-  ['processdelayedactionsasync',['ProcessDelayedActionsAsync',['../class_sensorberg_s_d_k_1_1_background_1_1_background_engine.html#a4719707549c027dc34bf50c715030793',1,'SensorbergSDK.Background.BackgroundEngine.ProcessDelayedActionsAsync()'],['../class_sensorberg_s_d_k_1_1_internal_1_1_sdk_engine.html#ada8146663f95fbf613a0aa47fd5d5661',1,'SensorbergSDK.Internal.SdkEngine.ProcessDelayedActionsAsync()']]]
+  ['platform',['Platform',['../class_sensorberg_s_d_k_1_1_internal_1_1_data_1_1_sensorberg_application.html#a3b0e4f31860b42dc2e4bffc971fd84de',1,'SensorbergSDK::Internal::Data::SensorbergApplication']]],
+  ['processdelayedactionsasync',['ProcessDelayedActionsAsync',['../class_sensorberg_s_d_k_1_1_background_1_1_background_engine.html#ad93da92afaeadb7d34f0f4301ce89072',1,'SensorbergSDK.Background.BackgroundEngine.ProcessDelayedActionsAsync()'],['../class_sensorberg_s_d_k_1_1_internal_1_1_sdk_engine.html#ada8146663f95fbf613a0aa47fd5d5661',1,'SensorbergSDK.Internal.SdkEngine.ProcessDelayedActionsAsync()']]]
 ];

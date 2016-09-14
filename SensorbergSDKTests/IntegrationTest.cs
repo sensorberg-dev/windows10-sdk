@@ -17,13 +17,14 @@ namespace SensorbergSDKTests
     {
         ManualResetEvent _manualEvent = new ManualResetEvent(false);
         Beacon beacon = new Beacon();
-        Resolver res = new Resolver(false, false);
+        Resolver res = new Resolver(false);
         BeaconEventArgs args = new BeaconEventArgs();
         ResolvedActionsEventArgs _e = null;
 
         [TestInitialize]
         public async Task Setup()
         {
+            await TestHelper.Clear();
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
@@ -38,7 +39,6 @@ namespace SensorbergSDKTests
         [Timeout(10000)]
         public async Task Integration_connection()
         {
-            SdkData.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
             beacon.Id1 = "7367672374000000ffff0000ffff0006";
             beacon.Id2 = 59242;
             beacon.Id3 = 27189;
@@ -57,7 +57,6 @@ namespace SensorbergSDKTests
         [Timeout(10000)]
         public async Task Integration_timeframes1()
         {
-            SdkData.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
             beacon.Id1 = "7367672374000000ffff0000ffff0007";
             beacon.Id2 = 39187;
             beacon.Id3 = 58763; //Valid only in 2017, beacon
@@ -82,7 +81,6 @@ namespace SensorbergSDKTests
         [Timeout(10000)]
         public async Task Integration_timeframes2()
         {
-            SdkData.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
             beacon.Id1 = "7367672374000000ffff0000ffff0003";
             beacon.Id2 = 48869;
             beacon.Id3 = 21321; //Three actions, beacon
@@ -107,7 +105,6 @@ namespace SensorbergSDKTests
         [Timeout(10000)]
         public async Task Integration_payload()
         {
-            SdkData.ApiKey = "db427f16996116144c206efc651885bd76c864e1d5c07691e1ab0157d976ffd4";
             beacon.Id1 = "7367672374000000ffff0000ffff0006";
 
             beacon.Id2 = 23430;

@@ -24,7 +24,11 @@ namespace SensorbergSDK
         /// <summary>
         /// This we get from the server when the trigger can be both.
         /// </summary>
-        EnterExit
+        EnterExit,
+        /// <summary>
+        /// The type is not detected.
+        /// </summary>
+        Unknown
     }
 
     public sealed class BeaconEventArgs
@@ -59,5 +63,10 @@ namespace SensorbergSDK
                 return DateTimeOffset.MinValue;
             }
         }
+
+        /// <summary>
+        /// Geoshashed location.
+        /// </summary>
+        public string Location { get; set; }
     }
 }

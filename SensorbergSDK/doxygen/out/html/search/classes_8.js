@@ -1,10 +1,13 @@
 var searchData=
 [
-  ['request',['Request',['../class_sensorberg_s_d_k_1_1_internal_1_1_transport_1_1_request.html',1,'SensorbergSDK::Internal::Transport']]],
-  ['requestqueue',['RequestQueue',['../class_sensorberg_s_d_k_1_1_internal_1_1_transport_1_1_request_queue.html',1,'SensorbergSDK::Internal::Transport']]],
-  ['resolvedaction',['ResolvedAction',['../class_sensorberg_s_d_k_1_1_internal_1_1_transport_1_1_resolved_action.html',1,'SensorbergSDK::Internal::Transport']]],
-  ['resolvedactionconverter',['ResolvedActionConverter',['../class_sensorberg_s_d_k_1_1_internal_1_1_transport_1_1_converter_1_1_resolved_action_converter.html',1,'SensorbergSDK::Internal::Transport::Converter']]],
-  ['resolvedactionseventargs',['ResolvedActionsEventArgs',['../class_sensorberg_s_d_k_1_1_internal_1_1_resolved_actions_event_args.html',1,'SensorbergSDK::Internal']]],
-  ['resolver',['Resolver',['../class_sensorberg_s_d_k_1_1_internal_1_1_services_1_1_resolver.html',1,'SensorbergSDK::Internal::Services']]],
-  ['responsemessage',['ResponseMessage',['../class_sensorberg_s_d_k_1_1_internal_1_1_services_1_1_response_message.html',1,'SensorbergSDK::Internal::Services']]]
+  ['iapiconnection',['IApiConnection',['../interface_sensorberg_s_d_k_1_1_services_1_1_i_api_connection.html',1,'SensorbergSDK::Services']]],
+  ['ibeaconscanner',['IBeaconScanner',['../interface_sensorberg_s_d_k_1_1_services_1_1_i_beacon_scanner.html',1,'SensorbergSDK::Services']]],
+  ['ilayoutmanager',['ILayoutManager',['../interface_sensorberg_s_d_k_1_1_services_1_1_i_layout_manager.html',1,'SensorbergSDK::Services']]],
+  ['ilocationservice',['ILocationService',['../interface_sensorberg_s_d_k_1_1_services_1_1_i_location_service.html',1,'SensorbergSDK::Services']]],
+  ['iqueuedfilewriter',['IQueuedFileWriter',['../interface_sensorberg_s_d_k_1_1_internal_1_1_services_1_1_i_queued_file_writer.html',1,'SensorbergSDK::Internal::Services']]],
+  ['iresolver',['IResolver',['../interface_sensorberg_s_d_k_1_1_services_1_1_i_resolver.html',1,'SensorbergSDK::Services']]],
+  ['isettingsmanager',['ISettingsManager',['../interface_sensorberg_s_d_k_1_1_services_1_1_i_settings_manager.html',1,'SensorbergSDK::Services']]],
+  ['istorage',['IStorage',['../interface_sensorberg_s_d_k_1_1_services_1_1_i_storage.html',1,'SensorbergSDK::Services']]],
+  ['istorageservice',['IStorageService',['../interface_sensorberg_s_d_k_1_1_services_1_1_i_storage_service.html',1,'SensorbergSDK::Services']]],
+  ['iwriterfactory',['IWriterFactory',['../interface_sensorberg_s_d_k_1_1_services_1_1_i_writer_factory.html',1,'SensorbergSDK::Services']]]
 ];

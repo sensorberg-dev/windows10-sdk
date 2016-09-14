@@ -34,6 +34,11 @@ namespace SensorbergSDK.Services
         ScannerStatus Status { get; }
 
         /// <summary>
+        /// Disable the Beacon filter.
+        /// </summary>
+        bool DisableFilter { get; set; }
+
+        /// <summary>
         /// Starts the watcher and hooks its events to callbacks.
         /// </summary>
         /// <param name="manufacturerId">The manufacturer ID.</param>
@@ -49,8 +54,9 @@ namespace SensorbergSDK.Services
         void StopWatcher();
 
         /// <summary>
-        /// Reset all states of the beacons, so every beacon gets a new ENTER event.
+        /// Filter the given beacon.
         /// </summary>
-        void ResetBeaconState();
+        /// <returns>Returns true if the beacon should processed.</returns>
+        bool FilterBeaconByUuid(Beacon beacon);
     }
 }

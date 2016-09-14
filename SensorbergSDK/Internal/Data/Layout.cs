@@ -16,7 +16,7 @@ namespace SensorbergSDK.Internal.Data
     /// Represents a layout with beacons and actions associated with them.
     /// </summary>
     [DataContract]
-    public sealed class Layout
+    public class Layout
     {
         private static readonly ILogger Logger = LogManagerFactory.DefaultLogManager.GetLogger<Layout>();
         private const string KeyMaxAge = "max-age";
@@ -91,18 +91,16 @@ namespace SensorbergSDK.Internal.Data
         /// <summary>
         /// Resolves the beacon actions associated with the given PID and event type.
         /// </summary>
-        /// <param name="pid"></param>
-        /// <param name="eventType"></param>
         /// <returns>A list of actions based on the given values or an empty list if none found.</returns>
-        public IList<ResolvedAction> GetResolvedActionsForPidAndEvent(string pid, BeaconEventType eventType)
+        public virtual IList<ResolvedAction> GetResolvedActionsForPidAndEvent(Request request)
         {
             List<ResolvedAction> actions = new List<ResolvedAction>();
 
             foreach (ResolvedAction item in ResolvedActions)
             {
-                if (item.BeaconPids.Contains(pid)
-                    && (item.EventTypeDetectedByDevice == eventType || item.EventTypeDetectedByDevice == BeaconEventType.EnterExit))
-                { 
+                if (item.BeaconPids.Contains(request.BeaconEventArgs.Beacon.Pid) && (item.EventTypeDetectedByDevice == request.BeaconEventArgs.EventType ||
+                                                      (item.EventTypeDetectedByDevice == BeaconEventType.EnterExit && (request.BeaconEventArgs.EventType == BeaconEventType.Enter || request.BeaconEventArgs.EventType == BeaconEventType.Exit))))
+                {
                     actions.Add(item);
                 }
             }

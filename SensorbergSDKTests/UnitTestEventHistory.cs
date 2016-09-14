@@ -16,7 +16,7 @@ namespace SensorbergSDKTests
         [TestInitialize]
         public async Task Setup()
         {
-            await TestHelper.ClearFiles("sensorberg-storage");
+            await TestHelper.Clear();
             ServiceManager.ReadOnlyForTests = false;
             ServiceManager.Clear();
             ServiceManager.ApiConnction = new MockApiConnection();
@@ -28,7 +28,6 @@ namespace SensorbergSDKTests
         [TestMethod]
         public async Task EventHistory_ShouldSupress()
         {
-            SdkData.ApiKey = "540aa95ccf215718295c2c563a2090676994f09927f09a6e09a67c83be10b00c";
             var beacon = new Beacon();
             beacon.Id1 = "7367672374000000ffff0000ffff0007";
             beacon.Id2 = 8008;
@@ -51,11 +50,16 @@ namespace SensorbergSDKTests
             await eventHistory.SaveBeaconEventAsync(args, null);
             await eventHistory.SaveExecutedResolvedActionAsync(resolvedActionEventArgs, beaconaction1);
             await eventHistory.SaveExecutedResolvedActionAsync(resolvedActionEventArgs, beaconaction3);
+
+            eventHistory.ShouldSupressAsync(res1);
+            eventHistory.ShouldSupressAsync(res3);
+
             await Task.Delay(2000);
 
-            bool shouldSupress1 = await eventHistory.ShouldSupressAsync(res1);
-            bool shouldSupress2 = await eventHistory.ShouldSupressAsync(res2);
-            bool shouldSupress3 = await eventHistory.ShouldSupressAsync(res3);
+
+            bool shouldSupress1 = eventHistory.ShouldSupressAsync(res1);
+            bool shouldSupress2 = eventHistory.ShouldSupressAsync(res2);
+            bool shouldSupress3 = eventHistory.ShouldSupressAsync(res3);
 
             Assert.IsTrue(shouldSupress1);
             Assert.IsFalse(shouldSupress2);
@@ -65,7 +69,6 @@ namespace SensorbergSDKTests
         [TestMethod]
         public async Task EventHistory_FlushHistory()
         {
-            SdkData.ApiKey = "540aa95ccf215718295c2c563a2090676994f09927f09a6e09a67c83be10b00c";
             var beacon = new Beacon();
             beacon.Id1 = "7367672374000000ffff0000ffff0007";
             beacon.Id2 = 8008;

@@ -1,0 +1,28 @@
+{  
+   "accountProximityUUIDs":[  
+      "7367672374000000ffff0000ffff0003",
+      "7367672374000000ffff0000ffff0006",
+      "7367672374000000ffff0000ffff0004",
+      "7367672374000000ffff0000ffff0007",
+      "7367672374000000ffff0000ffff0008"
+   ],
+   "actions":[  
+      {  
+         "eid":"9ded63644e424d758b0218f7c70f2473",
+         "trigger":3,
+         "beacons":[  
+            "7367672374000000ffff0000ffff43213917830929"
+         ],
+         "suppressionTime":43200,
+         "type":4,
+         "timeframes":[  
+            {  
+               "start":"2015-04-16T12:46:19.627+0000"
+            }
+         ],
+         "sendOnlyOnce":false,
+         "typeString":"function"
+      }
+   ],
+   "currentVersion":false
+}
