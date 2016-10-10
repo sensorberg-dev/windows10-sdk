@@ -50,6 +50,8 @@ namespace SensorbergSDK.Internal
         private ulong _beaconExitTimeout;
         private ulong? _enterDistanceThreshold;
 
+        private object _watcherLock = new object();
+
         private ScannerStatus _status;
 
         public bool DisableFilter { get; set; }
@@ -111,39 +113,42 @@ namespace SensorbergSDK.Internal
         public void StartWatcher(ushort manufacturerId, ushort beaconCode, ulong beaconExitTimeoutInMiliseconds, short? rssiEnterThreshold = null,
             ulong? enterDistanceThreshold = null)
         {
-            _beaconExitTimeout = beaconExitTimeoutInMiliseconds;
-            _enterDistanceThreshold = enterDistanceThreshold;
-            _beaconExitTimeout = 30000;
-            if (_beaconExitTimeout < 1000)
+            lock (_watcherLock)
             {
-                _beaconExitTimeout = 1000;
-            }
-
-            if (Status != ScannerStatus.Started)
-            {
-                if (_bluetoothLeAdvertisementWatcher == null)
+                _beaconExitTimeout = beaconExitTimeoutInMiliseconds;
+                _enterDistanceThreshold = enterDistanceThreshold;
+                _beaconExitTimeout = 30000;
+                if (_beaconExitTimeout < 1000)
                 {
-                    _bluetoothLeManufacturerData = BeaconFactory.BeaconManufacturerData(manufacturerId, beaconCode);
-                    _bluetoothLeAdvertisementWatcher = new BluetoothLEAdvertisementWatcher();
-                    if (rssiEnterThreshold != null && rssiEnterThreshold.Value >= -128 && rssiEnterThreshold.Value <= 127)
-                    {
-                        _bluetoothLeAdvertisementWatcher.SignalStrengthFilter = new BluetoothSignalStrengthFilter() { InRangeThresholdInDBm = rssiEnterThreshold.Value };
-                    }
-                    _bluetoothLeAdvertisementWatcher.AdvertisementFilter.Advertisement.ManufacturerData.Add(_bluetoothLeManufacturerData);
-                    _bluetoothLeAdvertisementWatcher.SignalStrengthFilter.SamplingInterval = TimeSpan.FromMilliseconds(0);
-                    _bluetoothLeAdvertisementWatcher.SignalStrengthFilter.OutOfRangeTimeout = TimeSpan.FromMilliseconds(_beaconExitTimeout);
-                    _bluetoothLeAdvertisementWatcher.ScanningMode = BluetoothLEScanningMode.Active;
+                    _beaconExitTimeout = 1000;
                 }
 
-                _bluetoothLeAdvertisementWatcher.Received += OnAdvertisementReceived;
-                _bluetoothLeAdvertisementWatcher.Stopped += OnWatcherStopped;
+                if (Status != ScannerStatus.Started)
+                {
+                    if (_bluetoothLeAdvertisementWatcher == null)
+                    {
+                        _bluetoothLeManufacturerData = BeaconFactory.BeaconManufacturerData(manufacturerId, beaconCode);
+                        _bluetoothLeAdvertisementWatcher = new BluetoothLEAdvertisementWatcher();
+                        if (rssiEnterThreshold != null && rssiEnterThreshold.Value >= -128 && rssiEnterThreshold.Value <= 127)
+                        {
+                            _bluetoothLeAdvertisementWatcher.SignalStrengthFilter = new BluetoothSignalStrengthFilter() {InRangeThresholdInDBm = rssiEnterThreshold.Value};
+                        }
+                        _bluetoothLeAdvertisementWatcher.AdvertisementFilter.Advertisement.ManufacturerData.Add(_bluetoothLeManufacturerData);
+                        _bluetoothLeAdvertisementWatcher.SignalStrengthFilter.SamplingInterval = TimeSpan.FromMilliseconds(0);
+                        _bluetoothLeAdvertisementWatcher.SignalStrengthFilter.OutOfRangeTimeout = TimeSpan.FromMilliseconds(_beaconExitTimeout);
+                        _bluetoothLeAdvertisementWatcher.ScanningMode = BluetoothLEScanningMode.Active;
+                    }
 
-                ServiceManager.LayoutManager?.VerifyLayoutAsync();
+                    _bluetoothLeAdvertisementWatcher.Received += OnAdvertisementReceived;
+                    _bluetoothLeAdvertisementWatcher.Stopped += OnWatcherStopped;
 
-                _bluetoothLeAdvertisementWatcher.Start();
+                    ServiceManager.LayoutManager?.VerifyLayoutAsync();
 
-                Status = ScannerStatus.Started;
-                Logger.Debug("Scanner.StartWatcher(): Watcher started");
+                    _bluetoothLeAdvertisementWatcher.Start();
+
+                    Status = ScannerStatus.Started;
+                    Logger.Debug("Scanner.StartWatcher(): Watcher started");
+                }
             }
         }
 
