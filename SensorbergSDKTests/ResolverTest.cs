@@ -59,6 +59,27 @@ namespace SensorbergSDKTests
         }
 
         [TestMethod]
+        [Timeout(3000)]
+        public async Task ResolveSingleInfiniteAction()
+        {
+            IResolver resolver = new Resolver(true);
+            TaskCompletionSource<IList<ResolvedAction>> action = new TaskCompletionSource<IList<ResolvedAction>>();
+            resolver.ActionsResolved += (sender, args) =>
+            {
+                action.TrySetResult(args.ResolvedActions);
+            };
+            await resolver.CreateRequest(new BeaconEventArgs()
+            {
+                Beacon = new Beacon() { Id1 = "7367672374000000ffff0000ffff0012", Id2 = 39178, Id3 = 30929 },
+                EventType = BeaconEventType.Unknown
+            });
+
+            IList<ResolvedAction> result = await action.Task;
+
+            Assert.AreEqual(1, result.Count, "Not 1 action found");
+        }
+
+        [TestMethod]
         [Timeout(1000)]
         public async Task ResolveMultipleAction()
         {

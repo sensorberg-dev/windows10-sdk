@@ -146,6 +146,7 @@
     <Compile Include="Internal\Data\HistoryEvent.cs" />
     <Compile Include="Internal\Data\SensorbergApplication.cs" />
     <Compile Include="Internal\Data\SerializedAction.cs" />
+    <Compile Include="Internal\Services\NewApiConnection.cs" />
     <Compile Include="Internal\Services\IQueuedFileWriter.cs" />
     <Compile Include="Internal\Services\QueuedFileWriter.cs" />
     <Compile Include="Internal\Services\WriterFactory.cs" />

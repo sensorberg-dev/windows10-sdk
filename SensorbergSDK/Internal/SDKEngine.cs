@@ -89,7 +89,7 @@ namespace SensorbergSDK.Internal
         public SdkEngine(bool createdOnForeground)
         {
             ServiceManager.Clear();
-            ServiceManager.ApiConnction = new ApiConnection();
+            ServiceManager.ApiConnction = new NewApiConnection();
             ServiceManager.BeaconScanner = new Scanner() {DisableFilter = true};
             ServiceManager.LayoutManager = new LayoutManager();
             ServiceManager.StorageService = new StorageService(createdOnForeground);

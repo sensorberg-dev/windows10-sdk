@@ -32,6 +32,7 @@ namespace SensorbergSDK
         private bool? _isApiKeyValid;
         private bool? _isResolverReachable;
         private DateTimeOffset _lastUpdate;
+        private string lastValidApiKey;
 
         public SdkStatus()
         {
@@ -75,8 +76,17 @@ namespace SensorbergSDK
         /// </summary>
         public async Task<bool> CheckApiKeysValid()
         {
+            if (lastValidApiKey != null && SDKManager.Instance().Configuration.ApiKey == lastValidApiKey)
+            {
+                return true;
+            }
             ApiKeyHelper helper = new ApiKeyHelper();
-            return IsApiKeyValid = await helper.ValidateApiKey(null) == ApiKeyValidationResult.Valid;
+            IsApiKeyValid = await helper.ValidateApiKey(null) == ApiKeyValidationResult.Valid;
+            if (IsApiKeyValid)
+            {
+                lastValidApiKey = SDKManager.Instance().Configuration.ApiKey;
+            }
+            return IsApiKeyValid;
         }
 
         /// <summary>

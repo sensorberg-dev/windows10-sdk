@@ -105,5 +105,20 @@ namespace SensorbergSDK
             BackgroundBeaconUuidSpace = string.Empty;
             ResolverUri = Constants.ResolverUri;
         }
+
+        public string GetLayoutUriV2(string apiId = null)
+        {
+            return string.Format("https://demo.sensorberg.com/api/v1/sdk/gateways/{0}/interactions.json", string.IsNullOrEmpty(apiId) ? ApiKey : apiId);
+        }
+
+        public string GetSettingsUriV2()
+        {
+            return string.Format("https://demo.sensorberg.com/api/v1/sdk/gateways/{0}/settings.json?platform=windows10", ApiKey);
+        }
+
+        public string GetPushHistoryV2()
+        {
+            return string.Format("https://demo.sensorberg.com/api/v1/sdk/events.json", ApiKey);
+        }
     }
 }

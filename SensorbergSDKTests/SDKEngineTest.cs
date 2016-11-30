@@ -45,10 +45,7 @@ namespace SensorbergSDKTests
             BeaconAction orgAction = layoutManager.Layout.ResolvedActions.FirstOrDefault(ra => ra.BeaconAction.Uuid == "9ded63644e424d758b0218f7c70f2473").BeaconAction;
 
             TaskCompletionSource<BeaconAction> action = new TaskCompletionSource<BeaconAction>();
-            engine.BeaconActionResolved += (sender, args) =>
-            {
-                action.SetResult(args);
-            };
+            engine.BeaconActionResolved += (sender, args) => { action.SetResult(args); };
             await
                 engine.ResolveBeaconAction(new BeaconEventArgs()
                 {
@@ -142,10 +139,7 @@ namespace SensorbergSDKTests
             await engine.InitializeAsync();
 
             TaskCompletionSource<bool> action = new TaskCompletionSource<bool>();
-            engine.BeaconActionResolved += (sender, args) =>
-            {
-                action.SetResult(true);
-            };
+            engine.BeaconActionResolved += (sender, args) => { action.SetResult(true); };
             await
                 engine.ResolveBeaconAction(new BeaconEventArgs()
                 {
@@ -161,6 +155,39 @@ namespace SensorbergSDKTests
             {
                 Assert.AreEqual(1, storage.UndeliveredActions.Count, "Not 1 undlivered action");
                 Assert.AreEqual(1, storage.UndeliveredEvents.Count, "Not 1 undlivered event");
+            }
+        }
+
+
+        [TestMethod]
+        public async Task TestInfiniteCampaign()
+        {
+            ServiceManager.ReadOnlyForTests = false;
+            MockStorage storage = new MockStorage();
+            ServiceManager.StorageService = new StorageService() {Storage = storage};
+            ServiceManager.ReadOnlyForTests = true;
+
+            SdkEngine engine = new SdkEngine(false);
+            await engine.InitializeAsync();
+
+            TaskCompletionSource<bool> action = new TaskCompletionSource<bool>();
+            engine.BeaconActionResolved += (sender, args) => { action.SetResult(true); };
+            await
+                engine.ResolveBeaconAction(new BeaconEventArgs()
+                {
+                    Beacon = new Beacon() {Id1 = "7367672374000000ffff0000ffff0012", Id2 = 39178, Id3 = 30929},
+                    EventType = BeaconEventType.Enter
+                });
+
+            if (await Task.WhenAny(action.Task, Task.Delay(500)) == action.Task)
+            {
+                Assert.IsTrue(action.Task.Result, "Not 1 action found");
+                Assert.AreEqual(1, storage.UndeliveredActions.Count, "Not 1 undlivered action");
+                Assert.AreEqual(1, storage.UndeliveredEvents.Count, "Not 1 undlivered event");
+            }
+            else
+            {
+                Assert.Fail("timeout");
             }
         }
     }
